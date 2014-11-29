@@ -198,19 +198,30 @@ def get_nonBBH(targetGenome_locusTag_ec_dict, targetBBH_list, outputFile1):
 def calcBoolean(booleanList):
     booleanList2 = copy.deepcopy(booleanList)
     finalList = []
+    threshold = 1
+
     if len(booleanList) == 0:
         return False
     
     for i in range(len(booleanList)):
         if type(booleanList[i])==list:
             for j in range(len(booleanList[i])):
-                booleanList2[i][j] = 1
+
+#Threshold created to differentiate BBH and nonBBH genes.
+                if float(booleanList[i][j]) >= threshold:
+                    booleanList[i][j] = 0
+                if float(booleanList[i][j]) <= threshold:            
+		    booleanList2[i][j] = 1
             value=1        
             for j in range(len(booleanList[i])):
                 value = value * booleanList2[i][j]
             finalList.append(value)               
-        else:            
-            booleanList2[i] = 1
+        else:
+#Threshold created to differentiate BBH and nonBBH genes.
+            if float(booleanList[i]) >= threshold:
+                booleanList[i] = 0
+            if float(booleanList[i]) <= threshold:
+                booleanList2[i] = 1
             finalList.append(booleanList2[i])   
     
     value=0        
@@ -222,7 +233,10 @@ def calcBoolean(booleanList):
     else:
         return True
 
-                         
+ 
+#Output: e.g., [[2, '0'], ['0', 2]] 
+#Now considers nonBBH genes without removing them in the Boolean list.
+#For ( A and B), if one of them is nonBBH, its rxn should be False (subject to removal).
 def makeBooleanFormat(temp_target_BBH_dict, tempModel_biggRxnid_locusTag_dict): 
     booleanList = tempModel_biggRxnid_locusTag_dict
     valueList = copy.deepcopy(booleanList)     
@@ -234,9 +248,10 @@ def makeBooleanFormat(temp_target_BBH_dict, tempModel_biggRxnid_locusTag_dict):
                 geneid = booleanList[i][j]
                 if geneid in temp_target_BBH_dict.keys():
 		    value = 0
+#Now considers nonBBH genes without removing them in the Boolean list
                 else:
-                    value = 'na'
-                    booleanList[i][j]='na'  
+                    value = 2 #For nonBBH genes
+                    booleanList[i][j]='nonBBH'
                 valueList[i][j] = value
         else:
             geneid = booleanList[i]
@@ -246,13 +261,6 @@ def makeBooleanFormat(temp_target_BBH_dict, tempModel_biggRxnid_locusTag_dict):
                 value = 'na'
                 booleanList[i]='na'
             valueList[i] = value 
-    
-    for i in range(len(booleanList)):
-        if type(booleanList[i]) == list:
-            while 'na' in booleanList[i]:
-                booleanList[i].pop( booleanList[i].index('na') )
-            if len(booleanList[i]) == 1:
-                booleanList[i]=booleanList[i][0] 
     
     while 'na' in booleanList or [] in booleanList:
         if 'na' in booleanList:
@@ -278,9 +286,12 @@ def makeBooleanFormat(temp_target_BBH_dict, tempModel_biggRxnid_locusTag_dict):
     
     for i in range(len(booleanList)):
         if type(booleanList[i])==list:
-            for j in range(len(booleanList[i])):                
+            for j in range(len(booleanList[i])):
                 geneid = booleanList[i][j]
-		value = 0
+		if 'nonBBH' not in geneid:
+		    value = 0
+		else:
+		    value = 2
                 valueList2[i][j] = value
         else:            
             geneid = booleanList[i]
@@ -306,7 +317,7 @@ def labelRxnToRemove(model, temp_target_BBH_dict, tempModel_biggRxnid_locusTag_d
     return rxnToRemove_dict
 
 
-def pruneModel(model, rxnToRemove_dict, solver_org, outputFile1, outputFile2, outputFile3):
+def pruneModel(model, rxnToRemove_dict, solver_arg, outputFile1, outputFile2, outputFile3):
     fp3 = open(outputFile1, 'w')
     fp4 = open(outputFile2, 'w')
     fp5 = open(outputFile3, 'w')
