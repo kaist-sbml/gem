@@ -291,7 +291,6 @@ def makeBooleanFormat(temp_target_BBH_dict, tempModel_biggRxnid_locusTag_dict):
 
 def labelRxnToRemove(model, temp_target_BBH_dict, tempModel_biggRxnid_locusTag_dict, outputFile1):
     fp1 = open(outputFile1, 'w')
-    
     rxnToRemove_dict = {}
 
     for biggRxnid in tempModel_biggRxnid_locusTag_dict.keys():
