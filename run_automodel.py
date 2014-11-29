@@ -3,8 +3,8 @@
 Hyun Uk Kim
 '''
 
-from prunPhase_v1_7 import *
-from augPhase_v1_2 import *
+from prunPhase import *
+from augPhase import *
 from cobra.io.sbml import write_cobra_model_to_sbml_file
 import copy
 import pickle
