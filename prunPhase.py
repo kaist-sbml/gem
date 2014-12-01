@@ -1,6 +1,6 @@
 '''
-2013, 2014
-by Hyun Uk Kim, Jae Yong Ryu and Kyu-Sang Hwang
+2014
+Hyun Uk Kim, Tilmann Weber, Jae Yong Ryu and Kyu-Sang Hwang
 '''
 
 from Bio import SeqIO
@@ -15,18 +15,29 @@ import subprocess
 import sys
 
 #Looks for .xml and .gb(k) files in the pre-defined folder
-def get_tempInfo(orgName):
+def get_temp_fasta(orgName):
     for root, dirs, files in os.walk('./input1/%s/' %(orgName)):
         for file in files:
             if file.endswith('.fa'):
-                tempGenome = os.path.join(root, file)
-            	return root, tempGenome
+                tempFasta = os.path.join(root, file)
+            	return root, tempFasta
         else:
             sys.exit(1)
 
+
+#Looks for .fa and .gbk  files in the pre-defined folder
+def get_target_gbk():
+    for root, dirs, files in os.walk('./temp1/'):
+        for file in files:
+	    if file.endswith('.gbk') or file.endswith('.gb'):
+                target_gbk = os.path.join(root, file)
+	        return target_gbk
+	else:
+	    sys.exit(1)
+
+
 def readSeq(gbkFile, FileType):
     fp = open('./temp1/targetGenome_locusTag_aaSeq.fa','w')
-    fp2 = open('./temp1/targetGenome_locusTag_ec_dict.txt','w')
     targetGenome_locusTag_aaSeq_dict = {}
     targetGenome_locusTag_ec_dict = {}
 
@@ -54,24 +65,17 @@ def readSeq(gbkFile, FileType):
 		    targetGenome_locusTag_ec_dict[locusTag[0]] = ecnum
 		    print locusTag[0], targetGenome_locusTag_ec_dict[locusTag[0]]
 
-    for key in targetGenome_locusTag_ec_dict.keys():
-	print >>fp2, '%s\t%s' %(key, targetGenome_locusTag_ec_dict[key])
     fp.close()
-    fp2.close()
-    
     return targetGenome_locusTag_ec_dict
 
 
 #Looks for .fa and .gbk  files in the pre-defined folder
-def get_targetGenome():
+def get_target_fasta():
     for root, dirs, files in os.walk('./temp1/'):
         for file in files:
             if file.endswith('.fa'):
-                fastaFile = os.path.join(root, file)
-	    if file.endswith('.gbk') or file.endswith('.gb'):
-                gbkFile = os.path.join(root, file)
-	if fastaFile and gbkFile:
-	    return fastaFile, gbkFile
+                target_fasta = os.path.join(root, file)
+	        return target_fasta
 	else:
 	    sys.exit(1)
 
@@ -145,11 +149,9 @@ def makeBestHits_dict(inputFile):
 
 #Finding bidirectional best hits
 #Input: two dict data from "selectBestHits" (e.g.,bestHits_dict) 
-def getBBH(dic1,dic2, outputFile1, outputFile2):
+def getBBH(dic1,dic2):
     targetBBH_list = []
     temp_target_BBH_dict = {}
-    fp1 = open(outputFile1,'w')
-    fp2 = open(outputFile2,'w')
 
     for target_locusTag in dic1.keys():
         for temp_locusTag in dic1[target_locusTag]:
@@ -165,33 +167,19 @@ def getBBH(dic1,dic2, outputFile1, outputFile2):
 			    temp_target_BBH_dict[temp_locusTag] = ([target_locusTag])
 			else:
 			    temp_target_BBH_dict[temp_locusTag].append((target_locusTag))
-#Output as .txt 
-    for eachBBH in targetBBH_list:
-	print >>fp1, '%s' %(eachBBH)
-
-    for each_BBH in temp_target_BBH_dict.keys():
-	print >>fp2, '%s\t%s' %(each_BBH, temp_target_BBH_dict[each_BBH])
-           
-    fp1.close()
-    fp2.close()
     return targetBBH_list, temp_target_BBH_dict
 
 
 #A set of locusTag not included in BBH_list were considered nonBBH_list.
 #Their respective reactions, if available, are added to the model in augPhase.
-def get_nonBBH(targetGenome_locusTag_ec_dict, targetBBH_list, outputFile1):
+def get_nonBBH(targetGenome_locusTag_ec_dict, targetBBH_list):
     nonBBH_list = []
-    fp1 = open(outputFile1,'w')
 
     for locusTag in targetGenome_locusTag_ec_dict.keys():
 	if locusTag not in targetBBH_list:
 	    nonBBH_list.append(locusTag)
 
     nonBBH_list = sorted(set(nonBBH_list))
-
-    for each_nonBBH in nonBBH_list:
-	print >>fp1, '%s' %(each_nonBBH)
-    fp1.close()
     return nonBBH_list
 
 
@@ -300,8 +288,7 @@ def makeBooleanFormat(temp_target_BBH_dict, tempModel_biggRxnid_locusTag_dict):
     return valueList2
 
 
-def labelRxnToRemove(model, temp_target_BBH_dict, tempModel_biggRxnid_locusTag_dict, outputFile1):
-    fp1 = open(outputFile1, 'w')
+def labelRxnToRemove(model, temp_target_BBH_dict, tempModel_biggRxnid_locusTag_dict):
     rxnToRemove_dict = {}
 
     for biggRxnid in tempModel_biggRxnid_locusTag_dict.keys():
@@ -311,17 +298,10 @@ def labelRxnToRemove(model, temp_target_BBH_dict, tempModel_biggRxnid_locusTag_d
             booleanList = makeBooleanFormat(temp_target_BBH_dict, tempModel_biggRxnid_locusTag_dict[biggRxnid])
             rxnToRemove_dict[biggRxnid] = calcBoolean(booleanList)
 
-    for rxn in rxnToRemove_dict.keys():
-	print >>fp1, '%s\t%s' %(rxn, rxnToRemove_dict[rxn])
-    fp1.close()
     return rxnToRemove_dict
 
 
-def pruneModel(model, rxnToRemove_dict, solver_arg, outputFile1, outputFile2, outputFile3):
-    fp3 = open(outputFile1, 'w')
-    fp4 = open(outputFile2, 'w')
-    fp5 = open(outputFile3, 'w')
-
+def pruneModel(model, rxnToRemove_dict, solver_arg):
     rxnToRemoveEssn_dict = {}
     rxnRemoved_dict = {}
     rxnRetained_dict = {}
@@ -337,7 +317,6 @@ def pruneModel(model, rxnToRemove_dict, solver_arg, outputFile1, outputFile2, ou
 
 #Full list of reactions and predicted growth rates upon their deletions
                 rxnToRemoveEssn_dict[rxnid] = float(growth_rate_dict.values()[0])
-                print >>fp3, '%s\t%s' %(rxnid, rxnToRemoveEssn_dict[rxnid])
                 
 #Checks growth rate upon reaction deletion
                 if float(growth_rate_dict.values()[0]) >= 0.01:
@@ -345,20 +324,15 @@ def pruneModel(model, rxnToRemove_dict, solver_arg, outputFile1, outputFile2, ou
 #List of reactions removed from the template model
                     rxnRemoved_dict[rxnid] = float(growth_rate_dict.values()[0])
                     print "Removed reaction:", rxnid, growth_rate_dict.values()[0], len(model.reactions), len(model.metabolites)
-		    print >>fp4, '%s\t%s\t%s' %(rxnid, rxnRemoved_dict[rxnid], len(model.reactions))
                 else:
 #List of reactions retained in the template model
                     rxnRetained_dict[rxnid] = float(growth_rate_dict.values()[0])
                     print "Retained reaction:", rxnid, growth_rate_dict.values()[0], len(model.reactions), len(model.metabolites)
-		    print >>fp5, '%s\t%s\t%s' %(rxnid, rxnRetained_dict[rxnid], len(model.reactions))
 
 #Removing metabolites that are not used in the reduced model
     prune_unused_metabolites(model)               
     modelPruned = copy.deepcopy(model)    
 
-    fp3.close()
-    fp4.close()
-    fp5.close()
     return modelPruned, rxnToRemoveEssn_dict, rxnRemoved_dict, rxnRetained_dict
 
 
@@ -383,8 +357,7 @@ def get_gpr_fromString_toList(line):
       
     return calcNewList
 
-def swap_locusTag_tempModel(modelPruned, temp_target_BBH_dict, outputFile1):
-    fp1 = open(outputFile1, 'w')
+def swap_locusTag_tempModel(modelPruned, temp_target_BBH_dict):
 
 #Retrieves reactions associated with each homologous gene in template model
     for BBHrxn in modelPruned.reactions:
@@ -401,7 +374,6 @@ def swap_locusTag_tempModel(modelPruned, temp_target_BBH_dict, outputFile1):
 		if temp_target_BBH_dict.has_key(tempLocusTag) == True:
 		    booleanList.pop(booleanList.index(tempLocusTag))
 		    for targetLocusTag in temp_target_BBH_dict[tempLocusTag]:
-#			booleanList.append(targetLocusTag)
                         modified_booleanList.append(targetLocusTag)
                 else:
                     modified_booleanList.append( tempLocusTag )
@@ -440,9 +412,7 @@ def swap_locusTag_tempModel(modelPruned, temp_target_BBH_dict, outputFile1):
 	if len(stringlist) > 0:
 	    booleanstring2 = '('+' or '.join(stringlist)+')'
 	BBHrxn.add_gene_reaction_rule(booleanstring2)
-	print >>fp1, '%s\t%s' %(BBHrxn, BBHrxn.gene_reaction_rule)
 
-    fp1.close()       
     modelPrunedGPR = copy.deepcopy(modelPruned)            
     return modelPrunedGPR
 

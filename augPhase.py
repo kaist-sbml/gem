@@ -1,6 +1,6 @@
 '''
-2013, 2014
-by Hyun Uk Kim, Jae Yong Ryu and Kyu-Sang Hwang
+2014
+by Hyun Uk Kim, Tilmann Weber, Jae Yong Ryu and Kyu-Sang Hwang
 '''
 
 # import Model, Reaction, Metabolite classes in COBRA tool 
@@ -16,8 +16,7 @@ import re
 import urllib2
 
 
-def make_locusTag_geneID_nonBBH(gbkFile, fileType, inputFile, outputFile):
-    fp2 = open(outputFile, "w")
+def make_locusTag_geneID_nonBBH(gbkFile, fileType, nonBBH_list):
     locusTag_geneID_dict = {}
     geneID_locusTag_dict = {}
 
@@ -25,40 +24,28 @@ def make_locusTag_geneID_nonBBH(gbkFile, fileType, inputFile, outputFile):
     record = SeqIO.read(gbkFile, fileType)
 
     for feature in record.features:
-        fp1 = open(inputFile,"r")
-        if feature.type == 'CDS':
-            if 'db_xref' in feature.qualifiers:
+        if feature.type == 'CDS' and 'db_xref' in feature.qualifiers:
 
 #Reads first non-BBH file    
-		targetLocusTag = fp1.readline()
-		while targetLocusTag:
-	            targetLocusTag = targetLocusTag.strip()
-
+	    for  targetLocusTag in nonBBH_list:
 #Looks for identical ORF from non-BBH list
-		    if feature.qualifiers['locus_tag'][0] == targetLocusTag:
-			print "feature.qualifiers['locus_tag']:", feature.qualifiers['locus_tag']
+		if feature.qualifiers['locus_tag'][0] == targetLocusTag:
+		    print "feature.qualifiers['locus_tag']:", feature.qualifiers['locus_tag']
 
 #Standard .gbk has "GI" for the first db_xref and "GeneID" for the second db_xref.
 #Following lines take whichever comes first.
-		 	geneID = feature.qualifiers.get('db_xref')
-		 	print "feature.qualifiers.get('db_xref'):", geneID
-			geneID = geneID[0].split(':')
-			geneID_type = geneID[0].strip()
-			geneID = geneID[1].strip()
-			print "geneID:", geneID 
-
-#Writing output files
-			fp2.write(str(feature.qualifiers['locus_tag'][0])+"\t")
-			fp2.write(geneID+'\n')
+		    geneID = feature.qualifiers.get('db_xref')
+		    print "feature.qualifiers.get('db_xref'):", geneID
+		    geneID = geneID[0].split(':')
+		    geneID_type = geneID[0].strip()
+		    geneID = geneID[1].strip()
+		    print "geneID:", geneID 
 
 #Saves data in Dictionary
-			locusTag_geneID_dict[feature.qualifiers['locus_tag'][0]] = geneID
-			geneID_locusTag_dict[geneID] = feature.qualifiers['locus_tag'][0] 
- 		    targetLocusTag = fp1.readline()
-    fp1.close()
-    fp2.close()
+		    locusTag_geneID_dict[feature.qualifiers['locus_tag'][0]] = geneID
+		    geneID_locusTag_dict[geneID] = feature.qualifiers['locus_tag'][0] 
+ 		    #targetLocusTag = fp1.readline()
     return locusTag_geneID_dict, geneID_locusTag_dict
-
 
 
 #Converts ncbi_geneid(e.g. 944762) to species_geneid (e.g. b0031) in KEGG database by using KEGGAPI
@@ -145,11 +132,7 @@ def get_rxnInfo_from_rxnid(rxnid):
 #Four nested function calling four functions above
 #Input: locusTag_geneID_dict (e.g., { '1216669' : 'SAV_6272'})
 #Output: GPR_dict (e.g. '1211478': {'2.1.1.132': {'R05149': {'DEFINITION': '2 S-Adenosyl-L-methionine + Precorrin 6Y <=> 2 S-Adenosyl-L-homocysteine + Precorrin 8X + CO2', 'EQUATION': '2 C00019 + C06319 <=> 2 C00021 + C06408 + C00011', 'NAME': 'S-Adenosyl-L-methionine:1-precorrin-6Y'}}})
-def make_all_rxnInfo(locusTag_geneID_dict, outputFile1, outputFile2, outputFile3, outputFile4):
-    fp1 = open(outputFile1,'w')
-    fp2 = open(outputFile2,'w')
-    fp3 = open(outputFile3,'w')
-    fp4 = open(outputFile4,'w')
+def make_all_rxnInfo(locusTag_geneID_dict):
     rxnid_info_dict = {}
     rxnid_geneid_dict = {}
     rxnid_locusTag_dict = {}
@@ -177,26 +160,14 @@ def make_all_rxnInfo(locusTag_geneID_dict, outputFile1, outputFile2, outputFile3
 			rxnid_geneid_dict[rxnid].append((ncbi_geneid))
 			rxnid_locusTag_dict[rxnid].append((locusTag))
 	
-                    print locusTag, ncbi_geneid, rxnid, rxnid_info_dict[rxnid]
-		    print "\n"
+                    print locusTag, ncbi_geneid, rxnid, rxnid_info_dict[rxnid], "\n"
 	else:
-	    print locusTag, ": KEGG info NOT available"
-	    print "\n"
-	    print >>fp1, '%s' %(locusTag)
-    print >>fp2, '%s' %(rxnid_info_dict)
-    print >>fp3, '%s' %(rxnid_geneid_dict)
-    print >>fp4, '%s' %(rxnid_locusTag_dict)
+	    print locusTag, ": KEGG info NOT available", "\n"
 
-    fp1.close()
-    fp2.close()
-    fp3.close()
-    fp4.close()
     return rxnid_info_dict, rxnid_geneid_dict, rxnid_locusTag_dict
 
 
-def check_existing_rxns(kegg_mnxr_dict, templateModel_bigg_mnxr_dict, rxnid_info_dict, outputFile1, outputFile2):
-    fp1 = open(outputFile1,'w')
-    fp2 = open(outputFile2,'w')
+def check_existing_rxns(kegg_mnxr_dict, templateModel_bigg_mnxr_dict, rxnid_info_dict):
     rxnid_to_add_list =[]
 
     for rxnid in rxnid_info_dict.keys():
@@ -205,32 +176,23 @@ def check_existing_rxns(kegg_mnxr_dict, templateModel_bigg_mnxr_dict, rxnid_info
             kegg_mnxr = kegg_mnxr_dict[rxnid]
 
 #Checks with reactions in the template model through MNXref
-            if kegg_mnxr in templateModel_bigg_mnxr_dict.values():
-                print >>fp1, "%s\t%s" % (rxnid, kegg_mnxr)
-            elif rxnid not in rxnid_to_add_list:
+            if kegg_mnxr not in templateModel_bigg_mnxr_dict.values() and rxnid not in rxnid_to_add_list:
                 rxnid_to_add_list.append(rxnid)
-#            	print 'ID of reaction-to-add: ', rxnid
-              	print >>fp2, "%s" % (rxnid)
-    fp1.close()
-    fp2.close()
+
+    rxnid_to_add_list = list(sorted(set(rxnid_to_add_list)))
     return rxnid_to_add_list
 
 #Output: MNXR for the reactions to add, converted from KEGG rxnid
-def get_mnxr_using_kegg(rxnid_to_add_list, kegg_mnxr_dict, outputFile1):
+def get_mnxr_using_kegg(rxnid_to_add_list, kegg_mnxr_dict):
     mnxr_to_add_list = []
-    fp1 = open(outputFile1, "w")
     for rxnid in rxnid_to_add_list:
 	if rxnid in kegg_mnxr_dict.keys():
 	    mnxr_to_add_list.append(kegg_mnxr_dict[rxnid])
-	    print >>fp1, "%s\t%s" %(rxnid, kegg_mnxr_dict[rxnid])
-    fp1.close()
     return mnxr_to_add_list
 
 #Creating: e.g., {'R03232': {'f1p': -1.0, 'C04261': 1.0, 'fru': 1.0, 'C00615': -1.0}}
 #Metabolites are presented primarily with bigg, otherwise with KEGG
-def extract_rxn_mnxm_coeff(mnxr_to_add_list, mnxr_rxn_dict, mnxm_bigg_compound_dict, mnxm_kegg_compound_dict, mnxr_kegg_dict, outputFile1, outputFile2):
-    fp1 = open(outputFile1, "w")
-    fp2 = open(outputFile2, "w")
+def extract_rxn_mnxm_coeff(mnxr_to_add_list, mnxr_rxn_dict, mnxm_bigg_compound_dict, mnxm_kegg_compound_dict, mnxr_kegg_dict):
     rxnid_mnxm_coeff_dict = {}
     mnxm_coeff_dict = {}
 
@@ -272,16 +234,6 @@ def extract_rxn_mnxm_coeff(mnxr_to_add_list, mnxr_rxn_dict, mnxm_bigg_compound_d
 #Creating: e.g., {'R03232': {'f1p': -1.0, 'C04261': 1.0, 'fru': 1.0, 'C00615': -1.0}}
 	    rxnid_mnxm_coeff_dict[mnxr_kegg_dict[mnxr]] = mnxm_coeff_dict
 
-#Discards polymerization reactions with undefinite coeff's 
-#e.g., 1 MNXM9 + (n+2) MNXM90033 = 1 MNXM5617 + (n) MNXM90033
-	else:
-	    print >>fp2, '%s\t%s' %(mnxr, unparsed_equation)
-    fp1.write(str(rxnid_mnxm_coeff_dict))
-    for key in rxnid_mnxm_coeff_dict.keys():
-	print >>fp1, '%s\t%s' %(key, rxnid_mnxm_coeff_dict[key])
-
-    fp1.close()
-    fp2.close()
     return rxnid_mnxm_coeff_dict
 
 
@@ -302,25 +254,19 @@ def get_compoundInfo(compoundID):
     return {'NAME':NAME, 'FORMULA':FORMULA}
 
 
-def add_nonBBH_rxn(modelPrunedGPR, rxnid_info_dict, rxnid_mnxm_coeff_dict, rxnid_locusTag_dict, bigg_mnxm_compound_dict, kegg_mnxm_compound_dict, mnxm_compoundInfo_dict, outputFile1):
+def add_nonBBH_rxn(modelPrunedGPR, rxnid_info_dict, rxnid_mnxm_coeff_dict, rxnid_locusTag_dict, bigg_mnxm_compound_dict, kegg_mnxm_compound_dict, mnxm_compoundInfo_dict):
 
-    fp1 = open(outputFile1, "w")
-    fp1.write("Reaction ID"+"\t"+"Reaction name"+"\t"+"Lower bound"+"\t"+"Upper bound"+"\t"+"Reaction equation"+"\t"+"GPR"+"\t"+"Pathway"+"\n")
     for rxnid in rxnid_mnxm_coeff_dict.keys():
 	print rxnid
 #ID
 	rxn = Reaction(rxnid)
-	fp1.write(str(rxn.id)+"\t")
 #Name
 #Soem reaction IDs do not have NAME despite the presence of PATHWAY
 	rxn.name = rxnid_info_dict[rxnid]['NAME']
-	fp1.write(str(rxn.name)+"\t")
   
 #Reversibility / Lower and upper bounds
 	rxn.lower_bound = -1000
 	rxn.uppwer_bound = 1000
-	fp1.write(str(rxn.lower_bound)+"\t")
-	fp1.write(str(rxn.upper_bound)+"\t")
 
 #Metabolites and their stoichiometric coeff's
 	for metab in rxnid_mnxm_coeff_dict[rxnid]:
@@ -341,7 +287,6 @@ def add_nonBBH_rxn(modelPrunedGPR, rxnid_info_dict, rxnid_mnxm_coeff_dict, rxnid
 		keggID = get_compoundInfo(metab)
 		metab_compt = Metabolite(metab, formula = keggID['FORMULA'], name = keggID['NAME'], compartment='c')
 		rxn.add_metabolites({metab_compt:rxnid_mnxm_coeff_dict[rxnid][metab]})
-	fp1.write(rxn.reaction+"\t")
 
 #GPR association
 	if len(rxnid_locusTag_dict[rxnid]) == 1:
@@ -350,11 +295,9 @@ def add_nonBBH_rxn(modelPrunedGPR, rxnid_info_dict, rxnid_mnxm_coeff_dict, rxnid
 	    gpr = ' or '.join(rxnid_locusTag_dict[rxnid])
 	    gpr = '( %s )' %(gpr)
 	rxn.add_gene_reaction_rule(gpr)
-	fp1.write(rxn.gene_reaction_rule+"\t")
 
 #Subsystem
 	rxn.subsystem = rxnid_info_dict[rxnid]['PATHWAY']
-	fp1.write(str(rxn.subsystem)+"\n")
 
 #E.C. number: not available feature in COBRApy
 #Objective coeff: default
@@ -362,7 +305,6 @@ def add_nonBBH_rxn(modelPrunedGPR, rxnid_info_dict, rxnid_mnxm_coeff_dict, rxnid
 
 #Addition of a reaction to the model
 	modelPrunedGPR.add_reaction(rxn)
-    fp1.close()
 
     target_model = copy.deepcopy(modelPrunedGPR)
     return target_model
