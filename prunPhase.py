@@ -65,6 +65,11 @@ def readSeq(gbkFile, FileType):
 		    targetGenome_locusTag_ec_dict[locusTag[0]] = ecnum
 		    print locusTag[0], targetGenome_locusTag_ec_dict[locusTag[0]]
 
+#Check if the gbk file has EC_number
+#Additional conditions should be given upon setup of in-house EC_number assigner
+    if len(targetGenome_locusTag_ec_dict) == 0:
+	print "Error: no EC_number in the submitted gbk file"
+	sys.exit(1)
     fp.close()
     return targetGenome_locusTag_ec_dict
 
