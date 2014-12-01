@@ -331,8 +331,8 @@ def pruneModel(model, rxnToRemove_dict, solver_arg):
 
 #Removing metabolites that are not used in the reduced model
     prune_unused_metabolites(model)               
-    modelPruned = copy.deepcopy(model)    
-
+    modelPruned = copy.deepcopy(model) 
+ 
     return modelPruned, rxnToRemoveEssn_dict, rxnRemoved_dict, rxnRetained_dict
 
 

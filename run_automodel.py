@@ -52,16 +52,16 @@ target_gbk = get_target_gbk()
 print "reading genbank file of the target genome.."    
 targetGenome_locusTag_ec_dict = readSeq(target_gbk, "genbank")
 
-print "looking for a fasta file of a target genome.."
+print "\n", "looking for a fasta file of a target genome..", "\n"
 target_fasta = get_target_fasta()
 
 print "generating a DB for the genes from the target genome.."
 make_blastDB(query_fasta=target_fasta)
 
-print "running BLASTP #1: genes in the target genome against genes in the template model.."
+print "\n", "running BLASTP #1: genes in the target genome against genes in the template model.."
 run_blastp(target_fasta='./temp1/targetGenome_locusTag_aaSeq.fa', blastp_result='./temp1/blastp_targetGenome_against_tempGenome.txt', db_dir = '%s/tempBlastDB' %(root), evalue=1e-30)
 
-print "running BLASTP #2: genes in the template model against genes in the target genome.."
+print "\n", "running BLASTP #2: genes in the template model against genes in the target genome.."
 run_blastp(target_fasta='%s/tempModel_locusTag_aaSeq.fa' %(root), blastp_result='./temp1/blastp_tempGenome_against_targetGenome.txt', db_dir = './temp1/targetBlastDB', evalue=1e-30)
 
 print "parsing the results of BLASTP #1.."
@@ -90,9 +90,8 @@ rxnToRemove_dict = labelRxnToRemove(model, temp_target_BBH_dict, tempModel_biggR
 print "removing reactions with nonhomologous genes from the template model.."
 modelPruned, rxnToRemoveEssn_dict, rxnRemoved_dict, rxnRetained_dict = pruneModel(model, rxnToRemove_dict, 'gurobi')
 
-print "correcting GPR associations in the template model.."
+print "\n", "correcting GPR associations in the template model.."
 modelPrunedGPR = swap_locusTag_tempModel(modelPruned, temp_target_BBH_dict)
-pickle.dump(modelPrunedGPR, open('./temp1/modelPrunedGPR.p', 'wb'))
 ###################################################################
 
 
@@ -109,7 +108,8 @@ locusTag_geneID_dict, geneID_locusTag_dict = make_locusTag_geneID_nonBBH(target_
 #def get_rxnid_from_ECNumber(enzymeEC):
 #def get_rxnInfo_from_rxnid(rxnid):
 print "creating various dictionary files for the nonBBH gene-associted reactions..."
-rxnid_info_dict, rxnid_geneid_dict, rxnid_locusTag_dict = make_all_rxnInfo(locusTag_geneID_dict)
+#rxnid_info_dict, rxnid_locusTag_dict = make_all_rxnInfo_fromKEGG(locusTag_geneID_dict)
+rxnid_info_dict, rxnid_locusTag_dict = make_all_rxnInfo_fromRefSeq(locusTag_geneID_dict, targetGenome_locusTag_ec_dict)
 ###################################################################
 
 ###################################################################
@@ -136,18 +136,18 @@ print "Number of metabolites:",  len(model.metabolites), "/", len(modelPruned.me
 #Output files
 write_cobra_model_to_sbml_file(target_model, './temp2/target_model_%s.xml' %(orgName))
 
-fp1 = open('target_model_reactions.txt', "w")
-fp2 = open('target_model_metabolites.txt', "w")
+fp1 = open('./temp2/target_model_reactions.txt', "w")
+fp2 = open('./temp2/target_model_metabolites.txt', "w")
 fp1.write("Reaction ID"+"\t"+"Reaction name"+"\t"+"Lower bound"+"\t"+"Reaction equation"+"\t"+"GPR"+"\t"+"Pathway"+"\n")
 fp2.write("Metabolite ID"+"\t"+"Metabolite name"+"\t"+"Formula"+"\t"+"Compartment"+"\n")
 
 for j in range(len(target_model.reactions)):
     rxn = target_model.reactions[j]
-    print >>fp1, './temp2/%s\t%s\t%s\t%s\t%s\t%s' %(rxn.id, rxn.name, rxn.lower_bound, rxn.reaction, rxn.gene_reaction_rule, rxn.subsystem)
+    print >>fp1, '%s\t%s\t%s\t%s\t%s\t%s' %(rxn.id, rxn.name, rxn.lower_bound, rxn.reaction, rxn.gene_reaction_rule, rxn.subsystem)
 
 for i in range(len(target_model.metabolites)):
     metab = target_model.metabolites[i]
-    print >>fp2, './temp2%s\t%s\t%s\t%s' %(metab.id, metab.name, metab.formula, metab.compartment)
+    print >>fp2, '%s\t%s\t%s\t%s' %(metab.id, metab.name, metab.formula, metab.compartment)
 
 fp1.close()
 fp2.close()
