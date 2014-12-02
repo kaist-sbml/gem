@@ -1,6 +1,6 @@
 '''
 2014
-by Hyun Uk Kim, Tilmann Weber, Jae Yong Ryu and Kyu-Sang Hwang
+Hyun Uk Kim, Tilmann Weber, Jae Yong Ryu and Kyu-Sang Hwang
 '''
 
 # import Model, Reaction, Metabolite classes in COBRA tool 
@@ -15,7 +15,8 @@ import pickle
 import re
 import urllib2
 
-
+#Following functions to be removed after final confirmation
+'''
 def make_locusTag_geneID_nonBBH(gbkFile, fileType, nonBBH_list):
     locusTag_geneID_dict = {}
     geneID_locusTag_dict = {}
@@ -44,7 +45,6 @@ def make_locusTag_geneID_nonBBH(gbkFile, fileType, nonBBH_list):
 #Saves data in Dictionary
 		    locusTag_geneID_dict[feature.qualifiers['locus_tag'][0]] = geneID
 		    geneID_locusTag_dict[geneID] = feature.qualifiers['locus_tag'][0] 
- 		    #targetLocusTag = fp1.readline()
     return locusTag_geneID_dict, geneID_locusTag_dict
 
 
@@ -79,6 +79,68 @@ def get_ECNumberList_from_locusTag(species_locusTag):
             return ECNumbers
     return []
 
+
+#Four nested function calling four functions above
+def make_all_rxnInfo_fromKEGG(locusTag_geneID_dict, targetGenome_locusTag_ec_dict):
+    rxnid_info_dict = {}
+    rxnid_locusTag_dict = {}
+ 
+    for locusTag in locusTag_geneID_dict.keys():
+        ncbi_geneid = locusTag_geneID_dict[locusTag]
+	species_locusTag = get_species_locusTag(ncbi_geneid) 
+        ECnumbers = get_ECNumberList_from_locusTag(species_locusTag)
+	
+	if ECnumbers:
+            for enzymeEC in ECnumbers:
+                enzymeEC = enzymeEC.replace(']','')
+                enzymeEC = enzymeEC.replace(' ','')
+                rxnid_list = get_rxnid_from_ECNumber(enzymeEC)
+                for rxnid in rxnid_list:
+                    rxnid_info_dict[rxnid] = get_rxnInfo_from_rxnid(rxnid)
+
+		    if rxnid not in rxnid_locusTag_dict.keys():
+		        rxnid_locusTag_dict[rxnid] = [(locusTag)]
+
+#Appends additional different genes to the same reaction ID
+		    elif rxnid in rxnid_locusTag_dict.keys():
+			rxnid_locusTag_dict[rxnid].append((locusTag))
+	
+                    print locusTag, rxnid, rxnid_info_dict[rxnid], "\n"
+	else:
+	    print locusTag, ": KEGG info NOT available", "\n"
+
+    return rxnid_info_dict, rxnid_locusTag_dict
+
+
+#Two nested function calling four functions above
+def make_all_rxnInfo_fromRefSeq(locusTag_geneID_dict, targetGenome_locusTag_ec_dict):
+    rxnid_info_dict = {}
+    rxnid_locusTag_dict = {}
+ 
+    for locusTag in locusTag_geneID_dict.keys():
+	if locusTag in targetGenome_locusTag_ec_dict.keys():
+	    for enzymeEC in targetGenome_locusTag_ec_dict[locusTag]:
+		print "check:", enzymeEC
+
+#KEGG REST does not accept unspecific EC_number: e.g., 3.2.2.-
+		if '-' not in enzymeEC:
+                    rxnid_list = get_rxnid_from_ECNumber(enzymeEC)
+                    for rxnid in rxnid_list:
+                        rxnid_info_dict[rxnid] = get_rxnInfo_from_rxnid(rxnid)
+
+		        if rxnid not in rxnid_locusTag_dict.keys():
+		            rxnid_locusTag_dict[rxnid] = [(locusTag)]
+
+#Appends additional different genes to the same reaction ID
+		        elif rxnid in rxnid_locusTag_dict.keys():
+			    rxnid_locusTag_dict[rxnid].append((locusTag))
+	
+                    print locusTag, rxnid, rxnid_info_dict[rxnid], "\n"
+	else:
+	    print locusTag, ": KEGG info NOT available", "\n"
+
+    return rxnid_info_dict, rxnid_locusTag_dict
+'''
 
 #Retrives a list of reaction IDs using their EC numbers from KEGG
 #Input: E.C number in string form (e.g., 4.1.3.6)
@@ -130,20 +192,26 @@ def get_rxnInfo_from_rxnid(rxnid):
 	    return {'NAME':NAME, 'DEFINITION':DEFINITION, 'EQUATION':EQUATION, 'ENZYME':ENZYME, 'PATHWAY':PATHWAY}
 
 
-#Four nested function calling four functions above
-def make_all_rxnInfo_fromKEGG(locusTag_geneID_dict, targetGenome_locusTag_ec_dict):
+def get_targetGenome_locusTag_ec_nonBBH_dict(targetGenome_locusTag_ec_dict, nonBBH_list):
+    targetGenome_locusTag_ec_nonBBH_dict = {}
+
+    for locusTag in nonBBH_list:
+	if locusTag in targetGenome_locusTag_ec_dict.keys():
+	    targetGenome_locusTag_ec_nonBBH_dict[locusTag] = targetGenome_locusTag_ec_dict[locusTag] 
+    return targetGenome_locusTag_ec_nonBBH_dict
+
+
+#Two nested function calling four functions above
+def make_all_rxnInfo_fromRefSeq(targetGenome_locusTag_ec_nonBBH_dict):
     rxnid_info_dict = {}
     rxnid_locusTag_dict = {}
  
-    for locusTag in locusTag_geneID_dict.keys():
-        ncbi_geneid = locusTag_geneID_dict[locusTag]
-	species_locusTag = get_species_locusTag(ncbi_geneid) 
-        ECnumbers = get_ECNumberList_from_locusTag(species_locusTag)
-	
-	if ECnumbers:
-            for enzymeEC in ECnumbers:
-                enzymeEC = enzymeEC.replace(']','')
-                enzymeEC = enzymeEC.replace(' ','')
+    for locusTag in targetGenome_locusTag_ec_nonBBH_dict.keys():
+	for enzymeEC in targetGenome_locusTag_ec_nonBBH_dict[locusTag]:
+	    print "EC_number for locusTag:", locusTag, enzymeEC
+
+#KEGG REST does not accept unspecific EC_number: e.g., 3.2.2.-
+	    if '-' not in enzymeEC:
                 rxnid_list = get_rxnid_from_ECNumber(enzymeEC)
                 for rxnid in rxnid_list:
                     rxnid_info_dict[rxnid] = get_rxnInfo_from_rxnid(rxnid)
@@ -153,41 +221,8 @@ def make_all_rxnInfo_fromKEGG(locusTag_geneID_dict, targetGenome_locusTag_ec_dic
 
 #Appends additional different genes to the same reaction ID
 		    elif rxnid in rxnid_locusTag_dict.keys():
-			rxnid_locusTag_dict[rxnid].append((locusTag))
-	
+		        rxnid_locusTag_dict[rxnid].append((locusTag))
                     print locusTag, rxnid, rxnid_info_dict[rxnid], "\n"
-	else:
-	    print locusTag, ": KEGG info NOT available", "\n"
-
-    return rxnid_info_dict, rxnid_locusTag_dict
-
-
-#Four nested function calling four functions above
-def make_all_rxnInfo_fromRefSeq(locusTag_geneID_dict, targetGenome_locusTag_ec_dict):
-    rxnid_info_dict = {}
-    rxnid_locusTag_dict = {}
- 
-    for locusTag in locusTag_geneID_dict.keys():
-	if locusTag in targetGenome_locusTag_ec_dict.keys():
-	    for enzymeEC in targetGenome_locusTag_ec_dict[locusTag]:
-		print "check:", enzymeEC
-
-#KEGG REST does not accept unspecific EC_number: e.g., 3.2.2.-
-		if '-' not in enzymeEC:
-                    rxnid_list = get_rxnid_from_ECNumber(enzymeEC)
-                    for rxnid in rxnid_list:
-                        rxnid_info_dict[rxnid] = get_rxnInfo_from_rxnid(rxnid)
-
-		        if rxnid not in rxnid_locusTag_dict.keys():
-		            rxnid_locusTag_dict[rxnid] = [(locusTag)]
-
-#Appends additional different genes to the same reaction ID
-		        elif rxnid in rxnid_locusTag_dict.keys():
-			    rxnid_locusTag_dict[rxnid].append((locusTag))
-	
-                    print locusTag, rxnid, rxnid_info_dict[rxnid], "\n"
-	else:
-	    print locusTag, ": KEGG info NOT available", "\n"
 
     return rxnid_info_dict, rxnid_locusTag_dict
 

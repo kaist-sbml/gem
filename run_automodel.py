@@ -17,7 +17,7 @@ start = time.time()
 ###################################################################
 #from "independentModule_"
 
-#For model pruningn phase
+#For model pruning phase
 #Choose "eco" or "sco"
 orgName = 'sco'
 root, temp_fasta = get_temp_fasta(orgName)
@@ -97,19 +97,29 @@ modelPrunedGPR = swap_locusTag_tempModel(modelPruned, temp_target_BBH_dict)
 
 print "\n", "augmentation phase starting..", "\n"
 ###################################################################
+#NOT USED AT THE MOMENT
 print "creacting dictionary files for the noBBH genes..."
-locusTag_geneID_dict, geneID_locusTag_dict = make_locusTag_geneID_nonBBH(target_gbk, "genbank", nonBBH_list)
+#locusTag_geneID_dict, geneID_locusTag_dict = make_locusTag_geneID_nonBBH(target_gbk, "genbank", nonBBH_list)
 ###################################################################
 
 ###################################################################
+print "creating various dictionary files for the nonBBH gene-associted reactions..."
+
+#NOT USED AT THE MOMENT
 #Four nested functions
 #def get_species_locusTag(ncbi_geneid):
 #def get_ECNumberList_from_locusTag(species_locusTag):
 #def get_rxnid_from_ECNumber(enzymeEC):
 #def get_rxnInfo_from_rxnid(rxnid):
-print "creating various dictionary files for the nonBBH gene-associted reactions..."
 #rxnid_info_dict, rxnid_locusTag_dict = make_all_rxnInfo_fromKEGG(locusTag_geneID_dict)
-rxnid_info_dict, rxnid_locusTag_dict = make_all_rxnInfo_fromRefSeq(locusTag_geneID_dict, targetGenome_locusTag_ec_dict)
+
+#Two nested functions
+#def get_rxnid_from_ECNumber(enzymeEC):
+#def get_rxnInfo_from_rxnid(rxnid):
+#rxnid_info_dict, rxnid_locusTag_dict = make_all_rxnInfo_fromRefSeq(locusTag_geneID_dict, targetGenome_locusTag_ec_dict)
+
+targetGenome_locusTag_ec_nonBBH_dict = get_targetGenome_locusTag_ec_nonBBH_dict(targetGenome_locusTag_ec_dict, nonBBH_list)
+rxnid_info_dict, rxnid_locusTag_dict = make_all_rxnInfo_fromRefSeq(targetGenome_locusTag_ec_nonBBH_dict)
 ###################################################################
 
 ###################################################################
@@ -119,6 +129,17 @@ rxnid_to_add_list = check_existing_rxns(kegg_mnxr_dict, templateModel_bigg_mnxr_
 mnxr_to_add_list = get_mnxr_using_kegg(rxnid_to_add_list, kegg_mnxr_dict)
 
 rxnid_mnxm_coeff_dict = extract_rxn_mnxm_coeff(mnxr_to_add_list, mnxr_rxn_dict, mnxm_bigg_compound_dict, mnxm_kegg_compound_dict, mnxr_kegg_dict)
+
+#fp1 = open('locusTag_geneID_dict.txt','w')
+#fp2 = open('targetGenome_locusTag_ec_dict.txt','w')
+
+#for key in locusTag_geneID_dict.keys():
+#    print >>fp1, '%s\t%s' %(key, locusTag_geneID_dict[key])
+#for key in targetGenome_locusTag_ec_dict.keys():
+#    print >>fp2, '%s\t%s' %(key, targetGenome_locusTag_ec_dict[key])
+
+#fp1.close()
+#fp2.close()
 
 
 #One nested function
