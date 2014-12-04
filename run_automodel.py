@@ -50,7 +50,7 @@ print "looking for a gbk file of a target genome.."
 target_gbk = get_target_gbk()
 
 print "reading genbank file of the target genome.."    
-targetGenome_locusTag_ec_dict = readSeq(target_gbk, "genbank")
+targetGenome_locusTag_ec_dict, targetGenome_locusTag_prod_dict = get_targetGenomeInfo(target_gbk, "genbank")
 
 print "\n", "looking for a fasta file of a target genome..", "\n"
 target_fasta = get_target_fasta()
@@ -78,6 +78,7 @@ bestHits_dict2 = makeBestHits_dict('./temp1/blastp_tempGenome_against_targetGeno
 
 print "selecting the bidirectional best hits.."
 targetBBH_list, temp_target_BBH_dict = getBBH(bestHits_dict1, bestHits_dict2)
+
 
 print "selecting genes that are not bidirectional best hits.."
 nonBBH_list = get_nonBBH(targetGenome_locusTag_ec_dict, targetBBH_list)
@@ -113,12 +114,11 @@ print "creating various dictionary files for the nonBBH gene-associted reactions
 #def get_rxnInfo_from_rxnid(rxnid):
 #rxnid_info_dict, rxnid_locusTag_dict = make_all_rxnInfo_fromKEGG(locusTag_geneID_dict)
 
+targetGenome_locusTag_ec_nonBBH_dict = get_targetGenome_locusTag_ec_nonBBH_dict(targetGenome_locusTag_ec_dict, nonBBH_list)
+
 #Two nested functions
 #def get_rxnid_from_ECNumber(enzymeEC):
 #def get_rxnInfo_from_rxnid(rxnid):
-#rxnid_info_dict, rxnid_locusTag_dict = make_all_rxnInfo_fromRefSeq(locusTag_geneID_dict, targetGenome_locusTag_ec_dict)
-
-targetGenome_locusTag_ec_nonBBH_dict = get_targetGenome_locusTag_ec_nonBBH_dict(targetGenome_locusTag_ec_dict, nonBBH_list)
 rxnid_info_dict, rxnid_locusTag_dict = make_all_rxnInfo_fromRefSeq(targetGenome_locusTag_ec_nonBBH_dict)
 ###################################################################
 
@@ -130,26 +130,13 @@ mnxr_to_add_list = get_mnxr_using_kegg(rxnid_to_add_list, kegg_mnxr_dict)
 
 rxnid_mnxm_coeff_dict = extract_rxn_mnxm_coeff(mnxr_to_add_list, mnxr_rxn_dict, mnxm_bigg_compound_dict, mnxm_kegg_compound_dict, mnxr_kegg_dict)
 
-#fp1 = open('locusTag_geneID_dict.txt','w')
-#fp2 = open('targetGenome_locusTag_ec_dict.txt','w')
-
-#for key in locusTag_geneID_dict.keys():
-#    print >>fp1, '%s\t%s' %(key, locusTag_geneID_dict[key])
-#for key in targetGenome_locusTag_ec_dict.keys():
-#    print >>fp2, '%s\t%s' %(key, targetGenome_locusTag_ec_dict[key])
-
-#fp1.close()
-#fp2.close()
-
-
 #One nested function
 #get_compoundInfo(compoundID)
-target_model = add_nonBBH_rxn(modelPrunedGPR, rxnid_info_dict, rxnid_mnxm_coeff_dict, rxnid_locusTag_dict, bigg_mnxm_compound_dict, kegg_mnxm_compound_dict, mnxm_compoundInfo_dict)
+target_model = add_nonBBH_rxn(modelPrunedGPR, rxnid_info_dict, rxnid_mnxm_coeff_dict, rxnid_locusTag_dict, bigg_mnxm_compound_dict, kegg_mnxm_compound_dict, mnxm_compoundInfo_dict, targetGenome_locusTag_prod_dict)
 ###################################################################
 
 #Output on screen
 model = pickle.load(open('%s/model.p' %(root),'rb'))
-print "Stats of the two models: template model vs. pruned intermediate model vs . target_model"
 print "Number of genes:", len(model.genes), "/", len(modelPruned.genes), "/", len(target_model.genes)
 print "Number of reactions:", len(model.reactions), "/", len(modelPruned.reactions), "/", len(target_model.reactions)
 print "Number of metabolites:",  len(model.metabolites), "/", len(modelPruned.metabolites), "/", len(target_model.metabolites)

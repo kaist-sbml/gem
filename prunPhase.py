@@ -36,10 +36,11 @@ def get_target_gbk():
 	    sys.exit(1)
 
 
-def readSeq(gbkFile, FileType):
+def get_targetGenomeInfo(gbkFile, FileType):
     fp = open('./temp1/targetGenome_locusTag_aaSeq.fa','w')
     targetGenome_locusTag_aaSeq_dict = {}
     targetGenome_locusTag_ec_dict = {}
+    targetGenome_locusTag_prod_dict = {}
 
 #Reads GenBank file
     record = SeqIO.read(gbkFile, FileType)
@@ -47,31 +48,42 @@ def readSeq(gbkFile, FileType):
         if feature.type == 'CDS':
 
 #Retrieving "locus_tag (i.e., ORF name)" for each CDS
-            locusTag = feature.qualifiers['locus_tag']
+            locusTag = feature.qualifiers['locus_tag'][0]
+
+#Some locus_tag's have multiple same qualifiers (e.g., EC_number)
+	    for item in feature.qualifiers:
 
 #Note that the numbers of CDS and "translation" do not match.
 #There are occasions that CDS does not have "translation".
-            if 'translation' in feature.qualifiers:
+                if item == 'translation':
 
 #Retrieving "translation (i.e., amino acid sequences)" for each CDS
-                translation = feature.qualifiers.get('translation')
-                targetGenome_locusTag_aaSeq_dict[locusTag[0]] = translation[0]
-                print >>fp, '>%s\n%s' % (str(locusTag[0]), str(translation[0]))
+                    translation = feature.qualifiers.get('translation')
+                    targetGenome_locusTag_aaSeq_dict[locusTag] = translation[0]
+                    print >>fp, '>%s\n%s' % (str(locusTag), str(translation[0]))
 
-#Some locus_tag's have multiple EC_number's
-	    for ec in feature.qualifiers:
-		if ec == 'EC_number':
+#Used to find "and" relationship in the GPR association
+	        if item == 'product':
+		    product = feature.qualifiers.get('product')[0]
+		    targetGenome_locusTag_prod_dict[locusTag] = product
+
+#Watch multiple EC_number's
+		if item == 'EC_number':
 	            ecnum = feature.qualifiers.get('EC_number')
-		    targetGenome_locusTag_ec_dict[locusTag[0]] = ecnum
-		    print locusTag[0], targetGenome_locusTag_ec_dict[locusTag[0]]
+		    targetGenome_locusTag_ec_dict[locusTag] = ecnum
 
 #Check if the gbk file has EC_number
 #Additional conditions should be given upon setup of in-house EC_number assigner
+    print "len(targetGenome_locusTag_ec_dict.keys):"
+    print len(targetGenome_locusTag_ec_dict)
+    print "len(targetGenome_locusTag_prod_dict.keys):"
+    print len(targetGenome_locusTag_prod_dict)
+
     if len(targetGenome_locusTag_ec_dict) == 0:
 	print "Error: no EC_number in the submitted gbk file"
 	sys.exit(1)
     fp.close()
-    return targetGenome_locusTag_ec_dict
+    return targetGenome_locusTag_ec_dict, targetGenome_locusTag_prod_dict 
 
 
 #Looks for .fa and .gbk  files in the pre-defined folder

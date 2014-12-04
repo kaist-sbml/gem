@@ -15,8 +15,12 @@ import pickle
 import re
 import urllib2
 
-#Following functions to be removed after final confirmation
-'''
+
+#Following functions are used when retrieving information from KEGG
+#make_locusTag_geneID_nonBBH
+#get_species_locusTag
+#get_ECNumberList_from_locusTag
+#make_all_rxnInfo_fromKEGG
 def make_locusTag_geneID_nonBBH(gbkFile, fileType, nonBBH_list):
     locusTag_geneID_dict = {}
     geneID_locusTag_dict = {}
@@ -112,37 +116,7 @@ def make_all_rxnInfo_fromKEGG(locusTag_geneID_dict, targetGenome_locusTag_ec_dic
     return rxnid_info_dict, rxnid_locusTag_dict
 
 
-#Two nested function calling four functions above
-def make_all_rxnInfo_fromRefSeq(locusTag_geneID_dict, targetGenome_locusTag_ec_dict):
-    rxnid_info_dict = {}
-    rxnid_locusTag_dict = {}
- 
-    for locusTag in locusTag_geneID_dict.keys():
-	if locusTag in targetGenome_locusTag_ec_dict.keys():
-	    for enzymeEC in targetGenome_locusTag_ec_dict[locusTag]:
-		print "check:", enzymeEC
-
-#KEGG REST does not accept unspecific EC_number: e.g., 3.2.2.-
-		if '-' not in enzymeEC:
-                    rxnid_list = get_rxnid_from_ECNumber(enzymeEC)
-                    for rxnid in rxnid_list:
-                        rxnid_info_dict[rxnid] = get_rxnInfo_from_rxnid(rxnid)
-
-		        if rxnid not in rxnid_locusTag_dict.keys():
-		            rxnid_locusTag_dict[rxnid] = [(locusTag)]
-
-#Appends additional different genes to the same reaction ID
-		        elif rxnid in rxnid_locusTag_dict.keys():
-			    rxnid_locusTag_dict[rxnid].append((locusTag))
-	
-                    print locusTag, rxnid, rxnid_info_dict[rxnid], "\n"
-	else:
-	    print locusTag, ": KEGG info NOT available", "\n"
-
-    return rxnid_info_dict, rxnid_locusTag_dict
-'''
-
-#Retrives a list of reaction IDs using their EC numbers from KEGG
+#Retrieves a list of reaction IDs using their EC numbers from KEGG
 #Input: E.C number in string form (e.g., 4.1.3.6)
 #Output: reactionID in list form (e.g., ['R00362'])
 def get_rxnid_from_ECNumber(enzymeEC):
@@ -314,7 +288,7 @@ def get_compoundInfo(compoundID):
     return {'NAME':NAME, 'FORMULA':FORMULA}
 
 
-def add_nonBBH_rxn(modelPrunedGPR, rxnid_info_dict, rxnid_mnxm_coeff_dict, rxnid_locusTag_dict, bigg_mnxm_compound_dict, kegg_mnxm_compound_dict, mnxm_compoundInfo_dict):
+def add_nonBBH_rxn(modelPrunedGPR, rxnid_info_dict, rxnid_mnxm_coeff_dict, rxnid_locusTag_dict, bigg_mnxm_compound_dict, kegg_mnxm_compound_dict, mnxm_compoundInfo_dict, targetGenome_locusTag_prod_dict):
 
     for rxnid in rxnid_mnxm_coeff_dict.keys():
 	print rxnid
@@ -352,7 +326,15 @@ def add_nonBBH_rxn(modelPrunedGPR, rxnid_info_dict, rxnid_mnxm_coeff_dict, rxnid
 	if len(rxnid_locusTag_dict[rxnid]) == 1:
 	    gpr = '( %s )' %(rxnid_locusTag_dict[rxnid][0])
 	else:
-	    gpr = ' or '.join(rxnid_locusTag_dict[rxnid])
+	    count = 1
+	    for locusTag in rxnid_locusTag_dict[rxnid]:
+#Considers "and" relationship in the GPR association
+		if 'subunit' in targetGenome_locusTag_prod_dict[locusTag]:
+		    count += 1
+	    if count == len(rxnid_locusTag_dict[rxnid]):
+	        gpr = ' and '.join(rxnid_locusTag_dict[rxnid])
+ 	    else:
+	        gpr = ' or '.join(rxnid_locusTag_dict[rxnid])
 	    gpr = '( %s )' %(gpr)
 	rxn.add_gene_reaction_rule(gpr)
 
