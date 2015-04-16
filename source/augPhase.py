@@ -56,10 +56,7 @@ def make_locusTag_geneID_nonBBH(gbkFile, fileType, nonBBH_list):
 #Input: ncbi_gene_id (string) (e.g., 1217641)
 #Return: Locus_tag ID in KEGG database (e.g., sma:SAV_7535)
 def get_species_locusTag(ncbi_geneid):
-    try:
-	url = "http://rest.kegg.jp/conv/genes/ncbi-gi:%s"%(ncbi_geneid)
-    except:
-	url = "http://rest.kegg.jp/conv/genes/ncbi-geneid:%s"%(ncbi_geneid)
+    url = "http://rest.kegg.jp/conv/genes/ncbi-gi:%s"%(ncbi_geneid)
     #Open and read data for the results of query in url address
     data = urllib2.urlopen(url).read()
     sptlist = data.strip().split()
