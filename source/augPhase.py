@@ -25,20 +25,21 @@ def make_locusTag_geneID_nonBBH(gbkFile, fileType, nonBBH_list):
     locusTag_geneID_dict = {}
     geneID_locusTag_dict = {}
 
-#Reads GenBank file
+    #Reads GenBank file
     record = SeqIO.read(gbkFile, fileType)
 
     for feature in record.features:
         if feature.type == 'CDS' and 'db_xref' in feature.qualifiers:
 
-#Reads first non-BBH file    
+            #Reads first non-BBH file    
 	    for  targetLocusTag in nonBBH_list:
-#Looks for identical ORF from non-BBH list
+                #Looks for identical ORF from non-BBH list
 		if feature.qualifiers['locus_tag'][0] == targetLocusTag:
 		    print "feature.qualifiers['locus_tag']:", feature.qualifiers['locus_tag']
 
-#Standard .gbk has "GI" for the first db_xref and "GeneID" for the second db_xref.
-#Following lines take whichever comes first.
+                    #Standard .gbk has "GI" for the first db_xref and "GeneID"
+                    #for the second db_xref.
+                    #Following lines take whichever comes first.
 		    geneID = feature.qualifiers.get('db_xref')
 		    print "feature.qualifiers.get('db_xref'):", geneID
 		    geneID = geneID[0].split(':')
@@ -46,7 +47,7 @@ def make_locusTag_geneID_nonBBH(gbkFile, fileType, nonBBH_list):
 		    geneID = geneID[1].strip()
 		    print "geneID:", geneID 
 
-#Saves data in Dictionary
+                    #Saves data in Dictionary
 		    locusTag_geneID_dict[feature.qualifiers['locus_tag'][0]] = geneID
 		    geneID_locusTag_dict[geneID] = feature.qualifiers['locus_tag'][0] 
     return locusTag_geneID_dict, geneID_locusTag_dict
@@ -60,7 +61,7 @@ def get_species_locusTag(ncbi_geneid):
 	url = "http://rest.kegg.jp/conv/genes/ncbi-gi:%s"%(ncbi_geneid)
     except:
 	url = "http://rest.kegg.jp/conv/genes/ncbi-geneid:%s"%(ncbi_geneid)
-#Open and read data for the results of query in url address
+    #Open and read data for the results of query in url address
     data = urllib2.urlopen(url).read()
     sptlist = data.strip().split()
     print "sptlist:", sptlist
@@ -105,7 +106,7 @@ def make_all_rxnInfo_fromKEGG(locusTag_geneID_dict, targetGenome_locusTag_ec_dic
 		    if rxnid not in rxnid_locusTag_dict.keys():
 		        rxnid_locusTag_dict[rxnid] = [(locusTag)]
 
-#Appends additional different genes to the same reaction ID
+                    #Appends additional different genes to the same reaction ID
 		    elif rxnid in rxnid_locusTag_dict.keys():
 			rxnid_locusTag_dict[rxnid].append((locusTag))
 	
@@ -123,15 +124,16 @@ def get_rxnid_from_ECNumber(enzymeEC):
     url = "http://rest.kegg.jp/get/enzyme:%s"%(enzymeEC)
     ecinfo_text = urllib2.urlopen(url).read()
 
-#Original line also extracted genes in other organisms: R50912; R50345 (NOT rxnid)
-#The HTTP error was solved by putting "\\b" only at the end (not at the front) in order to also include reaction ID followed by "other" in KEGG
+    #Original line also extracted genes in other organisms: R50912; R50345 (NOT rxnid)
+    #The HTTP error was solved by putting "\\b" only at the end (not at the front)
+    #in order to also include reaction ID followed by "other" in KEGG
     rxnid_set = re.findall(r'\s+R[0-9]+[0-9]+[0-9]+[0-9]+[0-9]'+'\\b', ecinfo_text)
     rxnid_list = []    
     for each_set in rxnid_set:
         rxnid = re.findall('R[0-9]+[0-9]+[0-9]+[0-9]+[0-9]+', each_set)
         rxnid_list+=rxnid
 
-#Removes redundancy
+        #Removes redundancy
         rxnid_list = list(set(rxnid_list))
     return rxnid_list
 
@@ -160,7 +162,7 @@ def get_rxnInfo_from_rxnid(rxnid):
         if sptlist[0].strip() == 'ENZYME':
             ENZYME = ' '.join(sptlist[1:])
 
-#Considers only reactions mapped in pathways
+        #Considers only reactions mapped in pathways
         if sptlist[0].strip() == 'PATHWAY':        
             PATHWAY = ' '.join(sptlist[1:])
 	    return {'NAME':NAME, 'DEFINITION':DEFINITION, 'EQUATION':EQUATION, 'ENZYME':ENZYME, 'PATHWAY':PATHWAY}
@@ -184,7 +186,7 @@ def make_all_rxnInfo_fromRefSeq(targetGenome_locusTag_ec_nonBBH_dict):
 	for enzymeEC in targetGenome_locusTag_ec_nonBBH_dict[locusTag]:
 	    print "EC_number for locusTag:", locusTag, enzymeEC
 
-#KEGG REST does not accept unspecific EC_number: e.g., 3.2.2.-
+            #KEGG REST does not accept unspecific EC_number: e.g., 3.2.2.-
 	    if '-' not in enzymeEC:
                 rxnid_list = get_rxnid_from_ECNumber(enzymeEC)
                 for rxnid in rxnid_list:
@@ -193,7 +195,7 @@ def make_all_rxnInfo_fromRefSeq(targetGenome_locusTag_ec_nonBBH_dict):
 		    if rxnid not in rxnid_locusTag_dict.keys():
 		        rxnid_locusTag_dict[rxnid] = [(locusTag)]
 
-#Appends additional different genes to the same reaction ID
+                    #Appends additional different genes to the same reaction ID
 		    elif rxnid in rxnid_locusTag_dict.keys():
 		        rxnid_locusTag_dict[rxnid].append((locusTag))
                     print locusTag, rxnid, rxnid_info_dict[rxnid], "\n"
@@ -205,11 +207,11 @@ def check_existing_rxns(kegg_mnxr_dict, templateModel_bigg_mnxr_dict, rxnid_info
     rxnid_to_add_list =[]
 
     for rxnid in rxnid_info_dict.keys():
-#Considers only reactions mapped in pathways
+        #Considers only reactions mapped in pathways
 	if rxnid in kegg_mnxr_dict.keys():
             kegg_mnxr = kegg_mnxr_dict[rxnid]
 
-#Checks with reactions in the template model through MNXref
+            #Checks with reactions in the template model through MNXref
             if kegg_mnxr not in templateModel_bigg_mnxr_dict.values() and rxnid not in rxnid_to_add_list:
                 rxnid_to_add_list.append(rxnid)
 
@@ -234,15 +236,17 @@ def extract_rxn_mnxm_coeff(mnxr_to_add_list, mnxr_rxn_dict, mnxm_bigg_compound_d
 	unparsed_equation = mnxr_rxn_dict[mnxr]
 	print unparsed_equation
 
-#"substrates" and "products" contain stoichiometric coeff of each compound
+        #"substrates" and "products" contain stoichiometric coeff of each compound
 	sptReaction = unparsed_equation.split('=')
 	substrates = sptReaction[0].strip()
 	products = sptReaction[1].strip()
 
-#Discards polymerization reactions with undefinite coeff's
-#e.g., 1 MNXM9 + (n+2) MNXM90033 = 1 MNXM5617 + (n) MNXM90033
+        #Discards polymerization reactions with undefinite coeff's
+        #e.g., 1 MNXM9 + (n+2) MNXM90033 = 1 MNXM5617 + (n) MNXM90033
 	if '(' not in substrates and '(' not in products:
-#Creating: e.g., {bigg compoundID:(-1)coeff}, {kegg compoundID:(-1)coeff} or {mnxm:(-1)coeff}
+            #Creating:
+            #e.g., {bigg compoundID:(-1)coeff}, {kegg compoundID:(-1)coeff}
+            #or {mnxm:(-1)coeff}
 	    substrates = substrates.split(' + ')
 	    mnxm_coeff_dict = {}
 	    for substrate in substrates:
@@ -254,7 +258,8 @@ def extract_rxn_mnxm_coeff(mnxr_to_add_list, mnxr_rxn_dict, mnxm_bigg_compound_d
 	        else:
 		    mnxm_coeff_dict[substrate[1]] = float(substrate[0])*-1
 
-#Creating: e.g., {bigg compoundID:coeff}, {kegg compoundID:coeff} or {mnxm:coeff}
+            #Creating:
+            #e.g., {bigg compoundID:coeff}, {kegg compoundID:coeff} or {mnxm:coeff}
 	    products = products.split(' + ')
 	    for product in products:
 	        product = product.split()
@@ -265,7 +270,8 @@ def extract_rxn_mnxm_coeff(mnxr_to_add_list, mnxr_rxn_dict, mnxm_bigg_compound_d
 	        else:
 		    mnxm_coeff_dict[product[1]] = float(product[0])
 
-#Creating: e.g., {'R03232': {'f1p': -1.0, 'C04261': 1.0, 'fru': 1.0, 'C00615': -1.0}}
+            #Creating: 
+            #e.g., {'R03232': {'f1p': -1.0, 'C04261': 1.0, 'fru': 1.0, 'C00615': -1.0}}
 	    rxnid_mnxm_coeff_dict[mnxr_kegg_dict[mnxr]] = mnxm_coeff_dict
 
     return rxnid_mnxm_coeff_dict
@@ -292,43 +298,43 @@ def add_nonBBH_rxn(modelPrunedGPR, rxnid_info_dict, rxnid_mnxm_coeff_dict, rxnid
 
     for rxnid in rxnid_mnxm_coeff_dict.keys():
 	print rxnid
-#ID
+        #ID
 	rxn = Reaction(rxnid)
-#Name
-#Soem reaction IDs do not have NAME despite the presence of PATHWAY
+        #Name
+        #Some reaction IDs do not have NAME despite the presence of PATHWAY
 	rxn.name = rxnid_info_dict[rxnid]['NAME']
   
-#Reversibility / Lower and upper bounds
+        #Reversibility / Lower and upper bounds
 	rxn.lower_bound = -1000
 	rxn.uppwer_bound = 1000
 
-#Metabolites and their stoichiometric coeff's
+        #Metabolites and their stoichiometric coeff's
 	for metab in rxnid_mnxm_coeff_dict[rxnid]:
 	    metab_compt = '_'.join([metab,'c'])
 
-#Adding metabolites already in the model
+            #Adding metabolites already in the model
 	    if metab_compt in modelPrunedGPR.metabolites:
 		rxn.add_metabolites({modelPrunedGPR.metabolites.get_by_id(metab_compt):rxnid_mnxm_coeff_dict[rxnid][metab]})
 
-#Adding metabolites with bigg compoundID, but not in the model
+            #Adding metabolites with bigg compoundID, but not in the model
 	    elif metab in bigg_mnxm_compound_dict.keys():
 		mnxm = bigg_mnxm_compound_dict[metab]
 		metab_compt = Metabolite(metab, formula = mnxm_compoundInfo_dict[mnxm][1], name = mnxm_compoundInfo_dict[mnxm][0], compartment='c')
 		rxn.add_metabolites({metab_compt:rxnid_mnxm_coeff_dict[rxnid][metab]})
 
-#Adding metabolites with KEGG compoundID and not in the model
+            #Adding metabolites with KEGG compoundID and not in the model
 	    else:
 		keggID = get_compoundInfo(metab)
 		metab_compt = Metabolite(metab, formula = keggID['FORMULA'], name = keggID['NAME'], compartment='c')
 		rxn.add_metabolites({metab_compt:rxnid_mnxm_coeff_dict[rxnid][metab]})
 
-#GPR association
+        #GPR association
 	if len(rxnid_locusTag_dict[rxnid]) == 1:
 	    gpr = '( %s )' %(rxnid_locusTag_dict[rxnid][0])
 	else:
 	    count = 1
 	    for locusTag in rxnid_locusTag_dict[rxnid]:
-#Considers "and" relationship in the GPR association
+                #Considers "and" relationship in the GPR association
 		if 'subunit' in targetGenome_locusTag_prod_dict[locusTag]:
 		    count += 1
 	    if count == len(rxnid_locusTag_dict[rxnid]):
@@ -338,14 +344,14 @@ def add_nonBBH_rxn(modelPrunedGPR, rxnid_info_dict, rxnid_mnxm_coeff_dict, rxnid
 	    gpr = '( %s )' %(gpr)
 	rxn.add_gene_reaction_rule(gpr)
 
-#Subsystem
+        #Subsystem
 	rxn.subsystem = rxnid_info_dict[rxnid]['PATHWAY']
 
-#E.C. number: not available feature in COBRApy
-#Objective coeff: default
+        #E.C. number: not available feature in COBRApy
+        #Objective coeff: default
 	rxn.objective_coefficient = 0
 
-#Addition of a reaction to the model
+        #Addition of a reaction to the model
 	modelPrunedGPR.add_reaction(rxn)
 
     target_model = copy.deepcopy(modelPrunedGPR)
