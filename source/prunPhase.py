@@ -16,7 +16,7 @@ import sys
 
 #Looks for .xml and .gb(k) files in the pre-defined folder
 def get_temp_fasta(orgName):
-    for root, dirs, files in os.walk('./input1/%s/' %(orgName)):
+    for root, _, files in os.walk('./input1/%s/' %(orgName)):
         for f in files:
             if f.endswith('.fa'):
                 tempFasta = os.path.join(root, f)
@@ -28,7 +28,7 @@ def get_temp_fasta(orgName):
 
 #Looks for .fa and .gbk  files in the pre-defined folder
 def get_target_gbk():
-    for root, dirs, files in os.walk('./temp1/'):
+    for root, _, files in os.walk('./temp1/'):
         for f in files:
 	    if f.endswith('.gbk') or f.endswith('.gb'):
                 target_gbk = os.path.join(root, f)
@@ -90,7 +90,7 @@ def get_targetGenomeInfo(gbkFile, FileType):
 
 #Looks for .fa and .gbk  files in the pre-defined folder
 def get_target_fasta():
-    for root, dirs, files in os.walk('./temp1/'):
+    for root, _, files in os.walk('./temp1/'):
         for f in files:
             if f.endswith('.fa'):
                 target_fasta = os.path.join(root, f)
@@ -247,7 +247,6 @@ def calcBoolean(booleanList):
 def makeBooleanFormat(temp_target_BBH_dict, tempModel_biggRxnid_locusTag_dict): 
     booleanList = tempModel_biggRxnid_locusTag_dict
     valueList = copy.deepcopy(booleanList)     
-    booleanFormatList = copy.deepcopy(booleanList)
  
     for i in range(len(booleanList)):
         if type(booleanList[i])==list:
@@ -289,7 +288,6 @@ def makeBooleanFormat(temp_target_BBH_dict, tempModel_biggRxnid_locusTag_dict):
     
     booleanList = newbooleanList
     valueList2 = copy.deepcopy(booleanList)
-    booleanFormatList = copy.deepcopy(booleanList)
     
     for i in range(len(booleanList)):
         if type(booleanList[i])==list:
