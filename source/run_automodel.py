@@ -6,9 +6,7 @@ Hyun Uk Kim, Tilmann Weber
 from prunPhase import *
 from augPhase import *
 from cobra.io.sbml import write_cobra_model_to_sbml_file
-import copy
 import pickle
-import urllib2
 import time
 
 start = time.time()
