@@ -21,8 +21,9 @@ def get_temp_fasta(orgName):
             if file.endswith('.fa'):
                 tempFasta = os.path.join(root, file)
             	return root, tempFasta
-        else:
-            sys.exit(1)
+            else:
+                #FIXME: Don't use sys.exit
+                sys.exit(1)
 
 
 #Looks for .fa and .gbk  files in the pre-defined folder
