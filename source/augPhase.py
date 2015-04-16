@@ -293,7 +293,7 @@ def get_compoundInfo(compoundID):
     return {'NAME':NAME, 'FORMULA':FORMULA}
 
 
-def add_nonBBH_rxn(modelPrunedGPR, rxnid_info_dict, rxnid_mnxm_coeff_dict, rxnid_locusTag_dict, bigg_mnxm_compound_dict, kegg_mnxm_compound_dict, mnxm_compoundInfo_dict, targetGenome_locusTag_prod_dict):
+def add_nonBBH_rxn(modelPrunedGPR, rxnid_info_dict, rxnid_mnxm_coeff_dict, rxnid_locusTag_dict, bigg_mnxm_compound_dict, mnxm_compoundInfo_dict, targetGenome_locusTag_prod_dict):
 
     for rxnid in rxnid_mnxm_coeff_dict.keys():
 	print rxnid
