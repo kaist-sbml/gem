@@ -24,7 +24,7 @@ def read_gbk():
         fileName = sys.argv[1][:-4]
     elif sys.argv[1].endswith('.gb'):
         fileName = sys.argv[1][:-3]
-    outFile = "/data1/user_home/edhyunukkim/aSmodule_codes_not_integrated/gbk_file_processing/%s_trans.gbk" %fileName
+    outFile = "/data1/user_home/edhyunukkim/antismash_modeling/codes_not_integrated/gbk_file_processing/%s_trans.gbk" %fileName
     print outFile
     seq_records = SeqIO.read(GenbankFile, "genbank")
 
@@ -37,7 +37,7 @@ def get_aa_sequence(outfile, seq_records):
     for feature in seq_records.features:
         if feature.type == 'CDS':
             #Retrieving protein sequence from Entrez (protein) using protein_id
-            print feature.qualifiers['locus_tag'][0]
+            #print feature.qualifiers['locus_tag'][0]
 	    if "translation" not in feature.qualifiers and "protein_id" in feature.qualifiers:
                 print feature.qualifiers['protein_id'][0]
                 try: 
