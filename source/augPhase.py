@@ -136,7 +136,9 @@ def get_rxnid_from_ECNumber(enzymeEC):
 
 #Get reaction information using its ID from KEGG
 #Input: KEGG rxnid in string form (e.g., R00362)
-#Output: Reaction information for 'Name', 'Definition', and 'Equation' as dictionary form {'NAME': 'citrate oxaloacetate-lyase', 'DEFINITION': Citrate <=> Acetate + Oxaloacetate, 'EQUATION': C00158 <=> C00033 + C00036}
+#Output: Reaction information for 'Name', 'Definition', and 'Equation' as dictionary form
+#{'NAME': 'citrate oxaloacetate-lyase', 'DEFINITION': Citrate <=> Acetate + Oxaloacetate, 
+#'EQUATION': C00158 <=> C00033 + C00036}
 def get_rxnInfo_from_rxnid(rxnid):  
     url = "http://rest.kegg.jp/get/rn:%s"%(rxnid)
     reaction_info_text = urllib2.urlopen(url).read()
