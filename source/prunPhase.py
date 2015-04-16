@@ -32,8 +32,9 @@ def get_target_gbk():
 	    if file.endswith('.gbk') or file.endswith('.gb'):
                 target_gbk = os.path.join(root, file)
 	        return target_gbk
-	else:
-	    sys.exit(1)
+            else:
+                #FIXME: Don't use sys.exit
+	        sys.exit(1)
 
 
 def get_targetGenomeInfo(gbkFile, FileType):
