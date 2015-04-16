@@ -37,22 +37,26 @@ def get_aa_sequence(outfile, seq_records):
     for feature in seq_records.features:
         if feature.type == 'CDS':
             #Retrieving protein sequence from Entrez (protein) using protein_id
-            #print feature.qualifiers['locus_tag'][0]
-	    if "translation" not in feature.qualifiers and "protein_id" in feature.qualifiers:
-                print feature.qualifiers['protein_id'][0]
-                try: 
-	            handle = Entrez.efetch(db="protein", id=feature.qualifiers['protein_id'][0], rettype="fasta", retmode="text")
-	            for protein_seq in SeqIO.parse(handle, 'fasta'):
-	                feature.qualifiers['translation'] = protein_seq.seq
-	            handle.close()
-                except:
-                    print "Cannot access Entrez Protein"
-                    print "Writing output file with translations fetched up to current point"
-                    SeqIO.write(seq_records, outfile, "genbank")
+	    if "translation" not in feature.qualifiers:
+                if "protein_id" in feature.qualifiers:
+                    print feature.qualifiers['locus_tag'][0], feature.qualifiers['protein_id'][0]
+                    try: 
+	                handle = Entrez.efetch(db="protein", id=feature.qualifiers['protein_id'][0], rettype="fasta", retmode="text")
+	                for protein_seq in SeqIO.parse(handle, 'fasta'):
+	                    feature.qualifiers['translation'] = protein_seq.seq
+	                handle.close()
+                    except:
+                        print "Cannot access Entrez Protein"
+                        print "Writing output file with translations fetched up to current point"
+                        SeqIO.write(seq_records, outfile, "genbank")
 
-def count_cds_ec_translation(seq_records):
+                else:
+                    print feature.qualifiers['locus_tag'][0], ": This CDS does not have protein_id"
+
+def count_cds_qualifiers(seq_records):
     num_cds = 0
     num_ec = 0
+    num_protid = 0
     num_trans = 0
 
     #Counts the number of CDS assigned with EC_number and translation
@@ -61,12 +65,15 @@ def count_cds_ec_translation(seq_records):
             num_cds += 1
             if 'EC_number' in feature.qualifiers:
                 num_ec += 1
+            if 'protein_id' in feature.qualifiers:
+                num_protid += 1
             if 'translation' in feature.qualifiers:
                 num_trans += 1
     
     print "\n", "number of CDS:", num_cds
     print "Number of CDS assigned with EC_number:", num_ec
+    print "Number of CDS assigned with protein_id:", num_protid
     print "Number of CDS assigned with translation:", num_trans, "\n"
 
-    return num_cds, num_ec, num_trans
+    return num_cds, num_ec, num_protid, num_trans
 
