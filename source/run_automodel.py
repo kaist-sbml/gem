@@ -3,6 +3,7 @@
 Hyun Uk Kim, Tilmann Weber
 '''
 
+#Wildcard imports should never be used in production code.
 from prunPhase import *
 from augPhase import *
 from cobra.io.sbml import write_cobra_model_to_sbml_file
