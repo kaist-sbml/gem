@@ -17,9 +17,9 @@ import sys
 #Looks for .xml and .gb(k) files in the pre-defined folder
 def get_temp_fasta(orgName):
     for root, dirs, files in os.walk('./input1/%s/' %(orgName)):
-        for file in files:
-            if file.endswith('.fa'):
-                tempFasta = os.path.join(root, file)
+        for f in files:
+            if f.endswith('.fa'):
+                tempFasta = os.path.join(root, f)
             	return root, tempFasta
             else:
                 #FIXME: Don't use sys.exit
@@ -29,9 +29,9 @@ def get_temp_fasta(orgName):
 #Looks for .fa and .gbk  files in the pre-defined folder
 def get_target_gbk():
     for root, dirs, files in os.walk('./temp1/'):
-        for file in files:
-	    if file.endswith('.gbk') or file.endswith('.gb'):
-                target_gbk = os.path.join(root, file)
+        for f in files:
+	    if f.endswith('.gbk') or f.endswith('.gb'):
+                target_gbk = os.path.join(root, f)
 	        return target_gbk
             else:
                 #FIXME: Don't use sys.exit
@@ -91,9 +91,9 @@ def get_targetGenomeInfo(gbkFile, FileType):
 #Looks for .fa and .gbk  files in the pre-defined folder
 def get_target_fasta():
     for root, dirs, files in os.walk('./temp1/'):
-        for file in files:
-            if file.endswith('.fa'):
-                target_fasta = os.path.join(root, file)
+        for f in files:
+            if f.endswith('.fa'):
+                target_fasta = os.path.join(root, f)
 	        return target_fasta
 	else:
 	    sys.exit(1)
