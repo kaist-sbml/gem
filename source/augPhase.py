@@ -43,7 +43,6 @@ def make_locusTag_geneID_nonBBH(gbkFile, fileType, nonBBH_list):
 		    geneID = feature.qualifiers.get('db_xref')
 		    print "feature.qualifiers.get('db_xref'):", geneID
 		    geneID = geneID[0].split(':')
-		    geneID_type = geneID[0].strip()
 		    geneID = geneID[1].strip()
 		    print "geneID:", geneID 
 
