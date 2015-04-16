@@ -110,7 +110,6 @@ print "creating various dictionary files for the nonBBH gene-associted reactions
 #def get_ECNumberList_from_locusTag(species_locusTag):
 #def get_rxnid_from_ECNumber(enzymeEC):
 #def get_rxnInfo_from_rxnid(rxnid):
-#rxnid_info_dict, rxnid_locusTag_dict = make_all_rxnInfo_fromKEGG(locusTag_geneID_dict)
 
 targetGenome_locusTag_ec_nonBBH_dict = get_targetGenome_locusTag_ec_nonBBH_dict(targetGenome_locusTag_ec_dict, nonBBH_list)
 
