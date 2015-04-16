@@ -389,7 +389,7 @@ def swap_locusTag_tempModel(modelPruned, temp_target_BBH_dict):
 #Checks if the element itself is List.
 #If the element is not List, then gene in template model is directly replaced with genes in target genome
 	    if type(tempLocusTag) != list:
-		if temp_target_BBH_dict.has_key(tempLocusTag) == True:
+		if tempLocusTag in temp_target_BBH_dict:
 		    booleanList.pop(booleanList.index(tempLocusTag))
 		    for targetLocusTag in temp_target_BBH_dict[tempLocusTag]:
                         modified_booleanList.append(targetLocusTag)
@@ -400,7 +400,7 @@ def swap_locusTag_tempModel(modelPruned, temp_target_BBH_dict):
 	    else:
                 temp_gpr_list = []
 		for eachLocusTag in tempLocusTag:
-		    if temp_target_BBH_dict.has_key(eachLocusTag) == True:
+		    if eachLocusTag in temp_target_BBH_dict:
 			for targetLocusTag in temp_target_BBH_dict[eachLocusTag]:
 			    temp_gpr_list.append(targetLocusTag)
                     else:
