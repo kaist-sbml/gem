@@ -4,9 +4,7 @@ Hyun Uk Kim, Tilmann Weber, Jae Yong Ryu and Kyu-Sang Hwang
 '''
 
 from Bio import SeqIO
-from cobra.io.sbml import create_cobra_model_from_sbml_file
 from cobra.flux_analysis import single_deletion
-from cobra import Reaction
 from cobra.manipulation.delete import prune_unused_metabolites
 import copy
 import os
