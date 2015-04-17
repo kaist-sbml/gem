@@ -19,9 +19,6 @@ def get_temp_fasta(orgName):
             if f.endswith('.fa'):
                 tempFasta = os.path.join(root, f)
             	return root, tempFasta
-            else:
-                #FIXME: Don't use sys.exit
-                sys.exit(1)
 
 
 #Looks for .fa and .gbk  files in the pre-defined folder
@@ -31,9 +28,6 @@ def get_target_gbk():
 	    if f.endswith('.gbk') or f.endswith('.gb'):
                 target_gbk = os.path.join(root, f)
 	        return target_gbk
-            else:
-                #FIXME: Don't use sys.exit
-	        sys.exit(1)
 
 
 def get_targetGenomeInfo(gbkFile, FileType):
