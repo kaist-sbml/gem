@@ -161,7 +161,7 @@ def get_rxnInfo_from_rxnid(rxnid):
             ENZYME = ' '.join(sptlist[1:])
 
         #Considers only reactions mapped in pathways
-        if sptlist[0].strip() == 'PATHWAY':        
+        if sptlist[0].strip() == 'PATHWAY': 
             PATHWAY = ' '.join(sptlist[1:])
 	    return {'NAME':NAME, 'DEFINITION':DEFINITION, 'EQUATION':EQUATION, 'ENZYME':ENZYME, 'PATHWAY':PATHWAY}
 
@@ -296,62 +296,65 @@ def add_nonBBH_rxn(modelPrunedGPR, rxnid_info_dict, rxnid_mnxm_coeff_dict, rxnid
 
     for rxnid in rxnid_mnxm_coeff_dict.keys():
 	print rxnid
-        #ID
-	rxn = Reaction(rxnid)
-        #Name
-        #Some reaction IDs do not have NAME despite the presence of PATHWAY
-	rxn.name = rxnid_info_dict[rxnid]['NAME']
+        print rxnid_info_dict[rxnid]
+
+        if rxnid_info_dict[rxnid] != None:
+            #ID
+	    rxn = Reaction(rxnid)
+            #Name
+            #Some reaction IDs do not have NAME despite the presence of PATHWAY
+	    rxn.name = rxnid_info_dict[rxnid]['NAME']
   
-        #Reversibility / Lower and upper bounds
-	rxn.lower_bound = -1000
-	rxn.uppwer_bound = 1000
+            #Reversibility / Lower and upper bounds
+	    rxn.lower_bound = -1000
+	    rxn.uppwer_bound = 1000
 
-        #Metabolites and their stoichiometric coeff's
-	for metab in rxnid_mnxm_coeff_dict[rxnid]:
-	    metab_compt = '_'.join([metab,'c'])
+            #Metabolites and their stoichiometric coeff's
+	    for metab in rxnid_mnxm_coeff_dict[rxnid]:
+	        metab_compt = '_'.join([metab,'c'])
 
-            #Adding metabolites already in the model
-	    if metab_compt in modelPrunedGPR.metabolites:
-		rxn.add_metabolites({modelPrunedGPR.metabolites.get_by_id(metab_compt):rxnid_mnxm_coeff_dict[rxnid][metab]})
+                #Adding metabolites already in the model
+	        if metab_compt in modelPrunedGPR.metabolites:
+		    rxn.add_metabolites({modelPrunedGPR.metabolites.get_by_id(metab_compt):rxnid_mnxm_coeff_dict[rxnid][metab]})
 
-            #Adding metabolites with bigg compoundID, but not in the model
-	    elif metab in bigg_mnxm_compound_dict.keys():
-		mnxm = bigg_mnxm_compound_dict[metab]
-		metab_compt = Metabolite(metab, formula = mnxm_compoundInfo_dict[mnxm][1], name = mnxm_compoundInfo_dict[mnxm][0], compartment='c')
-		rxn.add_metabolites({metab_compt:rxnid_mnxm_coeff_dict[rxnid][metab]})
+                #Adding metabolites with bigg compoundID, but not in the model
+	        elif metab in bigg_mnxm_compound_dict.keys():
+		    mnxm = bigg_mnxm_compound_dict[metab]
+		    metab_compt = Metabolite(metab, formula = mnxm_compoundInfo_dict[mnxm][1], name = mnxm_compoundInfo_dict[mnxm][0], compartment='c')
+		    rxn.add_metabolites({metab_compt:rxnid_mnxm_coeff_dict[rxnid][metab]})
 
-            #Adding metabolites with KEGG compoundID and not in the model
+                #Adding metabolites with KEGG compoundID and not in the model
+	        else:
+		    keggID = get_compoundInfo(metab)
+		    metab_compt = Metabolite(metab, formula = keggID['FORMULA'], name = keggID['NAME'], compartment='c')
+		    rxn.add_metabolites({metab_compt:rxnid_mnxm_coeff_dict[rxnid][metab]})
+
+            #GPR association
+	    if len(rxnid_locusTag_dict[rxnid]) == 1:
+	        gpr = '( %s )' %(rxnid_locusTag_dict[rxnid][0])
 	    else:
-		keggID = get_compoundInfo(metab)
-		metab_compt = Metabolite(metab, formula = keggID['FORMULA'], name = keggID['NAME'], compartment='c')
-		rxn.add_metabolites({metab_compt:rxnid_mnxm_coeff_dict[rxnid][metab]})
+	        count = 1
+	        for locusTag in rxnid_locusTag_dict[rxnid]:
+                    #Considers "and" relationship in the GPR association
+		    if 'subunit' in targetGenome_locusTag_prod_dict[locusTag]:
+		        count += 1
+	        if count == len(rxnid_locusTag_dict[rxnid]):
+	            gpr = ' and '.join(rxnid_locusTag_dict[rxnid])
+ 	        else:
+	            gpr = ' or '.join(rxnid_locusTag_dict[rxnid])
+	        gpr = '( %s )' %(gpr)
+	    rxn.add_gene_reaction_rule(gpr)
 
-        #GPR association
-	if len(rxnid_locusTag_dict[rxnid]) == 1:
-	    gpr = '( %s )' %(rxnid_locusTag_dict[rxnid][0])
-	else:
-	    count = 1
-	    for locusTag in rxnid_locusTag_dict[rxnid]:
-                #Considers "and" relationship in the GPR association
-		if 'subunit' in targetGenome_locusTag_prod_dict[locusTag]:
-		    count += 1
-	    if count == len(rxnid_locusTag_dict[rxnid]):
-	        gpr = ' and '.join(rxnid_locusTag_dict[rxnid])
- 	    else:
-	        gpr = ' or '.join(rxnid_locusTag_dict[rxnid])
-	    gpr = '( %s )' %(gpr)
-	rxn.add_gene_reaction_rule(gpr)
+            #Subsystem
+	    rxn.subsystem = rxnid_info_dict[rxnid]['PATHWAY']
 
-        #Subsystem
-	rxn.subsystem = rxnid_info_dict[rxnid]['PATHWAY']
+            #E.C. number: not available feature in COBRApy
+            #Objective coeff: default
+	    rxn.objective_coefficient = 0
 
-        #E.C. number: not available feature in COBRApy
-        #Objective coeff: default
-	rxn.objective_coefficient = 0
+            #Addition of a reaction to the model
+	    modelPrunedGPR.add_reaction(rxn)
 
-        #Addition of a reaction to the model
-	modelPrunedGPR.add_reaction(rxn)
-
-    target_model = copy.deepcopy(modelPrunedGPR)
-    return target_model
+        target_model = copy.deepcopy(modelPrunedGPR)
+        return target_model
 
