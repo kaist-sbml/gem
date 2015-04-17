@@ -81,6 +81,7 @@ def get_targetGenomeInfo(gbkFile, FileType):
 
     if len(targetGenome_locusTag_ec_dict) == 0:
 	print "Error: no EC_number in the submitted gbk file"
+        #FIXME: Don't use sys.exit
 	sys.exit(1)
     fp.close()
     return targetGenome_locusTag_ec_dict, targetGenome_locusTag_prod_dict 
@@ -94,6 +95,7 @@ def get_target_fasta():
                 target_fasta = os.path.join(root, f)
 	        return target_fasta
 	else:
+            #FIXME: Don't use sys.exit
 	    sys.exit(1)
 
 #making database files using fasta files
@@ -105,6 +107,7 @@ def make_blastDB(query_fasta):
     #Checks if DB is properly created; otherwise shutdown
     if os.path.isfile('./temp1/targetBlastDB.psq') == False:
 	print "error in make_blastDB: blast DB not created"
+        #FIXME: Don't use sys.exit
 	sys.exit(1)
 
 
