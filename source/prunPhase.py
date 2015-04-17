@@ -23,11 +23,9 @@ def get_temp_fasta(orgName):
 
 #Looks for .fa and .gbk  files in the pre-defined folder
 def get_target_gbk():
-    for root, _, files in os.walk('./temp1/'):
-        for f in files:
-	    if f.endswith('.gbk') or f.endswith('.gb'):
-                target_gbk = os.path.join(root, f)
-	        return target_gbk
+    target_gbk = sys.argv[1]
+    print "Target genome:", target_gbk
+    return target_gbk
 
 
 def get_targetGenomeInfo(gbkFile, FileType):
