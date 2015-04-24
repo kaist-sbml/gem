@@ -70,10 +70,10 @@ def count_cds_qualifiers(seq_records):
             if 'translation' in feature.qualifiers:
                 num_trans += 1
     
-    print "\n", "number of CDS:", num_cds
-    print "Number of CDS assigned with EC_number:", num_ec
-    print "Number of CDS assigned with protein_id:", num_protid
-    print "Number of CDS assigned with translation:", num_trans, "\n"
+    print "\n", "No. CDS:", num_cds
+    print "No. CDS assigned with EC_number:", num_ec
+    print "No. CDS assigned with protein_id:", num_protid
+    print "No. CDS assigned with translation:", num_trans, "\n"
 
     return num_cds, num_ec, num_protid, num_trans
 
