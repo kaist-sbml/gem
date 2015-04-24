@@ -28,7 +28,7 @@ def read_gbk():
     print outFile
     seq_records = SeqIO.read(GenbankFile, "genbank")
 
-    return outFile, seq_records
+    return fileName, outFile, seq_records
 
 def get_aa_sequence(outfile, seq_records):
     #Checks the presence of the qualifier "translation" and inserts one if absent
@@ -77,3 +77,58 @@ def count_cds_qualifiers(seq_records):
 
     return num_cds, num_ec, num_protid, num_trans
 
+#This function was adopted from metabolicmodel / prunPhase.py
+def get_targetGenomeInfo(seq_records, fileName):
+    fp1 = open('./%s_ec.txt' %(fileName),'w')
+    #fp2 = open('./%s_prod.txt' %(fileName),'w')
+    targetGenome_locusTag_ec_dict = {}
+    targetGenome_locusTag_prod_dict = {}
+
+    ec_all = []
+    ec3 = []
+    ec4 = []
+
+    for feature in seq_records.features:
+        if feature.type == 'CDS':
+
+            #Retrieving "locus_tag (i.e., ORF name)" for each CDS
+            locusTag = feature.qualifiers['locus_tag'][0]
+
+            #Some locus_tag's have multiple same qualifiers (e.g., EC_number)
+	    for item in feature.qualifiers:
+
+                #Used to find "and" relationship in the GPR association
+	        if item == 'product':
+		    product = feature.qualifiers.get('product')[0]
+		    targetGenome_locusTag_prod_dict[locusTag] = product
+
+                #Watch multiple EC_number's
+		if item == 'EC_number':
+	            ecnums = feature.qualifiers.get('EC_number')
+		    targetGenome_locusTag_ec_dict[locusTag] = ecnums
+                    for ecnum in ecnums:
+                        ec_all.append(ecnum)
+                        if ecnum[-1] != '-':
+                            ec4.append(ecnum)
+                        else:
+                            ec3.append(ecnum)
+
+    #Check if the gbk file has EC_number
+    #Additional conditions should be given upon setup of in-house EC_number assigner
+    print "len(targetGenome_locusTag_ec_dict.keys):"
+    print len(targetGenome_locusTag_ec_dict)
+    print "len(targetGenome_locusTag_prod_dict.keys):"
+    print len(targetGenome_locusTag_prod_dict)
+
+    print "\n", "No. all EC_number:", len(ec_all)
+    print "No. EC_number with 3 numbers:", len(ec3)
+    print "No. EC_number with 4 numbers:", len(ec4), "\n"
+
+    for locus_tag in targetGenome_locusTag_ec_dict.keys():
+        print >>fp1, '%s\t%s\t%s' %(locus_tag, targetGenome_locusTag_prod_dict[locus_tag], targetGenome_locusTag_ec_dict[locus_tag])
+
+    #for locus_tag in targetGenome_locusTag_prod_dict.keys():
+    #    print >>fp2, '%s\t%s' %(locus_tag, targetGenome_locusTag_prod_dict[locus_tag])
+
+    fp1.close()
+    #fp2.close()

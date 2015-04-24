@@ -2,15 +2,16 @@
 2015 Hyun Uk Kim
 '''
 
-from gbk_editor import read_gbk, get_aa_sequence, count_cds_qualifiers
+from gbk_editor import read_gbk, get_aa_sequence, count_cds_qualifiers, get_targetGenomeInfo
 from Bio import SeqIO
 import time
 
 start = time.time()
 
-outfile, seq_records = read_gbk()
-get_aa_sequence(outfile, seq_records)
+fileName, outfile, seq_records = read_gbk()
+#get_aa_sequence(outfile, seq_records)
 num_cds, num_ec, num_protid, num_trans = count_cds_qualifiers(seq_records)
+get_targetGenomeInfo(seq_records, fileName)
 
 #Retrieving aa sequence often skips some CDSs
 #while num_cds - num_trans > 5:
