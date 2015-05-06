@@ -355,6 +355,6 @@ def add_nonBBH_rxn(modelPrunedGPR, rxnid_info_dict, rxnid_mnxm_coeff_dict, rxnid
             #Addition of a reaction to the model
 	    modelPrunedGPR.add_reaction(rxn)
 
-        target_model = copy.deepcopy(modelPrunedGPR)
-        return target_model
+    target_model = copy.deepcopy(modelPrunedGPR)
+    return target_model
 
