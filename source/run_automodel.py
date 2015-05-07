@@ -157,4 +157,4 @@ for i in range(len(target_model.metabolites)):
 fp1.close()
 fp2.close()
 
-print "elpased time:", time.strftime("%H:%M:%S", time.gmtime(time.time() - start))
+print "Elapsed time:", time.strftime("%H:%M:%S", time.gmtime(time.time() - start))

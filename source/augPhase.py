@@ -297,11 +297,12 @@ def add_nonBBH_rxn(modelPrunedGPR, rxnid_info_dict, rxnid_mnxm_coeff_dict, rxnid
 
     for rxnid in rxnid_mnxm_coeff_dict.keys():
 	print rxnid
-        print rxnid_info_dict[rxnid]
 
         if rxnid_info_dict[rxnid] != None:
+
             #ID
 	    rxn = Reaction(rxnid)
+
             #Name
             #Some reaction IDs do not have NAME despite the presence of PATHWAY
 	    rxn.name = rxnid_info_dict[rxnid]['NAME']
