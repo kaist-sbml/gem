@@ -106,7 +106,7 @@ def make_all_rxnInfo_fromKEGG(locusTag_geneID_dict, targetGenome_locusTag_ec_dic
 			rxnid_locusTag_dict[rxnid].append((locusTag))
 	
                     #print locusTag, rxnid, rxnid_info_dict[rxnid], "\n"
-	else:
+	#else:
 	    #print locusTag, ": KEGG info NOT available", "\n"
 
     return rxnid_info_dict, rxnid_locusTag_dict
