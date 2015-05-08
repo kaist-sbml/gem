@@ -14,7 +14,6 @@ import os
 import pickle
 import re
 import urllib2
-import sys
 
 #Following functions are used when retrieving information from KEGG
 #make_locusTag_geneID_nonBBH
@@ -356,7 +355,6 @@ def add_nonBBH_rxn(modelPrunedGPR, rxnid_info_dict, rxnid_mnxm_coeff_dict, rxnid
             #Addition of a reaction to the model
 	    modelPrunedGPR.add_reaction(rxn)
 
-    target_model= copy.deepcopy(modelPrunedGPR)
+    target_model = copy.deepcopy(modelPrunedGPR)
     return target_model
-
 
