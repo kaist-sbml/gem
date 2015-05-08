@@ -14,7 +14,7 @@ import os
 import pickle
 import re
 import urllib2
-
+import sys
 
 #Following functions are used when retrieving information from KEGG
 #make_locusTag_geneID_nonBBH
@@ -62,7 +62,7 @@ def get_species_locusTag(ncbi_geneid):
     sptlist = data.strip().split()
     print "sptlist:", sptlist
     species_locusTag = sptlist[1]
-    print "species_locusTag:", species_locusTag
+    #print "species_locusTag:", species_locusTag
     return species_locusTag
 
 
@@ -106,9 +106,9 @@ def make_all_rxnInfo_fromKEGG(locusTag_geneID_dict, targetGenome_locusTag_ec_dic
 		    elif rxnid in rxnid_locusTag_dict.keys():
 			rxnid_locusTag_dict[rxnid].append((locusTag))
 	
-                    print locusTag, rxnid, rxnid_info_dict[rxnid], "\n"
+                    #print locusTag, rxnid, rxnid_info_dict[rxnid], "\n"
 	else:
-	    print locusTag, ": KEGG info NOT available", "\n"
+	    #print locusTag, ": KEGG info NOT available", "\n"
 
     return rxnid_info_dict, rxnid_locusTag_dict
 
@@ -159,7 +159,6 @@ def get_rxnInfo_from_rxnid(rxnid):
             EQUATION = ' '.join(sptlist[1:])
         if sptlist[0].strip() == 'ENZYME':
             ENZYME = ' '.join(sptlist[1:])
-
         #Considers only reactions mapped in pathways
         #Otherwise reactions have unspecified molecules having R groups
         if sptlist[0].strip() == 'PATHWAY': 
@@ -197,7 +196,7 @@ def make_all_rxnInfo_fromRefSeq(targetGenome_locusTag_ec_nonBBH_dict):
                     #Appends additional different genes to the same reaction ID
 		    elif rxnid in rxnid_locusTag_dict.keys():
 		        rxnid_locusTag_dict[rxnid].append((locusTag))
-                    print locusTag, rxnid, rxnid_info_dict[rxnid], "\n"
+                    #print locusTag, rxnid, rxnid_info_dict[rxnid], "\n"
 
     return rxnid_info_dict, rxnid_locusTag_dict
 
@@ -357,6 +356,7 @@ def add_nonBBH_rxn(modelPrunedGPR, rxnid_info_dict, rxnid_mnxm_coeff_dict, rxnid
             #Addition of a reaction to the model
 	    modelPrunedGPR.add_reaction(rxn)
 
-    target_model = copy.deepcopy(modelPrunedGPR)
+    target_model= copy.deepcopy(modelPrunedGPR)
     return target_model
+
 
