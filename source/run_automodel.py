@@ -138,7 +138,7 @@ target_model = add_nonBBH_rxn(modelPrunedGPR, rxnid_info_dict, rxnid_mnxm_coeff_
 #Model reloading and overwrtting solve this issue though it's not a good solution
 #Most models generated for the first time worked fine 
 write_cobra_model_to_sbml_file(target_model, './temp2/target_model_%s.xml' %orgName)
-cobra_model = create_cobra_model_from_sbml_file('./temp2/target_model_%s.xml' %orgName)
+target_model = create_cobra_model_from_sbml_file('./temp2/target_model_%s.xml' %orgName)
 write_cobra_model_to_sbml_file(target_model, './temp2/target_model_%s.xml' %orgName)
 
 #Output on screen
