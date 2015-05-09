@@ -1,6 +1,6 @@
 '''
-2014
-Hyun Uk Kim, Tilmann Weber
+2014-2015
+Hyun Uk Kim, Tilmann Weber, Kyu-Sang Hwang and Jae Yong Ryu
 '''
 
 #Wildcard imports should never be used in production code.
