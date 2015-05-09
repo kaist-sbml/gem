@@ -6,7 +6,7 @@ Hyun Uk Kim, Tilmann Weber, Kyu-Sang Hwang and Jae Yong Ryu
 #Wildcard imports should never be used in production code.
 from prunPhase import *
 from augPhase import *
-from cobra.io.sbml import write_cobra_model_to_sbml_file
+from cobra.io.sbml import write_cobra_model_to_sbml_file, create_cobra_model_from_sbml_file
 import pickle
 import time
 
@@ -132,14 +132,20 @@ rxnid_mnxm_coeff_dict = extract_rxn_mnxm_coeff(mnxr_to_add_list, mnxr_rxn_dict, 
 target_model = add_nonBBH_rxn(modelPrunedGPR, rxnid_info_dict, rxnid_mnxm_coeff_dict, rxnid_locusTag_dict, bigg_mnxm_compound_dict, mnxm_compoundInfo_dict, targetGenome_locusTag_prod_dict)
 ###################################################################
 
+#Output files
+#Some models (e.g, salb, sho and shy) generated for the first time have errors for simulations
+#Cobrapy IO module seems to have an error which is not sure at the moment
+#Model reloading and overwrtting solve this issue though it's not a good solution
+#Most models generated for the first time worked fine 
+write_cobra_model_to_sbml_file(target_model, './temp2/target_model_%s.xml' %orgName)
+cobra_model = create_cobra_model_from_sbml_file('./temp2/target_model_%s.xml' %orgName)
+write_cobra_model_to_sbml_file(target_model, './temp2/target_model_%s.xml' %orgName)
+
 #Output on screen
 model = pickle.load(open('%s/model.p' %(root),'rb'))
 print "Number of genes:", len(model.genes), "/", len(modelPruned.genes), "/", len(target_model.genes)
 print "Number of reactions:", len(model.reactions), "/", len(modelPruned.reactions), "/", len(target_model.reactions)
 print "Number of metabolites:",  len(model.metabolites), "/", len(modelPruned.metabolites), "/", len(target_model.metabolites)
-
-#Output files
-write_cobra_model_to_sbml_file(target_model, './temp2/target_model_%s.xml' %(orgName))
 
 fp1 = open('./temp2/target_model_reactions.txt', "w")
 fp2 = open('./temp2/target_model_metabolites.txt', "w")
