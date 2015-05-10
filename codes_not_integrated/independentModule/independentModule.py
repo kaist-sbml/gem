@@ -1,5 +1,6 @@
 '''
 by Hyun Uk Kim, Jan - Nov 2014
+2015 Hyun Uk Kim
 '''
 
 from Bio import SeqIO
@@ -297,8 +298,8 @@ def pickling_Input_MNXreaction():
     fp1.close()
 
 
-def pickling_Input_BiGG_KEGG_MNX_compoundID():
-    fp1 = open('Input_BiGG_KEGG_MNX_compoundID_v1_1.tsv',"r")
+def pickle_input_bigg_kegg_mnx_compoundID():
+    fp1 = open('Input_BiGG_KEGG_MNX_compoundID_v1_2.tsv',"r")
     bigg_mnxm_compound_dict = {}
     mnxm_bigg_compound_dict = {}
     kegg_mnxm_compound_dict = {}
