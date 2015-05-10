@@ -4921,7 +4921,7 @@ S'acglcgalgbside_hs'
 p2460
 sS'MNXM90476'
 p2461
-S'sertrna(sec)'
+S'secsertrna'
 p2462
 sS'MNXM63469'
 p2463
