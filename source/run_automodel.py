@@ -133,10 +133,10 @@ target_model = add_nonBBH_rxn(modelPrunedGPR, rxnid_info_dict, rxnid_mnxm_coeff_
 ###################################################################
 
 #Output files
-#Some models (e.g, salb, sho and shy) generated for the first time have errors for simulations
-#Cobrapy IO module seems to have an error which is not sure at the moment
-#Model reloading and overwrtting solve this issue though it's not a good solution
-#Most models generated for the first time worked fine 
+#Model reloading and overwrtting are necessary for model consistency:
+#e.g., metabolite IDs with correct compartment suffices & accurate model stats
+#This can also mask the effects of model error (e.g., undeclared metabolite ID)
+#Cobrapy IO module seems to have an error for adding new reactions
 write_cobra_model_to_sbml_file(target_model, './temp2/target_model_%s.xml' %orgName)
 target_model = create_cobra_model_from_sbml_file('./temp2/target_model_%s.xml' %orgName)
 write_cobra_model_to_sbml_file(target_model, './temp2/target_model_%s.xml' %orgName)
