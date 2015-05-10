@@ -1,6 +1,5 @@
 '''
 Created by Hyun Uk Kim, Nov 2014
-2015 Hyun Uk Kim
 
 This file executes functions handling:
 1) parsing of the template model when the template model is first loaded,
@@ -13,28 +12,28 @@ from independentModule_v1_3 import *
 import pickle
 import subprocess
 
-#root, tempGenome, tempModel = get_tempInfo(orgName='sco')
-#print root
-#print tempGenome
-#print tempModel
+root, tempGenome, tempModel = get_tempInfo(orgName='eco')
+print root
+print tempGenome
+print tempModel
 
 ################################################################################
 #Loading and parsing of the template model
-#cobra_model, cobra_reaction_dic = readCobraModel(root, tempModel)
+cobra_model, cobra_reaction_dic = readCobraModel(root, tempModel)
 #cobra_model = pickle.load(open("Pickle_template_model_original.p","rb"))
 #cobra_reaction_dic = pickle.load(open('./forChecking/cobra_reaction_dic.p','rb'))
 #cobra_metabolite_dic = pickle.load(open("Pickle_cobra_metabolite_dic.p","rb"))
     
 #Reading a genbank file of the genome for the template model
-#tempGenome_locusTag_aaSeq_dict = readSeq_templateGenome(tempGenome , 'genbank')
+tempGenome_locusTag_aaSeq_dict = readSeq_templateGenome(tempGenome , 'genbank')
 
 #Parsing GPR of the template model
-#tempModel_biggRxnid_locusTag_dict, tempModel_locusTag_aaSeq_dict, tempModel_biggRxnid_wo_gene_list, tempModel_biggRxnidwithGene_woSeq_list = parse_templateModel_gpr('%s/tempModel_biggRxnid_locusTag_dict.txt' %(root), root, cobra_reaction_dic, tempGenome_locusTag_aaSeq_dict)
+tempModel_biggRxnid_locusTag_dict, tempModel_locusTag_aaSeq_dict, tempModel_biggRxnid_wo_gene_list, tempModel_biggRxnidwithGene_woSeq_list = parse_templateModel_gpr('%s/tempModel_biggRxnid_locusTag_dict.txt' %(root), root, cobra_reaction_dic, tempGenome_locusTag_aaSeq_dict)
 
-#makeFasta_locusTag_aaSeq(root, tempModel_locusTag_aaSeq_dict)
+makeFasta_locusTag_aaSeq(root, tempModel_locusTag_aaSeq_dict)
 
 #Generating a DB for the genes from the template model
-#make_blastDB(root, '%s/tempModel_locusTag_aaSeq.fa' %(root))
+make_blastDB(root, '%s/tempModel_locusTag_aaSeq.fa' %(root))
 
 #tempModel_locusTag_aaSeq_dict = pickle.load(open("./forChecking/tempModel_locusTag_aaSeq_dict.p","rb"))
 ################################################################################
@@ -48,7 +47,7 @@ import subprocess
 #pickling_Input_MNXreaction()
 #mnxr_rxn_dict = pickle.load(open("Pickle_mnxr_rxn_dict.p","rb"))
 
-pickle_input_bigg_kegg_mnx_compoundID()
+#pickling_Input_BiGG_KEGG_MNX_compoundID()
 #mnxm_bigg_compound_dict = pickle.load(open("Pickle_mnxm_bigg_compound_dict.p","rb"))
 #kegg_mnxm_compound_dict = pickle.load(open("Pickle_kegg_mnxm_compound_dict.p","rb"))
 #mnxm_kegg_compound_dict = pickle.load( open("Pickle_mnxm_kegg_compound_dict.p","rb"))
