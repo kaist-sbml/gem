@@ -44,7 +44,7 @@ cluster_info_dict = get_cluster_info_from_cluster_gbk(inputfile, "genbank")
 # Extracting information of domains from dictionary file 'cluster_info_dict' and 'dic_t1pks_gene' (VV)
 # dic_t1pks_domain['SAV_942_DM6'] = ['PKS_AT', '(2425-2719)', 'SAV_942']
 # dic_t1pks_gene_domain['SAV_938'] = ['PKS_AT', 'ACP', 'PKS_KS', 'PKS_AT', 'PKS_KR', 'ACP', 'PKS_KS', 'PKS_AT', 'PKS_DH', 'PKS_KR', 'ACP', 'PKS_Docking_Cterm']
-dic_nrps_gene_domain = get_cluster_domain(cluster_info_dict)
+locustag_domain_dict = get_cluster_domain(cluster_info_dict)
 
 # Extracting information of substrates with their substrates from dictionary file 'cluster_info_dict' and 'dic_t1pks_gene' (VV)
 # dic_t1pks_domain_substrate['SAV_943_M1'] = ['mmal', 'Ethyl_mal', 'pk']
@@ -52,7 +52,7 @@ dic_nrps_domain_substrate = second_metab_substrate(cluster_info_dict)
 
 # Extracting information of modules from dictionary file 'dic_t1pks_domain' (VV)
 # dic_t1pks_module['SAV_943_M1'] = ['PKS_KS', 'PKS_AT', 'ACP']
-#dic_nrps_module = second_metab_module(locustag_product_monomer_dict, dic_nrps_gene_domain)
+#dic_nrps_module = second_metab_module(locustag_product_monomer_dict, locustag_domain_dict)
 
 # Generating rules for biosynthesis of type I PKS and converting module and its substrate to metabolic reactions
 # For example : dic_converted_metabolic_reaction_without_substrate['SAV_943_M0'] = ['coa': 1, 'nadph': -1, 'nadp': 1, 'hco3': 1, 'h': -1]
