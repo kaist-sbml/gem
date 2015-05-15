@@ -37,12 +37,6 @@ second_total_monomers = get_monomers_from_cluster_gbk(inputfile, "genbank", mono
 #MIGHT BE UNNECESSARY
 product = get_product_from_cluster_gbk(inputfile, "genbank")
 
-#TO REMOVE
-# To extract genes related to backbone biosynthesis in type I polyketide synthase (VV)
-# Extracting information of locus_tag, locus_tag, substrate_inform(aSProdPred) from query genebankfile
-# dic_t1pks_gene['SAV_938'] = ['type I polyketide synthase AVES 1', 'pk-mmal-mal']
-locustag_product_monomer_dict = get_locustag_product_monomer_from_cluster_gbk(inputfile, "genbank")
-
 # Extracting information of domains from dictionary file 'dic_t1pks_domain' (VV)
 #  dic_t1pks_domain[SAV_942_DM12] = ['PKS_KR', '(5084-5264)']
 dic_info_of_bundle_set_met = get_all_locus_tag_info_from_cluster_gbk(inputfile, "genbank", locustag_product_monomer_dict)
