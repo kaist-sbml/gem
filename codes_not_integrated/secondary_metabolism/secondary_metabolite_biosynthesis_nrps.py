@@ -146,12 +146,11 @@ def get_cluster_info_from_cluster_gbk(gbkFile, FileType):
 def get_cluster_domain(cluster_info_dict):
     fp1 = open('Output_second_metab_gene_domain.txt','w')
     fp2 = open('Output_second_metab_gene_substrate.txt','w')
-#     fp3 = open('Output_second_metab_gene_KR_activity.txt','w')
+    #fp3 = open('Output_second_metab_gene_KR_activity.txt','w')
     
-    dic_nrps_domain = {}
     dic_nrps_gene_domain = {}
     dic_nrps_gene_substrate = {}
-#     dic_t1pks_PKS_KR_activity = {}
+    #dic_t1pks_PKS_KR_activity = {}
         
     for each_gene in cluster_info_dict.keys():
         
@@ -160,7 +159,7 @@ def get_cluster_domain(cluster_info_dict):
         domain_count = 0
         list_nrps_domain = []
         list_nrps_gene_substrate = []
-#         list_t1pks_PKS_KR_activity = []
+        #list_t1pks_PKS_KR_activity = []
     
         for each_sub_set in list_set_met:
 
@@ -169,7 +168,7 @@ def get_cluster_domain(cluster_info_dict):
                 sptline1 = each_sub_set.split('. ')
                 crude_domain_info = sptline1[0] 
 
-                # to extract the information of KR activity and AT substrate specificity
+                #Extract the information of KR activity and AT substrate specificity
                 sptline2 = each_sub_set.split('; ')                
                 
                 if "AMP-binding" in crude_domain_info:
@@ -177,14 +176,12 @@ def get_cluster_domain(cluster_info_dict):
                     spt_NRPS_AMP_met = spt_NRPS_AMP[1].split(', ')
                     spt_NRPS_AMP_met = spt_NRPS_AMP_met[3].split(' (')
                     spt_NRPS_AMP_met = spt_NRPS_AMP_met[0].strip()
-                    
                     list_nrps_gene_substrate.append(spt_NRPS_AMP_met)
                 
-#                 if "PKS_KR" in crude_domain_info:
-#                     spt_PKS_KR = sptline2[1].split(': ')
-#                     spt_PKS_KR = spt_PKS_KR[1].strip()
-#                     
-#                     list_t1pks_PKS_KR_activity.append(spt_PKS_KR)
+                #if "PKS_KR" in crude_domain_info:
+                    #spt_PKS_KR = sptline2[1].split(': ')
+                    #spt_PKS_KR = spt_PKS_KR[1].strip()
+                    #list_t1pks_PKS_KR_activity.append(spt_PKS_KR)
                     
                 spt_domain_info = crude_domain_info.split(':')
                 whole_domain_info = spt_domain_info[1]
@@ -195,35 +192,31 @@ def get_cluster_domain(cluster_info_dict):
                 each_nrps_domain = spt_list_domain_info[0]
                 list_nrps_domain.append(each_nrps_domain)
                 
-                # domain information
-                            
+                #Domain information
                 domain_number = each_gene + '_DM' + str(domain_count)
                 domain_count = domain_count + 1
                             
-                dic_nrps_domain[domain_number] = spt_list_domain_info
-                    
         dic_nrps_gene_domain[each_gene] = list_nrps_domain
         dic_nrps_gene_substrate[each_gene] = list_nrps_gene_substrate
-#         dic_t1pks_PKS_KR_activity[each_gene] = list_t1pks_PKS_KR_activity
+        #dic_t1pks_PKS_KR_activity[each_gene] = list_t1pks_PKS_KR_activity
         
         #print each_gene, list_nrps_domain
         #print each_gene, list_nrps_gene_substrate
-#         print each_gene, list_t1pks_PKS_KR_activity
+        #print each_gene, list_t1pks_PKS_KR_activity
 
         print >>fp1, "%s\t%s" % (each_gene, list_nrps_domain)
         print >>fp2, "%s\t%s" % (each_gene, list_nrps_gene_substrate), "\n"
-#         print >>fp3, "%s\t%s" % (each_gene, list_t1pks_PKS_KR_activity)
+        #print >>fp3, "%s\t%s" % (each_gene, list_t1pks_PKS_KR_activity)
 
     fp1.close()
     fp2.close()
-#     fp3.close()
-    print 'dic_nrps_domain'
-    print dic_nrps_domain
+    #fp3.close()
+
     print 'dic_nrps_gene_domain'
-    print dic_nrps_gene_domain
+    print dic_nrps_gene_domain, '\n'
     print 'dic_nrps_gene_substrate'
     print dic_nrps_gene_substrate, '\n'
-    return dic_nrps_domain, dic_nrps_gene_domain, dic_nrps_gene_substrate
+    return dic_nrps_gene_domain, dic_nrps_gene_substrate
 
 def second_metab_substrate(cluster_info_dict, locustag_product_monomer_dict):
     fp1 = open('Output_second_metab_substrate_with_domain.txt','w')

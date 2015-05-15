@@ -32,7 +32,8 @@ mnxm_bigg_compound_dict = pickle.load(open('mnxm_bigg_compound_dict.p','rb'))
 #TO CREATE A INPUT PICKLE FILE; NO NEED TO REPEAT EVERY TIME
 monomer_mnx_dict = get_defined_sec_metab_monomers('Input_monomers_nrps.txt')
 
-second_total_monomers = get_monomers_from_cluster_gbk(inputfile, "genbank", monomer_mnx_dict)
+#MIGHT BE REMOVED
+#second_total_monomers = get_monomers_from_cluster_gbk(inputfile, "genbank", monomer_mnx_dict)
 
 #MIGHT BE UNNECESSARY
 product = get_product_from_cluster_gbk(inputfile, "genbank")
@@ -43,7 +44,7 @@ cluster_info_dict = get_cluster_info_from_cluster_gbk(inputfile, "genbank")
 # Extracting information of domains from dictionary file 'cluster_info_dict' and 'dic_t1pks_gene' (VV)
 # dic_t1pks_domain['SAV_942_DM6'] = ['PKS_AT', '(2425-2719)', 'SAV_942']
 # dic_t1pks_gene_domain['SAV_938'] = ['PKS_AT', 'ACP', 'PKS_KS', 'PKS_AT', 'PKS_KR', 'ACP', 'PKS_KS', 'PKS_AT', 'PKS_DH', 'PKS_KR', 'ACP', 'PKS_Docking_Cterm']
-dic_nrps_domain, dic_nrps_gene_domain, dic_nrps_gene_substrate = get_cluster_domain(cluster_info_dict)
+dic_nrps_gene_domain, dic_nrps_gene_substrate = get_cluster_domain(cluster_info_dict)
 
 # Extracting information of substrates with their substrates from dictionary file 'cluster_info_dict' and 'dic_t1pks_gene' (VV)
 # dic_t1pks_domain_substrate['SAV_943_M1'] = ['mmal', 'Ethyl_mal', 'pk']
