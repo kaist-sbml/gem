@@ -39,17 +39,17 @@ product = get_product_from_cluster_gbk(inputfile, "genbank")
 
 # Extracting information of domains from dictionary file 'dic_t1pks_domain' (VV)
 #  dic_t1pks_domain[SAV_942_DM12] = ['PKS_KR', '(5084-5264)']
-dic_info_of_bundle_set_met = get_all_locus_tag_info_from_cluster_gbk(inputfile, "genbank", locustag_product_monomer_dict)
+cluster_info_dict = get_cluster_info_from_cluster_gbk(inputfile, "genbank")
 
 #locustag_product_monomer_dict: MIGHT NOT BE NECESSARY
-# Extracting information of domains from dictionary file 'dic_info_of_bundle_set_met' and 'dic_t1pks_gene' (VV)
+# Extracting information of domains from dictionary file 'cluster_info_dict' and 'dic_t1pks_gene' (VV)
 # dic_t1pks_domain['SAV_942_DM6'] = ['PKS_AT', '(2425-2719)', 'SAV_942']
 # dic_t1pks_gene_domain['SAV_938'] = ['PKS_AT', 'ACP', 'PKS_KS', 'PKS_AT', 'PKS_KR', 'ACP', 'PKS_KS', 'PKS_AT', 'PKS_DH', 'PKS_KR', 'ACP', 'PKS_Docking_Cterm']
-#dic_nrps_domain, dic_nrps_gene_domain, dic_nrps_gene_substrate = get_cluster_domain(dic_info_of_bundle_set_met, locustag_product_monomer_dict)
+#dic_nrps_domain, dic_nrps_gene_domain, dic_nrps_gene_substrate = get_cluster_domain(cluster_info_dict, locustag_product_monomer_dict)
 
-# Extracting information of substrates with their substrates from dictionary file 'dic_info_of_bundle_set_met' and 'dic_t1pks_gene' (VV)
+# Extracting information of substrates with their substrates from dictionary file 'cluster_info_dict' and 'dic_t1pks_gene' (VV)
 # dic_t1pks_domain_substrate['SAV_943_M1'] = ['mmal', 'Ethyl_mal', 'pk']
-#dic_nrps_domain_substrate = second_metab_substrate(dic_info_of_bundle_set_met, locustag_product_monomer_dict)
+#dic_nrps_domain_substrate = second_metab_substrate(cluster_info_dict, locustag_product_monomer_dict)
 
 # Extracting information of modules from dictionary file 'dic_t1pks_domain' (VV)
 # dic_t1pks_module['SAV_943_M1'] = ['PKS_KS', 'PKS_AT', 'ACP']
