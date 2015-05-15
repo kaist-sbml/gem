@@ -149,7 +149,6 @@ def get_cluster_domain(cluster_info_dict):
     #fp3 = open('Output_second_metab_gene_KR_activity.txt','w')
     
     dic_nrps_gene_domain = {}
-    dic_nrps_gene_substrate = {}
     #dic_t1pks_PKS_KR_activity = {}
         
     for each_gene in cluster_info_dict.keys():
@@ -197,7 +196,6 @@ def get_cluster_domain(cluster_info_dict):
                 domain_count = domain_count + 1
                             
         dic_nrps_gene_domain[each_gene] = list_nrps_domain
-        dic_nrps_gene_substrate[each_gene] = list_nrps_gene_substrate
         #dic_t1pks_PKS_KR_activity[each_gene] = list_t1pks_PKS_KR_activity
         
         #print each_gene, list_nrps_domain
@@ -214,15 +212,13 @@ def get_cluster_domain(cluster_info_dict):
 
     print 'dic_nrps_gene_domain'
     print dic_nrps_gene_domain, '\n'
-    print 'dic_nrps_gene_substrate'
-    print dic_nrps_gene_substrate, '\n'
-    return dic_nrps_gene_domain, dic_nrps_gene_substrate
+    return dic_nrps_gene_domain
 
-def second_metab_substrate(cluster_info_dict, locustag_product_monomer_dict):
+def second_metab_substrate(cluster_info_dict):
     fp1 = open('Output_second_metab_substrate_with_domain.txt','w')
 
     dic_nrps_domain_substrate = {}
-    for each_gene in locustag_product_monomer_dict:
+    for each_gene in cluster_info_dict.keys():
         module_count = 0
         list_set_met =  cluster_info_dict[each_gene][0]
         
