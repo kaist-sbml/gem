@@ -15,9 +15,9 @@ from MNX_checker2 import fix_legacy_id
 import pickle
 import copy
 
-def monomers_list_for_nrps(inputFile):
+def get_defined_sec_metab_monomers(inputFile):
     fp1 = open(inputFile,"r")
-    monomer_mnx_dic = {}
+    monomer_mnx_dict = {}
 
     monomer = fp1.readline()
 
@@ -26,27 +26,27 @@ def monomers_list_for_nrps(inputFile):
         monomer = monomer.split("\t")
         monomer[0] = monomer[0].strip()
         monomer[1] = monomer[1].strip()
-        monomer[2] = monomer[2].strip('\n')
-        monomer_mnx_dic[monomer[0]] = [monomer[1],monomer[2]]
+        monomer[2] = monomer[2].strip()
+        monomer_mnx_dict[monomer[0]] = [monomer[1],monomer[2]]
         monomer = fp1.readline()
 
     print "\n", "List of secondary metabolic monomers:"
-    print monomer_mnx_dic
+    print monomer_mnx_dict
     fp1.close()
-    return monomer_mnx_dic
+    return monomer_mnx_dict
 
-def second_metab_monomers(gbkFile, FileType, monomer_mnx_dic):
-#     fp1 = open('Output_second_metab_total_monomers.txt','w')
 
-#Reads GenBank file
+#Output: e.g., ['nrp', 'val-pro']
+def get_monomers_from_cluster_gbk(gbkFile, FileType, monomer_mnx_dic):
+    #Reads GenBank file
     record = SeqIO.read(gbkFile, FileType)
 
     for feature in record.features:
 
-#Identifies the feature "cluster"
+        #Identifies the feature "cluster"
         if feature.type == 'cluster':
 
-#Identifies "Monomers prediction"
+            #Identifies "Monomers prediction"
             qualifier_monomers = feature.qualifiers.get('note')
             qualifier_monomers = qualifier_monomers[2].split(':')
             qualifier_monomers = qualifier_monomers[1].strip()
@@ -55,8 +55,8 @@ def second_metab_monomers(gbkFile, FileType, monomer_mnx_dic):
             
             second_total_monomers = qualifier_monomers
 
-#Modifies elements in list  
-#second_total_monomers = ['pk-mmal-mal', 'mal-mal-mal-mmal', 'mmal-mal-mmal', 'mal-pk-mal']          
+            #Modifies elements in list  
+            #e.g., ['pk-mmal-mal', 'mal-mal-mal-mmal', 'mmal-mal-mmal', 'mal-pk-mal']
             count = 0
             
             for each_module_substrate in second_total_monomers:
@@ -65,82 +65,75 @@ def second_metab_monomers(gbkFile, FileType, monomer_mnx_dic):
                 each_module_substrate = each_module_substrate.strip()
                 second_total_monomers[count] = each_module_substrate
                 
-                count = count + 1
-
-#Saves results as text file            
+                count += 1
             count = 1
-            
-            for each_module_monomer in second_total_monomers:
-#                 print >>fp1, "%s\t%s\t%s" % (total_monomer_order, count, each_module_monomer)
-                
-                count = count + 1
-    
-    print second_total_monomers
-    
-#     fp1.close()
+    print second_total_monomers, "\n"
     return second_total_monomers
 
-
-
-def second_metab_reaction_product_names(gbkFile, FileType):
+#Output: e.g.
+#Cluster number: 2
+#Product: nrps
+#NC021055_Cluster_02_nrps
+def get_product_from_cluster_gbk(gbkFile, FileType):
  
-#Reads GenBank file
+    #Reads GenBank file
     record = SeqIO.read(gbkFile, FileType)
     
     for feature in record.features:
 
-#Retrieving "Cluster number"
+        #Retrieving "Cluster number"
         if feature.type == 'cluster':
 
             qualifier_cluster = feature.qualifiers.get('note')
             qualifier_cluster = qualifier_cluster[0].split(':')
             clusterNo = qualifier_cluster[1].strip()
-            print "\n", "Cluster number:", clusterNo
+            #print "\n", "Cluster number:", clusterNo
 
-#Retrieving "product"
+            #Retrieving "product"
             product = feature.qualifiers.get('product')
             product = product[0]
-            print "Product:", product
             
             gene_strain = record.id
             gene_strain = gene_strain.split('.')
             gene_strain = gene_strain[0].strip()
             gene_strain = gene_strain.replace('_','') 
-#             if gene_strain != None:
-#                 gene_strain = gene_strain[0].split(':')
-#                 gene_strain = gene_strain[1].split('.')
-#                 gene_strain = gene_strain[0].strip()
-#                 print "gene strain:", gene_strain
-#             else:
-#                 gene_strain = 'unknown'
-#                 print "gene strain:", gene_strain
+            #if gene_strain != None:
+                #gene_strain = gene_strain[0].split(':')
+                #gene_strain = gene_strain[1].split('.')
+                #gene_strain = gene_strain[0].strip()
+                #print "gene strain:", gene_strain
+             #else:
+                #gene_strain = 'unknown'
+                #print "gene strain:", gene_strain
                   
-
     if float(clusterNo) < 10:
         product = gene_strain+"_"+"Cluster_0"+clusterNo+"_"+product
     else:
         product = gene_strain+"_"+"Cluster_"+clusterNo+"_"+product
-    
-    return product  
 
-def second_metab_genes(gbkFile, FileType):
+    print product, "\n"
+    return product
+
+#Output:
+#e.g., dic_t1pks_gene['SAV_938'] = ['type I polyketide synthase AVES 1', 'pk-mmal-mal']
+def get_locustag_product_monomer_from_cluster_gbk(gbkFile, FileType):
     fp1 = open('Output_second_metab_gene.txt','w')
 
-    dic_nrps_gene = {}
+    locustag_product_monomer_dict = {}
     list_nrps_gene = []
 
-#Reads GenBank file
+    #Reads GenBank file
     record = SeqIO.read(gbkFile, FileType)
 
     for feature in record.features:
         
-#Reads cluster_name from genebank file        
+        #Reads cluster_name from genebank file
         if feature.type == 'cluster':
             gene_strain = record.id
             gene_strain = gene_strain.split('.')
             gene_strain = gene_strain[0].strip()
             gene_strain = gene_strain.replace('_','')
-            print gene_strain
+
             cluster_info = feature.qualifiers.get('note')
             cluster_info = cluster_info[0].split(':')
             cluster_number = cluster_info[1].strip()
@@ -148,14 +141,14 @@ def second_metab_genes(gbkFile, FileType):
             substrate_order_info = feature.qualifiers.get('note')
             substrate_order_info = substrate_order_info[2].split(':')
             order_of_substrates = substrate_order_info[1].strip()
-            print cluster_number, order_of_substrates
+            #print cluster_number, order_of_substrates
             
             if float(cluster_number) < 10:
                 whole_cluster_name = gene_strain+".c00"+cluster_number
             else:
                 whole_cluster_name = gene_strain+".c0"+cluster_number
             
-            print whole_cluster_name
+            #print whole_cluster_name
 #             if cluster_info != None:
 #                 spt_cluster_name = cluster_info[0].split(':')
 #                 whole_cluster_name = spt_cluster_name[1]
@@ -170,7 +163,7 @@ def second_metab_genes(gbkFile, FileType):
 #                 cluster_number = sub_spt_cluster_name[1].strip()
 #                 whole_cluster_name = 'cluster'+'_'+cluster_number
             
-#Feature CDS sometimes does not have "gene" in the qualifier.
+        #Feature CDS sometimes does not have "gene" in the qualifier
         if feature.type == 'CDS':
             
             qualifier_product = feature.qualifiers.get('product')
@@ -192,42 +185,44 @@ def second_metab_genes(gbkFile, FileType):
             qualifier_np_type = qualifier_sec_met[0]
                         
             if 'Type: nrps' in qualifier_np_type:
-                dic_nrps_gene[locus_tag] = [product, order_of_substrates]
+                locustag_product_monomer_dict[locus_tag] = [product, order_of_substrates]
                 print >>fp1, "%s\t%s\t%s\t%s" % (whole_cluster_name, locus_tag, product, order_of_substrates)
-                print whole_cluster_name, locus_tag, product, order_of_substrates
+                #print whole_cluster_name, locus_tag, product, order_of_substrates
 
     fp1.close()
-    return dic_nrps_gene
 
+    print 'locustag_product_monomer_dict'
+    print locustag_product_monomer_dict, '\n'
+    return locustag_product_monomer_dict
 
-def extracting_sub_set_met_info_from_genebank(gbkFile, FileType, dic_nrps_gene):
+#Exracts all the information associated wiht a particular locus_tag
+def get_all_locus_tag_info_from_cluster_gbk(gbkFile, FileType, locustag_product_monomer_dict):
 
     dic_info_of_bundle_set_met = {}
      
 #Reads GenBank file
     record = SeqIO.read(gbkFile, FileType)
     
-    for dic_gene_key in dic_nrps_gene:
-        
+    for dic_gene_key in locustag_product_monomer_dict:
         list_nrps_domain = []
         
         for feature in record.features: 
-        
             if feature.type == 'CDS':
-        
                 qualifier_locus_tag = feature.qualifiers.get('locus_tag')
                         
                 if qualifier_locus_tag[0] == dic_gene_key:    
-
                     qualifier_set_met = feature.qualifiers.get('sec_met')
                     list_nrps_domain.append(qualifier_set_met)
         
         dic_info_of_bundle_set_met[dic_gene_key] = list_nrps_domain
-    
-                    
+
+    print 'dic_info_of_bundle_set_met'
+    print dic_info_of_bundle_set_met, '\n'
+    for i in dic_info_of_bundle_set_met.keys():
+        print i
     return dic_info_of_bundle_set_met
 
-def second_metab_domain(dic_info_of_bundle_set_met, dic_nrps_gene):
+def get_cluster_domain(dic_info_of_bundle_set_met, locustag_product_monomer_dict):
     fp1 = open('Output_second_metab_gene_domain.txt','w')
     fp2 = open('Output_second_metab_gene_substrate.txt','w')
 #     fp3 = open('Output_second_metab_gene_KR_activity.txt','w')
@@ -237,7 +232,7 @@ def second_metab_domain(dic_info_of_bundle_set_met, dic_nrps_gene):
     dic_nrps_gene_substrate = {}
 #     dic_t1pks_PKS_KR_activity = {}
         
-    for each_gene in dic_nrps_gene:
+    for each_gene in locustag_product_monomer_dict:
         
         list_set_met = dic_info_of_bundle_set_met[each_gene][0]
 
@@ -290,26 +285,30 @@ def second_metab_domain(dic_info_of_bundle_set_met, dic_nrps_gene):
         dic_nrps_gene_substrate[each_gene] = list_nrps_gene_substrate
 #         dic_t1pks_PKS_KR_activity[each_gene] = list_t1pks_PKS_KR_activity
         
-        print each_gene, list_nrps_domain
-        print each_gene, list_nrps_gene_substrate
+        #print each_gene, list_nrps_domain
+        #print each_gene, list_nrps_gene_substrate
 #         print each_gene, list_t1pks_PKS_KR_activity
 
         print >>fp1, "%s\t%s" % (each_gene, list_nrps_domain)
-        print >>fp2, "%s\t%s" % (each_gene, list_nrps_gene_substrate)
+        print >>fp2, "%s\t%s" % (each_gene, list_nrps_gene_substrate), "\n"
 #         print >>fp3, "%s\t%s" % (each_gene, list_t1pks_PKS_KR_activity)
 
     fp1.close()
     fp2.close()
-#     fp3.close()      
+#     fp3.close()
+    print 'dic_nrps_domain'
+    print dic_nrps_domain
+    print 'dic_nrps_gene_domain'
+    print dic_nrps_gene_domain
+    print 'dic_nrps_gene_substrate'
+    print dic_nrps_gene_substrate, '\n'
     return dic_nrps_domain, dic_nrps_gene_domain, dic_nrps_gene_substrate
 
-def second_metab_substrate(dic_info_of_bundle_set_met, dic_nrps_gene):
+def second_metab_substrate(dic_info_of_bundle_set_met, locustag_product_monomer_dict):
     fp1 = open('Output_second_metab_substrate_with_domain.txt','w')
 
     dic_nrps_domain_substrate = {}
-    
-    for each_gene in dic_nrps_gene:
-
+    for each_gene in locustag_product_monomer_dict:
         module_count = 0
         list_set_met =  dic_info_of_bundle_set_met[each_gene][0]
         
@@ -331,49 +330,44 @@ def second_metab_substrate(dic_info_of_bundle_set_met, dic_nrps_gene):
                 list_participated_sustrate = []
                                 
                 for each_substrate in substrates:
-                                               
                     sptSubstrate = each_substrate.split('(')
                     participated_substrate = sptSubstrate[0].strip()
-                                    
                     list_participated_sustrate.append(participated_substrate)
                                 
                 module_number = each_gene + '_M' + str(module_count)
-                                
                 dic_nrps_domain_substrate[module_number] = list_participated_sustrate
                 
-                print module_number, list_participated_sustrate
+                #print module_number, list_participated_sustrate
                 print >>fp1, "%s\t%s" % (module_number, list_participated_sustrate)
                     
                 module_count = module_count + 1
     
     fp1.close()
+    print 'dic_nrps_domain_substrate'
+    print dic_nrps_domain_substrate, '\n'
     return dic_nrps_domain_substrate
 
 
-def second_metab_module(dic_nrps_gene ,dic_nrps_gene_domain):
+def second_metab_module(locustag_product_monomer_dict, dic_nrps_gene_domain):
     fp1 = open('Output_second_metab_module.txt','w')
     
     dic_nrps_module = {}
     
-    for nrps_gene in dic_nrps_gene:
+    for nrps_gene in locustag_product_monomer_dict:
         
         count = 0
-  
         if nrps_gene in dic_nrps_gene_domain:
             
             list_each_nrps_domain = dic_nrps_gene_domain[nrps_gene]
-            print list_each_nrps_domain
-
+            #print list_each_nrps_domain
 #             list_KR_activity = dic_t1pks_PKS_KR_activity[t1pks_gene]
         
             list_module_info = []
-            
             number_of_list = len(list_each_nrps_domain)
 
 #             KR_number = 0
             
             for each_domain in list_each_nrps_domain:    
-                
 #                 if each_domain == 'PKS_Docking_Nterm' or each_domain == 'PKS_Docking_Cterm':
 #                     number_of_list = number_of_list - 1
 #                     continue
@@ -382,82 +376,55 @@ def second_metab_module(dic_nrps_gene ,dic_nrps_gene_domain):
                 number_of_list = number_of_list - 1
                 
                 if each_domain == 'PCP' or each_domain == 'ACP':
-                    
                     module_number = nrps_gene + '_M' + str(count)
-                                        
                     dic_nrps_module[module_number] = list_module_info
-                    
-                    print >>fp1, "%s\t%s\t%s" % (nrps_gene, module_number, list_module_info)
-
+                    print >>fp1, "%s\t%s\t%s" %(nrps_gene, module_number, list_module_info)
                     list_module_info = []
-                    
                     count = count + 1
-                    
+
                 elif each_domain == 'Epimerization':
-
                     count = count - 1
-                    
                     module_number = nrps_gene + '_M' + str(count)
-                                        
                     list_module_info = dic_nrps_module[module_number]
-
                     list_module_info.append('Epimerization')
-
                     A = dic_nrps_module.pop(module_number)
-                    
                     dic_nrps_module[module_number] = list_module_info
-                    
-                    print >>fp1, "%s\t%s\t%s" % (nrps_gene, module_number, list_module_info)
-                    
+                    print >>fp1, "%s\t%s\t%s" %(nrps_gene, module_number, list_module_info)
                     list_module_info = []
-                    
                     count = count + 1
-                    
+
                 elif each_domain == 'Thioesterase':
-                    
                     count = count - 1
-                    
                     module_number = nrps_gene + '_M' + str(count)
-                                        
                     list_module_info = dic_nrps_module[module_number]
-                    print list_module_info
+                    #print list_module_info
                     
                     list_module_info.append('Thioesterase')
-                    print list_module_info
+                    #print list_module_info
                     
                     A = dic_nrps_module.pop(module_number)
-                    
-                    print A
+                    #print A
 
                     dic_nrps_module[module_number] = list_module_info
-                    
-                    print >>fp1, "%s\t%s\t%s" % (nrps_gene, module_number, list_module_info)
+                    print >>fp1, "%s\t%s\t%s" %(nrps_gene, module_number, list_module_info)
                     
                 elif list_module_info.count('Condensation_DCL') == 2 or list_module_info.count('Condensation_LCL') == 2 or list_module_info.count('Condensation_LCL') + list_module_info.count('Condensation_DCL') == 2:
-                    
                     module_number = nrps_gene + '_M' + str(count)
-                    
                     list_module_info.pop()
-                    
                     dic_nrps_module[module_number] = list_module_info
-
                     list_module_info = []
-                    
                     count = count + 1
                     
                 elif float(number_of_list) == 0:
-                    
                     module_number = nrps_gene + '_M' + str(count)
-                    
                     dic_nrps_module[module_number] = list_module_info
                     print >>fp1, "%s\t%s\t%s" % (nrps_gene, module_number, list_module_info)
-
                     list_module_info = []
-          
                     count = count + 1
                 
     fp1.close()
-
+    print 'dic_nrps_module'
+    print dic_nrps_module, '\n'
     return dic_nrps_module
 
 
@@ -467,13 +434,11 @@ def generating_each_module_of_backbone_biosynthesis_for_t1pks(dic_nrps_module):
     dic_converted_metabolic_reaction_without_substrate = {}
 
     for each_module in dic_nrps_module:
-        
         domain_comb = dic_nrps_module[each_module]
         
         print domain_comb
 
         each_module_substrates = {}
-        
         discriminant = module_discriminator(domain_comb)
         
         if discriminant == 'None':
@@ -610,7 +575,6 @@ def module_discriminator(domain_comb):
 ## NRPS-COM_Nterm    NRPS COM domain Nterminal
 ## NRPS-COM_Cterm    NRPS COM domain Cterminal
 
-
 # Exceptionsal cases
     if ('Condensation_Starter' not in domain_comb and 'Condensation' not in domain_comb and 'Condensation_DCL' not in domain_comb and 'Condensation_LCL' not in domain_comb and 'Condensation_Dual' not in domain_comb and 'Cglyc' not in domain_comb and 'CXglyc' not in domain_comb and 'Heterocyclization' not in domain_comb) and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and 'PCP' not in domain_comb and 'ACP' not in domain_comb:
         discriminant = 'A'
@@ -734,7 +698,6 @@ def module_discriminator(domain_comb):
     elif 'Cglyc' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' in domain_comb in domain_comb and 'Epimerization' in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb):
         discriminant = 'Cglyc_A_MT_E_PCP' ###
 
-
 # Glycopeptide condensation domain (X) : C-domain
     elif 'CXglyc' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb):
         discriminant = 'CXglyc_A_PCP' #
@@ -754,7 +717,6 @@ def module_discriminator(domain_comb):
     elif 'CXglyc' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' in domain_comb and 'Epimerization' in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb):
         discriminant = 'CXglyc_A_MT_E_PCP' ###
 
-        
 # Heterocyclization : C-domain
     elif 'Heterocyclization' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb):
         discriminant = 'HC_A_PCP' ###
@@ -1059,30 +1021,22 @@ def integrated_metabolic_reaction3(dic_integrated_metabolic_reaction, list_of_di
     list_of_reaction_set = []
 
     if list_of_dismatched_substrate == []:
-        
         list_of_reaction_set.append(dic_integrated_metabolic_reaction)
         
     else:
         
         list_of_reaction_set.append(dic_integrated_metabolic_reaction)
-        
         for each_pair_of_substrates in list_of_dismatched_substrate:
-    
             template_list = copy.deepcopy(list_of_reaction_set)
-            
             list_of_reaction_set = []
         
             for dic_each_metabolic_reaction in template_list:
-                
                 each_pair_of_substrates = set(each_pair_of_substrates)
                 each_pair_of_substrates = list(each_pair_of_substrates)
-                
                 substrate_decision_number = distincting_each_substrate_in_list_component(each_pair_of_substrates)
-                
                 temp_reaction_set = converting_nrps_substrates(each_pair_of_substrates, dic_each_metabolic_reaction, substrate_decision_number) 
                 
                 for each_dic_reaction_set in temp_reaction_set:
-                    
                     list_of_reaction_set.append(each_dic_reaction_set)
     
     return list_of_reaction_set
@@ -1320,9 +1274,7 @@ def converting_MNXMID_to_biggid(MetID):
     elif MetID == 'Lpipecol':
         converted_MNXMID = ['MNXM684', 'Lpipecol', 'L-pipecolate', 'C00408']       
     elif MetID == '24dab':
-        converted_MNXMID = ['MNXM840', '24dab', 'L-2,4-diazaniumylbutyrate', 'C03283']           
-
-        
+        converted_MNXMID = ['MNXM840', '24dab', 'L-2,4-diazaniumylbutyrate', 'C03283']
     elif MetID == 'nadp':
         converted_MNXMID = ['MNXM5', 'nadp', 'NADP+', 'C00006'] 
     elif MetID == 'nadph':
@@ -1350,7 +1302,7 @@ def converting_MNXMID_to_biggid(MetID):
      
     return converted_MNXMID
 
-def second_metab_reactions_addition(cobra_model, product, dic_nrps_gene, list_of_reaction_set_with_product, metab_MNXM_dict):
+def second_metab_reactions_addition(cobra_model, product, locustag_product_monomer_dict, list_of_reaction_set_with_product, metab_MNXM_dict):
 #     fp1 = open('output_set_of_integrated_metabolic_reaction.txt','w')
     fp2 = open('output_participated_gene_list_of_backbone_biosynthesis.txt','w')
     fp3 = open("output_database_format_file.txt", 'w')
@@ -1395,7 +1347,7 @@ def second_metab_reactions_addition(cobra_model, product, dic_nrps_gene, list_of
 
 #Setting GPR association
         gpr_count = 0
-        for each_gene in dic_nrps_gene:
+        for each_gene in locustag_product_monomer_dict:
             if gpr_count == 0:
                 gpr_list = each_gene 
                 gpr_count += 1
@@ -1441,7 +1393,6 @@ def second_metab_reactions_addition(cobra_model, product, dic_nrps_gene, list_of
 
         print "\n", "Transport reaction:", reaction
         print reaction.reaction
-
 
 #Creating an exchange reaction
 #Creating reaction ID
@@ -1490,12 +1441,10 @@ def performing_FBA_for_each_reaction_of_SMRs(cobra_model, list_novel_secondary_m
 def cobra_model_FBA(cobra_model, objective, sense, output):
 
 #     fp1 = open(output,"w")
-
     reaction = cobra_model.reactions.get_by_id(objective)
 
     # Run the optimization for the objective reaction and medium composition
     cobra_model.optimize(new_objective=reaction, objective_sense=sense, solver='gurobi')
-
     print cobra_model.solution.f
 #     fp1.write(str(cobra_model.solution.status)+"\n")
 #     fp1.write(str(cobra_model.solution.f)+"\n"+"\n")
