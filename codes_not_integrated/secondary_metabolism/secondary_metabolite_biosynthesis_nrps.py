@@ -125,25 +125,25 @@ def get_cluster_info_from_cluster_gbk(gbkFile, FileType):
     record = SeqIO.read(gbkFile, FileType)
     
     for feature in record.features:
-        list_nrps_domain = []
+        sec_met_info_list = []
         if feature.type == 'CDS':
             qualifier_locus_tag = feature.qualifiers.get('locus_tag')[0]
             if feature.qualifiers.get('sec_met'):
                 
                 qualifier_sec_met = feature.qualifiers.get('sec_met')
                 #print qualifier_sec_et
-                list_nrps_domain.append(qualifier_sec_met)
+                sec_met_info_list.append(qualifier_sec_met)
 
-                cluster_info_dict[qualifier_locus_tag] = list_nrps_domain
+                cluster_info_dict[qualifier_locus_tag] = sec_met_info_list
 
     #print 'cluster_info_dict'
     #print cluster_info_dict, '\n'
     for i in cluster_info_dict.keys():
         print i
-        print cluster_info_dict[i]
+        print cluster_info_dict[i], '\n'
     return cluster_info_dict
 
-def get_cluster_domain(cluster_info_dict, locustag_product_monomer_dict):
+def get_cluster_domain(cluster_info_dict):
     fp1 = open('Output_second_metab_gene_domain.txt','w')
     fp2 = open('Output_second_metab_gene_substrate.txt','w')
 #     fp3 = open('Output_second_metab_gene_KR_activity.txt','w')
@@ -153,7 +153,7 @@ def get_cluster_domain(cluster_info_dict, locustag_product_monomer_dict):
     dic_nrps_gene_substrate = {}
 #     dic_t1pks_PKS_KR_activity = {}
         
-    for each_gene in locustag_product_monomer_dict:
+    for each_gene in cluster_info_dict.keys():
         
         list_set_met = cluster_info_dict[each_gene][0]
 

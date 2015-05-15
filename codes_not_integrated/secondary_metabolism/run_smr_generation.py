@@ -18,7 +18,7 @@ print "Generating NRP biosynthesis reactions.."
 
 #WHY DO WE NEED THIS?
 # making template model in order to (V)
-cobra_model = create_cobra_model_from_sbml_file('SCO_model_snu.xml', print_time=True)
+#cobra_model = create_cobra_model_from_sbml_file('SCO_model_snu.xml', print_time=True)
 inputfile = './NC_021055.1.cluster002.gbk'
 
 mnxm_bigg_compound_dict = pickle.load(open('mnxm_bigg_compound_dict.p','rb'))
@@ -26,7 +26,7 @@ mnxm_bigg_compound_dict = pickle.load(open('mnxm_bigg_compound_dict.p','rb'))
 #WHO DO WE NEED THIS?
 # making dictionary file of metabolites in template model (V)
 # (e.g. ''MNXM37': 'gln_DASH_L_p'])
-metab_MNXM_dict = COBRA_TemplateModel_checking_MNXref_metabolites(cobra_model, mnxm_bigg_compound_dict)
+#metab_MNXM_dict = COBRA_TemplateModel_checking_MNXref_metabolites(cobra_model, mnxm_bigg_compound_dict)
 #print metab_MNXM_dict
 
 #TO CREATE A INPUT PICKLE FILE; NO NEED TO REPEAT EVERY TIME
@@ -37,15 +37,13 @@ second_total_monomers = get_monomers_from_cluster_gbk(inputfile, "genbank", mono
 #MIGHT BE UNNECESSARY
 product = get_product_from_cluster_gbk(inputfile, "genbank")
 
-# Extracting information of domains from dictionary file 'dic_t1pks_domain' (VV)
-#  dic_t1pks_domain[SAV_942_DM12] = ['PKS_KR', '(5084-5264)']
 cluster_info_dict = get_cluster_info_from_cluster_gbk(inputfile, "genbank")
 
 #locustag_product_monomer_dict: MIGHT NOT BE NECESSARY
 # Extracting information of domains from dictionary file 'cluster_info_dict' and 'dic_t1pks_gene' (VV)
 # dic_t1pks_domain['SAV_942_DM6'] = ['PKS_AT', '(2425-2719)', 'SAV_942']
 # dic_t1pks_gene_domain['SAV_938'] = ['PKS_AT', 'ACP', 'PKS_KS', 'PKS_AT', 'PKS_KR', 'ACP', 'PKS_KS', 'PKS_AT', 'PKS_DH', 'PKS_KR', 'ACP', 'PKS_Docking_Cterm']
-#dic_nrps_domain, dic_nrps_gene_domain, dic_nrps_gene_substrate = get_cluster_domain(cluster_info_dict, locustag_product_monomer_dict)
+dic_nrps_domain, dic_nrps_gene_domain, dic_nrps_gene_substrate = get_cluster_domain(cluster_info_dict)
 
 # Extracting information of substrates with their substrates from dictionary file 'cluster_info_dict' and 'dic_t1pks_gene' (VV)
 # dic_t1pks_domain_substrate['SAV_943_M1'] = ['mmal', 'Ethyl_mal', 'pk']
