@@ -250,89 +250,74 @@ def get_cluster_monomers(cluster_info_dict):
 
 #Output: e.g., {'SAV_943_M1': ['PKS_KS', 'PKS_AT', 'ACP']}
 def get_cluster_module(locustag_domain_dict):
-    fp1 = open('Output_second_metab_module.txt','w')
+    fp1 = open('Output_locustag_module_domain.txt','w')
     
     locustag_module_domain_dict = {}
-
-    for i in locustag_domain_dict.keys():
-        print i
-        print locustag_domain_dict[i]
 
     for locustag in locustag_domain_dict.keys():
         
         count = 0
-        if locustag in locustag_domain_dict.keys():
-            list_each_nrps_domain = locustag_domain_dict[locustag]
+        list_module_info = []
+        number_of_list = len(locustag_domain_dict[locustag])
+
+        for each_domain in locustag_domain_dict[locustag]:
+            list_module_info.append(each_domain)
+            number_of_list -= 1
         
-            list_module_info = []
-            number_of_list = len(list_each_nrps_domain)
+            if each_domain == 'PCP' or each_domain == 'ACP':
+                module_number = locustag + '_M' + str(count)
+                locustag_module_domain_dict[module_number] = list_module_info
+                print >>fp1, "%s\t%s\t%s" %(locustag, module_number, list_module_info)
 
-            KR_number = 0
-            
-            for each_domain in list_each_nrps_domain:
-                list_module_info.append(each_domain)
-                number_of_list = number_of_list - 1
-                
-                if each_domain == 'PCP' or each_domain == 'ACP':
-                    module_number = locustag + '_M' + str(count)
-                    locustag_module_domain_dict[module_number] = list_module_info
-                    print >>fp1, "%s\t%s\t%s" %(locustag, module_number, list_module_info)
+                list_module_info = []
+                count += 1
 
-                    list_module_info = []
-                    count = count + 1
+            elif each_domain == 'Epimerization':
+                count -= 1
+                module_number = locustag + '_M' + str(count)
+                list_module_info = locustag_module_domain_dict[module_number]
+                list_module_info.append('Epimerization')
+                locustag_module_domain_dict[module_number] = list_module_info
+                print >>fp1, "%s\t%s\t%s" %(locustag, module_number, list_module_info)
 
-                elif each_domain == 'Epimerization':
-                    count = count - 1
-                    module_number = locustag + '_M' + str(count)
+                list_module_info = []
+                count += 1
 
-                    list_module_info = locustag_module_domain_dict[module_number]
-                    list_module_info.append('Epimerization')
-                    A = locustag_module_domain_dict.pop(module_number)
+            #'ACP' was inserted, otherwise it causes an error
+            #by having a locus_tag with unspecified monomer
+            elif each_domain == 'Thioesterase' and 'ACP' in locustag_domain_dict[locustag]:
+                count -= 1
+                module_number = locustag + '_M' + str(count)
+                list_module_info = locustag_module_domain_dict[module_number]
+                list_module_info.append('Thioesterase')
+                locustag_module_domain_dict[module_number] = list_module_info
+                print >>fp1, "%s\t%s\t%s" %(locustag, module_number, list_module_info)
 
-                    locustag_module_domain_dict[module_number] = list_module_info
-                    print >>fp1, "%s\t%s\t%s" %(locustag, module_number, list_module_info)
+            elif list_module_info.count('PKS_KS') == 2:
+                module_number = t1pks_gene + '_M' + str(count)
+                poped_domain = list_module_info.pop()
+                dic_pksnrps_module[module_number] = list_module_info
 
-                    list_module_info = []
-                    count = count + 1
+                list_module_info = []
+                list_module_info.append(poped_domain)
+                count += 1
 
-                elif each_domain == 'Thioesterase' and 'ACP' in list_each_nrps_domain:
-                    count = count - 1
-                    module_number = locustag + '_M' + str(count)
-                    list_module_info = locustag_module_domain_dict[module_number]
-                    list_module_info.append('Thioesterase')
-                    #print list_module_info
-                    
-                    A = locustag_module_domain_dict.pop(module_number)
-                    #print A
+            elif list_module_info.count('Condensation_DCL') == 2 or list_module_info.count('Condensation_LCL') == 2 or list_module_info.count('Condensation_LCL') + list_module_info.count('Condensation_DCL') == 2:
+                module_number = locustag + '_M' + str(count)
+                list_module_info.pop()
+                locustag_module_domain_dict[module_number] = list_module_info
 
-                    locustag_module_domain_dict[module_number] = list_module_info
-                    print >>fp1, "%s\t%s\t%s" %(locustag, module_number, list_module_info)
+                list_module_info = []
+                count += 1
 
-                elif list_module_info.count('PKS_KS') == 2:
-                    module_number = t1pks_gene + '_M' + str(count)
-                    poped_domain = list_module_info.pop()
-                    dic_pksnrps_module[module_number] = list_module_info
+            elif float(number_of_list) == 0:
+                module_number = locustag + '_M' + str(count)
+                locustag_module_domain_dict[module_number] = list_module_info
+                print >>fp1, "%s\t%s\t%s" % (locustag, module_number, list_module_info)
 
-                    list_module_info = []
-                    list_module_info.append(poped_domain)
+                list_module_info = []
+                count += 1
 
-                    count = count + 1
-
-                elif list_module_info.count('Condensation_DCL') == 2 or list_module_info.count('Condensation_LCL') == 2 or list_module_info.count('Condensation_LCL') + list_module_info.count('Condensation_DCL') == 2:
-                    module_number = locustag + '_M' + str(count)
-                    list_module_info.pop()
-                    locustag_module_domain_dict[module_number] = list_module_info
-                    list_module_info = []
-                    count = count + 1
-                    
-                elif float(number_of_list) == 0:
-                    module_number = locustag + '_M' + str(count)
-                    locustag_module_domain_dict[module_number] = list_module_info
-                    print >>fp1, "%s\t%s\t%s" % (locustag, module_number, list_module_info)
-
-                    list_module_info = []
-                    count = count + 1
-                
     fp1.close()
     print 'locustag_module_domain_dict'
     print locustag_module_domain_dict, '\n'
