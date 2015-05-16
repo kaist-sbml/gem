@@ -31,6 +31,16 @@ def determine_domain(domain_comb):
 ## NRPS-COM_Nterm    NRPS COM domain Nterminal
 ## NRPS-COM_Cterm    NRPS COM domain Cterminal
 
+## domain information(pks) :
+## AT    acyltransferase
+## KS    ketosynthase
+## ACP    acyl carrier protein
+## KR    ketoreductase
+## DH    dehydratase
+## ER    enolase
+## cMT    methyltransferase
+## TD    thiolesterase domain
+
     #Exceptionsal cases
     if ('Condensation_Starter' not in domain_comb and 'Condensation' not in domain_comb and 'Condensation_DCL' not in domain_comb and 'Condensation_LCL' not in domain_comb and 'Condensation_Dual' not in domain_comb and 'Cglyc' not in domain_comb and 'CXglyc' not in domain_comb and 'Heterocyclization' not in domain_comb) and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and 'PCP' not in domain_comb and 'ACP' not in domain_comb:
         discriminant = 'A'
