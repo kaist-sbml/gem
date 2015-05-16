@@ -12,7 +12,7 @@ from cobra.io.sbml import create_cobra_model_from_sbml_file
 from cobra.io.sbml import write_cobra_model_to_sbml_file
 from MNX_checker2 import COBRA_TemplateModel_checking_MNXref_metabolites
 from MNX_checker2 import fix_legacy_id
-from domain_determination import determine_domain
+from domain_determination import determine_domain, extract_substrate_information_nrps, extract_substrate_information_pks
 import pickle
 import copy
 
@@ -152,7 +152,7 @@ def get_cluster_domain(cluster_info_dict):
     #fp3 = open('Output_second_metab_gene_KR_activity.txt','w')
     
     locustag_domain_dict = {}
-    #dic_t1pks_PKS_KR_activity = {}
+    dic_t1pks_PKS_KR_activity = {}
         
     for each_gene in cluster_info_dict.keys():
         
@@ -160,8 +160,8 @@ def get_cluster_domain(cluster_info_dict):
 
         domain_count = 0
         sec_met_domain_list = []
-        #list_t1pks_PKS_KR_activity = []
-    
+        list_t1pks_PKS_KR_activity = []
+
         for each_sub_set in list_sec_met:
 
             if "NRPS/PKS Domain" in each_sub_set:
@@ -170,18 +170,19 @@ def get_cluster_domain(cluster_info_dict):
 
                 #Extract the information of KR activity and AT substrate specificity
                 sptline2 = each_sub_set.split('; ')                
-                
-                #if "PKS_KR" in crude_domain_info:
-                    #spt_PKS_KR = sptline2[1].split(': ')
-                    #spt_PKS_KR = spt_PKS_KR[1].strip()
-                    #list_t1pks_PKS_KR_activity.append(spt_PKS_KR)
+
+                #Check this statement
+                if "PKS_KR" in crude_domain_info:
+                    spt_PKS_KR = sptline2[1].split(': ')
+                    spt_PKS_KR = spt_PKS_KR[1].strip()
+                    list_t1pks_PKS_KR_activity.append(spt_PKS_KR)
                     
                 spt_domain_info = crude_domain_info.split(':')
                 whole_domain_info = spt_domain_info[1]
 
                 spt_list_domain_info = whole_domain_info.split()
                 spt_list_domain_info.append(each_gene)
-                            
+
                 each_sec_met_domain = spt_list_domain_info[0]
                 sec_met_domain_list.append(each_sec_met_domain)
                 
@@ -190,9 +191,9 @@ def get_cluster_domain(cluster_info_dict):
                 domain_count = domain_count + 1
                             
         locustag_domain_dict[each_gene] = sec_met_domain_list
-        #dic_t1pks_PKS_KR_activity[each_gene] = list_t1pks_PKS_KR_activity
+        dic_t1pks_PKS_KR_activity[each_gene] = list_t1pks_PKS_KR_activity
         
-        #print each_gene, list_t1pks_PKS_KR_activity
+        print each_gene, list_t1pks_PKS_KR_activity
 
         print >>fp1, "%s\t%s" % (each_gene, sec_met_domain_list)
 
@@ -201,8 +202,10 @@ def get_cluster_domain(cluster_info_dict):
 
     print 'locustag_domain_dict'
     print locustag_domain_dict, '\n'
-    return locustag_domain_dict
 
+    print 'dic_t1pks_PKS_KR_activity'
+    print dic_t1pks_PKS_KR_activity, '\n'
+    return locustag_domain_dict
 
 #Output: e.g., {'SAV_943_M1':['mmal', 'Ethyl_mal', 'pk']}
 def get_cluster_monomers(cluster_info_dict):
@@ -214,35 +217,42 @@ def get_cluster_monomers(cluster_info_dict):
         list_sec_met =  cluster_info_dict[each_gene][0]
         
         for each_sub_set in list_sec_met:
-     
-            if "Substrate specificity predictions" in each_sub_set:
-                sptline2 = each_sub_set.split(';')
-                whole_substrate_info = sptline2[1]
-                                
-                relevant_substrates = whole_substrate_info.split(':')
-                sptSubstrates = relevant_substrates[1]
-                                
-                if ', ' not in sptSubstrates:
-                    print "insufficient substrate_info"
-                    continue
-                
-                substrates = sptSubstrates.split(', ')
+            discriminator = "true"
+            print each_sub_set
 
-                list_relevant_sustrate = []
-                                
-                for each_substrate in substrates:
-                    sptSubstrate = each_substrate.split('(')
-                    relevant_substrate = sptSubstrate[0].strip()
-                    list_relevant_sustrate.append(relevant_substrate)
-                                
+            if "Substrate specificity predictions" in each_sub_set and "AMP-binding" in each_sub_set:
+                list_participated_sustrate, discriminator = extract_substrate_information_nrps(each_sub_set, discriminator)
                 module_number = each_gene + '_M' + str(module_count)
-                locustag_monomer_dict[module_number] = list_relevant_sustrate
-                
-                #print module_number, list_relevant_sustrate
-                print >>fp1, "%s\t%s" % (module_number, list_relevant_sustrate)
-                    
+                dic_pksnrps_domain_substrate[module_number] = list_participated_sustrate
+
+                print module_number, list_participated_sustrate
+                print >>fp1, "%s\t%s" % (module_number, list_participated_sustrate)
+
                 module_count = module_count + 1
-    
+
+            if "Substrate specificity predictions" in each_sub_set and "A-OX" in each_sub_set:
+                list_participated_sustrate, discriminator = extract_substrate_information_nrps(each_sub_set, discriminator)
+                module_number = each_gene + '_M' + str(module_count)
+                dic_pksnrps_domain_substrate[module_number] = list_participated_sustrate
+
+                print module_number, list_participated_sustrate
+                print >>fp1, "%s\t%s" % (module_number, list_participated_sustrate)
+
+                module_count = module_count + 1
+
+            if "Substrate specificity predictions" in each_sub_set and "PKS_AT" in each_sub_set:
+                list_participated_sustrate = extract_substrate_information_pks(each_sub_set)
+                module_number = each_gene + '_M' + str(module_count)
+                dic_pksnrps_domain_substrate[module_number] = list_participated_sustrate
+
+                print module_number, list_participated_sustrate
+                print >>fp1, "%s\t%s" % (module_number, list_participated_sustrate)
+
+                module_count = module_count + 1
+
+            if discriminator == "false":
+                continue
+ 
     fp1.close()
     print 'locustag_monomer_dict'
     print locustag_monomer_dict, '\n'
