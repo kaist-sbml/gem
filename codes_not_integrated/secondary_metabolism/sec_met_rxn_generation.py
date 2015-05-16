@@ -323,11 +323,11 @@ def get_cluster_module(locustag_domain_dict):
     print locustag_module_domain_dict, '\n'
     return locustag_module_domain_dict
 
-
+#Ouput: e.g., {'SAV_943_M0':{'coa': 1, 'nadph': -1, 'nadp': 1, 'hco3': 1, 'h': -1}
 def generate_currency_metabolites(locustag_module_domain_dict):
     fp1 = open('Output_currency_metabolites.txt','w')
-    
-    dic_converted_metabolic_reaction_without_substrate = {}
+
+    module_currency_metab_dict = {}
 
     for each_module in locustag_module_domain_dict:
         domain_comb = locustag_module_domain_dict[each_module]
@@ -336,204 +336,204 @@ def generate_currency_metabolites(locustag_module_domain_dict):
         discriminant = determine_domain(domain_comb)
 
         if discriminant == 'None':
-            #print "this discriminant is not defined : %s" % (domain_comb)
+            print "Discriminant not defined : %s" % (domain_comb)
             print >>fp1, "module_type:\t%s\t%s\t%s" % (each_module, domain_comb, 'None')
             continue
-        
-        if discriminant == 'A' or discriminant == 'Aox': 
-            each_module_substrates['atp'] = -1 #'ATP' (C00002), 'MNXM3'
-            each_module_substrates['amp'] = 1 #'AMP', (C00020), 'MNXM14'
-            each_module_substrates['ppi'] = 1 #'diphosphate', (C00013), 'MNXM11'
-            each_module_substrates['h2o'] = 1 #H2O (C00001)
-            dic_converted_metabolic_reaction_without_substrate[each_module] = each_module_substrates 
-            #print 'reaction 0: A or Aox', each_module_substrates 
+
+        if discriminant == 'A' or discriminant == 'Aox':
+            each_module_substrates['atp'] = -1
+            each_module_substrates['amp'] = 1
+            each_module_substrates['ppi'] = 1
+            each_module_substrates['h2o'] = 1
+            module_currency_metab_dict[each_module] = each_module_substrates 
+            #print 'A or Aox:', each_module_substrates 
             print >>fp1, "module_type:\t%s\t%s\t%s" % (each_module, domain_comb, each_module_substrates)
 
         elif discriminant == 'A_PCP' or discriminant == 'Cs_A_PCP' or discriminant == 'C_A_PCP' or discriminant == 'Cdcl_A_PCP' or discriminant == 'Clcl_A_PCP' or discriminant == 'Clcl_A_PCP' or discriminant == 'Cglyc_A_PCP' or discriminant == 'CXglyc_A_PCP':
-            each_module_substrates['atp'] = -1 #'ATP' (C00002), 'MNXM3'
-            each_module_substrates['amp'] = 1 #'AMP', (C00020), 'MNXM14'
-            each_module_substrates['ppi'] = 1 #'diphosphate', (C00013), 'MNXM11'
-            each_module_substrates['h2o'] = 1 #H2O (C00001)
-            dic_converted_metabolic_reaction_without_substrate[each_module] = each_module_substrates     
-            #print 'reaction 1: A_PCP or C_A_PCP', each_module_substrates 
+            each_module_substrates['atp'] = -1
+            each_module_substrates['amp'] = 1
+            each_module_substrates['ppi'] = 1
+            each_module_substrates['h2o'] = 1
+            module_currency_metab_dict[each_module] = each_module_substrates
+            #print 'A_PCP or C_A_PCP:', each_module_substrates
             print >>fp1, "module_type:\t%s\t%s\t%s" % (each_module, domain_comb, each_module_substrates)
-            
-        elif discriminant == 'MT_A_PCP' or discriminant == 'Cs_A_MT_PCP' or discriminant == 'C_A_MT_PCP' or discriminant == 'Cdcl_A_MT_PCP' or discriminant == 'Clcl_A_MT_PCP' or discriminant == 'Cglyc_A_MT_PCP' or discriminant == 'CXglyc_A_MT_PCP': 
-            each_module_substrates['atp'] = -1 #'ATP' (C00002), 'MNXM3'
-            each_module_substrates['amp'] = 1 #'AMP', (C00020), 'MNXM14'
-            each_module_substrates['ppi'] = 1 #'diphosphate', (C00013), 'MNXM11'
-            each_module_substrates['amet'] = -1 #'S-adenosyl-L-methionine', 'C00019', 'MNXM16'
-            each_module_substrates['ahcys'] = 1 #'S-adenosyl-L-homocysteine', 'C00021', 'MNXM19'
-            each_module_substrates['h2o'] = 1 #H2O (C00001)
-            dic_converted_metabolic_reaction_without_substrate[each_module] = each_module_substrates     
-            #print 'reaction 2: MT-A-PCP or C-A-MT-PCP', each_module_substrates 
+
+        elif discriminant == 'MT_A_PCP' or discriminant == 'Cs_A_MT_PCP' or discriminant == 'C_A_MT_PCP' or discriminant == 'Cdcl_A_MT_PCP' or discriminant == 'Clcl_A_MT_PCP' or discriminant == 'Cglyc_A_MT_PCP' or discriminant == 'CXglyc_A_MT_PCP':
+            each_module_substrates['atp'] = -1
+            each_module_substrates['amp'] = 1
+            each_module_substrates['ppi'] = 1
+            each_module_substrates['amet'] = -1
+            each_module_substrates['ahcys'] = 1
+            each_module_substrates['h2o'] = 1
+            module_currency_metab_dict[each_module] = each_module_substrates
+            #print 'MT-A-PCP or C-A-MT-PCP:', each_module_substrates
             print >>fp1, "module_type:\t%s\t%s\t%s" % (each_module, domain_comb, each_module_substrates)
-        
+
         elif discriminant == 'Cs_A_PCP_E' or discriminant == 'C_A_PCP_E' or discriminant == 'Cdcl_A_PCP_E' or discriminant == 'Clcl_A_PCP_E' or discriminant == 'Cd_A_PCP' or discriminant == 'Cglyc_A_PCP_E' or discriminant == 'CXglyc_A_PCP_E':
-            each_module_substrates['atp'] = -1 #'ATP' (C00002), 'MNXM3'
-            each_module_substrates['amp'] = 1 #'AMP', (C00020), 'MNXM14'
-            each_module_substrates['ppi'] = 1 #'diphosphate', (C00013), 'MNXM11'
-            each_module_substrates['h2o'] = 1 #H2O (C00001)
-            dic_converted_metabolic_reaction_without_substrate[each_module] = each_module_substrates 
-            #print 'reaction 3: C_A_PCP_E', each_module_substrates
-            print >>fp1, "module_type:\t%s\t%s\t%s" % (each_module, domain_comb, each_module_substrates) 
-             
+            each_module_substrates['atp'] = -1
+            each_module_substrates['amp'] = 1
+            each_module_substrates['ppi'] = 1
+            each_module_substrates['h2o'] = 1
+            module_currency_metab_dict[each_module] = each_module_substrates
+            #print 'C_A_PCP_E:', each_module_substrates
+            print >>fp1, "module_type:\t%s\t%s\t%s" % (each_module, domain_comb, each_module_substrates)
+
         elif discriminant == 'Cs_A_MT_E_PCP' or discriminant == 'C_A_MT_E_PCP' or discriminant == 'Cdcl_A_MT_E_PCP' or discriminant == 'Clcl_A_MT_E_PCP' or discriminant == 'Cglyc_A_MT_E_PCP' or discriminant == 'CXglyc_A_MT_E_PCP' or discriminant == 'Cd_A_MT_PCP':
-            each_module_substrates['atp'] = -1 #'ATP' (C00002), 'MNXM3'
-            each_module_substrates['amp'] = 1 #'AMP', (C00020), 'MNXM14'
-            each_module_substrates['ppi'] = 1 #'diphosphate', (C00013), 'MNXM11'
-            each_module_substrates['amet'] = -1 #'S-adenosyl-L-methionine', 'C00019', 'MNXM16'
-            each_module_substrates['ahcys'] = 1 #'S-adenosyl-L-homocysteine', 'C00021', 'MNXM19'
-            each_module_substrates['h2o'] = 1 #H2O (C00001)
-            dic_converted_metabolic_reaction_without_substrate[each_module] = each_module_substrates 
-            #print 'reaction 4: C_A_MT_E_PCP', each_module_substrates 
+            each_module_substrates['atp'] = -1
+            each_module_substrates['amp'] = 1
+            each_module_substrates['ppi'] = 1
+            each_module_substrates['amet'] = -1
+            each_module_substrates['ahcys'] = 1
+            each_module_substrates['h2o'] = 1
+            module_currency_metab_dict[each_module] = each_module_substrates
+            #print 'C_A_MT_E_PCP:', each_module_substrates
             print >>fp1, "module_type:\t%s\t%s\t%s" % (each_module, domain_comb, each_module_substrates)
-                  
+
         elif discriminant == 'HC_A_PCP' :
-            each_module_substrates['atp'] = -1 #'ATP' (C00002), 'MNXM3'
-            each_module_substrates['amp'] = 1 #'AMP', (C00020), 'MNXM14'
-            each_module_substrates['ppi'] = 1 #'diphosphate', (C00013), 'MNXM11'
-            each_module_substrates['h2o'] = 2 #H2O (C00001)
-            dic_converted_metabolic_reaction_without_substrate[each_module] = each_module_substrates 
-            #print 'reaction 5: HC_A_PCP', each_module_substrates 
+            each_module_substrates['atp'] = -1
+            each_module_substrates['amp'] = 1
+            each_module_substrates['ppi'] = 1
+            each_module_substrates['h2o'] = 2
+            module_currency_metab_dict[each_module] = each_module_substrates
+            #print 'HC_A_PCP:', each_module_substrates
             print >>fp1, "module_type:\t%s\t%s\t%s" % (each_module, domain_comb, each_module_substrates)
-            
+
         elif discriminant == 'HC_Aox_PCP':
-            each_module_substrates['atp'] = -1 #'ATP' (C00002), 'MNXM3'
-            each_module_substrates['amp'] = 1 #'AMP', (C00020), 'MNXM14'
-            each_module_substrates['ppi'] = 1 #'diphosphate', (C00013), 'MNXM11'
-            each_module_substrates['amet'] = -1 #'S-adenosyl-L-methionine', 'C00019', 'MNXM16'
-            each_module_substrates['ahcys'] = 1 #'S-adenosyl-L-homocysteine', 'C00021', 'MNXM19'
-            each_module_substrates['fmn'] = 1 #'Riboflavin-5-phosphate(FMN)', (C00061), 'MNXM119' 
-            each_module_substrates['fmnh2'] = -1  # Reduced FMN (FMNH2)', (C01847), 'MNXM208'
-            each_module_substrates['h2o'] = 2 #H2O (C00001)
-            dic_converted_metabolic_reaction_without_substrate[each_module] = each_module_substrates                
-            #print 'reaction 6: HC_Aox_PCP', each_module_substrates 
+            each_module_substrates['atp'] = -1
+            each_module_substrates['amp'] = 1
+            each_module_substrates['ppi'] = 1
+            each_module_substrates['amet'] = -1
+            each_module_substrates['ahcys'] = 1
+            each_module_substrates['fmn'] = 1
+            each_module_substrates['fmnh2'] = -1
+            each_module_substrates['h2o'] = 2
+            module_currency_metab_dict[each_module] = each_module_substrates
+            #print 'HC_Aox_PCP:', each_module_substrates
             print >>fp1, "module_type:\t%s\t%s\t%s" % (each_module, domain_comb, each_module_substrates)
-            
+
         elif discriminant == 'HC_A_MT_PCP' or discriminant == 'HC_A_MT_E_PCP':
-            each_module_substrates['atp'] = -1 #'ATP' (C00002), 'MNXM3'
-            each_module_substrates['amp'] = 1 #'AMP', (C00020), 'MNXM14'
-            each_module_substrates['ppi'] = 1 #'diphosphate', (C00013), 'MNXM11'
-            each_module_substrates['h2o'] = 2 #H2O (C00001)
-            each_module_substrates['amet'] = -1 #'S-adenosyl-L-methionine', 'C00019', 'MNXM16'
-            each_module_substrates['ahcys'] = 1 #'S-adenosyl-L-homocysteine', 'C00021', 'MNXM19'
-            dic_converted_metabolic_reaction_without_substrate[each_module] = each_module_substrates                
-            #print 'reaction 7: HC_A_MT_PCP', each_module_substrates 
+            each_module_substrates['atp'] = -1
+            each_module_substrates['amp'] = 1
+            each_module_substrates['ppi'] = 1
+            each_module_substrates['h2o'] = 2
+            each_module_substrates['amet'] = -1
+            each_module_substrates['ahcys'] = 1
+            module_currency_metab_dict[each_module] = each_module_substrates
+            #print 'HC_A_MT_PCP:', each_module_substrates
             print >>fp1, "module_type:\t%s\t%s\t%s" % (each_module, domain_comb, each_module_substrates)
-            
+
         elif discriminant == 'HC_Aox_MT_PCP' or discriminant == 'HC_Aox_MT_E_PCP':
-            each_module_substrates['atp'] = -1 #'ATP' (C00002), 'MNXM3'
-            each_module_substrates['amp'] = 1 #'AMP', (C00020), 'MNXM14'
-            each_module_substrates['amet'] = -1 #'S-adenosyl-L-methionine', 'C00019', 'MNXM16'
-            each_module_substrates['ahcys'] = 1 #'S-adenosyl-L-homocysteine', 'C00021', 'MNXM19'
-            each_module_substrates['fmn'] = 1 #'Riboflavin-5-phosphate(FMN)', (C00061), 'MNXM119' 
-            each_module_substrates['fmnh2'] = -1  # Reduced FMN (FMNH2)', (C01847), 'MNXM208'
-            each_module_substrates['amet'] = -1 #'S-adenosyl-L-methionine', 'C00019', 'MNXM16'
-            each_module_substrates['ahcys'] = 1 #'S-adenosyl-L-homocysteine', 'C00021', 'MNXM19'
-            each_module_substrates['h2o'] = 2 #H2O (C00001)
-            dic_converted_metabolic_reaction_without_substrate[each_module] = each_module_substrates                
-            #print 'reaction 8: HC_Aox_MT_PCP', each_module_substrates 
+            each_module_substrates['atp'] = -1
+            each_module_substrates['amp'] = 1
+            each_module_substrates['amet'] = -1
+            each_module_substrates['ahcys'] = 1
+            each_module_substrates['fmn'] = 1
+            each_module_substrates['fmnh2'] = -1
+            each_module_substrates['amet'] = -1
+            each_module_substrates['ahcys'] = 1
+            each_module_substrates['h2o'] = 2
+            module_currency_metab_dict[each_module] = each_module_substrates
+            #print 'HC_Aox_MT_PCP:', each_module_substrates
             print >>fp1, "module_type:\t%s\t%s\t%s" % (each_module, domain_comb, each_module_substrates)
 
         elif discriminant == 'AT_ACP' or discriminant == 'AT_KR(inactive)_ACP' or discriminant == 'AT_DH_KR(inactive)_ACP' or discriminant == 'AT_DH_ER_KR(inactive)_ACP':
-            each_module_substrates['coa'] = 1 #'Coenzyme A' (C00010), 'MNXM12'
-            each_module_substrates['hco3'] = 1 #'bicarbonate', (C00288), 'MNXM60'
-            dic_converted_metabolic_reaction_without_substrate[each_module] = each_module_substrates
-            print 'reaction 1: AT-ACP', each_module_substrates
+            each_module_substrates['coa'] = 1
+            each_module_substrates['hco3'] = 1
+            module_currency_metab_dict[each_module] = each_module_substrates
+            #print 'AT-ACP:', each_module_substrates
             print >>fp1, "module_type:\t%s\t%s\t%s" % (each_module, domain_comb, each_module_substrates)
 
         elif discriminant == 'AT_KS_ACP' or discriminant == 'AT_KS' or discriminant == 'AT_KS_KR(inactive)_ACP' or discriminant == 'AT_KS_KR(inactive)' or discriminant == 'AT_KS_DH_KR(inactive)_ACP' or discriminant == 'AT_KS_DH_KR(inactive)' or discriminant == 'AT_KS_DH_KR(inactive)_ACP' or discriminant == 'AT_KS_DH_ER_KR(inactive)':
-            each_module_substrates['coa'] = 1 #'Coenzyme A' (C00010), 'MNXM12'
-            each_module_substrates['hco3'] = 1 #'bicarbonate', (C00288), 'MNXM60'
-            dic_converted_metabolic_reaction_without_substrate[each_module] = each_module_substrates
-            print 'reaction 2: AT-KS-ACP', each_module_substrates
+            each_module_substrates['coa'] = 1
+            each_module_substrates['hco3'] = 1
+            module_currency_metab_dict[each_module] = each_module_substrates
+            #print 'AT-KS-ACP:', each_module_substrates
             print >>fp1, "module_type:\t%s\t%s\t%s" % (each_module, domain_comb, each_module_substrates)
 
         elif discriminant == 'AT_KS_KR_ACP' or discriminant == 'AT_KR_ACP' or discriminant == 'AT_KS_KR' or discriminant == 'AT_ER_KR_ACP' or discriminant == 'AT_KS_ER_KR' or discriminant == 'AT_KS_ER_KR_ACP':
-            each_module_substrates['coa'] = 1 #'Coenzyme A' (C00010), 'MNXM12'
-            each_module_substrates['hco3'] = 1 #'bicarbonate', (C00288), 'MNXM60'
-            each_module_substrates['nadp'] = 1 #'NADP+', (C00006), 'MNXM5'
-            each_module_substrates['nadph'] = -1 #'NADPH' ,(C00005), 'MNXM6'
-            each_module_substrates['h'] = -1 #'H+', (C00080), 'MNXM1'
-            dic_converted_metabolic_reaction_without_substrate[each_module] = each_module_substrates
-            print 'reaction 3: KS-AT-KR-ACP', each_module_substrates
+            each_module_substrates['coa'] = 1
+            each_module_substrates['hco3'] = 1
+            each_module_substrates['nadp'] = 1
+            each_module_substrates['nadph'] = -1
+            each_module_substrates['h'] = -1
+            module_currency_metab_dict[each_module] = each_module_substrates
+            #print 'KS-AT-KR-ACP:', each_module_substrates
             print >>fp1, "module_type:\t%s\t%s\t%s" % (each_module, domain_comb, each_module_substrates)
 
         elif discriminant == 'AT_KS_DH_KR_ACP' or discriminant == 'AT_DH_KR_ACP' or discriminant == 'AT_KS_DH_KR':
-            each_module_substrates['coa'] = 1 #'Coenzyme A', (C00010), 'MNXM12'
-            each_module_substrates['hco3'] = 1 #'bicarbonate', (C00288), 'MNXM60'
-            each_module_substrates['h2o'] = 1 #H2O (C00001)
-            each_module_substrates['nadp'] = 1 #'NADP+', (C00006), 'MNXM5'
-            each_module_substrates['nadph'] = -1 #'NADPH' ,(C00005), 'MNXM6'
-            each_module_substrates['h'] = -1 #'H+', (C00080), 'MNXM1'
-            dic_converted_metabolic_reaction_without_substrate[each_module] = each_module_substrates
-            print 'reaction 4: KS-AT-DH-KR-ACP', each_module_substrates
+            each_module_substrates['coa'] = 1
+            each_module_substrates['hco3'] = 1
+            each_module_substrates['h2o'] = 1
+            each_module_substrates['nadp'] = 1
+            each_module_substrates['nadph'] = -1
+            each_module_substrates['h'] = -1
+            module_currency_metab_dict[each_module] = each_module_substrates
+            #print 'KS-AT-DH-KR-ACP:', each_module_substrates
             print >>fp1, "module_type:\t%s\t%s\t%s" % (each_module, domain_comb, each_module_substrates)
 
         elif discriminant == 'AT_KS_DH_ER_KR_ACP' or discriminant == 'AT_DH_ER_KR_ACP' or discriminant == 'AT_KS_DH_ER_KR':
-            each_module_substrates['coa'] = 1 #'Coenzyme A', (C00010), 'MNXM12'
-            each_module_substrates['hco3'] = 1 #'bicarbonate', (C00288), 'MNXM60'
-            each_module_substrates['h2o'] = 1 #'H2O', (C00001), 'MNXM2'
-            each_module_substrates['nadp'] = 2 #'NADP+', (C00006), 'MNXM5'
-            each_module_substrates['nadph'] = -2 #'NADPH' ,(C00005), 'MNXM6'
-            each_module_substrates['h'] = -2 #'H+', (C00080), 'MNXM1'
-            dic_converted_metabolic_reaction_without_substrate[each_module] = each_module_substrates
-            print 'reaction 5: KS-AT-DH-ER-KR-ACP', each_module_substrates
+            each_module_substrates['coa'] = 1
+            each_module_substrates['hco3'] = 1
+            each_module_substrates['h2o'] = 1
+            each_module_substrates['nadp'] = 2
+            each_module_substrates['nadph'] = -2
+            each_module_substrates['h'] = -2
+            module_currency_metab_dict[each_module] = each_module_substrates
+            #print 'KS-AT-DH-ER-KR-ACP:', each_module_substrates
             print >>fp1, "module_type:\t%s\t%s\t%s" % (each_module, domain_comb, each_module_substrates)
 
         elif discriminant == 'AT_KS_cMT_ACP' or discriminant == 'AT_KS_cMT':
-            each_module_substrates['coa'] = 1 #'Coenzyme A' (C00010), 'MNXM12'
-            each_module_substrates['hco3'] = 1 #'bicarbonate', (C00288), 'MNXM60'
-            each_module_substrates['amet'] = -1 #'S-adenosyl-L-methionine', 'C00019', 'MNXM16'
-            each_module_substrates['ahcys'] = 1 #'S-adenosyl-L-homocysteine', 'C00021', 'MNXM19'
-            dic_converted_metabolic_reaction_without_substrate[each_module] = each_module_substrates
-            print 'reaction 6: AT_KS_cMT_ACP', each_module_substrates
+            each_module_substrates['coa'] = 1
+            each_module_substrates['hco3'] = 1
+            each_module_substrates['amet'] = -1
+            each_module_substrates['ahcys'] = 1
+            module_currency_metab_dict[each_module] = each_module_substrates
+            #print 'AT_KS_cMT_ACP:', each_module_substrates
             print >>fp1, "module_type:\t%s\t%s\t%s" % (each_module, domain_comb, each_module_substrates)
 
         elif discriminant == 'AT_KS_KR_cMT_ACP' or discriminant == 'AT_KS_KR_cMT':
-            each_module_substrates['coa'] = 1 #'Coenzyme A' (C00010), 'MNXM12'
-            each_module_substrates['hco3'] = 1 #'bicarbonate', (C00288), 'MNXM60'
-            each_module_substrates['nadp'] = 1 #'NADP+', (C00006), 'MNXM5'
-            each_module_substrates['nadph'] = -1 #'NADPH' ,(C00005), 'MNXM6'
-            each_module_substrates['h'] = -1 #'H+', (C00080), 'MNXM1'
-            each_module_substrates['amet'] = -1 #'S-adenosyl-L-methionine', 'C00019', 'MNXM16'
-            each_module_substrates['ahcys'] = 1 #'S-adenosyl-L-homocysteine', 'C00021', 'MNXM19'
-            dic_converted_metabolic_reaction_without_substrate[each_module] = each_module_substrates
-            print 'reaction 7: AT_KS_KR_cMT_ACP', each_module_substrates
+            each_module_substrates['coa'] = 1
+            each_module_substrates['hco3'] = 1
+            each_module_substrates['nadp'] = 1
+            each_module_substrates['nadph'] = -1
+            each_module_substrates['h'] = -1
+            each_module_substrates['amet'] = -1
+            each_module_substrates['ahcys'] = 1
+            module_currency_metab_dict[each_module] = each_module_substrates
+            #print 'AT_KS_KR_cMT_ACP:', each_module_substrates
             print >>fp1, "module_type:\t%s\t%s\t%s" % (each_module, domain_comb, each_module_substrates)
 
         elif discriminant == 'AT_KS_DH_KR_cMT_ACP' or discriminant == 'AT_KS_DH_KR_cMT':
-            each_module_substrates['coa'] = 1 #'Coenzyme A', (C00010), 'MNXM12'
-            each_module_substrates['hco3'] = 1 #'bicarbonate', (C00288), 'MNXM60'
-            each_module_substrates['h2o'] = 1 #H2O (C00001)
-            each_module_substrates['nadp'] = 1 #'NADP+', (C00006), 'MNXM5'
-            each_module_substrates['nadph'] = -1 #'NADPH' ,(C00005), 'MNXM6'
-            each_module_substrates['h'] = -1 #'H+', (C00080), 'MNXM1'
-            each_module_substrates['amet'] = -1 #'S-adenosyl-L-methionine', 'C00019', 'MNXM16'
-            each_module_substrates['ahcys'] = 1 #'S-adenosyl-L-homocysteine', 'C00021', 'MNXM19'
-            dic_converted_metabolic_reaction_without_substrate[each_module] = each_module_substrates
-            print 'reaction 8: AT_KS_DH_KR_cMT_ACP', each_module_substrates
+            each_module_substrates['coa'] = 1
+            each_module_substrates['hco3'] = 1
+            each_module_substrates['h2o'] = 1
+            each_module_substrates['nadp'] = 1
+            each_module_substrates['nadph'] = -1
+            each_module_substrates['h'] = -1
+            each_module_substrates['amet'] = -1
+            each_module_substrates['ahcys'] = 1
+            module_currency_metab_dict[each_module] = each_module_substrates
+            #print 'AT_KS_DH_KR_cMT_ACP:', each_module_substrates
             print >>fp1, "module_type:\t%s\t%s\t%s" % (each_module, domain_comb, each_module_substrates)
 
         elif discriminant == 'AT_KS_DH_KR_cMT_ER_ACP' or discriminant == 'AT_KS_DH_KR_cMT_ER':
-            each_module_substrates['coa'] = 1 #'Coenzyme A', (C00010), 'MNXM12'
-            each_module_substrates['hco3'] = 1 #'bicarbonate', (C00288), 'MNXM60'
-            each_module_substrates['h2o'] = 1 #'H2O', (C00001), 'MNXM2'
-            each_module_substrates['nadp'] = 2 #'NADP+', (C00006), 'MNXM5'
-            each_module_substrates['nadph'] = -2 #'NADPH' ,(C00005), 'MNXM6'
-            each_module_substrates['h'] = -2 #'H+', (C00080), 'MNXM1'
-            each_module_substrates['amet'] = -1 #'S-adenosyl-L-methionine', 'C00019', 'MNXM16'
-            each_module_substrates['ahcys'] = 1 #'S-adenosyl-L-homocysteine', 'C00021', 'MNXM19'
-            dic_converted_metabolic_reaction_without_substrate[each_module] = each_module_substrates
-            print 'reaction 8: AT_KS_DH_KR_cMT_ER_ACP', each_module_substrates
+            each_module_substrates['coa'] = 1
+            each_module_substrates['hco3'] = 1
+            each_module_substrates['h2o'] = 1
+            each_module_substrates['nadp'] = 2
+            each_module_substrates['nadph'] = -2
+            each_module_substrates['h'] = -2
+            each_module_substrates['amet'] = -1
+            each_module_substrates['ahcys'] = 1
+            module_currency_metab_dict[each_module] = each_module_substrates
+            #print 'AT_KS_DH_KR_cMT_ER_ACP:', each_module_substrates
             print >>fp1, "module_type:\t%s\t%s\t%s" % (each_module, domain_comb, each_module_substrates)
 
         elif discriminant == 'TD':
-            each_module_substrates['nadp'] = 1 #'NADP+', (C00006), 'MNXM5'
-            each_module_substrates['nadph'] = -1 #'NADPH' ,(C00005), 'MNXM6'
-            each_module_substrates['h'] = -1 #'H+', (C00080), 'MNXM1'
-            dic_converted_metabolic_reaction_without_substrate[each_module] = each_module_substrates                
+            each_module_substrates['nadp'] = 1
+            each_module_substrates['nadph'] = -1
+            each_module_substrates['h'] = -1
+            module_currency_metab_dict[each_module] = each_module_substrates                
             #print 'reaction 8: HC_Aox_MT_PCP', each_module_substrates 
             print >>fp1, "module_type:\t%s\t%s\t%s" % (each_module, domain_comb, each_module_substrates)
             
@@ -543,9 +543,9 @@ def generate_currency_metabolites(locustag_module_domain_dict):
             continue
 
     fp1.close()
-    print "dic_converted_metabolic_reaction_without_substrate"
-    print dic_converted_metabolic_reaction_without_substrate, '\n'            
-    return dic_converted_metabolic_reaction_without_substrate
+    print "module_currency_metab_dict"
+    print module_currency_metab_dict, '\n'
+    return module_currency_metab_dict
 
 
 def integrated_metabolic_reaction1(participated_cofactor_info):
