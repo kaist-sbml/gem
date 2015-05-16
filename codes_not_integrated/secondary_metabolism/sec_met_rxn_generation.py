@@ -12,7 +12,7 @@ from cobra.io.sbml import create_cobra_model_from_sbml_file
 from cobra.io.sbml import write_cobra_model_to_sbml_file
 from MNX_checker2 import COBRA_TemplateModel_checking_MNXref_metabolites
 from MNX_checker2 import fix_legacy_id
-from domain_determination import determine_domain, extract_substrate_information_nrps, extract_substrate_information_pks
+from type_specific_info import determine_domain, extract_substrate_information_nrps, extract_substrate_information_pks, Identifier_KR_activity
 import pickle
 import copy
 
@@ -205,7 +205,7 @@ def get_cluster_domain(cluster_info_dict):
 
     print 'dic_t1pks_PKS_KR_activity'
     print dic_t1pks_PKS_KR_activity, '\n'
-    return locustag_domain_dict
+    return locustag_domain_dict, dic_t1pks_PKS_KR_activity
 
 #Output: e.g., {'SAV_943_M1':['mmal', 'Ethyl_mal', 'pk']}
 def get_cluster_monomers(cluster_info_dict):
@@ -223,7 +223,7 @@ def get_cluster_monomers(cluster_info_dict):
             if "Substrate specificity predictions" in each_sub_set and "AMP-binding" in each_sub_set:
                 list_participated_sustrate, discriminator = extract_substrate_information_nrps(each_sub_set, discriminator)
                 module_number = each_gene + '_M' + str(module_count)
-                dic_pksnrps_domain_substrate[module_number] = list_participated_sustrate
+                locustag_monomer_dict[module_number] = list_participated_sustrate
 
                 print module_number, list_participated_sustrate
                 print >>fp1, "%s\t%s" % (module_number, list_participated_sustrate)
@@ -233,7 +233,7 @@ def get_cluster_monomers(cluster_info_dict):
             if "Substrate specificity predictions" in each_sub_set and "A-OX" in each_sub_set:
                 list_participated_sustrate, discriminator = extract_substrate_information_nrps(each_sub_set, discriminator)
                 module_number = each_gene + '_M' + str(module_count)
-                dic_pksnrps_domain_substrate[module_number] = list_participated_sustrate
+                locustag_monomer_dict[module_number] = list_participated_sustrate
 
                 print module_number, list_participated_sustrate
                 print >>fp1, "%s\t%s" % (module_number, list_participated_sustrate)
@@ -243,7 +243,7 @@ def get_cluster_monomers(cluster_info_dict):
             if "Substrate specificity predictions" in each_sub_set and "PKS_AT" in each_sub_set:
                 list_participated_sustrate = extract_substrate_information_pks(each_sub_set)
                 module_number = each_gene + '_M' + str(module_count)
-                dic_pksnrps_domain_substrate[module_number] = list_participated_sustrate
+                locustag_monomer_dict[module_number] = list_participated_sustrate
 
                 print module_number, list_participated_sustrate
                 print >>fp1, "%s\t%s" % (module_number, list_participated_sustrate)
@@ -260,57 +260,102 @@ def get_cluster_monomers(cluster_info_dict):
 
 
 #Output: e.g., {'SAV_943_M1': ['PKS_KS', 'PKS_AT', 'ACP']}
-def get_cluster_module(locustag_domain_dict):
+def get_cluster_module(locustag_domain_dict, dic_t1pks_PKS_KR_activity):
     fp1 = open('Output_second_metab_module.txt','w')
     
     locustag_module_domain_dict = {}
+    dic_pksnrps_module_KR_activity = {}
 
-     
-    for nrps_gene in locustag_domain_dict.keys():
+    for locustag in locustag_domain_dict.keys():
         
         count = 0
-        if nrps_gene in locustag_domain_dict:
-            
-            list_each_nrps_domain = locustag_domain_dict[nrps_gene]
-            #print list_each_nrps_domain
-            #list_KR_activity = dic_t1pks_PKS_KR_activity[t1pks_gene]
+        if locustag in locustag_domain_dict.keys():
+            print locustag
+            list_each_nrps_domain = locustag_domain_dict[locustag]
+            list_KR_activity = dic_t1pks_PKS_KR_activity[locustag]
         
             list_module_info = []
             number_of_list = len(list_each_nrps_domain)
 
-            #KR_number = 0
+            KR_number = 0
             
-            for each_domain in list_each_nrps_domain:    
-                #if each_domain == 'PKS_Docking_Nterm' or each_domain == 'PKS_Docking_Cterm':
-                    #number_of_list = number_of_list - 1
-                    # continue
-                
+            for each_domain in list_each_nrps_domain:
                 list_module_info.append(each_domain)
                 number_of_list = number_of_list - 1
                 
                 if each_domain == 'PCP' or each_domain == 'ACP':
-                    module_number = nrps_gene + '_M' + str(count)
+                    module_number = locustag + '_M' + str(count)
+
+                    #This algorithm should be pruned or make the new function.
+                    if 'PKS_KR' in list_module_info and list_KR_activity[KR_number] == 'active':
+                        each_module_KR_activity = 1
+                        KR_number = KR_number + 1
+
+                    elif 'PKS_KR' in list_module_info and list_KR_activity[KR_number] == 'inactive':
+                        each_module_KR_activity = 2
+                        KR_number = KR_number + 1
+
+                    else:
+                        each_module_KR_activity = 0
+
                     locustag_module_domain_dict[module_number] = list_module_info
-                    print >>fp1, "%s\t%s\t%s" %(nrps_gene, module_number, list_module_info)
+                    #dic_pksnrps_module[module_number] = list_module_info
+                    dic_pksnrps_module_KR_activity[module_number] = each_module_KR_activity
+                    print >>fp1, "%s\t%s\t%s" %(locustag, module_number, list_module_info)
+
+                    #print >>fp1, "%s\t%s\t%s\t%s" % (locustag, module_number, list_module_info, each_module_KR_activity)
+                    print module_number, list_module_info, each_module_KR_activity
+
                     list_module_info = []
                     count = count + 1
 
                 elif each_domain == 'Epimerization':
                     count = count - 1
-                    module_number = nrps_gene + '_M' + str(count)
+                    module_number = locustag + '_M' + str(count)
+
+                    #This algorithm should be pruned or make the new function.
+                    if 'PKS_KR' in list_module_info and list_KR_activity[KR_number] == 'active':
+                        each_module_KR_activity = 1
+                        KR_number = KR_number + 1
+
+                    elif 'PKS_KR' in list_module_info and list_KR_activity[KR_number] == 'inactive':
+                        each_module_KR_activity = 2
+                        KR_number = KR_number + 1
+
+                    else:
+                        each_module_KR_activity = 0
+
                     list_module_info = locustag_module_domain_dict[module_number]
                     list_module_info.append('Epimerization')
                     A = locustag_module_domain_dict.pop(module_number)
+
                     locustag_module_domain_dict[module_number] = list_module_info
-                    print >>fp1, "%s\t%s\t%s" %(nrps_gene, module_number, list_module_info)
+                    dic_pksnrps_module_KR_activity[module_number] = each_module_KR_activity
+                    print >>fp1, "%s\t%s\t%s" %(locustag, module_number, list_module_info)
+                    print module_number, list_module_info, each_module_KR_activity
+
                     list_module_info = []
                     count = count + 1
 
                 elif each_domain == 'Thioesterase':
                     count = count - 1
-                    module_number = nrps_gene + '_M' + str(count)
+                    module_number = locustag + '_M' + str(count)
+
+                    #This algorithm should be pruned or make the new function.
+                    if 'PKS_KR' in list_module_info and list_KR_activity[KR_number] == 'active':
+                        each_module_KR_activity = 1
+                        KR_number = KR_number + 1
+
+                    elif 'PKS_KR' in list_module_info and list_KR_activity[KR_number] == 'inactive':
+                        each_module_KR_activity = 2
+                        KR_number = KR_number + 1
+
+                    else:
+                        each_module_KR_activity = 0
+
+                    print "check", locustag_module_domain_dict.keys()
                     list_module_info = locustag_module_domain_dict[module_number]
-                    #print list_module_info
+                    print list_module_info
                     
                     list_module_info.append('Thioesterase')
                     #print list_module_info
@@ -319,29 +364,76 @@ def get_cluster_module(locustag_domain_dict):
                     #print A
 
                     locustag_module_domain_dict[module_number] = list_module_info
-                    print >>fp1, "%s\t%s\t%s" %(nrps_gene, module_number, list_module_info)
-                    
+                    dic_pksnrps_module_KR_activity[module_number] = each_module_KR_activity
+                    print >>fp1, "%s\t%s\t%s" %(locustag, module_number, list_module_info)
+                    print module_number, list_module_info, each_module_KR_activity
+
+                elif list_module_info.count('PKS_KS') == 2:
+                    module_number = t1pks_gene + '_M' + str(count)
+                    poped_domain = list_module_info.pop()
+
+                    #This algorithm should be pruned or make the new function.
+                    if 'PKS_KR' in list_module_info and list_KR_activity[KR_number] == 'active':
+                        each_module_KR_activity = 1
+                        KR_number = KR_number + 1
+
+                    elif 'PKS_KR' in list_module_info and list_KR_activity[KR_number] == 'inactive':
+                        each_module_KR_activity = 2
+                        KR_number = KR_number + 1
+
+                    else:
+                        each_module_KR_activity = 0
+                    #########
+
+                    dic_pksnrps_module[module_number] = list_module_info
+                    dic_pksnrps_module_KR_activity[module_number] = each_module_KR_activity
+
+                    print >>fp1, "%s\t%s\t%s\t%s" % (locustag, module_number, list_module_info, each_module_KR_activity)
+                    print module_number, list_module_info, each_module_KR_activity
+
+                    list_module_info = []
+                    list_module_info.append(poped_domain)
+
+                    count = count + 1
+
                 elif list_module_info.count('Condensation_DCL') == 2 or list_module_info.count('Condensation_LCL') == 2 or list_module_info.count('Condensation_LCL') + list_module_info.count('Condensation_DCL') == 2:
-                    module_number = nrps_gene + '_M' + str(count)
+                    module_number = locustag + '_M' + str(count)
                     list_module_info.pop()
                     locustag_module_domain_dict[module_number] = list_module_info
                     list_module_info = []
                     count = count + 1
                     
                 elif float(number_of_list) == 0:
-                    module_number = nrps_gene + '_M' + str(count)
+                    module_number = locustag + '_M' + str(count)
+
+                    # this algorithm should be pruned or make the new function.
+                    if 'PKS_KR' in list_module_info and list_KR_activity[KR_number] == 'active':
+                        each_module_KR_activity = 1
+                        KR_number = KR_number + 1
+
+                    elif 'PKS_KR' in list_module_info and list_KR_activity[KR_number] == 'inactive':
+                        each_module_KR_activity = 2
+                        KR_number = KR_number + 1
+
+                    else:
+                        each_module_KR_activity = 0
+
+
                     locustag_module_domain_dict[module_number] = list_module_info
-                    print >>fp1, "%s\t%s\t%s" % (nrps_gene, module_number, list_module_info)
+                    dic_pksnrps_module_KR_activity[module_number] = each_module_KR_activity
+                    print >>fp1, "%s\t%s\t%s" % (locustag, module_number, list_module_info)
+                    print module_number, list_module_info, each_module_KR_activity
+
                     list_module_info = []
                     count = count + 1
                 
     fp1.close()
     print 'locustag_module_domain_dict'
     print locustag_module_domain_dict, '\n'
-    return locustag_module_domain_dict
+    return locustag_module_domain_dict, dic_pksnrps_module_KR_activity
 
 
-def generate_currency_metabolites(locustag_module_domain_dict):
+def generate_currency_metabolites(locustag_module_domain_dict, dic_pksnrps_module_KR_activity):
     fp1 = open('Output_currency_metabolites.txt','w')
     
     dic_converted_metabolic_reaction_without_substrate = {}
@@ -353,7 +445,8 @@ def generate_currency_metabolites(locustag_module_domain_dict):
 
         each_module_substrates = {}
         discriminant = determine_domain(domain_comb)
-        
+        discriminant_with_KRact = Identifier_KR_activity(discriminant, each_module, dic_pksnrps_module_KR_activity)
+
         if discriminant == 'None':
             #print "this discriminant is not defined : %s" % (domain_comb)
             print >>fp1, "module_type:\t%s\t%s\t%s" % (each_module, domain_comb, 'None')
@@ -364,11 +457,11 @@ def generate_currency_metabolites(locustag_module_domain_dict):
             each_module_substrates['amp'] = 1 #'AMP', (C00020), 'MNXM14'
             each_module_substrates['ppi'] = 1 #'diphosphate', (C00013), 'MNXM11'
             each_module_substrates['h2o'] = 1 #H2O (C00001)
-            dic_converted_metabolic_reaction_without_substrate[each_module] = each_module_substrates     
+            dic_converted_metabolic_reaction_without_substrate[each_module] = each_module_substrates 
             #print 'reaction 0: A or Aox', each_module_substrates 
             print >>fp1, "module_type:\t%s\t%s\t%s" % (each_module, domain_comb, each_module_substrates)
-        
-        elif discriminant == 'A_PCP' or discriminant == 'Cs_A_PCP' or discriminant == 'C_A_PCP' or discriminant == 'Cdcl_A_PCP' or discriminant == 'Clcl_A_PCP' or discriminant == 'Clcl_A_PCP' or discriminant == 'Cglyc_A_PCP' or discriminant == 'CXglyc_A_PCP': 
+
+        elif discriminant == 'A_PCP' or discriminant == 'Cs_A_PCP' or discriminant == 'C_A_PCP' or discriminant == 'Cdcl_A_PCP' or discriminant == 'Clcl_A_PCP' or discriminant == 'Clcl_A_PCP' or discriminant == 'Cglyc_A_PCP' or discriminant == 'CXglyc_A_PCP':
             each_module_substrates['atp'] = -1 #'ATP' (C00002), 'MNXM3'
             each_module_substrates['amp'] = 1 #'AMP', (C00020), 'MNXM14'
             each_module_substrates['ppi'] = 1 #'diphosphate', (C00013), 'MNXM11'
@@ -454,7 +547,100 @@ def generate_currency_metabolites(locustag_module_domain_dict):
             dic_converted_metabolic_reaction_without_substrate[each_module] = each_module_substrates                
             #print 'reaction 8: HC_Aox_MT_PCP', each_module_substrates 
             print >>fp1, "module_type:\t%s\t%s\t%s" % (each_module, domain_comb, each_module_substrates)
-            
+
+        elif discriminant == 'AT_ACP' or discriminant == 'AT_KR(inactive)_ACP' or discriminant == 'AT_DH_KR(inactive)_ACP' or discriminant == 'AT_DH_ER_KR(inactive)_ACP':
+            each_module_substrates['coa'] = 1 #'Coenzyme A' (C00010), 'MNXM12'
+            each_module_substrates['hco3'] = 1 #'bicarbonate', (C00288), 'MNXM60'
+            dic_converted_metabolic_reaction_without_substrate[each_module] = each_module_substrates
+            print 'reaction 1: AT-ACP', each_module_substrates
+            print >>fp1, "module_type:\t%s\t%s\t%s" % (each_module, domain_comb, each_module_substrates)
+
+        elif discriminant == 'AT_KS_ACP' or discriminant == 'AT_KS' or discriminant == 'AT_KS_KR(inactive)_ACP' or discriminant == 'AT_KS_KR(inactive)' or discriminant == 'AT_KS_DH_KR(inactive)_ACP' or discriminant == 'AT_KS_DH_KR(inactive)' or discriminant == 'AT_KS_DH_KR(inactive)_ACP' or discriminant == 'AT_KS_DH_ER_KR(inactive)':
+            each_module_substrates['coa'] = 1 #'Coenzyme A' (C00010), 'MNXM12'
+            each_module_substrates['hco3'] = 1 #'bicarbonate', (C00288), 'MNXM60'
+            dic_converted_metabolic_reaction_without_substrate[each_module] = each_module_substrates
+            print 'reaction 2: AT-KS-ACP', each_module_substrates
+            print >>fp1, "module_type:\t%s\t%s\t%s" % (each_module, domain_comb, each_module_substrates)
+
+        elif discriminant == 'AT_KS_KR_ACP' or discriminant == 'AT_KR_ACP' or discriminant == 'AT_KS_KR' or discriminant == 'AT_ER_KR_ACP' or discriminant == 'AT_KS_ER_KR' or discriminant == 'AT_KS_ER_KR_ACP':
+            each_module_substrates['coa'] = 1 #'Coenzyme A' (C00010), 'MNXM12'
+            each_module_substrates['hco3'] = 1 #'bicarbonate', (C00288), 'MNXM60'
+            each_module_substrates['nadp'] = 1 #'NADP+', (C00006), 'MNXM5'
+            each_module_substrates['nadph'] = -1 #'NADPH' ,(C00005), 'MNXM6'
+            each_module_substrates['h'] = -1 #'H+', (C00080), 'MNXM1'
+            dic_converted_metabolic_reaction_without_substrate[each_module] = each_module_substrates
+            print 'reaction 3: KS-AT-KR-ACP', each_module_substrates
+            print >>fp1, "module_type:\t%s\t%s\t%s" % (each_module, domain_comb, each_module_substrates)
+
+        elif discriminant == 'AT_KS_DH_KR_ACP' or discriminant == 'AT_DH_KR_ACP' or discriminant == 'AT_KS_DH_KR':
+            each_module_substrates['coa'] = 1 #'Coenzyme A', (C00010), 'MNXM12'
+            each_module_substrates['hco3'] = 1 #'bicarbonate', (C00288), 'MNXM60'
+            each_module_substrates['h2o'] = 1 #H2O (C00001)
+            each_module_substrates['nadp'] = 1 #'NADP+', (C00006), 'MNXM5'
+            each_module_substrates['nadph'] = -1 #'NADPH' ,(C00005), 'MNXM6'
+            each_module_substrates['h'] = -1 #'H+', (C00080), 'MNXM1'
+            dic_converted_metabolic_reaction_without_substrate[each_module] = each_module_substrates
+            print 'reaction 4: KS-AT-DH-KR-ACP', each_module_substrates
+            print >>fp1, "module_type:\t%s\t%s\t%s" % (each_module, domain_comb, each_module_substrates)
+
+        elif discriminant == 'AT_KS_DH_ER_KR_ACP' or discriminant == 'AT_DH_ER_KR_ACP' or discriminant == 'AT_KS_DH_ER_KR':
+            each_module_substrates['coa'] = 1 #'Coenzyme A', (C00010), 'MNXM12'
+            each_module_substrates['hco3'] = 1 #'bicarbonate', (C00288), 'MNXM60'
+            each_module_substrates['h2o'] = 1 #'H2O', (C00001), 'MNXM2'
+            each_module_substrates['nadp'] = 2 #'NADP+', (C00006), 'MNXM5'
+            each_module_substrates['nadph'] = -2 #'NADPH' ,(C00005), 'MNXM6'
+            each_module_substrates['h'] = -2 #'H+', (C00080), 'MNXM1'
+            dic_converted_metabolic_reaction_without_substrate[each_module] = each_module_substrates
+            print 'reaction 5: KS-AT-DH-ER-KR-ACP', each_module_substrates
+            print >>fp1, "module_type:\t%s\t%s\t%s" % (each_module, domain_comb, each_module_substrates)
+
+        elif discriminant == 'AT_KS_cMT_ACP' or discriminant == 'AT_KS_cMT':
+            each_module_substrates['coa'] = 1 #'Coenzyme A' (C00010), 'MNXM12'
+            each_module_substrates['hco3'] = 1 #'bicarbonate', (C00288), 'MNXM60'
+            each_module_substrates['amet'] = -1 #'S-adenosyl-L-methionine', 'C00019', 'MNXM16'
+            each_module_substrates['ahcys'] = 1 #'S-adenosyl-L-homocysteine', 'C00021', 'MNXM19'
+            dic_converted_metabolic_reaction_without_substrate[each_module] = each_module_substrates
+            print 'reaction 6: AT_KS_cMT_ACP', each_module_substrates
+            print >>fp1, "module_type:\t%s\t%s\t%s" % (each_module, domain_comb, each_module_substrates)
+
+        elif discriminant == 'AT_KS_KR_cMT_ACP' or discriminant == 'AT_KS_KR_cMT':
+            each_module_substrates['coa'] = 1 #'Coenzyme A' (C00010), 'MNXM12'
+            each_module_substrates['hco3'] = 1 #'bicarbonate', (C00288), 'MNXM60'
+            each_module_substrates['nadp'] = 1 #'NADP+', (C00006), 'MNXM5'
+            each_module_substrates['nadph'] = -1 #'NADPH' ,(C00005), 'MNXM6'
+            each_module_substrates['h'] = -1 #'H+', (C00080), 'MNXM1'
+            each_module_substrates['amet'] = -1 #'S-adenosyl-L-methionine', 'C00019', 'MNXM16'
+            each_module_substrates['ahcys'] = 1 #'S-adenosyl-L-homocysteine', 'C00021', 'MNXM19'
+            dic_converted_metabolic_reaction_without_substrate[each_module] = each_module_substrates
+            print 'reaction 7: AT_KS_KR_cMT_ACP', each_module_substrates
+            print >>fp1, "module_type:\t%s\t%s\t%s" % (each_module, domain_comb, each_module_substrates)
+
+        elif discriminant == 'AT_KS_DH_KR_cMT_ACP' or discriminant == 'AT_KS_DH_KR_cMT':
+            each_module_substrates['coa'] = 1 #'Coenzyme A', (C00010), 'MNXM12'
+            each_module_substrates['hco3'] = 1 #'bicarbonate', (C00288), 'MNXM60'
+            each_module_substrates['h2o'] = 1 #H2O (C00001)
+            each_module_substrates['nadp'] = 1 #'NADP+', (C00006), 'MNXM5'
+            each_module_substrates['nadph'] = -1 #'NADPH' ,(C00005), 'MNXM6'
+            each_module_substrates['h'] = -1 #'H+', (C00080), 'MNXM1'
+            each_module_substrates['amet'] = -1 #'S-adenosyl-L-methionine', 'C00019', 'MNXM16'
+            each_module_substrates['ahcys'] = 1 #'S-adenosyl-L-homocysteine', 'C00021', 'MNXM19'
+            dic_converted_metabolic_reaction_without_substrate[each_module] = each_module_substrates
+            print 'reaction 8: AT_KS_DH_KR_cMT_ACP', each_module_substrates
+            print >>fp1, "module_type:\t%s\t%s\t%s" % (each_module, domain_comb, each_module_substrates)
+
+        elif discriminant == 'AT_KS_DH_KR_cMT_ER_ACP' or discriminant == 'AT_KS_DH_KR_cMT_ER':
+            each_module_substrates['coa'] = 1 #'Coenzyme A', (C00010), 'MNXM12'
+            each_module_substrates['hco3'] = 1 #'bicarbonate', (C00288), 'MNXM60'
+            each_module_substrates['h2o'] = 1 #'H2O', (C00001), 'MNXM2'
+            each_module_substrates['nadp'] = 2 #'NADP+', (C00006), 'MNXM5'
+            each_module_substrates['nadph'] = -2 #'NADPH' ,(C00005), 'MNXM6'
+            each_module_substrates['h'] = -2 #'H+', (C00080), 'MNXM1'
+            each_module_substrates['amet'] = -1 #'S-adenosyl-L-methionine', 'C00019', 'MNXM16'
+            each_module_substrates['ahcys'] = 1 #'S-adenosyl-L-homocysteine', 'C00021', 'MNXM19'
+            dic_converted_metabolic_reaction_without_substrate[each_module] = each_module_substrates
+            print 'reaction 8: AT_KS_DH_KR_cMT_ER_ACP', each_module_substrates
+            print >>fp1, "module_type:\t%s\t%s\t%s" % (each_module, domain_comb, each_module_substrates)
+
         elif discriminant == 'TD':
             each_module_substrates['nadp'] = 1 #'NADP+', (C00006), 'MNXM5'
             each_module_substrates['nadph'] = -1 #'NADPH' ,(C00005), 'MNXM6'
@@ -463,9 +649,11 @@ def generate_currency_metabolites(locustag_module_domain_dict):
             #print 'reaction 8: HC_Aox_MT_PCP', each_module_substrates 
             print >>fp1, "module_type:\t%s\t%s\t%s" % (each_module, domain_comb, each_module_substrates)
             
+        elif discriminant == 'ACP':
+            continue
         elif discriminant == 'PCP':
             continue
-    
+
     fp1.close()
     print "dic_converted_metabolic_reaction_without_substrate"
     print dic_converted_metabolic_reaction_without_substrate, '\n'            
@@ -489,7 +677,9 @@ def integrated_metabolic_reaction1(participated_cofactor_info):
     dic_integrated_metabolic_reaction['nadph'] = 0 #'NADPH' ,(C00005), 'MNXM6'
     dic_integrated_metabolic_reaction['h'] = 0 #'H+', (C00080), 'MNXM1'
     dic_integrated_metabolic_reaction['h2o'] = 0 #'H2O', (C00001), 'MNXM2'
-    
+    dic_integrated_metabolic_reaction['hco3'] = 0
+    dic_integrated_metabolic_reaction['coa'] = 0
+
     for each_module in participated_cofactor_info:
         
         for each_metabolite in participated_cofactor_info[each_module]:
@@ -551,51 +741,94 @@ def integrated_metabolic_reaction2(locustag_monomer_dict, dic_integrated_metabol
     dic_integrated_metabolic_reaction_without_cofactors['hty'] = 0 #'L-Homotyrosine', 'C18622', 'MNXM59438'
     dic_integrated_metabolic_reaction_without_cofactors['citr_DASH_L'] = 0 #'L-citruline', 'C00327', 'MNXM211' 
     dic_integrated_metabolic_reaction_without_cofactors['Lpipecol'] = 0 #'L-pipecolate', 'C00408', 'MNXM684'
-    dic_integrated_metabolic_reaction_without_cofactors['24dab'] = 0 #'L-2,4-diazaniumylbutyrate', 'C03283', 'MNXM840'
     dic_integrated_metabolic_reaction_without_cofactors['ala_DASH_B'] = 0 #'beta-alanine zwitterion', 'C00099', 'MNXM144'
+    dic_integrated_metabolic_reaction_without_cofactors['24dab'] = 0 #'L-2,4-diazaniumylbutyrate', 'C03283', 'MNXM840'
+    dic_integrated_metabolic_reaction_without_cofactors['pac'] = 0 #'phenylacetate', 'C00548', 'MNXM497'
     dic_integrated_metabolic_reaction_without_cofactors['tcl'] = 0 #'4-Chlorothreonine', 'N/A', 'MNXM37380'
     dic_integrated_metabolic_reaction_without_cofactors['qa'] = 0 #'quinoxaline', 'C18575','MNXM80501' VV
-    
+    dic_integrated_metabolic_reaction_without_cofactors['malcoa'] = 0 #'malonyl-CoA', 'C00083', 'MNXM40'
+    dic_integrated_metabolic_reaction_without_cofactors['mmcoa_DASH_S'] = 0 #'(S)-methylmalonyl-CoA(5-)','C00683', 'MNXM190', 'not detected in bigg database'
+    dic_integrated_metabolic_reaction_without_cofactors['2mbcoa'] = 0 #'2-methylbutanoyl-CoA', C01033,'MNXM569'
+    dic_integrated_metabolic_reaction_without_cofactors['emcoa_DASH_S'] = 0 #'ethylmalonyl-CoA','C18026', 'MNXM2043', 'not detected in bigg database'
+    dic_integrated_metabolic_reaction_without_cofactors['ibcoa'] = 0 #'2-Methylpropanoyl-CoA', 'C00630', 'MNXM470'
+    dic_integrated_metabolic_reaction_without_cofactors['accoa'] = 0 #'Acetyl-CoA', 'C00024', 'MNXM21'
+    dic_integrated_metabolic_reaction_without_cofactors['ppcoa'] = 0 #'Propionyl-CoA', 'C00100', 'MNXM86'
+    dic_integrated_metabolic_reaction_without_cofactors['ivcoa'] = 0 #'3-Methylbutanoyl-CoA', 'C02939', 'MNXM471'
+    dic_integrated_metabolic_reaction_without_cofactors['mxmalacp'] = 0 #'Methoxymalonyl-[acp]A', 'C18616', 'MNXM61686'
+    dic_integrated_metabolic_reaction_without_cofactors['chccoa'] = 0 #'cyclohexane-1-carboxyl-CoA', 'C09823', 'MNXM5111'    
+
     for each_module in locustag_monomer_dict:
 
-        if locustag_monomer_dict[each_module][3] == 'nrp':
-            
+        print locustag_monomer_dict
+        print len(locustag_monomer_dict[each_module])
+
+        if len(locustag_monomer_dict[each_module]) == 4:
+
             sptlist1 = locustag_monomer_dict[each_module][0].split(',')
             temp_list = []
-            
-            if len(sptlist1) >= 2:
-                for each_substrate in sptlist1:
-                    converted_met1 = converting_substrate_to_met_coeff(each_substrate)
-                    temp_list.append(converted_met1)
-            elif locustag_monomer_dict[each_module][0] == 'hydrophobic-aliphatic' or locustag_monomer_dict[each_module][0] == 'hydrophilic':
-                each_substrate = 'N/A'
-                temp_list.append(each_substrate)    
-            else:
-                query_met2 = locustag_monomer_dict[each_module][0]
-                converted_met2 = converting_substrate_to_met_coeff(query_met2)
-                temp_list.append(converted_met2)
-                
-            query_met3 = locustag_monomer_dict[each_module][1]
-            converted_met3 = converting_substrate_to_met_coeff(query_met3)
-            temp_list.append(converted_met3)
-            
-            query_met4 = locustag_monomer_dict[each_module][2]
-            converted_met4 = converting_substrate_to_met_coeff(query_met4)
-            temp_list.append(converted_met4)
-            
-            list_of_dismatched_substrate.append(temp_list)
-        
-        elif locustag_monomer_dict[each_module][3] != 'nrp':
-            query_met5 = locustag_monomer_dict[each_module][3]
-            converted_met5 = converting_substrate_to_met_coeff(query_met5)
-            dic_integrated_metabolic_reaction_without_cofactors[converted_met5] -= 1
-             
+
+            if locustag_monomer_dict[each_module][3] == 'nrp':
+
+                if len(sptlist1) >= 2:
+                    for each_substrate in sptlist1:
+                        converted_met1 = converting_substrate_to_met_coeff(each_substrate)
+                        temp_list.append(converted_met1)
+                elif locustag_monomer_dict[each_module][0] == 'hydrophobic-aliphatic' or locustag_monomer_dict[each_module][0] == 'hydrophilic':
+                    each_substrate = 'N/A'
+                    temp_list.append(each_substrate)
+                else:
+                    query_met2 = locustag_monomer_dict[each_module][0]
+                    converted_met2 = converting_substrate_to_met_coeff(query_met2)
+                    temp_list.append(converted_met2)
+
+                query_met3 = locustag_monomer_dict[each_module][1]
+                converted_met3 = converting_substrate_to_met_coeff(query_met3)
+                temp_list.append(converted_met3)
+
+                query_met4 = locustag_monomer_dict[each_module][2]
+                converted_met4 = converting_substrate_to_met_coeff(query_met4)
+                temp_list.append(converted_met4)
+
+                list_of_dismatched_substrate.append(temp_list)
+
+            elif locustag_monomer_dict[each_module][3] != 'nrp':
+                query_met5 = locustag_monomer_dict[each_module][3]
+                converted_met5 = converting_substrate_to_met_coeff(query_met5)
+                dic_integrated_metabolic_reaction_without_cofactors[converted_met5] -= 1
+        elif len(locustag_monomer_dict[each_module]) == 3:
+
+            if len(locustag_monomer_dict[each_module]) < 3:
+                continue
+            # seperating between unified prediction and not
+
+            if locustag_monomer_dict[each_module][2] == 'pk':
+                temp_list2 = []
+
+                query_met6 = locustag_monomer_dict[each_module][0]
+                converted_met6 = converting_substrate_to_met_coeff(query_met6)
+                temp_list2.append(converted_met6)
+
+                query_met7 = locustag_monomer_dict[each_module][1]
+                converted_met7 = converting_substrate_to_met_coeff(query_met7)
+                temp_list2.append(converted_met7)
+
+                list_of_dismatched_substrate.append(temp_list2)
+
+            elif locustag_monomer_dict[each_module][2] != 'pk':
+                query_met8 = locustag_monomer_dict[each_module][2]
+                converted_met8 = converting_substrate_to_met_coeff(query_met8)
+                dic_integrated_metabolic_reaction_without_cofactors[converted_met8] -= 1
+
     for each_participated_substrate in dic_integrated_metabolic_reaction_without_cofactors:
         print >>fp1, "total_participated_cofactor_with_substrates1:\t%s\t%s" % (each_participated_substrate, dic_integrated_metabolic_reaction_without_cofactors[each_participated_substrate])
-    
+
+    print dic_integrated_metabolic_reaction_without_cofactors
+    print list_of_dismatched_substrate
+
     fp1.close()
-    
+
     return dic_integrated_metabolic_reaction_without_cofactors, list_of_dismatched_substrate
+
 
 def converting_substrate_to_met_coeff(each_substrate):
     
@@ -692,23 +925,54 @@ def converting_substrate_to_met_coeff(each_substrate):
     elif each_substrate == 'cit':
         met_name = 'citr_DASH_L'
         
-    elif each_substrate == 'tcl':
-        met_name = 'tcl'
+    elif each_substrate == 'pip':
+        met_name = 'Lpipecol'
         
     elif each_substrate == 'b-ala':
         met_name = 'ala_DASH_B'
         
+    elif each_substrate == 'dab':
+        met_name = '24dab'
+        
     elif each_substrate == 'phenylacetate' or each_substrate == 'Pha':
         met_name = 'pac'
         
+    elif each_substrate == 'tcl':
+        met_name = 'tcl'
+        
     elif each_substrate == 'qa':
         met_name = 'qa'
-        
-    elif each_substrate == 'pip':
-        met_name = 'Lpipecol'
-        
-    elif each_substrate == 'dab':
-        met_name = '24dab'
+
+    #t1pks substreate
+    elif each_substrate == 'mal':
+        met_name = 'malcoa'
+
+    elif each_substrate == 'mmal':
+        met_name = 'mmcoa_DASH_S'
+
+    elif each_substrate == '2metbut':
+        met_name = '2mbcoa'
+
+    elif each_substrate == 'Ethyl_mal' or each_substrate == 'emal':
+        met_name = 'emcoa_DASH_S'
+
+    elif each_substrate == 'isobut':
+        met_name = 'ibcoa'
+
+    elif each_substrate == 'ace':
+        met_name = 'accoa'
+
+    elif each_substrate == 'prop':
+        met_name = 'ppcoa'
+
+    elif each_substrate == '3metbut':
+        met_name = 'ivcoa'
+
+    elif each_substrate == 'mxmal':
+        met_name = 'mxmalacp'
+
+    elif each_substrate == 'CHC-CoA':
+        met_name = 'chccoa'
         
     elif each_substrate == 'N/A':
         met_name = 'N/A'
@@ -746,13 +1010,13 @@ def integrated_metabolic_reaction3(dic_integrated_metabolic_reaction, list_of_di
                 
 def distincting_each_substrate_in_list_component(each_pair_of_substrates):    
     
-    # this logic of code should be fixed
-    if each_pair_of_substrates[0] != each_pair_of_substrates[1] or each_pair_of_substrates[1] != each_pair_of_substrates[2]:
-        substrate_decision_number = 1  
-          
+    #This logic of code should be fixed
+    if len(each_pair_of_substrates) >= 2:
+        substrate_decision_number = 1
+
     else:
         substrate_decision_number = 0
-        
+ 
     return substrate_decision_number
 
 def converting_nrps_substrates(each_pair_of_substrates, dic_integrated_metabolic_reaction, substrate_decision_number):
@@ -860,24 +1124,54 @@ def converting_nrps_substrates(each_pair_of_substrates, dic_integrated_metabolic
         elif each_substrate == 'citr_DASH_L':
             temp_dic['citr_DASH_L'] -= 1
             
-        elif each_substrate == 'tcl':
-             met_name = 'tcl'
-        
-        elif each_substrate == 'ala_DASH_B':
-            met_name = 'ala_DASH_B'
-        
-        elif each_substrate == 'pac':
-            met_name = 'pac'
-        
-        elif each_substrate == 'qa':
-            met_name = 'qa'    
-            
         elif each_substrate == 'Lpipecol':
             met_name = 'Lpipecol'   
             
+        elif each_substrate == 'ala_DASH_B':
+            met_name = 'ala_DASH_B'
+        
         elif each_substrate == '24dab':
             met_name = '24dab'                       
          
+        elif each_substrate == 'pac':
+            met_name = 'pac'
+        
+        elif each_substrate == 'tcl':
+             met_name = 'tcl'
+        
+        elif each_substrate == 'qa':
+            met_name = 'qa'    
+
+        elif each_substrate == 'malcoa':
+            temp_dic['malcoa'] -= 1
+
+        elif each_substrate == 'mmcoa_DASH_S':
+            temp_dic['mmcoa_DASH_S'] -= 1
+
+        elif each_substrate == '2mbcoa':
+            temp_dic['2mbcoa'] -= 1
+
+        elif each_substrate == 'emcoa_DASH_S':
+            temp_dic['emcoa_DASH_S'] -= 1
+
+        elif each_substrate == 'ibcoa':
+            temp_dic['ibcoa'] -= 1
+
+        elif each_substrate == 'accoa':
+            temp_dic['accoa'] -= 1
+
+        elif each_substrate == 'ppcoa':
+            temp_dic['ppcoa'] -= 1
+
+        elif each_substrate == 'ivcoa':
+            temp_dic['ivcoa'] -= 1
+
+        elif each_substrate == 'mxmalacp':
+            temp_dic['mxmalacp'] -= 1
+
+        elif each_substrate == 'chccoa':
+            temp_dic['chccoa'] -= 1
+    
         temp_list_of_reaction_set.append(temp_dic)
                 
         if substrate_decision_number == 0:
@@ -966,18 +1260,40 @@ def converting_MNXMID_to_biggid(MetID):
         converted_MNXMID = ['MNXM59438', 'hty', 'L-Homotyrosine', 'C18622']
     elif MetID == 'citr_DASH_L':
         converted_MNXMID = ['MNXM211', 'citr_DASH_L', 'L-Citruline', 'C00327']       
-    elif MetID == 'tcl':
-        converted_MNXMID = ['MNXM37380', 'tcl', '4-Chlorothreonine', 'N/A'] 
-    elif MetID == 'ala_DASH_B':
-        converted_MNXMID = ['MNXM144', 'ala_DASH_B', 'beta-Alanine', 'C00099']  
-    elif MetID == 'pac':
-        converted_MNXMID = ['NXM497', 'pac', 'phenylacetate', 'C00548']  
-    elif MetID == 'qa':
-        converted_MNXMID = ['MNXM4797', 'qa', 'Quinaldinic acid', 'C06325'] 
     elif MetID == 'Lpipecol':
         converted_MNXMID = ['MNXM684', 'Lpipecol', 'L-pipecolate', 'C00408']       
+    elif MetID == 'ala_DASH_B':
+        converted_MNXMID = ['MNXM144', 'ala_DASH_B', 'beta-Alanine', 'C00099']  
     elif MetID == '24dab':
         converted_MNXMID = ['MNXM840', '24dab', 'L-2,4-diazaniumylbutyrate', 'C03283']
+    elif MetID == 'pac':
+        converted_MNXMID = ['NXM497', 'pac', 'phenylacetate', 'C00548']  
+    elif MetID == 'tcl':
+        converted_MNXMID = ['MNXM37380', 'tcl', '4-Chlorothreonine', 'N/A'] 
+    elif MetID == 'qa':
+        converted_MNXMID = ['MNXM4797', 'qa', 'Quinaldinic acid', 'C06325']
+
+    elif MetID == 'malcoa':
+        converted_MNXMID = ['MNXM40', 'malcoa', 'malonyl-CoA', 'C00083']
+    elif MetID == 'mmcoa_DASH_S':
+        converted_MNXMID = ['MNXM89955', 'mmcoa_DASH_S', 'methylmaloncyl-CoA', 'C02557']
+    elif MetID == '2mbcoa':
+        converted_MNXMID = ['MNXM569', '2mbcoa', '2-methylbutanoyl-CoA', 'C01033']
+    elif MetID == 'emcoa_DASH_S':
+        converted_MNXMID = ['MNXM2043', 'emcoa_DASH_S', 'ethylmalonyl-CoA', 'C18026']
+    elif MetID == 'ibcoa':
+        converted_MNXMID = ['MNXM470', 'ibcoa', '2-Methylpropanoyl-CoA', 'C00630']
+    elif MetID == 'accoa':
+        converted_MNXMID = ['MNXM21', 'accoa', 'Acetyl-CoA', 'C00024']
+    elif MetID == 'ppcoa':
+        converted_MNXMID = ['MNXM86', 'ppcoa', 'Propionyl-CoA', 'C00100']
+    elif MetID == 'ivcoa':
+        converted_MNXMID = ['MNXM471', 'ivcoa', '3-Methylbutanoyl-CoA', 'C02939']
+    elif MetID == 'mxmalacp':
+        converted_MNXMID = ['MNXM61686', 'mxmalacp', 'Methoxymalonyl-[acp]', 'C18616']
+    elif MetID == 'chccoa':
+        converted_MNXMID = ['MNXM5111', 'chccoa', 'cyclohexane-1-carboxyl-CoA', 'C09823']
+ 
     elif MetID == 'nadp':
         converted_MNXMID = ['MNXM5', 'nadp', 'NADP+', 'C00006'] 
     elif MetID == 'nadph':
