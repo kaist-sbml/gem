@@ -8,8 +8,7 @@ This file generates metabolic reactions for the genes newly annotated to be pres
 from Bio import SeqIO
 from sets import Set
 from cobra import Model, Reaction, Metabolite
-from cobra.io.sbml import create_cobra_model_from_sbml_file
-from cobra.io.sbml import write_cobra_model_to_sbml_file
+from cobra.io.sbml import create_cobra_model_from_sbml_file,write_cobra_model_to_sbml_file
 from MNX_checker2 import COBRA_TemplateModel_checking_MNXref_metabolites
 from MNX_checker2 import fix_legacy_id
 from type_specific_info import determine_domain, extract_substrate_information_nrps, extract_substrate_information_pks, Identifier_KR_activity
@@ -128,14 +127,18 @@ def get_cluster_info_from_cluster_gbk(gbkFile, FileType):
     for feature in record.features:
         sec_met_info_list = []
         if feature.type == 'CDS':
-            qualifier_locus_tag = feature.qualifiers.get('locus_tag')[0]
-            if feature.qualifiers.get('sec_met'):
+            #MIGHT NEED TO ADD 'function' for the qualifier
+            #Prevent extracting genes without specific information
+            #Necessary not to have unidentified monomers in subsequent functions, cuasing error
+            if 'hypothetical' not in feature.qualifiers.get('product')[0]: 
+                qualifier_locus_tag = feature.qualifiers.get('locus_tag')[0]
+                if feature.qualifiers.get('sec_met'):
                 
-                qualifier_sec_met = feature.qualifiers.get('sec_met')
-                #print qualifier_sec_et
-                sec_met_info_list.append(qualifier_sec_met)
+                    qualifier_sec_met = feature.qualifiers.get('sec_met')
+                    #print qualifier_sec_et
+                    sec_met_info_list.append(qualifier_sec_met)
 
-                cluster_info_dict[qualifier_locus_tag] = sec_met_info_list
+                    cluster_info_dict[qualifier_locus_tag] = sec_met_info_list
 
     #print 'cluster_info_dict'
     #print cluster_info_dict, '\n'
@@ -266,11 +269,14 @@ def get_cluster_module(locustag_domain_dict, dic_t1pks_PKS_KR_activity):
     locustag_module_domain_dict = {}
     dic_pksnrps_module_KR_activity = {}
 
+    for i in locustag_domain_dict.keys():
+        print i
+        print locustag_domain_dict[i]
+
     for locustag in locustag_domain_dict.keys():
         
         count = 0
         if locustag in locustag_domain_dict.keys():
-            print locustag
             list_each_nrps_domain = locustag_domain_dict[locustag]
             list_KR_activity = dic_t1pks_PKS_KR_activity[locustag]
         
@@ -304,7 +310,7 @@ def get_cluster_module(locustag_domain_dict, dic_t1pks_PKS_KR_activity):
                     print >>fp1, "%s\t%s\t%s" %(locustag, module_number, list_module_info)
 
                     #print >>fp1, "%s\t%s\t%s\t%s" % (locustag, module_number, list_module_info, each_module_KR_activity)
-                    print module_number, list_module_info, each_module_KR_activity
+                    #print module_number, list_module_info, each_module_KR_activity
 
                     list_module_info = []
                     count = count + 1
@@ -337,7 +343,7 @@ def get_cluster_module(locustag_domain_dict, dic_t1pks_PKS_KR_activity):
                     list_module_info = []
                     count = count + 1
 
-                elif each_domain == 'Thioesterase':
+                elif each_domain == 'Thioesterase' and 'ACP' in list_each_nrps_domain:
                     count = count - 1
                     module_number = locustag + '_M' + str(count)
 
@@ -354,8 +360,10 @@ def get_cluster_module(locustag_domain_dict, dic_t1pks_PKS_KR_activity):
                         each_module_KR_activity = 0
 
                     print "check", locustag_module_domain_dict.keys()
+                    #for i in locustag_domain_dict.keys():
+                    #    print i
                     list_module_info = locustag_module_domain_dict[module_number]
-                    print list_module_info
+                    #print list_module_info
                     
                     list_module_info.append('Thioesterase')
                     #print list_module_info
@@ -366,7 +374,7 @@ def get_cluster_module(locustag_domain_dict, dic_t1pks_PKS_KR_activity):
                     locustag_module_domain_dict[module_number] = list_module_info
                     dic_pksnrps_module_KR_activity[module_number] = each_module_KR_activity
                     print >>fp1, "%s\t%s\t%s" %(locustag, module_number, list_module_info)
-                    print module_number, list_module_info, each_module_KR_activity
+                    #print module_number, list_module_info, each_module_KR_activity
 
                 elif list_module_info.count('PKS_KS') == 2:
                     module_number = t1pks_gene + '_M' + str(count)
@@ -389,7 +397,7 @@ def get_cluster_module(locustag_domain_dict, dic_t1pks_PKS_KR_activity):
                     dic_pksnrps_module_KR_activity[module_number] = each_module_KR_activity
 
                     print >>fp1, "%s\t%s\t%s\t%s" % (locustag, module_number, list_module_info, each_module_KR_activity)
-                    print module_number, list_module_info, each_module_KR_activity
+                    #print module_number, list_module_info, each_module_KR_activity
 
                     list_module_info = []
                     list_module_info.append(poped_domain)
@@ -422,7 +430,7 @@ def get_cluster_module(locustag_domain_dict, dic_t1pks_PKS_KR_activity):
                     locustag_module_domain_dict[module_number] = list_module_info
                     dic_pksnrps_module_KR_activity[module_number] = each_module_KR_activity
                     print >>fp1, "%s\t%s\t%s" % (locustag, module_number, list_module_info)
-                    print module_number, list_module_info, each_module_KR_activity
+                    #print module_number, list_module_info, each_module_KR_activity
 
                     list_module_info = []
                     count = count + 1

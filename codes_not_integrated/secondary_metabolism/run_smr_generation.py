@@ -19,8 +19,8 @@ print "Generating NRP biosynthesis reactions.."
 #WHY DO WE NEED THIS?
 # making template model in order to (V)
 #cobra_model = create_cobra_model_from_sbml_file('SCO_model_snu.xml', print_time=True)
-#inputfile = './NC_021055.1.cluster002.gbk' #NRPS
-inputfile = './NC_013929.1.cluster031.gbk' #PKS
+inputfile = './NC_021055.1.cluster002.gbk' #NRPS
+#inputfile = './NC_013929.1.cluster031.gbk' #PKS
 #inputfile = './NC_020990.1.cluster023.gbk' #Hybrid
 
 mnxm_bigg_compound_dict = pickle.load(open('mnxm_bigg_compound_dict.p','rb'))
