@@ -43,12 +43,10 @@ product = get_product_from_cluster_gbk(inputfile, "genbank")
 cluster_info_dict = get_cluster_info_from_cluster_gbk(inputfile, "genbank")
 
 #locustag_product_monomer_dict: MIGHT NOT BE NECESSARY
-#locustag_domain_dict, dic_t1pks_PKS_KR_activity = get_cluster_domain(cluster_info_dict)
 locustag_domain_dict = get_cluster_domain(cluster_info_dict)
 
 #locustag_monomer_dict = get_cluster_monomers(cluster_info_dict)
 
-#locustag_module_domain_dict, dic_pksnrps_module_KR_activity = get_cluster_module(locustag_domain_dict, dic_t1pks_PKS_KR_activity)
 locustag_module_domain_dict = get_cluster_module(locustag_domain_dict)
 
 # Generating rules for biosynthesis of type I PKS and converting module and its substrate to metabolic reactions

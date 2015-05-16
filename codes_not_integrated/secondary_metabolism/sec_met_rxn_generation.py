@@ -11,7 +11,7 @@ from cobra import Model, Reaction, Metabolite
 from cobra.io.sbml import create_cobra_model_from_sbml_file,write_cobra_model_to_sbml_file
 from MNX_checker2 import COBRA_TemplateModel_checking_MNXref_metabolites
 from MNX_checker2 import fix_legacy_id
-from type_specific_info import determine_domain, extract_substrate_information_nrps, extract_substrate_information_pks, Identifier_KR_activity
+from type_specific_info import determine_domain, extract_substrate_information_nrps, extract_substrate_information_pks
 import pickle
 import copy
 
@@ -155,7 +155,6 @@ def get_cluster_domain(cluster_info_dict):
     #fp3 = open('Output_second_metab_gene_KR_activity.txt','w')
     
     locustag_domain_dict = {}
-    #dic_t1pks_PKS_KR_activity = {}
         
     for each_gene in cluster_info_dict.keys():
         
@@ -163,7 +162,6 @@ def get_cluster_domain(cluster_info_dict):
 
         domain_count = 0
         sec_met_domain_list = []
-        #list_t1pks_PKS_KR_activity = []
 
         for each_sub_set in list_sec_met:
 
@@ -174,12 +172,6 @@ def get_cluster_domain(cluster_info_dict):
                 #Extract the information of KR activity and AT substrate specificity
                 sptline2 = each_sub_set.split('; ')                
 
-                #Check this statement
-                #if "PKS_KR" in crude_domain_info:
-                #    spt_PKS_KR = sptline2[1].split(': ')
-                #    spt_PKS_KR = spt_PKS_KR[1].strip()
-                #    list_t1pks_PKS_KR_activity.append(spt_PKS_KR)
-                    
                 spt_domain_info = crude_domain_info.split(':')
                 whole_domain_info = spt_domain_info[1]
 
@@ -194,10 +186,6 @@ def get_cluster_domain(cluster_info_dict):
                 domain_count = domain_count + 1
                             
         locustag_domain_dict[each_gene] = sec_met_domain_list
-        #dic_t1pks_PKS_KR_activity[each_gene] = list_t1pks_PKS_KR_activity
-        
-        #print each_gene, list_t1pks_PKS_KR_activity
-
         print >>fp1, "%s\t%s" % (each_gene, sec_met_domain_list)
 
     fp1.close()
@@ -206,9 +194,6 @@ def get_cluster_domain(cluster_info_dict):
     print 'locustag_domain_dict'
     print locustag_domain_dict, '\n'
 
-    #print 'dic_t1pks_PKS_KR_activity'
-    #print dic_t1pks_PKS_KR_activity, '\n'
-    #return locustag_domain_dict, dic_t1pks_PKS_KR_activity
     return locustag_domain_dict
 
 #Output: e.g., {'SAV_943_M1':['mmal', 'Ethyl_mal', 'pk']}
@@ -264,12 +249,10 @@ def get_cluster_monomers(cluster_info_dict):
 
 
 #Output: e.g., {'SAV_943_M1': ['PKS_KS', 'PKS_AT', 'ACP']}
-#def get_cluster_module(locustag_domain_dict, dic_t1pks_PKS_KR_activity):
 def get_cluster_module(locustag_domain_dict):
     fp1 = open('Output_second_metab_module.txt','w')
     
     locustag_module_domain_dict = {}
-    #dic_pksnrps_module_KR_activity = {}
 
     for i in locustag_domain_dict.keys():
         print i
@@ -280,7 +263,6 @@ def get_cluster_module(locustag_domain_dict):
         count = 0
         if locustag in locustag_domain_dict.keys():
             list_each_nrps_domain = locustag_domain_dict[locustag]
-            #list_KR_activity = dic_t1pks_PKS_KR_activity[locustag]
         
             list_module_info = []
             number_of_list = len(list_each_nrps_domain)
@@ -293,26 +275,8 @@ def get_cluster_module(locustag_domain_dict):
                 
                 if each_domain == 'PCP' or each_domain == 'ACP':
                     module_number = locustag + '_M' + str(count)
-
-                    #This algorithm should be pruned or make the new function.
-                    #if 'PKS_KR' in list_module_info and list_KR_activity[KR_number] == 'active':
-                        #each_module_KR_activity = 1
-                        #KR_number = KR_number + 1
-
-                    #elif 'PKS_KR' in list_module_info and list_KR_activity[KR_number] == 'inactive':
-                        #each_module_KR_activity = 2
-                        #KR_number = KR_number + 1
-
-                    #else:
-                        #each_module_KR_activity = 0
-
                     locustag_module_domain_dict[module_number] = list_module_info
-                    #dic_pksnrps_module[module_number] = list_module_info
-                    #dic_pksnrps_module_KR_activity[module_number] = each_module_KR_activity
                     print >>fp1, "%s\t%s\t%s" %(locustag, module_number, list_module_info)
-
-                    #print >>fp1, "%s\t%s\t%s\t%s" % (locustag, module_number, list_module_info, each_module_KR_activity)
-                    #print module_number, list_module_info, each_module_KR_activity
 
                     list_module_info = []
                     count = count + 1
@@ -321,26 +285,12 @@ def get_cluster_module(locustag_domain_dict):
                     count = count - 1
                     module_number = locustag + '_M' + str(count)
 
-                    #This algorithm should be pruned or make the new function.
-                    #if 'PKS_KR' in list_module_info and list_KR_activity[KR_number] == 'active':
-                        #each_module_KR_activity = 1
-                        #KR_number = KR_number + 1
-
-                    #elif 'PKS_KR' in list_module_info and list_KR_activity[KR_number] == 'inactive':
-                        #each_module_KR_activity = 2
-                        #KR_number = KR_number + 1
-
-                    #else:
-                        #each_module_KR_activity = 0
-
                     list_module_info = locustag_module_domain_dict[module_number]
                     list_module_info.append('Epimerization')
                     A = locustag_module_domain_dict.pop(module_number)
 
                     locustag_module_domain_dict[module_number] = list_module_info
-                    #dic_pksnrps_module_KR_activity[module_number] = each_module_KR_activity
                     print >>fp1, "%s\t%s\t%s" %(locustag, module_number, list_module_info)
-                    #print module_number, list_module_info, each_module_KR_activity
 
                     list_module_info = []
                     count = count + 1
@@ -348,25 +298,7 @@ def get_cluster_module(locustag_domain_dict):
                 elif each_domain == 'Thioesterase' and 'ACP' in list_each_nrps_domain:
                     count = count - 1
                     module_number = locustag + '_M' + str(count)
-
-                    #This algorithm should be pruned or make the new function.
-                    #if 'PKS_KR' in list_module_info and list_KR_activity[KR_number] == 'active':
-                        #each_module_KR_activity = 1
-                        #KR_number = KR_number + 1
-
-                    #elif 'PKS_KR' in list_module_info and list_KR_activity[KR_number] == 'inactive':
-                        #each_module_KR_activity = 2
-                        #KR_number = KR_number + 1
-
-                    #else:
-                        #each_module_KR_activity = 0
-
-                    print "check", locustag_module_domain_dict.keys()
-                    #for i in locustag_domain_dict.keys():
-                    #    print i
                     list_module_info = locustag_module_domain_dict[module_number]
-                    #print list_module_info
-                    
                     list_module_info.append('Thioesterase')
                     #print list_module_info
                     
@@ -374,32 +306,12 @@ def get_cluster_module(locustag_domain_dict):
                     #print A
 
                     locustag_module_domain_dict[module_number] = list_module_info
-                    #dic_pksnrps_module_KR_activity[module_number] = each_module_KR_activity
                     print >>fp1, "%s\t%s\t%s" %(locustag, module_number, list_module_info)
-                    #print module_number, list_module_info, each_module_KR_activity
 
                 elif list_module_info.count('PKS_KS') == 2:
                     module_number = t1pks_gene + '_M' + str(count)
                     poped_domain = list_module_info.pop()
-
-                    #This algorithm should be pruned or make the new function.
-                    #if 'PKS_KR' in list_module_info and list_KR_activity[KR_number] == 'active':
-                        #each_module_KR_activity = 1
-                        #KR_number = KR_number + 1
-
-                    #elif 'PKS_KR' in list_module_info and list_KR_activity[KR_number] == 'inactive':
-                        #each_module_KR_activity = 2
-                        #KR_number = KR_number + 1
-
-                    #else:
-                        #each_module_KR_activity = 0
-                    #########
-
                     dic_pksnrps_module[module_number] = list_module_info
-                    #dic_pksnrps_module_KR_activity[module_number] = each_module_KR_activity
-
-                    #print >>fp1, "%s\t%s\t%s\t%s" % (locustag, module_number, list_module_info, each_module_KR_activity)
-                    #print module_number, list_module_info, each_module_KR_activity
 
                     list_module_info = []
                     list_module_info.append(poped_domain)
@@ -415,24 +327,8 @@ def get_cluster_module(locustag_domain_dict):
                     
                 elif float(number_of_list) == 0:
                     module_number = locustag + '_M' + str(count)
-
-                    # this algorithm should be pruned or make the new function.
-                    #if 'PKS_KR' in list_module_info and list_KR_activity[KR_number] == 'active':
-                        #each_module_KR_activity = 1
-                        #KR_number = KR_number + 1
-
-                    #elif 'PKS_KR' in list_module_info and list_KR_activity[KR_number] == 'inactive':
-                        #each_module_KR_activity = 2
-                        #KR_number = KR_number + 1
-
-                    #else:
-                        #each_module_KR_activity = 0
-
-
                     locustag_module_domain_dict[module_number] = list_module_info
-                    #dic_pksnrps_module_KR_activity[module_number] = each_module_KR_activity
                     print >>fp1, "%s\t%s\t%s" % (locustag, module_number, list_module_info)
-                    #print module_number, list_module_info, each_module_KR_activity
 
                     list_module_info = []
                     count = count + 1
@@ -440,11 +336,9 @@ def get_cluster_module(locustag_domain_dict):
     fp1.close()
     print 'locustag_module_domain_dict'
     print locustag_module_domain_dict, '\n'
-    #return locustag_module_domain_dict, dic_pksnrps_module_KR_activity
     return locustag_module_domain_dict
 
 
-#def generate_currency_metabolites(locustag_module_domain_dict, dic_pksnrps_module_KR_activity):
 def generate_currency_metabolites(locustag_module_domain_dict):
     fp1 = open('Output_currency_metabolites.txt','w')
     
@@ -452,12 +346,9 @@ def generate_currency_metabolites(locustag_module_domain_dict):
 
     for each_module in locustag_module_domain_dict:
         domain_comb = locustag_module_domain_dict[each_module]
-        
-        print "check", domain_comb
 
         each_module_substrates = {}
         discriminant = determine_domain(domain_comb)
-        #discriminant_with_KRact = Identifier_KR_activity(discriminant, each_module, dic_pksnrps_module_KR_activity)
 
         if discriminant == 'None':
             #print "this discriminant is not defined : %s" % (domain_comb)
