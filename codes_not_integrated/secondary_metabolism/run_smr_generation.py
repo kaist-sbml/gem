@@ -45,16 +45,15 @@ cluster_info_dict = get_cluster_info_from_cluster_gbk(inputfile, "genbank")
 #locustag_product_monomer_dict: MIGHT NOT BE NECESSARY
 locustag_domain_dict = get_cluster_domain(cluster_info_dict)
 
-#locustag_monomer_dict = get_cluster_monomers(cluster_info_dict)
+#MIGHT BE REMOVED
+locustag_monomer_dict = get_cluster_monomers(cluster_info_dict)
 
 locustag_module_domain_dict = get_cluster_module(locustag_domain_dict)
 
-# Generating rules for biosynthesis of type I PKS and converting module and its substrate to metabolic reactions
-# For example : dic_converted_metabolic_reaction_without_substrate['SAV_943_M0'] = ['coa': 1, 'nadph': -1, 'nadp': 1, 'hco3': 1, 'h': -1]
-dic_converted_metabolic_reaction_without_substrate = generate_currency_metabolites(locustag_module_domain_dict)
+module_currency_metab_dict = generate_currency_metabolites(locustag_module_domain_dict)
 
 # generating integrated metabolic reaction without participated substrate such as malonyl-coenzyme A
-#dic_integrated_metabolic_reaction_without_cofactors = integrated_metabolic_reaction1(dic_converted_metabolic_reaction_without_substrate) #####
+dic_integrated_metabolic_reaction_without_cofactors = sum_currency_metab_coeff(module_currency_metab_dict) #####
 
 # adding matched participated substrate by using 'product' and dictionary 'dic_t1pks_domain_substrate'
 # dic_semiintegrated_metabolic_reaction {'coa': 13, 'mmalcoa': -4, 'h': -10, 'malcoa': -7, 'hco3': 13, 'nadph': -10, 'h2o': 5, 'nadp': 10}

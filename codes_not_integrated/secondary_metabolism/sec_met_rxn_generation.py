@@ -548,48 +548,47 @@ def generate_currency_metabolites(locustag_module_domain_dict):
     return module_currency_metab_dict
 
 
-def integrated_metabolic_reaction1(participated_cofactor_info):
+#Output: {'nadph': 0, 'fmnh2': 0, 'h': 0, 'ppi': 1, 'ahcys': 0}
+def sum_currency_metab_coeff(module_currency_metab_dict):
     fp1 = open('Output_participated_cofactors.txt','w')
-    
-    dic_integrated_metabolic_reaction = {}
-    dic_integrated_metabolic_reaction['atp'] = 0 #'ATP' (C00002), 'MNXM3'
-    dic_integrated_metabolic_reaction['amp'] = 0 #'AMP', (C00020), 'MNXM14'
-    dic_integrated_metabolic_reaction['ppi'] = 0 #'diphosphate', (C00013), 'MNXM11'
-    dic_integrated_metabolic_reaction['amet'] = 0 #'S-adenosyl-L-methionine', 'C00019', 'MNXM16'
-    dic_integrated_metabolic_reaction['ahcys'] = 0 #'S-adenosyl-L-homocysteine', 'C00021', 'MNXM19'
-    dic_integrated_metabolic_reaction['fmn'] = 0 #'Riboflavin-5-phosphate(FMN)', (C00061), 'MNXM119' 
-    dic_integrated_metabolic_reaction['fmnh2'] = 0  # Reduced FMN (FMNH2)', (C01847), 'MNXM208'
-    dic_integrated_metabolic_reaction['amet'] = 0 #'S-adenosyl-L-methionine', 'C00019', 'MNXM16'
-    dic_integrated_metabolic_reaction['ahcys'] = 0 #'S-adenosyl-L-homocysteine', 'C00021', 'MNXM19'
-    dic_integrated_metabolic_reaction['nadp'] = 0 #'NADP+', (C00006), 'MNXM5'
-    dic_integrated_metabolic_reaction['nadph'] = 0 #'NADPH' ,(C00005), 'MNXM6'
-    dic_integrated_metabolic_reaction['h'] = 0 #'H+', (C00080), 'MNXM1'
-    dic_integrated_metabolic_reaction['h2o'] = 0 #'H2O', (C00001), 'MNXM2'
-    dic_integrated_metabolic_reaction['hco3'] = 0
-    dic_integrated_metabolic_reaction['coa'] = 0
 
-    for each_module in participated_cofactor_info:
-        
-        for each_metabolite in participated_cofactor_info[each_module]:
-            met_coff = participated_cofactor_info[each_module][each_metabolite]
-                   
-            if participated_cofactor_info[each_module][each_metabolite] > 0:
-                dic_integrated_metabolic_reaction[each_metabolite] += met_coff
-                print >>fp1, "participated_cofactors:\t%s\t%s\t%s" % (each_module, each_metabolite, met_coff)
-                
+    currency_metab_coeff_dict = {}
+    currency_metab_coeff_dict['atp'] = 0
+    currency_metab_coeff_dict['amp'] = 0
+    currency_metab_coeff_dict['ppi'] = 0
+    currency_metab_coeff_dict['amet'] = 0
+    currency_metab_coeff_dict['ahcys'] = 0
+    currency_metab_coeff_dict['fmn'] = 0 
+    currency_metab_coeff_dict['fmnh2'] = 0
+    currency_metab_coeff_dict['amet'] = 0
+    currency_metab_coeff_dict['ahcys'] = 0
+    currency_metab_coeff_dict['nadp'] = 0
+    currency_metab_coeff_dict['nadph'] = 0
+    currency_metab_coeff_dict['h'] = 0
+    currency_metab_coeff_dict['h2o'] = 0
+    currency_metab_coeff_dict['hco3'] = 0
+    currency_metab_coeff_dict['coa'] = 0
+
+    for each_module in module_currency_metab_dict.keys():
+        for each_metabolite in module_currency_metab_dict[each_module]:
+            metab_coeff = module_currency_metab_dict[each_module][each_metabolite]
+
+            if module_currency_metab_dict[each_module][each_metabolite] > 0:
+                currency_metab_coeff_dict[each_metabolite] += metab_coeff
+                print >>fp1, "currency metabolites:\t%s\t%s\t%s" % (each_module, each_metabolite, metab_coeff)
+
             else:
-                dic_integrated_metabolic_reaction[each_metabolite] += met_coff
-                print >>fp1, "participated_cofactors:\t%s\t%s\t%s" % (each_module, each_metabolite, met_coff)
-    
+                currency_metab_coeff_dict[each_metabolite] += metab_coeff
+                print >>fp1, "currency metabolites:\t%s\t%s\t%s" % (each_module, each_metabolite, metab_coeff)
 
     print >>fp1, "#####"
-    for each_participated_cofactor in dic_integrated_metabolic_reaction:
-        print each_participated_cofactor, dic_integrated_metabolic_reaction[each_participated_cofactor]
-        print >>fp1, "total_participated_cofactor:\t%s\t%s" % (each_participated_cofactor, dic_integrated_metabolic_reaction[each_participated_cofactor])
+    for each_metab in currency_metab_coeff_dict.keys():
+        print >>fp1, "SUM_currency metabolites::\t%s\t%s" %(each_metab, currency_metab_coeff_dict[each_metab])
 
     fp1.close()
-    
-    return dic_integrated_metabolic_reaction
+    print '\n', currency_metab_coeff_dict
+    return currency_metab_coeff_dict
+
 
 def integrated_metabolic_reaction2(locustag_monomer_dict, dic_integrated_metabolic_reaction_without_cofactors):
     fp1 = open('Output_participated_substrates_from_uniformed_prediction.txt','w')
