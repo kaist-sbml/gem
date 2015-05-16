@@ -48,15 +48,15 @@ locustag_domain_dict = get_cluster_domain(cluster_info_dict)
 
 # Extracting information of substrates with their substrates from dictionary file 'cluster_info_dict' and 'dic_t1pks_gene' (VV)
 # dic_t1pks_domain_substrate['SAV_943_M1'] = ['mmal', 'Ethyl_mal', 'pk']
-dic_nrps_domain_substrate = second_metab_substrate(cluster_info_dict)
+locustag_monomer_dict = get_cluster_monomers(cluster_info_dict)
 
 # Extracting information of modules from dictionary file 'dic_t1pks_domain' (VV)
 # dic_t1pks_module['SAV_943_M1'] = ['PKS_KS', 'PKS_AT', 'ACP']
-#dic_nrps_module = second_metab_module(locustag_product_monomer_dict, locustag_domain_dict)
+dic_nrps_module = second_metab_module(locustag_domain_dict)
 
 # Generating rules for biosynthesis of type I PKS and converting module and its substrate to metabolic reactions
 # For example : dic_converted_metabolic_reaction_without_substrate['SAV_943_M0'] = ['coa': 1, 'nadph': -1, 'nadp': 1, 'hco3': 1, 'h': -1]
-#dic_converted_metabolic_reaction_without_substrate = generating_each_module_of_backbone_biosynthesis_for_t1pks(dic_nrps_module)
+dic_converted_metabolic_reaction_without_substrate = generate_currency_metabolites(dic_nrps_module)
 
 # generating integrated metabolic reaction without participated substrate such as malonyl-coenzyme A
 #dic_integrated_metabolic_reaction_without_cofactors = integrated_metabolic_reaction1(dic_converted_metabolic_reaction_without_substrate) #####
@@ -64,7 +64,7 @@ dic_nrps_domain_substrate = second_metab_substrate(cluster_info_dict)
 # adding matched participated substrate by using 'product' and dictionary 'dic_t1pks_domain_substrate'
 # dic_semiintegrated_metabolic_reaction {'coa': 13, 'mmalcoa': -4, 'h': -10, 'malcoa': -7, 'hco3': 13, 'nadph': -10, 'h2o': 5, 'nadp': 10}
 # list_of_dismatched_substrate = [['mmal', 'Ethyl_mal'], ['2metbut', '2metbut']]
-#dic_semiintegrated_metabolic_reaction, list_of_dismatched_substrate = integrated_metabolic_reaction2(dic_nrps_domain_substrate, dic_integrated_metabolic_reaction_without_cofactors)
+#dic_semiintegrated_metabolic_reaction, list_of_dismatched_substrate = integrated_metabolic_reaction2(locustag_monomer_dict, dic_integrated_metabolic_reaction_without_cofactors)
 
 # completing integrated metabolic reaction by adding product and dismatched substrate to the reaction.
 # list_of_reaction_set = [{'nadph': -10, 'nadp': 10, 'ahcys': 0, '2mbcoa': -1, 'nad': 0, 'h': -10, 'fadh2': 0, 'malcoa': -7, 'hco3': 13, 'amet': 0, 'coa': 13, 'h2o': 5, 'nadh': 0, '13dpg': 0, 'mmalcoa': -5, 'pi': 0, 'emalcoa': 0, 'fad': 0}, ...]

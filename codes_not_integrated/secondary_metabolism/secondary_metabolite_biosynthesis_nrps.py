@@ -12,6 +12,7 @@ from cobra.io.sbml import create_cobra_model_from_sbml_file
 from cobra.io.sbml import write_cobra_model_to_sbml_file
 from MNX_checker2 import COBRA_TemplateModel_checking_MNXref_metabolites
 from MNX_checker2 import fix_legacy_id
+from domain_determination import determine_domain
 import pickle
 import copy
 
@@ -144,7 +145,7 @@ def get_cluster_info_from_cluster_gbk(gbkFile, FileType):
     return cluster_info_dict
 
 def get_cluster_domain(cluster_info_dict):
-    fp1 = open('Output_second_metab_gene_domain.txt','w')
+    fp1 = open('Output_locustag_domain_dict.txt','w')
     #fp3 = open('Output_second_metab_gene_KR_activity.txt','w')
     
     locustag_domain_dict = {}
@@ -199,10 +200,10 @@ def get_cluster_domain(cluster_info_dict):
     print locustag_domain_dict, '\n'
     return locustag_domain_dict
 
-def second_metab_substrate(cluster_info_dict):
-    fp1 = open('Output_second_metab_substrate_with_domain.txt','w')
+def get_cluster_monomers(cluster_info_dict):
+    fp1 = open('Output_locustag_module_monomer_dict.txt','w')
 
-    dic_nrps_domain_substrate = {}
+    locustag_monomer_dict = {}
     for each_gene in cluster_info_dict.keys():
         module_count = 0
         list_sec_met =  cluster_info_dict[each_gene][0]
@@ -230,7 +231,7 @@ def second_metab_substrate(cluster_info_dict):
                     list_participated_sustrate.append(participated_substrate)
                                 
                 module_number = each_gene + '_M' + str(module_count)
-                dic_nrps_domain_substrate[module_number] = list_participated_sustrate
+                locustag_monomer_dict[module_number] = list_participated_sustrate
                 
                 #print module_number, list_participated_sustrate
                 print >>fp1, "%s\t%s" % (module_number, list_participated_sustrate)
@@ -238,17 +239,17 @@ def second_metab_substrate(cluster_info_dict):
                 module_count = module_count + 1
     
     fp1.close()
-    print 'dic_nrps_domain_substrate'
-    print dic_nrps_domain_substrate, '\n'
-    return dic_nrps_domain_substrate
+    print 'locustag_monomer_dict'
+    print locustag_monomer_dict, '\n'
+    return locustag_monomer_dict
 
 
-def second_metab_module(locustag_product_monomer_dict, locustag_domain_dict):
+def second_metab_module(locustag_domain_dict):
     fp1 = open('Output_second_metab_module.txt','w')
     
     dic_nrps_module = {}
     
-    for nrps_gene in locustag_product_monomer_dict:
+    for nrps_gene in locustag_domain_dict.keys():
         
         count = 0
         if nrps_gene in locustag_domain_dict:
@@ -323,7 +324,7 @@ def second_metab_module(locustag_product_monomer_dict, locustag_domain_dict):
     return dic_nrps_module
 
 
-def generating_each_module_of_backbone_biosynthesis_for_t1pks(dic_nrps_module):
+def generate_currency_metabolites(dic_nrps_module):
     fp1 = open('Output_backbone_biosynthesis_of_each_module.txt','w')
     
     dic_converted_metabolic_reaction_without_substrate = {}
@@ -334,7 +335,7 @@ def generating_each_module_of_backbone_biosynthesis_for_t1pks(dic_nrps_module):
         print domain_comb
 
         each_module_substrates = {}
-        discriminant = module_discriminator(domain_comb)
+        discriminant = determine_domain(domain_comb)
         
         if discriminant == 'None':
             print "this discriminant is not defined : %s" % (domain_comb)
@@ -449,220 +450,10 @@ def generating_each_module_of_backbone_biosynthesis_for_t1pks(dic_nrps_module):
             continue
     
     fp1.close()
-                
+    print "dic_converted_metabolic_reaction_without_substrate"
+    print dic_converted_metabolic_reaction_without_substrate, '\n'            
     return dic_converted_metabolic_reaction_without_substrate
 
-def module_discriminator(domain_comb):
-## domain information :
-## Condensation    Condensation domain
-## Condensation_DCL    Condensation domain that links L-amino acid to peptide ending with D-amino acid
-## Condensation_LCL    Condensation domain that links L-amino acid to peptide ending with L-amino acid 
-## Condensation_Dual     Dual condensation / epimerization domain 
-## Condensation_Starter    Starter condensation domain
-## CXglyc    Putatively inactive glycopeptide condensation-like domain
-## Cglyc    Glycopeptide condensation domain 
-## Heterocyclization    Heterocyclization domain
-## Epimerization    Epimerization domain 
-## AMP-binding    Adenylation domain
-## A-OX     Adenylation domain with integrated oxidase
-## PCP     Peptidyl-carrier protein domain 
-## ACPS    4'-phosphopantetheinyl transferase
-## NRPS-COM_Nterm    NRPS COM domain Nterminal
-## NRPS-COM_Cterm    NRPS COM domain Cterminal
-
-# Exceptionsal cases
-    if ('Condensation_Starter' not in domain_comb and 'Condensation' not in domain_comb and 'Condensation_DCL' not in domain_comb and 'Condensation_LCL' not in domain_comb and 'Condensation_Dual' not in domain_comb and 'Cglyc' not in domain_comb and 'CXglyc' not in domain_comb and 'Heterocyclization' not in domain_comb) and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and 'PCP' not in domain_comb and 'ACP' not in domain_comb:
-        discriminant = 'A'
-    
-# Starter unit_AMP-binding+PCP
-    elif 'Condensation_Starter' not in domain_comb and 'Condensation' not in domain_comb and 'Condensation_DCL' not in domain_comb and 'Condensation_LCL' not in domain_comb and 'Condensation_Dual' not in domain_comb and 'Cglyc' not in domain_comb and 'CXglyc' not in domain_comb and 'Heterocyclization' not in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb):
-        discriminant = 'A_PCP' #
-        
-    elif 'Condensation_Starter' not in domain_comb and 'Condensation' not in domain_comb and 'Condensation_DCL' not in domain_comb and 'Condensation_LCL' not in domain_comb and 'Condensation_Dual' not in domain_comb and 'Cglyc' not in domain_comb and 'CXglyc' not in domain_comb and 'Heterocyclization' not in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' in domain_comb and 'Epimerization' not in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb):
-        discriminant = 'MT_A_PCP' ##
-        
-    elif 'Condensation_Starter' not in domain_comb and 'Condensation' not in domain_comb and 'Condensation_DCL' not in domain_comb and 'Condensation_LCL' not in domain_comb and 'Condensation_Dual' not in domain_comb and 'Cglyc' not in domain_comb and 'CXglyc' not in domain_comb and 'Heterocyclization' not in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb):
-        discriminant = 'MT_A_PCP'
-              
-
-# Condensation starter domain : C-domain
-    elif 'Condensation_Starter' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb):
-        discriminant = 'Cs_A_PCP' #   
-       
-    elif 'Condensation_Starter' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb):
-        discriminant = 'Cs_A_MT_PCP' ##
-        
-    elif 'Condensation_Starter' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' in domain_comb and 'Epimerization' not in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb):
-        discriminant = 'Cs_A_MT_PCP' ##
-        
-    elif 'Condensation_Starter' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' not in domain_comb and 'Epimerization' in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb):
-        discriminant = 'Cs_A_PCP_E' ####
-        
-    elif 'Condensation_Starter' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' in domain_comb and 'nMT' not in domain_comb and 'Epimerization' in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb):
-        discriminant = 'Cs_A_MT_E_PCP' ###
-
-    elif 'Condensation_Starter' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' in domain_comb and 'Epimerization' in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb):
-        discriminant = 'Cs_A_MT_E_PCP'
-        
-# Condensation domain that links D-amino acid to peptide ending with L-amino acid  : C-domain
-    elif 'Condensation' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb):
-        discriminant = 'C_A_PCP' #
-         
-    elif 'Condensation' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb):
-        discriminant = 'C_A_MT_PCP' ##
-        
-    elif 'Condensation' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' in domain_comb and 'Epimerization' not in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb):
-        discriminant = 'C_A_MT_PCP' ##
-        
-    elif 'Condensation' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' not in domain_comb and 'Epimerization' in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb):
-        discriminant = 'C_A_PCP_E' ####
-        
-    elif 'Condensation' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' in domain_comb and 'nMT' not in domain_comb and 'Epimerization' in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb):
-        discriminant = 'C_A_MT_E_PCP' ###
-        
-    elif 'Condensation' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' in domain_comb and 'Epimerization' in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb):
-        discriminant = 'C_A_MT_E_PCP' ###        
-
-# Condensation domain that links D-amino acid to peptide ending with L-amino acid  : C-domain
-    elif 'Condensation_DCL' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb):
-        discriminant = 'Cdcl_A_PCP' #
-        
-    elif 'Condensation_DCL' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb):
-        discriminant = 'Cdcl_A_MT_PCP' ##
-        
-    elif 'Condensation_DCL' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' in domain_comb and 'Epimerization' not in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb):
-        discriminant = 'Cdcl_A_MT_PCP' ##
-        
-    elif 'Condensation_DCL' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' not in domain_comb and 'Epimerization' in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb):
-        discriminant = 'Cdcl_A_PCP_E' ####
-        
-    elif 'Condensation_DCL' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' in domain_comb and 'nMT' not in domain_comb and 'Epimerization' in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb):
-        discriminant = 'Cdcl_A_MT_E_PCP' ###
-        
-    elif 'Condensation_DCL' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' in domain_comb and 'Epimerization' in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb):
-        discriminant = 'Cdcl_A_MT_E_PCP' ###
-
-
-# Condensation domain that links L-amino acid to peptide ending with L-amino acid  : C-domain
-    elif 'Condensation_LCL' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb):
-        discriminant = 'Clcl_A_PCP' #
-        
-    elif 'Condensation_LCL' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb):
-        discriminant = 'Clcl_A_MT_PCP' ##
-        
-    elif 'Condensation_LCL' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' in domain_comb and 'Epimerization' not in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb):
-        discriminant = 'Clcl_A_MT_PCP' ##
-        
-    elif 'Condensation_LCL' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' not in domain_comb and 'Epimerization' in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb):
-        discriminant = 'Clcl_A_PCP_E' ####
-        
-    elif 'Condensation_LCL' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' in domain_comb and 'nMT' not in domain_comb and 'Epimerization' in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb):
-        discriminant = 'Clcl_A_MT_E_PCP' ###
-        
-    elif 'Condensation_LCL' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' in domain_comb and 'Epimerization' in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb):
-        discriminant = 'Clcl_A_MT_E_PCP' ###
-
-
-# Condensation_dual : C-domain
-    elif 'Condensation_Dual' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb):
-        discriminant = 'Cd_A_PCP' #### + epimerization
-        
-    elif 'Condensation_Dual' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb):
-        discriminant = 'Cd_A_MT_PCP' ###
-        
-    elif 'Condensation_Dual' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' in domain_comb and 'Epimerization' not in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb):
-        discriminant = 'Cd_A_MT_PCP' ###
-        
-
-# Glycopeptide condensation domain (O) : C-domain
-    elif 'Cglyc' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb):
-        discriminant = 'Cglyc_A_PCP' #
-        
-    elif 'Cglyc' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb):
-        discriminant = 'Cglyc_A_MT_PCP' ##
-        
-    elif 'Cglyc' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' in domain_comb and 'Epimerization' not in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb):
-        discriminant = 'Cglyc_A_MT_PCP' ##
-        
-    elif 'Cglyc' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' not in domain_comb not in domain_comb and 'Epimerization' in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb):
-        discriminant = 'Cglyc_A_PCP_E' ####
-        
-    elif 'Cglyc' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' in domain_comb and 'nMT' not in domain_comb in domain_comb and 'Epimerization' in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb):
-        discriminant = 'Cglyc_A_MT_E_PCP' ###
-        
-    elif 'Cglyc' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' in domain_comb in domain_comb and 'Epimerization' in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb):
-        discriminant = 'Cglyc_A_MT_E_PCP' ###
-
-# Glycopeptide condensation domain (X) : C-domain
-    elif 'CXglyc' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb):
-        discriminant = 'CXglyc_A_PCP' #
-        
-    elif 'CXglyc' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb):
-        discriminant = 'CXglyc_A_MT_PCP' ##
-        
-    elif 'CXglyc' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' in domain_comb and 'Epimerization' not in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb):
-        discriminant = 'CXglyc_A_MT_PCP' ##
-        
-    elif 'CXglyc' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' not in domain_comb and 'Epimerization' in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb):
-        discriminant = 'CXglyc_A_PCP_E' ####
-        
-    elif 'CXglyc' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' in domain_comb and 'nMT' not in domain_comb and 'Epimerization' in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb):
-        discriminant = 'CXglyc_A_MT_E_PCP' ###
-        
-    elif 'CXglyc' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' in domain_comb and 'Epimerization' in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb):
-        discriminant = 'CXglyc_A_MT_E_PCP' ###
-
-# Heterocyclization : C-domain
-    elif 'Heterocyclization' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb):
-        discriminant = 'HC_A_PCP' ###
-        
-    elif 'Heterocyclization' in domain_comb and 'AMP-binding' not in domain_comb and 'A-OX' in domain_comb and 'cMT' not in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb):
-        discriminant = 'HC_Aox_PCP' ###
-        
-    elif 'Heterocyclization' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb):
-        discriminant = 'HC_A_MT_PCP' ###
-        
-    elif 'Heterocyclization' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' in domain_comb and 'Epimerization' not in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb):
-        discriminant = 'HC_A_MT_PCP' ###
-        
-    elif 'Heterocyclization' in domain_comb and 'AMP-binding' not in domain_comb and 'A-OX' in domain_comb and 'cMT' in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb):
-        discriminant = 'HC_Aox_MT_PCP' ###
-        
-    elif 'Heterocyclization' in domain_comb and 'AMP-binding' not in domain_comb and 'A-OX' in domain_comb and 'cMT' not in domain_comb and 'nMT' in domain_comb and 'Epimerization' not in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb):
-        discriminant = 'HC_Aox_MT_PCP' ###
-        
-    elif 'Heterocyclization' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' in domain_comb and 'nMT' not in domain_comb and 'Epimerization' in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb):
-        discriminant = 'HC_A_MT_E_PCP' ###
-        
-    elif 'Heterocyclization' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' in domain_comb and 'Epimerization' in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb):
-        discriminant = 'HC_A_MT_E_PCP' ###
-
-    elif 'Heterocyclization' in domain_comb and 'AMP-binding' not in domain_comb and 'A-OX' in domain_comb and 'cMT' in domain_comb and 'nMT' not in domain_comb and 'Epimerization' in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb):
-        discriminant = 'HC_Aox_MT_E_PCP'  
-        
-    elif 'Heterocyclization' in domain_comb and 'AMP-binding' not in domain_comb and 'A-OX' in domain_comb and 'cMT' not in domain_comb and 'nMT' in domain_comb and 'Epimerization' in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb):
-        discriminant = 'HC_Aox_MT_E_PCP'  
-
-# Terminal reductase domain : terminal domain       
-    elif 'TD' in domain_comb and ('Condensation_Starter' not in domain_comb and 'Condensation' not in domain_comb and 'Condensation_DCL' not in domain_comb and 'Condensation_LCL' not in domain_comb and 'Condensation_Dual' not in domain_comb and 'Cglyc' not in domain_comb and 'CXglyc' not in domain_comb and 'Heterocyclization' not in domain_comb) and 'AMP-binding' not in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and 'PCP' not in domain_comb and 'ACP' not in domain_comb:
-        discriminant = 'TD'
-    
-    else:
-        discriminant = 'None'
-        
-    return discriminant
-
-# def Identifier_KR_activity(discriminant, each_module_KR_activity):
-#     
-#     print discriminant, each_module_KR_activity
-# 
-#     if each_module_KR_activity == 1 or each_module_KR_activity == 0:
-#         discriminant_with_KRact = discriminant
-#         return discriminant_with_KRact
-#     
-#     elif each_module_KR_activity == 2:
-#         discriminant_with_KRact = discriminant.replace('KR','KR(inactive)')      
-#         return discriminant_with_KRact
 
 def integrated_metabolic_reaction1(participated_cofactor_info):
     fp1 = open('Output_participated_cofactors.txt','w')
@@ -705,7 +496,7 @@ def integrated_metabolic_reaction1(participated_cofactor_info):
     
     return dic_integrated_metabolic_reaction
 
-def integrated_metabolic_reaction2(dic_nrps_domain_substrate, dic_integrated_metabolic_reaction_without_cofactors):
+def integrated_metabolic_reaction2(locustag_monomer_dict, dic_integrated_metabolic_reaction_without_cofactors):
     fp1 = open('Output_participated_substrates_from_uniformed_prediction.txt','w')
     
     
@@ -748,37 +539,37 @@ def integrated_metabolic_reaction2(dic_nrps_domain_substrate, dic_integrated_met
     dic_integrated_metabolic_reaction_without_cofactors['tcl'] = 0 #'4-Chlorothreonine', 'N/A', 'MNXM37380'
     dic_integrated_metabolic_reaction_without_cofactors['qa'] = 0 #'quinoxaline', 'C18575','MNXM80501' VV
     
-    for each_module in dic_nrps_domain_substrate:
+    for each_module in locustag_monomer_dict:
 
-        if dic_nrps_domain_substrate[each_module][3] == 'nrp':
+        if locustag_monomer_dict[each_module][3] == 'nrp':
             
-            sptlist1 = dic_nrps_domain_substrate[each_module][0].split(',')
+            sptlist1 = locustag_monomer_dict[each_module][0].split(',')
             temp_list = []
             
             if len(sptlist1) >= 2:
                 for each_substrate in sptlist1:
                     converted_met1 = converting_substrate_to_met_coeff(each_substrate)
                     temp_list.append(converted_met1)
-            elif dic_nrps_domain_substrate[each_module][0] == 'hydrophobic-aliphatic' or dic_nrps_domain_substrate[each_module][0] == 'hydrophilic':
+            elif locustag_monomer_dict[each_module][0] == 'hydrophobic-aliphatic' or locustag_monomer_dict[each_module][0] == 'hydrophilic':
                 each_substrate = 'N/A'
                 temp_list.append(each_substrate)    
             else:
-                query_met2 = dic_nrps_domain_substrate[each_module][0]
+                query_met2 = locustag_monomer_dict[each_module][0]
                 converted_met2 = converting_substrate_to_met_coeff(query_met2)
                 temp_list.append(converted_met2)
                 
-            query_met3 = dic_nrps_domain_substrate[each_module][1]
+            query_met3 = locustag_monomer_dict[each_module][1]
             converted_met3 = converting_substrate_to_met_coeff(query_met3)
             temp_list.append(converted_met3)
             
-            query_met4 = dic_nrps_domain_substrate[each_module][2]
+            query_met4 = locustag_monomer_dict[each_module][2]
             converted_met4 = converting_substrate_to_met_coeff(query_met4)
             temp_list.append(converted_met4)
             
             list_of_dismatched_substrate.append(temp_list)
         
-        elif dic_nrps_domain_substrate[each_module][3] != 'nrp':
-            query_met5 = dic_nrps_domain_substrate[each_module][3]
+        elif locustag_monomer_dict[each_module][3] != 'nrp':
+            query_met5 = locustag_monomer_dict[each_module][3]
             converted_met5 = converting_substrate_to_met_coeff(query_met5)
             dic_integrated_metabolic_reaction_without_cofactors[converted_met5] -= 1
              
