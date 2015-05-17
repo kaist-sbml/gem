@@ -19,9 +19,9 @@ print "Generating NRP biosynthesis reactions.."
 #WHY DO WE NEED THIS?
 # making template model in order to (V)
 #cobra_model = create_cobra_model_from_sbml_file('SCO_model_snu.xml', print_time=True)
-#inputfile = './NC_021055.1.cluster002.gbk' #NRPS
+inputfile = './NC_021055.1.cluster002.gbk' #NRPS
 #inputfile = './NC_013929.1.cluster031.gbk' #PKS
-inputfile = './NC_020990.1.cluster023.gbk' #Hybrid
+#inputfile = './NC_020990.1.cluster023.gbk' #Hybrid
 
 mnxm_bigg_compound_dict = pickle.load(open('mnxm_bigg_compound_dict.p','rb'))
 
@@ -50,15 +50,11 @@ locustag_monomer_dict = get_cluster_monomers(cluster_info_dict)
 
 locustag_module_domain_dict = get_cluster_module(locustag_domain_dict)
 
-module_currency_metab_dict = generate_currency_metabolites(locustag_module_domain_dict)
+module_currency_metab_dict = get_currency_metabolites(locustag_module_domain_dict)
 
-# generating integrated metabolic reaction without participated substrate such as malonyl-coenzyme A
-dic_integrated_metabolic_reaction_without_cofactors = sum_currency_metab_coeff(module_currency_metab_dict) #####
+currency_metab_coeff_dict = get_total_currency_metab_coeff(module_currency_metab_dict)
 
-# adding matched participated substrate by using 'product' and dictionary 'dic_t1pks_domain_substrate'
-# dic_semiintegrated_metabolic_reaction {'coa': 13, 'mmalcoa': -4, 'h': -10, 'malcoa': -7, 'hco3': 13, 'nadph': -10, 'h2o': 5, 'nadp': 10}
-# list_of_dismatched_substrate = [['mmal', 'Ethyl_mal'], ['2metbut', '2metbut']]
-#dic_semiintegrated_metabolic_reaction, list_of_dismatched_substrate = integrated_metabolic_reaction2(locustag_monomer_dict, dic_integrated_metabolic_reaction_without_cofactors)
+metab_coeff_dict, list_of_dismatched_substrate = get_all_metab_coeff(locustag_monomer_dict, currency_metab_coeff_dict)
 
 # completing integrated metabolic reaction by adding product and dismatched substrate to the reaction.
 # list_of_reaction_set = [{'nadph': -10, 'nadp': 10, 'ahcys': 0, '2mbcoa': -1, 'nad': 0, 'h': -10, 'fadh2': 0, 'malcoa': -7, 'hco3': 13, 'amet': 0, 'coa': 13, 'h2o': 5, 'nadh': 0, '13dpg': 0, 'mmalcoa': -5, 'pi': 0, 'emalcoa': 0, 'fad': 0}, ...]

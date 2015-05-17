@@ -11,7 +11,7 @@ from cobra import Model, Reaction, Metabolite
 from cobra.io.sbml import create_cobra_model_from_sbml_file,write_cobra_model_to_sbml_file
 from MNX_checker2 import COBRA_TemplateModel_checking_MNXref_metabolites
 from MNX_checker2 import fix_legacy_id
-from type_specific_info import determine_domain, extract_substrate_information_nrps, extract_substrate_information_pks
+from general_sec_met_info import determine_domain, extract_substrate_information_nrps, extract_substrate_information_pks, get_biggid_from_aSid
 import pickle
 import copy
 
@@ -324,7 +324,7 @@ def get_cluster_module(locustag_domain_dict):
     return locustag_module_domain_dict
 
 #Ouput: e.g., {'SAV_943_M0':{'coa': 1, 'nadph': -1, 'nadp': 1, 'hco3': 1, 'h': -1}
-def generate_currency_metabolites(locustag_module_domain_dict):
+def get_currency_metabolites(locustag_module_domain_dict):
     fp1 = open('Output_currency_metabolites.txt','w')
 
     module_currency_metab_dict = {}
@@ -336,7 +336,7 @@ def generate_currency_metabolites(locustag_module_domain_dict):
         discriminant = determine_domain(domain_comb)
 
         if discriminant == 'None':
-            print "Discriminant not defined : %s" % (domain_comb)
+            #print "Discriminant not defined : %s" % (domain_comb)
             print >>fp1, "module_type:\t%s\t%s\t%s" % (each_module, domain_comb, 'None')
             continue
 
@@ -549,8 +549,8 @@ def generate_currency_metabolites(locustag_module_domain_dict):
 
 
 #Output: {'nadph': 0, 'fmnh2': 0, 'h': 0, 'ppi': 1, 'ahcys': 0}
-def sum_currency_metab_coeff(module_currency_metab_dict):
-    fp1 = open('Output_participated_cofactors.txt','w')
+def get_total_currency_metab_coeff(module_currency_metab_dict):
+    fp1 = open('Output_total_currency_metabolites.txt','w')
 
     currency_metab_coeff_dict = {}
     currency_metab_coeff_dict['atp'] = 0
@@ -590,285 +590,161 @@ def sum_currency_metab_coeff(module_currency_metab_dict):
     return currency_metab_coeff_dict
 
 
-def integrated_metabolic_reaction2(locustag_monomer_dict, dic_integrated_metabolic_reaction_without_cofactors):
+#Coeff data of major monomers are added in the same dict file used for currency metabolites
+#Output of dic_semiintegrated_metabolic_reaction: e.g.,
+#{'coa': 13, 'mmalcoa': -4, 'h': -10, 'malcoa': -7,     'hco3': 13, 'nadph': -10, 'h2o': 5, 'nadp': 10}
+#Output of list_of_dismatched_substrate:
+#[['mmal', 'Ethyl_mal'], ['2metbut', '2metbut']]
+def get_all_metab_coeff(locustag_monomer_dict, metab_coeff_dict):
     fp1 = open('Output_participated_substrates_from_uniformed_prediction.txt','w')
     
     
     list_of_dismatched_substrate = []
     
-    dic_integrated_metabolic_reaction_without_cofactors['ala_DASH_L'] = 0 #'L-alanine', 'C00041', 'MNXM32'
-    dic_integrated_metabolic_reaction_without_cofactors['arg_DASH_L'] = 0 #'L-Arginine', 'C00062', 'MNXM70'
-    dic_integrated_metabolic_reaction_without_cofactors['asn_DASH_L'] = 0 #'L-asparagine', 'C00152', 'MNXM147'
-    dic_integrated_metabolic_reaction_without_cofactors['asp_DASH_L'] = 0 #'L-Aspartate', 'C00049', 'MNXM42'
-    dic_integrated_metabolic_reaction_without_cofactors['cys_DASH_L'] = 0  #'L-Cysteine', 'C00097', 'MNXM55'
-    dic_integrated_metabolic_reaction_without_cofactors['gln_DASH_L'] = 0 #'L-Glutamine', 'C00064', 'MNXM37'
-    dic_integrated_metabolic_reaction_without_cofactors['glu_DASH_L'] = 0 #'L-Glutamate', 'C00025', 'MNXM89557'
-    dic_integrated_metabolic_reaction_without_cofactors['gly'] = 0 #'glycine', 'C00037', 'MNXM29'
-    dic_integrated_metabolic_reaction_without_cofactors['his_DASH_L'] = 0 #'L-Histidine', 'C00135', 'MNXM134'
-    dic_integrated_metabolic_reaction_without_cofactors['leu_DASH_L'] = 0 #'L-Leucine', 'C00123', 'MNXM140'
-    dic_integrated_metabolic_reaction_without_cofactors['lys_DASH_L'] = 0 #'L-Lysine', 'C00047 ', 'MNXM78'
-    dic_integrated_metabolic_reaction_without_cofactors['met_DASH_L'] = 0 #'L-Methionine', 'C00073', 'MNXM61'
-    dic_integrated_metabolic_reaction_without_cofactors['phe_DASH_L'] = 0 #'L-Phenylalanine', 'C00079', 'MNXM97'
-    dic_integrated_metabolic_reaction_without_cofactors['pro_DASH_L'] = 0 #'L-Proline', 'C00148', 'MNXM114'
-    dic_integrated_metabolic_reaction_without_cofactors['ser_DASH_L'] = 0 #'L-Serine', 'C00065', 'MNXM53'
-    dic_integrated_metabolic_reaction_without_cofactors['thr_DASH_L'] = 0 #'L-Threonine', 'C00188', 'MNXM142'
-    dic_integrated_metabolic_reaction_without_cofactors['trp_DASH_L'] = 0 #'L-Tryptophan', 'C00078', 'MNXM94'
-    dic_integrated_metabolic_reaction_without_cofactors['tyr_DASH_L'] = 0 #'L-Tyrosine', 'C00082', 'MNXM76'
-    dic_integrated_metabolic_reaction_without_cofactors['val_DASH_L'] = 0 #'L-Valine', 'C00183', 'MNXM199'
-    dic_integrated_metabolic_reaction_without_cofactors['ile_DASH_L'] = 0 #'L-Isoleucine', 'C00407', 'MNXM231'
-    dic_integrated_metabolic_reaction_without_cofactors['phg_DASH_L'] = 0 #'phenylglycine', 'C18623', 'MNXM59292'
-    dic_integrated_metabolic_reaction_without_cofactors['bht_DASH_L'] = 0 #'beta-hydroxyn-tyrosine', 'N/A', 'N/A'
-    dic_integrated_metabolic_reaction_without_cofactors['orn'] = 0 #'Ornithine', 'C01602', 'MNXM89689'
-    dic_integrated_metabolic_reaction_without_cofactors['abu'] = 0 #'D-2-Aminobutyric acid', 'C02261', 'MNXM17054'
-    dic_integrated_metabolic_reaction_without_cofactors['iva'] = 0 #'2-Amino-2-methylbutanoate', 'C03571', 'MNXM34821'
-    dic_integrated_metabolic_reaction_without_cofactors['L2aadp'] = 0 #'L-2-Aminoadipic acid', 'C00956', 'MNXM268'
-    dic_integrated_metabolic_reaction_without_cofactors['hpg'] = 0 #'D-4-Hydroxyphenylglycine', 'C03493', 'MNXM4544'
-    dic_integrated_metabolic_reaction_without_cofactors['23dhb'] = 0 #'2,3-Dihydroxybenzoic acid', 'C00196', 'MNXM455'
-    dic_integrated_metabolic_reaction_without_cofactors['dhpg'] = 0 #'3,5-Dihydroxy-phenylglycine', 'C12026', 'MNXM9962'
-    dic_integrated_metabolic_reaction_without_cofactors['hty'] = 0 #'L-Homotyrosine', 'C18622', 'MNXM59438'
-    dic_integrated_metabolic_reaction_without_cofactors['citr_DASH_L'] = 0 #'L-citruline', 'C00327', 'MNXM211' 
-    dic_integrated_metabolic_reaction_without_cofactors['Lpipecol'] = 0 #'L-pipecolate', 'C00408', 'MNXM684'
-    dic_integrated_metabolic_reaction_without_cofactors['ala_DASH_B'] = 0 #'beta-alanine zwitterion', 'C00099', 'MNXM144'
-    dic_integrated_metabolic_reaction_without_cofactors['24dab'] = 0 #'L-2,4-diazaniumylbutyrate', 'C03283', 'MNXM840'
-    dic_integrated_metabolic_reaction_without_cofactors['pac'] = 0 #'phenylacetate', 'C00548', 'MNXM497'
-    dic_integrated_metabolic_reaction_without_cofactors['tcl'] = 0 #'4-Chlorothreonine', 'N/A', 'MNXM37380'
-    dic_integrated_metabolic_reaction_without_cofactors['qa'] = 0 #'quinoxaline', 'C18575','MNXM80501' VV
-    dic_integrated_metabolic_reaction_without_cofactors['malcoa'] = 0 #'malonyl-CoA', 'C00083', 'MNXM40'
-    dic_integrated_metabolic_reaction_without_cofactors['mmcoa_DASH_S'] = 0 #'(S)-methylmalonyl-CoA(5-)','C00683', 'MNXM190', 'not detected in bigg database'
-    dic_integrated_metabolic_reaction_without_cofactors['2mbcoa'] = 0 #'2-methylbutanoyl-CoA', C01033,'MNXM569'
-    dic_integrated_metabolic_reaction_without_cofactors['emcoa_DASH_S'] = 0 #'ethylmalonyl-CoA','C18026', 'MNXM2043', 'not detected in bigg database'
-    dic_integrated_metabolic_reaction_without_cofactors['ibcoa'] = 0 #'2-Methylpropanoyl-CoA', 'C00630', 'MNXM470'
-    dic_integrated_metabolic_reaction_without_cofactors['accoa'] = 0 #'Acetyl-CoA', 'C00024', 'MNXM21'
-    dic_integrated_metabolic_reaction_without_cofactors['ppcoa'] = 0 #'Propionyl-CoA', 'C00100', 'MNXM86'
-    dic_integrated_metabolic_reaction_without_cofactors['ivcoa'] = 0 #'3-Methylbutanoyl-CoA', 'C02939', 'MNXM471'
-    dic_integrated_metabolic_reaction_without_cofactors['mxmalacp'] = 0 #'Methoxymalonyl-[acp]A', 'C18616', 'MNXM61686'
-    dic_integrated_metabolic_reaction_without_cofactors['chccoa'] = 0 #'cyclohexane-1-carboxyl-CoA', 'C09823', 'MNXM5111'    
+    metab_coeff_dict['ala_DASH_L'] = 0 #'L-alanine', 'C00041', 'MNXM32'
+    metab_coeff_dict['arg_DASH_L'] = 0 #'L-Arginine', 'C00062', 'MNXM70'
+    metab_coeff_dict['asn_DASH_L'] = 0 #'L-asparagine', 'C00152', 'MNXM147'
+    metab_coeff_dict['asp_DASH_L'] = 0 #'L-Aspartate', 'C00049', 'MNXM42'
+    metab_coeff_dict['cys_DASH_L'] = 0  #'L-Cysteine', 'C00097', 'MNXM55'
+    metab_coeff_dict['gln_DASH_L'] = 0 #'L-Glutamine', 'C00064', 'MNXM37'
+    metab_coeff_dict['glu_DASH_L'] = 0 #'L-Glutamate', 'C00025', 'MNXM89557'
+    metab_coeff_dict['gly'] = 0 #'glycine', 'C00037', 'MNXM29'
+    metab_coeff_dict['his_DASH_L'] = 0 #'L-Histidine', 'C00135', 'MNXM134'
+    metab_coeff_dict['leu_DASH_L'] = 0 #'L-Leucine', 'C00123', 'MNXM140'
+    metab_coeff_dict['lys_DASH_L'] = 0 #'L-Lysine', 'C00047 ', 'MNXM78'
+    metab_coeff_dict['met_DASH_L'] = 0 #'L-Methionine', 'C00073', 'MNXM61'
+    metab_coeff_dict['phe_DASH_L'] = 0 #'L-Phenylalanine', 'C00079', 'MNXM97'
+    metab_coeff_dict['pro_DASH_L'] = 0 #'L-Proline', 'C00148', 'MNXM114'
+    metab_coeff_dict['ser_DASH_L'] = 0 #'L-Serine', 'C00065', 'MNXM53'
+    metab_coeff_dict['thr_DASH_L'] = 0 #'L-Threonine', 'C00188', 'MNXM142'
+    metab_coeff_dict['trp_DASH_L'] = 0 #'L-Tryptophan', 'C00078', 'MNXM94'
+    metab_coeff_dict['tyr_DASH_L'] = 0 #'L-Tyrosine', 'C00082', 'MNXM76'
+    metab_coeff_dict['val_DASH_L'] = 0 #'L-Valine', 'C00183', 'MNXM199'
+    metab_coeff_dict['ile_DASH_L'] = 0 #'L-Isoleucine', 'C00407', 'MNXM231'
+    metab_coeff_dict['phg_DASH_L'] = 0 #'phenylglycine', 'C18623', 'MNXM59292'
+    metab_coeff_dict['bht_DASH_L'] = 0 #'beta-hydroxyn-tyrosine', 'N/A', 'N/A'
+    metab_coeff_dict['orn'] = 0 #'Ornithine', 'C01602', 'MNXM89689'
+    metab_coeff_dict['abu'] = 0 #'D-2-Aminobutyric acid', 'C02261', 'MNXM17054'
+    metab_coeff_dict['iva'] = 0 #'2-Amino-2-methylbutanoate', 'C03571', 'MNXM34821'
+    metab_coeff_dict['L2aadp'] = 0 #'L-2-Aminoadipic acid', 'C00956', 'MNXM268'
+    metab_coeff_dict['hpg'] = 0 #'D-4-Hydroxyphenylglycine', 'C03493', 'MNXM4544'
+    metab_coeff_dict['23dhb'] = 0 #'2,3-Dihydroxybenzoic acid', 'C00196', 'MNXM455'
+    metab_coeff_dict['dhpg'] = 0 #'3,5-Dihydroxy-phenylglycine', 'C12026', 'MNXM9962'
+    metab_coeff_dict['hty'] = 0 #'L-Homotyrosine', 'C18622', 'MNXM59438'
+    metab_coeff_dict['citr_DASH_L'] = 0 #'L-citruline', 'C00327', 'MNXM211' 
+    metab_coeff_dict['Lpipecol'] = 0 #'L-pipecolate', 'C00408', 'MNXM684'
+    metab_coeff_dict['ala_DASH_B'] = 0 #'beta-alanine zwitterion', 'C00099', 'MNXM144'
+    metab_coeff_dict['24dab'] = 0 #'L-2,4-diazaniumylbutyrate', 'C03283', 'MNXM840'
+    metab_coeff_dict['pac'] = 0 #'phenylacetate', 'C00548', 'MNXM497'
+    metab_coeff_dict['tcl'] = 0 #'4-Chlorothreonine', 'N/A', 'MNXM37380'
+    metab_coeff_dict['qa'] = 0 #'quinoxaline', 'C18575','MNXM80501' VV
+    metab_coeff_dict['malcoa'] = 0 #'malonyl-CoA', 'C00083', 'MNXM40'
+    metab_coeff_dict['mmcoa_DASH_S'] = 0 #'(S)-methylmalonyl-CoA(5-)','C00683', 'MNXM190', 'not detected in bigg database'
+    metab_coeff_dict['2mbcoa'] = 0 #'2-methylbutanoyl-CoA', C01033,'MNXM569'
+    metab_coeff_dict['emcoa_DASH_S'] = 0 #'ethylmalonyl-CoA','C18026', 'MNXM2043', 'not detected in bigg database'
+    metab_coeff_dict['ibcoa'] = 0 #'2-Methylpropanoyl-CoA', 'C00630', 'MNXM470'
+    metab_coeff_dict['accoa'] = 0 #'Acetyl-CoA', 'C00024', 'MNXM21'
+    metab_coeff_dict['ppcoa'] = 0 #'Propionyl-CoA', 'C00100', 'MNXM86'
+    metab_coeff_dict['ivcoa'] = 0 #'3-Methylbutanoyl-CoA', 'C02939', 'MNXM471'
+    metab_coeff_dict['mxmalacp'] = 0 #'Methoxymalonyl-[acp]A', 'C18616', 'MNXM61686'
+    metab_coeff_dict['chccoa'] = 0 #'cyclohexane-1-carboxyl-CoA', 'C09823', 'MNXM5111'    
 
-    for each_module in locustag_monomer_dict:
-
-        print locustag_monomer_dict
-        print len(locustag_monomer_dict[each_module])
-
+    for each_module in locustag_monomer_dict.keys():
+        #locustag_monomer_dict[each_module] for nrps
+        #Position [0]: NRPSPredictor2 SVM
+        #Position [1]: Stachelhaus code
+        #Position [2]: Minowa
+        #Position [3]: consensus
         if len(locustag_monomer_dict[each_module]) == 4:
 
             sptlist1 = locustag_monomer_dict[each_module][0].split(',')
+            print "CHECK", sptlist1, len(sptlist1)
             temp_list = []
 
+            #In case "consensus" is not reached:
             if locustag_monomer_dict[each_module][3] == 'nrp':
 
                 if len(sptlist1) >= 2:
+                    print "yes"
                     for each_substrate in sptlist1:
-                        converted_met1 = converting_substrate_to_met_coeff(each_substrate)
-                        temp_list.append(converted_met1)
+                        print "CHECK", each_substrate
+                        biggid_met1 = get_biggid_from_aSid(each_substrate)
+                        temp_list.append(biggid_met1)
                 elif locustag_monomer_dict[each_module][0] == 'hydrophobic-aliphatic' or locustag_monomer_dict[each_module][0] == 'hydrophilic':
                     each_substrate = 'N/A'
                     temp_list.append(each_substrate)
                 else:
-                    query_met2 = locustag_monomer_dict[each_module][0]
-                    converted_met2 = converting_substrate_to_met_coeff(query_met2)
-                    temp_list.append(converted_met2)
+                    #From NRPSPredictor2 SVM 
+                    aSid_met2 = locustag_monomer_dict[each_module][0]
+                    biggid_met2 = get_biggid_from_aSid(aSid_met2)
+                    print "aSid_met2", aSid_met2, biggid_met2
+                    temp_list.append(biggid_met2)
 
-                query_met3 = locustag_monomer_dict[each_module][1]
-                converted_met3 = converting_substrate_to_met_coeff(query_met3)
-                temp_list.append(converted_met3)
+                #From Stachelhaus code
+                aSid_met3 = locustag_monomer_dict[each_module][1]
+                biggid_met3 = get_biggid_from_aSid(aSid_met3)
+                print "aSid_met3", aSid_met3, biggid_met3
+                temp_list.append(biggid_met3)
 
-                query_met4 = locustag_monomer_dict[each_module][2]
-                converted_met4 = converting_substrate_to_met_coeff(query_met4)
-                temp_list.append(converted_met4)
+                #From Minow
+                aSid_met4 = locustag_monomer_dict[each_module][2]
+                biggid_met4 = get_biggid_from_aSid(aSid_met4)
+                print "aSid_met4", aSid_met4, biggid_met4
+                temp_list.append(biggid_met4)
 
                 list_of_dismatched_substrate.append(temp_list)
 
+            #In case "consensus" is reached:
             elif locustag_monomer_dict[each_module][3] != 'nrp':
-                query_met5 = locustag_monomer_dict[each_module][3]
-                converted_met5 = converting_substrate_to_met_coeff(query_met5)
-                dic_integrated_metabolic_reaction_without_cofactors[converted_met5] -= 1
+                aSid_met5 = locustag_monomer_dict[each_module][3]
+                biggid_met5 = get_biggid_from_aSid(aSid_met5)
+                print "aSid_met5", aSid_met5, biggid_met5
+                metab_coeff_dict[biggid_met5] -= 1
+
+        #locustag_monomer_dict[each_module] for pks
+        #Position [0]: PKS signature
+        #Position [1]: Minowa
+        #Position [2]: consensus
         elif len(locustag_monomer_dict[each_module]) == 3:
 
             if len(locustag_monomer_dict[each_module]) < 3:
                 continue
-            # seperating between unified prediction and not
 
+            #In case "consensus" is not reached:
             if locustag_monomer_dict[each_module][2] == 'pk':
                 temp_list2 = []
 
-                query_met6 = locustag_monomer_dict[each_module][0]
-                converted_met6 = converting_substrate_to_met_coeff(query_met6)
-                temp_list2.append(converted_met6)
+                #From PKS signature 
+                aSid_met6 = locustag_monomer_dict[each_module][0]
+                biggid_met6 = get_biggid_from_aSid(aSid_met6)
+                print "aSid_met6", aSid_met6, biggid_met6
+                temp_list2.append(biggid_met6)
 
-                query_met7 = locustag_monomer_dict[each_module][1]
-                converted_met7 = converting_substrate_to_met_coeff(query_met7)
-                temp_list2.append(converted_met7)
+                #From Minowa
+                aSid_met7 = locustag_monomer_dict[each_module][1]
+                biggid_met7 = get_biggid_from_aSid(aSid_met7)
+                print "aSid_met7", aSid_met7, biggid_met7
+                temp_list2.append(biggid_met7)
 
                 list_of_dismatched_substrate.append(temp_list2)
 
+            #In case "consensus" is reached:
             elif locustag_monomer_dict[each_module][2] != 'pk':
-                query_met8 = locustag_monomer_dict[each_module][2]
-                converted_met8 = converting_substrate_to_met_coeff(query_met8)
-                dic_integrated_metabolic_reaction_without_cofactors[converted_met8] -= 1
+                aSid_met8 = locustag_monomer_dict[each_module][2]
+                biggid_met8 = get_biggid_from_aSid(aSid_met8)
+                print "aSid_met8", aSid_met8, biggid_met8
+                metab_coeff_dict[biggid_met8] -= 1
 
-    for each_participated_substrate in dic_integrated_metabolic_reaction_without_cofactors:
-        print >>fp1, "total_participated_cofactor_with_substrates1:\t%s\t%s" % (each_participated_substrate, dic_integrated_metabolic_reaction_without_cofactors[each_participated_substrate])
+    for each_metab in metab_coeff_dict.keys():
+        print >>fp1, "All metabolites:\t%s\t%s" % (each_metab, metab_coeff_dict[each_metab])
 
-    print dic_integrated_metabolic_reaction_without_cofactors
+    print metab_coeff_dict
     print list_of_dismatched_substrate
 
     fp1.close()
 
-    return dic_integrated_metabolic_reaction_without_cofactors, list_of_dismatched_substrate
+    return metab_coeff_dict, list_of_dismatched_substrate
 
-
-def converting_substrate_to_met_coeff(each_substrate):
-    
-    if each_substrate == 'ala':
-        met_name = 'ala_DASH_L'
-        
-    elif each_substrate == 'arg':
-        met_name = 'arg_DASH_L' 
-        
-    elif each_substrate == 'asn':
-        met_name ='asn_DASH_L'
-            
-    elif each_substrate == 'asp':
-        met_name = 'asp_DASH_L'
-            
-    elif each_substrate == 'cys':
-        met_name = 'cys_DASH_L'
-            
-    elif each_substrate == 'gln':
-        met_name = 'gln_DASH_L'
-            
-    elif each_substrate == 'glu':
-        met_name = 'glu_DASH_L'
-            
-    elif each_substrate == 'gly':
-        met_name = 'gly'
-            
-    elif each_substrate == 'his':
-        met_name = 'his_DASH_L'
-            
-    elif each_substrate == 'leu':
-        met_name = 'leu_DASH_L'
-            
-    elif each_substrate == 'lys':
-        met_name = 'lys_DASH_L'
-            
-    elif each_substrate == 'met':
-        met_name = 'met_DASH_L'
-            
-    elif each_substrate == 'phe':
-        met_name = 'phe_DASH_L'
-            
-    elif each_substrate == 'pro':
-        met_name = 'pro_DASH_L'
-            
-    elif each_substrate == 'ser':
-        met_name = 'ser_DASH_L'
-            
-    elif each_substrate == 'thr':
-        met_name = 'thr_DASH_L'
-             
-    elif each_substrate == 'trp':
-        met_name = 'trp_DASH_L'
-             
-    elif each_substrate == 'tyr':
-        met_name ='tyr_DASH_L'
-             
-    elif each_substrate == 'val':
-        met_name = 'val_DASH_L'
-        
-    elif each_substrate == 'ile':
-        met_name = 'ile_DASH_L'
-        
-    elif each_substrate == 'phg':
-        met_name = 'phg_DASH_L'
-        
-    elif each_substrate == 'bht':
-        met_name = 'bht_DASH_L'
-        
-    elif each_substrate == 'orn':
-        met_name = 'orn'
-        
-    elif each_substrate == 'abu':
-        met_name = 'abu'
-        
-    elif each_substrate == 'iva':
-        met_name = 'iva'
-        
-    elif each_substrate == 'aad':
-        met_name = 'L2aadp'
-        
-    elif each_substrate == 'hpg':
-        met_name = 'hpg'
-        
-    elif each_substrate == 'dhb':
-        met_name = '23dhb'
-        
-    elif each_substrate == 'dhpg':
-        met_name = 'dhpg'
-        
-    elif each_substrate == 'hty':
-        met_name = 'hty'
-        
-    elif each_substrate == 'cit':
-        met_name = 'citr_DASH_L'
-        
-    elif each_substrate == 'pip':
-        met_name = 'Lpipecol'
-        
-    elif each_substrate == 'b-ala':
-        met_name = 'ala_DASH_B'
-        
-    elif each_substrate == 'dab':
-        met_name = '24dab'
-        
-    elif each_substrate == 'phenylacetate' or each_substrate == 'Pha':
-        met_name = 'pac'
-        
-    elif each_substrate == 'tcl':
-        met_name = 'tcl'
-        
-    elif each_substrate == 'qa':
-        met_name = 'qa'
-
-    #t1pks substreate
-    elif each_substrate == 'mal':
-        met_name = 'malcoa'
-
-    elif each_substrate == 'mmal':
-        met_name = 'mmcoa_DASH_S'
-
-    elif each_substrate == '2metbut':
-        met_name = '2mbcoa'
-
-    elif each_substrate == 'Ethyl_mal' or each_substrate == 'emal':
-        met_name = 'emcoa_DASH_S'
-
-    elif each_substrate == 'isobut':
-        met_name = 'ibcoa'
-
-    elif each_substrate == 'ace':
-        met_name = 'accoa'
-
-    elif each_substrate == 'prop':
-        met_name = 'ppcoa'
-
-    elif each_substrate == '3metbut':
-        met_name = 'ivcoa'
-
-    elif each_substrate == 'mxmal':
-        met_name = 'mxmalacp'
-
-    elif each_substrate == 'CHC-CoA':
-        met_name = 'chccoa'
-        
-    elif each_substrate == 'N/A':
-        met_name = 'N/A'
-        
-    else:
-        print each_substrate
-        raw_input('substrate_not_defined')
-    
-    return met_name
 
 def integrated_metabolic_reaction3(dic_integrated_metabolic_reaction, list_of_dismatched_substrate):
     

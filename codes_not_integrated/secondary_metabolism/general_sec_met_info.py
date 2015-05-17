@@ -494,3 +494,158 @@ def extract_substrate_information_pks(each_sub_set):
         list_participated_sustrate.append(participated_substrate)
 
     return list_participated_sustrate
+
+
+def get_biggid_from_aSid(each_substrate):
+
+    if each_substrate == 'ala':
+        met_name = 'ala_DASH_L'
+
+    elif each_substrate == 'arg':
+        met_name = 'arg_DASH_L'
+
+    elif each_substrate == 'asn':
+        met_name ='asn_DASH_L'
+
+    elif each_substrate == 'asp':
+        met_name = 'asp_DASH_L'
+
+    elif each_substrate == 'cys':
+        met_name = 'cys_DASH_L'
+
+    elif each_substrate == 'gln':
+        met_name = 'gln_DASH_L'
+
+    elif each_substrate == 'glu':
+        met_name = 'glu_DASH_L'
+
+    elif each_substrate == 'gly':
+        met_name = 'gly'
+
+    elif each_substrate == 'his':
+        met_name = 'his_DASH_L'
+
+    elif each_substrate == 'leu':
+        met_name = 'leu_DASH_L'
+
+    elif each_substrate == 'lys':
+        met_name = 'lys_DASH_L'
+
+    elif each_substrate == 'met':
+        met_name = 'met_DASH_L'
+
+    elif each_substrate == 'phe':
+        met_name = 'phe_DASH_L'
+
+    elif each_substrate == 'pro':
+        met_name = 'pro_DASH_L'
+
+    elif each_substrate == 'ser':
+        met_name = 'ser_DASH_L'
+
+    elif each_substrate == 'thr':
+        met_name = 'thr_DASH_L'
+
+    elif each_substrate == 'trp':
+        met_name = 'trp_DASH_L'
+
+    elif each_substrate == 'tyr':
+        met_name ='tyr_DASH_L'
+
+    elif each_substrate == 'val':
+        met_name = 'val_DASH_L'
+
+    elif each_substrate == 'ile':
+        met_name = 'ile_DASH_L'
+
+    elif each_substrate == 'phg':
+        met_name = 'phg_DASH_L'
+
+    elif each_substrate == 'bht':
+        met_name = 'bht_DASH_L'
+
+    elif each_substrate == 'orn':
+        met_name = 'orn'
+
+    elif each_substrate == 'abu':
+        met_name = 'abu'
+
+    elif each_substrate == 'iva':
+        met_name = 'iva'
+
+    elif each_substrate == 'aad':
+        met_name = 'L2aadp'
+
+    elif each_substrate == 'hpg':
+        met_name = 'hpg'
+
+    elif each_substrate == 'dhb':
+        met_name = '23dhb'
+
+    elif each_substrate == 'dhpg':
+        met_name = 'dhpg'
+
+    elif each_substrate == 'hty':
+        met_name = 'hty'
+
+    elif each_substrate == 'cit':
+        met_name = 'citr_DASH_L'
+
+    elif each_substrate == 'pip':
+        met_name = 'Lpipecol'
+
+    elif each_substrate == 'b-ala':
+        met_name = 'ala_DASH_B'
+
+    elif each_substrate == 'dab':
+        met_name = '24dab'
+
+    elif each_substrate == 'phenylacetate' or each_substrate == 'Pha':
+        met_name = 'pac'
+
+    elif each_substrate == 'tcl':
+        met_name = 'tcl'
+
+    elif each_substrate == 'qa':
+        met_name = 'qa'
+
+    #t1pks substreate
+    elif each_substrate == 'mal':
+        met_name = 'malcoa'
+
+    elif each_substrate == 'mmal':
+        met_name = 'mmcoa_DASH_S'
+
+    elif each_substrate == '2metbut':
+        met_name = '2mbcoa'
+
+    elif each_substrate == 'Ethyl_mal' or each_substrate == 'emal':
+        met_name = 'emcoa_DASH_S'
+
+    elif each_substrate == 'isobut':
+        met_name = 'ibcoa'
+
+    elif each_substrate == 'ace':
+        met_name = 'accoa'
+
+    elif each_substrate == 'prop':
+        met_name = 'ppcoa'
+
+    elif each_substrate == '3metbut':
+        met_name = 'ivcoa'
+
+    elif each_substrate == 'mxmal':
+        met_name = 'mxmalacp'
+
+    elif each_substrate == 'CHC-CoA':
+        met_name = 'chccoa'
+
+    elif each_substrate == 'N/A':
+        met_name = 'N/A'
+
+    else:
+        print each_substrate
+        raw_input('substrate_not_defined')
+
+    return met_name
+
