@@ -3,16 +3,6 @@
 2014-2015 Hyun Uk Kim
 '''
 
-from Bio import SeqIO
-from sets import Set
-from cobra import Model, Reaction, Metabolite
-from cobra.io.sbml import create_cobra_model_from_sbml_file
-from cobra.io.sbml import write_cobra_model_to_sbml_file
-from MNX_checker2 import COBRA_TemplateModel_checking_MNXref_metabolites
-from MNX_checker2 import fix_legacy_id
-import pickle
-import copy
-
 def determine_domain(domain_comb):
 ## domain information(nrps) :
 ## Condensation    Condensation domain
