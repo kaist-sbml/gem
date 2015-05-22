@@ -6,13 +6,11 @@
 from Bio import SeqIO
 from sets import Set
 from cobra import Model, Reaction, Metabolite
-from cobra.io.sbml import create_cobra_model_from_sbml_file
-from cobra.io.sbml import write_cobra_model_to_sbml_file
-from MNX_checker2 import COBRA_TemplateModel_checking_MNXref_metabolites
-from MNX_checker2 import fix_legacy_id
+from cobra.io.sbml import create_cobra_model_from_sbml_file, write_cobra_model_to_sbml_file
+from MNX_checker2 import COBRA_TemplateModel_checking_MNXref_metabolites, fix_legacy_id
 import pickle
 import copy
-from sec_met_rxn_generation import *
+from sec_met_rxn_generation import get_defined_sec_metab_monomers, get_product_from_cluster_gbk, get_cluster_info_from_cluster_gbk, get_cluster_domain, get_cluster_monomers, get_cluster_module, get_currency_metabolites, get_total_currency_metab_coeff, get_all_metab_coeff, integrated_metabolic_reaction3 
 
 print "Generating NRP biosynthesis reactions.."
 
@@ -52,15 +50,11 @@ locustag_module_domain_dict = get_cluster_module(locustag_domain_dict)
 
 module_currency_metab_dict = get_currency_metabolites(locustag_module_domain_dict)
 
-#MOVE currency_metab_coeff_dict TO general_sec_met_info.py
 currency_metab_coeff_dict = get_total_currency_metab_coeff(module_currency_metab_dict)
 
-#MOVE currency_metab_coeff_dict TO general_sec_met_info.py
-metab_coeff_dict, list_of_dismatched_substrate = get_all_metab_coeff(locustag_monomer_dict, currency_metab_coeff_dict)
+metab_coeff_dict, dismatched_substrate_list = get_all_metab_coeff(locustag_monomer_dict, currency_metab_coeff_dict)
 
-# completing integrated metabolic reaction by adding product and dismatched substrate to the reaction.
-# list_of_reaction_set = [{'nadph': -10, 'nadp': 10, 'ahcys': 0, '2mbcoa': -1, 'nad': 0, 'h': -10, 'fadh2': 0, 'malcoa': -7, 'hco3': 13, 'amet': 0, 'coa': 13, 'h2o': 5, 'nadh': 0, '13dpg': 0, 'mmalcoa': -5, 'pi': 0, 'emalcoa': 0, 'fad': 0}, ...]
-#list_of_reaction_set = integrated_metabolic_reaction3(dic_semiintegrated_metabolic_reaction, list_of_dismatched_substrate)
+list_of_reaction_set = integrated_metabolic_reaction3(metab_coeff_dict, dismatched_substrate_list)
 
 # adding product name to the integrated reaction
 # list_of_reaction_set_with_product = {'nadph': -10, 'nadp': 10, 'ahcys': 0, '2mbcoa': -1, 'nad': 0, 'h': -10, 'fadh2': 0, 'malcoa': -7, 'hco3': 13, 'Cluster_05_t1pks_1': 1, 'amet': 0, 'coa': 13, 'h2o': 5, 'nadh': 0, '13dpg': 0, 'mmalcoa': -5, 'pi': 0, 'emalcoa': 0, 'fad': 0}]

@@ -9,8 +9,7 @@ from Bio import SeqIO
 from sets import Set
 from cobra import Model, Reaction, Metabolite
 from cobra.io.sbml import create_cobra_model_from_sbml_file,write_cobra_model_to_sbml_file
-from MNX_checker2 import COBRA_TemplateModel_checking_MNXref_metabolites
-from MNX_checker2 import fix_legacy_id
+from MNX_checker2 import COBRA_TemplateModel_checking_MNXref_metabolites, fix_legacy_id
 from general_sec_met_info import determine_module, extract_substrate_information_nrps, extract_substrate_information_pks, get_biggid_from_aSid, get_metab_coeff_dict
 import pickle
 import copy
@@ -556,7 +555,6 @@ def get_total_currency_metab_coeff(module_currency_metab_dict):
 
     for each_module in module_currency_metab_dict.keys():
         for each_metabolite in module_currency_metab_dict[each_module]:
-            print "CHECK:", each_metabolite
             metab_coeff = module_currency_metab_dict[each_module][each_metabolite]
 
             if module_currency_metab_dict[each_module][each_metabolite] > 0:
@@ -579,12 +577,12 @@ def get_total_currency_metab_coeff(module_currency_metab_dict):
 #Coeff data of major monomers are added in the same dict file used for currency metabolites
 #Output of dic_semiintegrated_metabolic_reaction: e.g.,
 #{'coa': 13, 'mmalcoa': -4, 'h': -10, 'malcoa': -7,     'hco3': 13, 'nadph': -10, 'h2o': 5, 'nadp': 10}
-#Output of list_of_dismatched_substrate:
+#Output of dismatched_substrate_list:
 #[['mmal', 'Ethyl_mal'], ['2metbut', '2metbut']]
 def get_all_metab_coeff(locustag_monomer_dict, metab_coeff_dict):
     fp1 = open('Output_participated_substrates_from_uniformed_prediction.txt','w')
     
-    list_of_dismatched_substrate = []
+    dismatched_substrate_list = []
 
     for each_module in locustag_monomer_dict.keys():
         #locustag_monomer_dict[each_module] for nrps
@@ -629,7 +627,7 @@ def get_all_metab_coeff(locustag_monomer_dict, metab_coeff_dict):
                 print "aSid_met4", aSid_met4, biggid_met4
                 temp_list.append(biggid_met4)
 
-                list_of_dismatched_substrate.append(temp_list)
+                dismatched_substrate_list.append(temp_list)
 
             #In case "consensus" is reached:
             elif locustag_monomer_dict[each_module][3] != 'nrp':
@@ -663,7 +661,7 @@ def get_all_metab_coeff(locustag_monomer_dict, metab_coeff_dict):
                 print "aSid_met7", aSid_met7, biggid_met7
                 temp_list2.append(biggid_met7)
 
-                list_of_dismatched_substrate.append(temp_list2)
+                dismatched_substrate_list.append(temp_list2)
 
             #In case "consensus" is reached:
             elif locustag_monomer_dict[each_module][2] != 'pk':
@@ -676,36 +674,38 @@ def get_all_metab_coeff(locustag_monomer_dict, metab_coeff_dict):
         print >>fp1, "All metabolites:\t%s\t%s" % (each_metab, metab_coeff_dict[each_metab])
 
     print metab_coeff_dict
-    print list_of_dismatched_substrate
+    print dismatched_substrate_list
 
     fp1.close()
 
-    return metab_coeff_dict, list_of_dismatched_substrate
+    return metab_coeff_dict, dismatched_substrate_list
 
 
-def integrated_metabolic_reaction3(dic_integrated_metabolic_reaction, list_of_dismatched_substrate):
-    
+# completing integrated metabolic reaction by adding product and dismatched substrate to the reaction.
+# list_of_reaction_set = [{'nadph': -10, 'nadp': 10, 'ahcys': 0, '2mbcoa': -1, 'nad': 0, 'h': -10, 'fadh2': 0, 'malcoa': -7, 'hco3': 13, 'amet': 0, 'coa': 13, 'h2o': 5, 'nadh': 0, '13dpg': 0, 'mmalcoa': -5, 'pi': 0, 'emalcoa': 0, 'fad': 0}, ...]
+def integrated_metabolic_reaction3(dic_integrated_metabolic_reaction, dismatched_substrate_list):
+
     list_of_reaction_set = []
 
-    if list_of_dismatched_substrate == []:
+    if dismatched_substrate_list == []:
         list_of_reaction_set.append(dic_integrated_metabolic_reaction)
-        
+
     else:
-        
         list_of_reaction_set.append(dic_integrated_metabolic_reaction)
-        for each_pair_of_substrates in list_of_dismatched_substrate:
+        for each_pair_of_substrates in dismatched_substrate_list:
             template_list = copy.deepcopy(list_of_reaction_set)
             list_of_reaction_set = []
-        
+
             for dic_each_metabolic_reaction in template_list:
                 each_pair_of_substrates = set(each_pair_of_substrates)
                 each_pair_of_substrates = list(each_pair_of_substrates)
                 substrate_decision_number = distincting_each_substrate_in_list_component(each_pair_of_substrates)
                 temp_reaction_set = converting_nrps_substrates(each_pair_of_substrates, dic_each_metabolic_reaction, substrate_decision_number) 
-                
+
                 for each_dic_reaction_set in temp_reaction_set:
                     list_of_reaction_set.append(each_dic_reaction_set)
-    
+
+    print list_of_reaction_set
     return list_of_reaction_set
                 
 def distincting_each_substrate_in_list_component(each_pair_of_substrates):    
