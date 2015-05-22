@@ -593,16 +593,15 @@ def get_all_metab_coeff(locustag_monomer_dict, metab_coeff_dict):
         if len(locustag_monomer_dict[each_module]) == 4:
 
             sptlist1 = locustag_monomer_dict[each_module][0].split(',')
-            print "CHECK", sptlist1, len(sptlist1)
+            #print "CHECK", sptlist1, len(sptlist1)
             temp_list = []
 
             #In case "consensus" is not reached:
             if locustag_monomer_dict[each_module][3] == 'nrp':
 
                 if len(sptlist1) >= 2:
-                    print "yes"
                     for each_substrate in sptlist1:
-                        print "CHECK", each_substrate
+                        #print "CHECK", each_substrate
                         biggid_met1 = get_biggid_from_aSid(each_substrate)
                         temp_list.append(biggid_met1)
                 elif locustag_monomer_dict[each_module][0] == 'hydrophobic-aliphatic' or locustag_monomer_dict[each_module][0] == 'hydrophilic':
@@ -683,15 +682,15 @@ def get_all_metab_coeff(locustag_monomer_dict, metab_coeff_dict):
 
 # completing integrated metabolic reaction by adding product and dismatched substrate to the reaction.
 # list_of_reaction_set = [{'nadph': -10, 'nadp': 10, 'ahcys': 0, '2mbcoa': -1, 'nad': 0, 'h': -10, 'fadh2': 0, 'malcoa': -7, 'hco3': 13, 'amet': 0, 'coa': 13, 'h2o': 5, 'nadh': 0, '13dpg': 0, 'mmalcoa': -5, 'pi': 0, 'emalcoa': 0, 'fad': 0}, ...]
-def integrated_metabolic_reaction3(dic_integrated_metabolic_reaction, dismatched_substrate_list):
+def integrated_metabolic_reaction3(metab_coeff_dict, dismatched_substrate_list):
 
     list_of_reaction_set = []
 
     if dismatched_substrate_list == []:
-        list_of_reaction_set.append(dic_integrated_metabolic_reaction)
+        list_of_reaction_set.append(metab_coeff_dict)
 
     else:
-        list_of_reaction_set.append(dic_integrated_metabolic_reaction)
+        list_of_reaction_set.append(metab_coeff_dict)
         for each_pair_of_substrates in dismatched_substrate_list:
             template_list = copy.deepcopy(list_of_reaction_set)
             list_of_reaction_set = []
@@ -707,9 +706,10 @@ def integrated_metabolic_reaction3(dic_integrated_metabolic_reaction, dismatched
 
     print list_of_reaction_set
     return list_of_reaction_set
-                
-def distincting_each_substrate_in_list_component(each_pair_of_substrates):    
-    
+
+
+def distincting_each_substrate_in_list_component(each_pair_of_substrates):
+
     #This logic of code should be fixed
     if len(each_pair_of_substrates) >= 2:
         substrate_decision_number = 1
@@ -719,14 +719,15 @@ def distincting_each_substrate_in_list_component(each_pair_of_substrates):
  
     return substrate_decision_number
 
-def converting_nrps_substrates(each_pair_of_substrates, dic_integrated_metabolic_reaction, substrate_decision_number):
+
+def converting_nrps_substrates(each_pair_of_substrates, metab_coeff_dict, substrate_decision_number):
     
     temp_list_of_reaction_set = []
     
     for each_substrate in each_pair_of_substrates:
         
         temp_dic ={}
-        temp_dic = copy.deepcopy(dic_integrated_metabolic_reaction)
+        temp_dic = copy.deepcopy(metab_coeff_dict)
         
         if each_substrate not in temp_dic:
             continue

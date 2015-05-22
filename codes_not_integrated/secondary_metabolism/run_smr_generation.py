@@ -10,7 +10,7 @@ from cobra.io.sbml import create_cobra_model_from_sbml_file, write_cobra_model_t
 from MNX_checker2 import COBRA_TemplateModel_checking_MNXref_metabolites, fix_legacy_id
 import pickle
 import copy
-from sec_met_rxn_generation import get_defined_sec_metab_monomers, get_product_from_cluster_gbk, get_cluster_info_from_cluster_gbk, get_cluster_domain, get_cluster_monomers, get_cluster_module, get_currency_metabolites, get_total_currency_metab_coeff, get_all_metab_coeff, integrated_metabolic_reaction3 
+from sec_met_rxn_generation import get_defined_sec_metab_monomers, get_product_from_cluster_gbk, get_cluster_info_from_cluster_gbk, get_cluster_domain, get_cluster_monomers, get_cluster_module, get_currency_metabolites, get_total_currency_metab_coeff, get_all_metab_coeff, integrated_metabolic_reaction3, adding_product_to_the_reaction 
 
 print "Generating NRP biosynthesis reactions.."
 
@@ -52,8 +52,12 @@ module_currency_metab_dict = get_currency_metabolites(locustag_module_domain_dic
 
 currency_metab_coeff_dict = get_total_currency_metab_coeff(module_currency_metab_dict)
 
+#Working on this
 metab_coeff_dict, dismatched_substrate_list = get_all_metab_coeff(locustag_monomer_dict, currency_metab_coeff_dict)
 
+#Working on this
+#Current version of this creates different reactions for non-consensus monomers: need to be modified
+#Two nested functions
 list_of_reaction_set = integrated_metabolic_reaction3(metab_coeff_dict, dismatched_substrate_list)
 
 # adding product name to the integrated reaction
