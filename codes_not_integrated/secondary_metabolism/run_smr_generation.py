@@ -52,8 +52,10 @@ locustag_module_domain_dict = get_cluster_module(locustag_domain_dict)
 
 module_currency_metab_dict = get_currency_metabolites(locustag_module_domain_dict)
 
+#MOVE currency_metab_coeff_dict TO general_sec_met_info.py
 currency_metab_coeff_dict = get_total_currency_metab_coeff(module_currency_metab_dict)
 
+#MOVE currency_metab_coeff_dict TO general_sec_met_info.py
 metab_coeff_dict, list_of_dismatched_substrate = get_all_metab_coeff(locustag_monomer_dict, currency_metab_coeff_dict)
 
 # completing integrated metabolic reaction by adding product and dismatched substrate to the reaction.

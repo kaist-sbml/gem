@@ -11,7 +11,7 @@ from cobra import Model, Reaction, Metabolite
 from cobra.io.sbml import create_cobra_model_from_sbml_file,write_cobra_model_to_sbml_file
 from MNX_checker2 import COBRA_TemplateModel_checking_MNXref_metabolites
 from MNX_checker2 import fix_legacy_id
-from general_sec_met_info import determine_domain, extract_substrate_information_nrps, extract_substrate_information_pks, get_biggid_from_aSid
+from general_sec_met_info import determine_module, extract_substrate_information_nrps, extract_substrate_information_pks, get_biggid_from_aSid, get_metab_coeff_dict
 import pickle
 import copy
 
@@ -333,7 +333,7 @@ def get_currency_metabolites(locustag_module_domain_dict):
         domain_comb = locustag_module_domain_dict[each_module]
 
         each_module_substrates = {}
-        discriminant = determine_domain(domain_comb)
+        discriminant = determine_module(domain_comb)
 
         if discriminant == 'None':
             #print "Discriminant not defined : %s" % (domain_comb)
@@ -552,25 +552,11 @@ def get_currency_metabolites(locustag_module_domain_dict):
 def get_total_currency_metab_coeff(module_currency_metab_dict):
     fp1 = open('Output_total_currency_metabolites.txt','w')
 
-    currency_metab_coeff_dict = {}
-    currency_metab_coeff_dict['atp'] = 0
-    currency_metab_coeff_dict['amp'] = 0
-    currency_metab_coeff_dict['ppi'] = 0
-    currency_metab_coeff_dict['amet'] = 0
-    currency_metab_coeff_dict['ahcys'] = 0
-    currency_metab_coeff_dict['fmn'] = 0 
-    currency_metab_coeff_dict['fmnh2'] = 0
-    currency_metab_coeff_dict['amet'] = 0
-    currency_metab_coeff_dict['ahcys'] = 0
-    currency_metab_coeff_dict['nadp'] = 0
-    currency_metab_coeff_dict['nadph'] = 0
-    currency_metab_coeff_dict['h'] = 0
-    currency_metab_coeff_dict['h2o'] = 0
-    currency_metab_coeff_dict['hco3'] = 0
-    currency_metab_coeff_dict['coa'] = 0
+    currency_metab_coeff_dict = get_metab_coeff_dict()
 
     for each_module in module_currency_metab_dict.keys():
         for each_metabolite in module_currency_metab_dict[each_module]:
+            print "CHECK:", each_metabolite
             metab_coeff = module_currency_metab_dict[each_module][each_metabolite]
 
             if module_currency_metab_dict[each_module][each_metabolite] > 0:
@@ -598,56 +584,7 @@ def get_total_currency_metab_coeff(module_currency_metab_dict):
 def get_all_metab_coeff(locustag_monomer_dict, metab_coeff_dict):
     fp1 = open('Output_participated_substrates_from_uniformed_prediction.txt','w')
     
-    
     list_of_dismatched_substrate = []
-    
-    metab_coeff_dict['ala_DASH_L'] = 0 #'L-alanine', 'C00041', 'MNXM32'
-    metab_coeff_dict['arg_DASH_L'] = 0 #'L-Arginine', 'C00062', 'MNXM70'
-    metab_coeff_dict['asn_DASH_L'] = 0 #'L-asparagine', 'C00152', 'MNXM147'
-    metab_coeff_dict['asp_DASH_L'] = 0 #'L-Aspartate', 'C00049', 'MNXM42'
-    metab_coeff_dict['cys_DASH_L'] = 0  #'L-Cysteine', 'C00097', 'MNXM55'
-    metab_coeff_dict['gln_DASH_L'] = 0 #'L-Glutamine', 'C00064', 'MNXM37'
-    metab_coeff_dict['glu_DASH_L'] = 0 #'L-Glutamate', 'C00025', 'MNXM89557'
-    metab_coeff_dict['gly'] = 0 #'glycine', 'C00037', 'MNXM29'
-    metab_coeff_dict['his_DASH_L'] = 0 #'L-Histidine', 'C00135', 'MNXM134'
-    metab_coeff_dict['leu_DASH_L'] = 0 #'L-Leucine', 'C00123', 'MNXM140'
-    metab_coeff_dict['lys_DASH_L'] = 0 #'L-Lysine', 'C00047 ', 'MNXM78'
-    metab_coeff_dict['met_DASH_L'] = 0 #'L-Methionine', 'C00073', 'MNXM61'
-    metab_coeff_dict['phe_DASH_L'] = 0 #'L-Phenylalanine', 'C00079', 'MNXM97'
-    metab_coeff_dict['pro_DASH_L'] = 0 #'L-Proline', 'C00148', 'MNXM114'
-    metab_coeff_dict['ser_DASH_L'] = 0 #'L-Serine', 'C00065', 'MNXM53'
-    metab_coeff_dict['thr_DASH_L'] = 0 #'L-Threonine', 'C00188', 'MNXM142'
-    metab_coeff_dict['trp_DASH_L'] = 0 #'L-Tryptophan', 'C00078', 'MNXM94'
-    metab_coeff_dict['tyr_DASH_L'] = 0 #'L-Tyrosine', 'C00082', 'MNXM76'
-    metab_coeff_dict['val_DASH_L'] = 0 #'L-Valine', 'C00183', 'MNXM199'
-    metab_coeff_dict['ile_DASH_L'] = 0 #'L-Isoleucine', 'C00407', 'MNXM231'
-    metab_coeff_dict['phg_DASH_L'] = 0 #'phenylglycine', 'C18623', 'MNXM59292'
-    metab_coeff_dict['bht_DASH_L'] = 0 #'beta-hydroxyn-tyrosine', 'N/A', 'N/A'
-    metab_coeff_dict['orn'] = 0 #'Ornithine', 'C01602', 'MNXM89689'
-    metab_coeff_dict['abu'] = 0 #'D-2-Aminobutyric acid', 'C02261', 'MNXM17054'
-    metab_coeff_dict['iva'] = 0 #'2-Amino-2-methylbutanoate', 'C03571', 'MNXM34821'
-    metab_coeff_dict['L2aadp'] = 0 #'L-2-Aminoadipic acid', 'C00956', 'MNXM268'
-    metab_coeff_dict['hpg'] = 0 #'D-4-Hydroxyphenylglycine', 'C03493', 'MNXM4544'
-    metab_coeff_dict['23dhb'] = 0 #'2,3-Dihydroxybenzoic acid', 'C00196', 'MNXM455'
-    metab_coeff_dict['dhpg'] = 0 #'3,5-Dihydroxy-phenylglycine', 'C12026', 'MNXM9962'
-    metab_coeff_dict['hty'] = 0 #'L-Homotyrosine', 'C18622', 'MNXM59438'
-    metab_coeff_dict['citr_DASH_L'] = 0 #'L-citruline', 'C00327', 'MNXM211' 
-    metab_coeff_dict['Lpipecol'] = 0 #'L-pipecolate', 'C00408', 'MNXM684'
-    metab_coeff_dict['ala_DASH_B'] = 0 #'beta-alanine zwitterion', 'C00099', 'MNXM144'
-    metab_coeff_dict['24dab'] = 0 #'L-2,4-diazaniumylbutyrate', 'C03283', 'MNXM840'
-    metab_coeff_dict['pac'] = 0 #'phenylacetate', 'C00548', 'MNXM497'
-    metab_coeff_dict['tcl'] = 0 #'4-Chlorothreonine', 'N/A', 'MNXM37380'
-    metab_coeff_dict['qa'] = 0 #'quinoxaline', 'C18575','MNXM80501' VV
-    metab_coeff_dict['malcoa'] = 0 #'malonyl-CoA', 'C00083', 'MNXM40'
-    metab_coeff_dict['mmcoa_DASH_S'] = 0 #'(S)-methylmalonyl-CoA(5-)','C00683', 'MNXM190', 'not detected in bigg database'
-    metab_coeff_dict['2mbcoa'] = 0 #'2-methylbutanoyl-CoA', C01033,'MNXM569'
-    metab_coeff_dict['emcoa_DASH_S'] = 0 #'ethylmalonyl-CoA','C18026', 'MNXM2043', 'not detected in bigg database'
-    metab_coeff_dict['ibcoa'] = 0 #'2-Methylpropanoyl-CoA', 'C00630', 'MNXM470'
-    metab_coeff_dict['accoa'] = 0 #'Acetyl-CoA', 'C00024', 'MNXM21'
-    metab_coeff_dict['ppcoa'] = 0 #'Propionyl-CoA', 'C00100', 'MNXM86'
-    metab_coeff_dict['ivcoa'] = 0 #'3-Methylbutanoyl-CoA', 'C02939', 'MNXM471'
-    metab_coeff_dict['mxmalacp'] = 0 #'Methoxymalonyl-[acp]A', 'C18616', 'MNXM61686'
-    metab_coeff_dict['chccoa'] = 0 #'cyclohexane-1-carboxyl-CoA', 'C09823', 'MNXM5111'    
 
     for each_module in locustag_monomer_dict.keys():
         #locustag_monomer_dict[each_module] for nrps
