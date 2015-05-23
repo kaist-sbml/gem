@@ -10,7 +10,7 @@ from cobra.io.sbml import create_cobra_model_from_sbml_file, write_cobra_model_t
 from MNX_checker2 import COBRA_TemplateModel_checking_MNXref_metabolites, fix_legacy_id
 import pickle
 import copy
-from sec_met_rxn_generation import get_defined_sec_metab_monomers, get_product_from_cluster_gbk, get_cluster_info_from_cluster_gbk, get_cluster_domain, get_cluster_monomers, get_cluster_module, get_currency_metabolites, get_total_currency_metab_coeff, get_all_metab_coeff 
+from sec_met_rxn_generation import get_product_from_cluster_gbk, get_cluster_info_from_cluster_gbk, get_cluster_domain, get_cluster_monomers, get_cluster_module, get_currency_metabolites, get_total_currency_metab_coeff, get_all_metab_coeff 
 
 print "Generating NRP biosynthesis reactions.."
 
@@ -51,7 +51,4 @@ metab_coeff_dict = get_all_metab_coeff(locustag_monomer_dict, currency_metab_coe
 
 # adding metabolic reactions to the model
 #modified_cobra_model, list_reaction_name_SM, list_novel_secondary_metabolite_reactions = second_metab_reactions_addition(cobra_model, product, locustag_product_monomer_dict, list_of_reaction_set_with_product, metab_MNXM_dict)
-
-## simulating FBA
-#performing_FBA_for_each_reaction_of_SMRs(modified_cobra_model, list_reaction_name_SM)
 
