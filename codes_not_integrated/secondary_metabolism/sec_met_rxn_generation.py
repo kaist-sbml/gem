@@ -35,40 +35,6 @@ def get_defined_sec_metab_monomers(inputFile):
     return monomer_mnx_dict
 
 
-#Output: e.g., ['nrp', 'val-pro']
-def get_monomers_from_cluster_gbk(gbkFile, FileType, monomer_mnx_dic):
-    #Reads GenBank file
-    record = SeqIO.read(gbkFile, FileType)
-
-    for feature in record.features:
-
-        #Identifies the feature "cluster"
-        if feature.type == 'cluster':
-
-            #Identifies "Monomers prediction"
-            qualifier_monomers = feature.qualifiers.get('note')
-            qualifier_monomers = qualifier_monomers[2].split(':')
-            qualifier_monomers = qualifier_monomers[1].strip()
-            total_monomer_order = qualifier_monomers
-            qualifier_monomers = qualifier_monomers.split(' + ')
-            
-            second_total_monomers = qualifier_monomers
-
-            #Modifies elements in list  
-            #e.g., ['pk-mmal-mal', 'mal-mal-mal-mmal', 'mmal-mal-mmal', 'mal-pk-mal']
-            count = 0
-            
-            for each_module_substrate in second_total_monomers:
-                each_module_substrate = each_module_substrate.replace('(','')
-                each_module_substrate = each_module_substrate.replace(')','')
-                each_module_substrate = each_module_substrate.strip()
-                second_total_monomers[count] = each_module_substrate
-                
-                count += 1
-            count = 1
-    print second_total_monomers, "\n"
-    return second_total_monomers
-
 #Output: e.g.
 #Cluster number: 2
 #Product: nrps

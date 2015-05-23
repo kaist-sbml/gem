@@ -18,8 +18,8 @@ print "Generating NRP biosynthesis reactions.."
 # making template model in order to (V)
 #cobra_model = create_cobra_model_from_sbml_file('SCO_model_snu.xml', print_time=True)
 #inputfile = './NC_021055.1.cluster002.gbk' #NRPS
-#inputfile = './NC_013929.1.cluster031.gbk' #PKS
-inputfile = './NC_020990.1.cluster023.gbk' #Hybrid
+inputfile = './NC_013929.1.cluster031.gbk' #PKS
+#inputfile = './NC_020990.1.cluster023.gbk' #Hybrid
 
 mnxm_bigg_compound_dict = pickle.load(open('mnxm_bigg_compound_dict.p','rb'))
 
@@ -31,9 +31,6 @@ mnxm_bigg_compound_dict = pickle.load(open('mnxm_bigg_compound_dict.p','rb'))
 
 #TO CREATE A INPUT PICKLE FILE; NO NEED TO REPEAT EVERY TIME
 monomer_mnx_dict = get_defined_sec_metab_monomers('Input_monomers_nrps.txt')
-
-#MIGHT BE REMOVED
-#second_total_monomers = get_monomers_from_cluster_gbk(inputfile, "genbank", monomer_mnx_dict)
 
 #MIGHT BE UNNECESSARY
 product = get_product_from_cluster_gbk(inputfile, "genbank")
