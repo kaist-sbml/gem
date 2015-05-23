@@ -575,15 +575,10 @@ def get_total_currency_metab_coeff(module_currency_metab_dict):
 
 
 #Coeff data of major monomers are added in the same dict file used for currency metabolites
-#Output of dic_semiintegrated_metabolic_reaction: e.g.,
+#Output: e.g.,
 #{'coa': 13, 'mmalcoa': -4, 'h': -10, 'malcoa': -7,     'hco3': 13, 'nadph': -10, 'h2o': 5, 'nadp': 10}
-#Output of dismatched_substrate_list:
-#[['mmal', 'Ethyl_mal'], ['2metbut', '2metbut']]
-def get_all_metab_coeff(locustag_monomer_dict, metab_coeff_dict):
-    fp1 = open('Output_participated_substrates_from_uniformed_prediction.txt','w')
+def get_all_metab_coeff(locustag_monomer_dict, metab_coeff_dict, product):
     
-    dismatched_substrate_list = []
-
     for each_module in locustag_monomer_dict.keys():
         #locustag_monomer_dict[each_module] for nrps
         #Position [0]: NRPSPredictor2 SVM
@@ -594,39 +589,16 @@ def get_all_metab_coeff(locustag_monomer_dict, metab_coeff_dict):
 
             sptlist1 = locustag_monomer_dict[each_module][0].split(',')
             #print "CHECK", sptlist1, len(sptlist1)
-            temp_list = []
 
             #In case "consensus" is not reached:
             if locustag_monomer_dict[each_module][3] == 'nrp':
+                #From NRPSPredictor2 SVM 
+                aSid_met2 = locustag_monomer_dict[each_module][0]
+                biggid_met2 = get_biggid_from_aSid(aSid_met2)
+                print "aSid_met2", aSid_met2, biggid_met2
 
-                if len(sptlist1) >= 2:
-                    for each_substrate in sptlist1:
-                        #print "CHECK", each_substrate
-                        biggid_met1 = get_biggid_from_aSid(each_substrate)
-                        temp_list.append(biggid_met1)
-                elif locustag_monomer_dict[each_module][0] == 'hydrophobic-aliphatic' or locustag_monomer_dict[each_module][0] == 'hydrophilic':
-                    each_substrate = 'N/A'
-                    temp_list.append(each_substrate)
-                else:
-                    #From NRPSPredictor2 SVM 
-                    aSid_met2 = locustag_monomer_dict[each_module][0]
-                    biggid_met2 = get_biggid_from_aSid(aSid_met2)
-                    print "aSid_met2", aSid_met2, biggid_met2
-                    temp_list.append(biggid_met2)
-
-                #From Stachelhaus code
-                aSid_met3 = locustag_monomer_dict[each_module][1]
-                biggid_met3 = get_biggid_from_aSid(aSid_met3)
-                print "aSid_met3", aSid_met3, biggid_met3
-                temp_list.append(biggid_met3)
-
-                #From Minow
-                aSid_met4 = locustag_monomer_dict[each_module][2]
-                biggid_met4 = get_biggid_from_aSid(aSid_met4)
-                print "aSid_met4", aSid_met4, biggid_met4
-                temp_list.append(biggid_met4)
-
-                dismatched_substrate_list.append(temp_list)
+                #In case of non-consensus, NRPSPredictor2 SVM is considered 
+                metab_coeff_dict[biggid_met2] -= 1
 
             #In case "consensus" is reached:
             elif locustag_monomer_dict[each_module][3] != 'nrp':
@@ -646,21 +618,14 @@ def get_all_metab_coeff(locustag_monomer_dict, metab_coeff_dict):
 
             #In case "consensus" is not reached:
             if locustag_monomer_dict[each_module][2] == 'pk':
-                temp_list2 = []
 
                 #From PKS signature 
                 aSid_met6 = locustag_monomer_dict[each_module][0]
                 biggid_met6 = get_biggid_from_aSid(aSid_met6)
                 print "aSid_met6", aSid_met6, biggid_met6
-                temp_list2.append(biggid_met6)
 
-                #From Minowa
-                aSid_met7 = locustag_monomer_dict[each_module][1]
-                biggid_met7 = get_biggid_from_aSid(aSid_met7)
-                print "aSid_met7", aSid_met7, biggid_met7
-                temp_list2.append(biggid_met7)
-
-                dismatched_substrate_list.append(temp_list2)
+                #In case of non-consensus, PKS signature is considered
+                metab_coeff_dict[biggid_met6] -= 1
 
             #In case "consensus" is reached:
             elif locustag_monomer_dict[each_module][2] != 'pk':
@@ -669,234 +634,17 @@ def get_all_metab_coeff(locustag_monomer_dict, metab_coeff_dict):
                 print "aSid_met8", aSid_met8, biggid_met8
                 metab_coeff_dict[biggid_met8] -= 1
 
+    #Add secondary metabolite product to the reaction
+    metab_coeff_dict[product] = 1
+
+    fp1 = open('Output_monomers_secondary metabolite biosynthesizing reactions.txt','w')
     for each_metab in metab_coeff_dict.keys():
         print >>fp1, "All metabolites:\t%s\t%s" % (each_metab, metab_coeff_dict[each_metab])
-
-    print metab_coeff_dict
-    print dismatched_substrate_list
-
     fp1.close()
 
-    return metab_coeff_dict, dismatched_substrate_list
+    print metab_coeff_dict
+    return metab_coeff_dict
 
-
-# completing integrated metabolic reaction by adding product and dismatched substrate to the reaction.
-# list_of_reaction_set = [{'nadph': -10, 'nadp': 10, 'ahcys': 0, '2mbcoa': -1, 'nad': 0, 'h': -10, 'fadh2': 0, 'malcoa': -7, 'hco3': 13, 'amet': 0, 'coa': 13, 'h2o': 5, 'nadh': 0, '13dpg': 0, 'mmalcoa': -5, 'pi': 0, 'emalcoa': 0, 'fad': 0}, ...]
-def integrated_metabolic_reaction3(metab_coeff_dict, dismatched_substrate_list):
-
-    list_of_reaction_set = []
-
-    if dismatched_substrate_list == []:
-        list_of_reaction_set.append(metab_coeff_dict)
-
-    else:
-        list_of_reaction_set.append(metab_coeff_dict)
-        for each_pair_of_substrates in dismatched_substrate_list:
-            template_list = copy.deepcopy(list_of_reaction_set)
-            list_of_reaction_set = []
-
-            for dic_each_metabolic_reaction in template_list:
-                each_pair_of_substrates = set(each_pair_of_substrates)
-                each_pair_of_substrates = list(each_pair_of_substrates)
-                substrate_decision_number = distincting_each_substrate_in_list_component(each_pair_of_substrates)
-                temp_reaction_set = converting_nrps_substrates(each_pair_of_substrates, dic_each_metabolic_reaction, substrate_decision_number) 
-
-                for each_dic_reaction_set in temp_reaction_set:
-                    list_of_reaction_set.append(each_dic_reaction_set)
-
-    print list_of_reaction_set
-    return list_of_reaction_set
-
-
-def distincting_each_substrate_in_list_component(each_pair_of_substrates):
-
-    #This logic of code should be fixed
-    if len(each_pair_of_substrates) >= 2:
-        substrate_decision_number = 1
-
-    else:
-        substrate_decision_number = 0
- 
-    return substrate_decision_number
-
-
-def converting_nrps_substrates(each_pair_of_substrates, metab_coeff_dict, substrate_decision_number):
-    
-    temp_list_of_reaction_set = []
-    
-    for each_substrate in each_pair_of_substrates:
-        
-        temp_dic ={}
-        temp_dic = copy.deepcopy(metab_coeff_dict)
-        
-        if each_substrate not in temp_dic:
-            continue
-        
-        if each_substrate == 'ala_DASH_L':
-            temp_dic['ala_DASH_L'] -= 1
-        
-        elif each_substrate == 'arg_DASH_L':
-            temp_dic['arg_DASH_L'] -= 1 
-        
-        elif each_substrate == 'asn_DASH_L':
-            temp_dic['asn_DASH_L'] -= 1
-            
-        elif each_substrate == 'asp_DASH_L':
-            temp_dic['asp_DASH_L'] -= 1
-            
-        elif each_substrate == 'cys_DASH_L':
-            temp_dic['cys_DASH_L'] -= 1
-            
-        elif each_substrate == 'gln_DASH_L':
-            temp_dic['gln_DASH_L'] -= 1
-            
-        elif each_substrate == 'glu_DASH_L':
-            temp_dic['glu_DASH_L'] -= 1
-            
-        elif each_substrate == 'gly':
-            temp_dic['gly'] -= 1
-            
-        elif each_substrate == 'his_DASH_L':
-            temp_dic['his_DASH_L'] -= 1
-            
-        elif each_substrate == 'leu_DASH_L':
-            temp_dic['leu_DASH_L'] -= 1
-            
-        elif each_substrate == 'lys_DASH_L':
-            temp_dic['lys_DASH_L'] -= 1
-            
-        elif each_substrate == 'met_DASH_L':
-            temp_dic['met_DASH_L'] -= 1
-            
-        elif each_substrate == 'phe_DASH_L':
-            temp_dic['phe_DASH_L'] -= 1
-            
-        elif each_substrate == 'pro_DASH_L':
-            temp_dic['pro_DASH_L'] -= 1
-            
-        elif each_substrate == 'ser_DASH_L':
-            temp_dic['ser_DASH_L'] -= 1
-            
-        elif each_substrate == 'thr_DASH_L':
-            temp_dic['thr_DASH_L'] -= 1
-            
-        elif each_substrate == 'ile_DASH_L':
-            temp_dic['ile_DASH_L'] -= 1
-             
-        elif each_substrate == 'trp_DASH_L':
-            temp_dic['trp_DASH_L'] -= 1
-             
-        elif each_substrate == 'tyr_DASH_L':
-            temp_dic['tyr_DASH_L'] -= 1
-             
-        elif each_substrate == 'val_DASH_L':
-            temp_dic['val_DASH_L'] -= 1
-            
-        elif each_substrate == 'phg_DASH_L':
-            temp_dic['phg_DASH_L'] -= 1
-        
-        elif each_substrate == 'bht_DASH_L':
-            temp_dic['bht_DASH_L'] -= 1
-            
-        elif each_substrate == 'orn':
-            temp_dic['orn'] -= 1
-            
-        elif each_substrate == 'abu':
-            temp_dic['abu'] -= 1
-            
-        elif each_substrate == 'iva':
-            temp_dic['iva'] -= 1
-            
-        elif each_substrate == 'L2aadp':
-            temp_dic['L2aadp'] -= 1
-            
-        elif each_substrate == 'hpg':
-            temp_dic['hpg'] -= 1
-            
-        elif each_substrate == '23dhb':
-            temp_dic['23dhb'] -= 1
-            
-        elif each_substrate == 'dhpg':
-            temp_dic['dhpg'] -= 1
-            
-        elif each_substrate == 'hty':
-            temp_dic['hty'] -= 1
-            
-        elif each_substrate == 'citr_DASH_L':
-            temp_dic['citr_DASH_L'] -= 1
-            
-        elif each_substrate == 'Lpipecol':
-            met_name = 'Lpipecol'   
-            
-        elif each_substrate == 'ala_DASH_B':
-            met_name = 'ala_DASH_B'
-        
-        elif each_substrate == '24dab':
-            met_name = '24dab'                       
-         
-        elif each_substrate == 'pac':
-            met_name = 'pac'
-        
-        elif each_substrate == 'tcl':
-             met_name = 'tcl'
-        
-        elif each_substrate == 'qa':
-            met_name = 'qa'    
-
-        elif each_substrate == 'malcoa':
-            temp_dic['malcoa'] -= 1
-
-        elif each_substrate == 'mmcoa_DASH_S':
-            temp_dic['mmcoa_DASH_S'] -= 1
-
-        elif each_substrate == '2mbcoa':
-            temp_dic['2mbcoa'] -= 1
-
-        elif each_substrate == 'emcoa_DASH_S':
-            temp_dic['emcoa_DASH_S'] -= 1
-
-        elif each_substrate == 'ibcoa':
-            temp_dic['ibcoa'] -= 1
-
-        elif each_substrate == 'accoa':
-            temp_dic['accoa'] -= 1
-
-        elif each_substrate == 'ppcoa':
-            temp_dic['ppcoa'] -= 1
-
-        elif each_substrate == 'ivcoa':
-            temp_dic['ivcoa'] -= 1
-
-        elif each_substrate == 'mxmalacp':
-            temp_dic['mxmalacp'] -= 1
-
-        elif each_substrate == 'chccoa':
-            temp_dic['chccoa'] -= 1
-    
-        temp_list_of_reaction_set.append(temp_dic)
-                
-        if substrate_decision_number == 0:
-            break
-        
-    return temp_list_of_reaction_set
-
-def adding_product_to_the_reaction(product, list_of_reaction_set):
-    
-    product_count = 1
-    list_of_reaction_set_with_product = []
-    
-    print product, list_of_reaction_set
-    
-    for each_integrated_reaction in list_of_reaction_set:
-        
-        print each_integrated_reaction
-        
-        new_product_name = product + '_' +  str(product_count)
-        each_integrated_reaction[new_product_name] = 1
-        list_of_reaction_set_with_product.append(each_integrated_reaction)
-        product_count += 1
-    
-    return list_of_reaction_set_with_product
 
 def converting_MNXMID_to_biggid(MetID):
     converted_MNXMID = []
