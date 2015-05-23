@@ -29,9 +29,6 @@ mnxm_bigg_compound_dict = pickle.load(open('mnxm_bigg_compound_dict.p','rb'))
 #metab_MNXM_dic = COBRA_TemplateModel_checking_MNXref_metabolites(cobra_model, mnxm_bigg_compound_dict)
 #print metab_MNXM_dict
 
-#TO CREATE A INPUT PICKLE FILE; NO NEED TO REPEAT EVERY TIME
-monomer_mnx_dict = get_defined_sec_metab_monomers('Input_monomers_nrps.txt')
-
 #MIGHT BE UNNECESSARY
 product = get_product_from_cluster_gbk(inputfile, "genbank")
 

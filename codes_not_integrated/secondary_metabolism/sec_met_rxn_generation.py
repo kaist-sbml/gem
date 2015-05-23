@@ -14,26 +14,6 @@ from general_sec_met_info import determine_module, extract_substrate_information
 import pickle
 import copy
 
-def get_defined_sec_metab_monomers(inputFile):
-    fp1 = open(inputFile,"r")
-    monomer_mnx_dict = {}
-
-    monomer = fp1.readline()
-
-    while monomer:
-        print monomer
-        monomer = monomer.split("\t")
-        monomer[0] = monomer[0].strip()
-        monomer[1] = monomer[1].strip()
-        monomer[2] = monomer[2].strip()
-        monomer_mnx_dict[monomer[0]] = [monomer[1],monomer[2]]
-        monomer = fp1.readline()
-
-    print "\n", "List of secondary metabolic monomers:"
-    print monomer_mnx_dict
-    fp1.close()
-    return monomer_mnx_dict
-
 
 #Output: e.g.
 #Cluster number: 2
