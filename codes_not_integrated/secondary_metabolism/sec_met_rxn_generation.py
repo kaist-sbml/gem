@@ -692,23 +692,19 @@ def converting_MNXMID_to_biggid(MetID):
     return converted_MNXMID
 
 def add_sec_met_rxn(cobra_model, product, locustag_product_monomer_dict, metab_coeff_dict):
-    product_count = 1
     
     list_reaction_name_SM = []
     list_novel_secondary_metabolite_reactions = []
     
-    new_product_name = product + '_' +  str(product_count)
     list_reaction_name_SM.append(new_product_name)
     list_novel_secondary_metabolite_reactions.append(each_integrated_reaction)
 
-    product_count += 1
+    #ID
+    rxn = Reaction(product)
 
-#Creating reaction ID
-    reaction = Reaction(new_product_name)
-
-#Setting bounds
+    #Reversibility / Lower and upper bounds
     reaction.lower_bound = 0
-    reaction.upper_bound = 999999
+    reaction.upper_bound = 1000
 
 #Adding substrate metabolites
     for each_metabolite in each_integrated_reaction:
