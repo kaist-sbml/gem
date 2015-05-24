@@ -448,54 +448,6 @@ def determine_module(domain_comb):
     return discriminant
 
 
-def extract_substrate_information_nrps(each_sub_set, discriminator):
-    sptline2 = each_sub_set.split(';')
-    whole_substrate_info = sptline2[1]
-    print each_sub_set
-    print whole_substrate_info
-    list_participated_sustrate = []
-
-    participated_substrates = whole_substrate_info.split(':')
-    sptSubstrates = participated_substrates[1]
-    print sptSubstrates
-
-    if ', ' not in sptSubstrates:
-        print "insufficient substrate_info"
-        discriminator = "false"
-        return list_participated_sustrate
-
-    substrates = sptSubstrates.split(', ')
-    print substrates
-
-    for each_substrate in substrates:
-        sptSubstrate = each_substrate.split('(')
-        participated_substrate = sptSubstrate[0].strip()
-        print participated_substrate
-
-        list_participated_sustrate.append(participated_substrate)
-
-    return list_participated_sustrate, discriminator
-
-
-def extract_substrate_information_pks(each_sub_set):
-    sptline2 = each_sub_set.split(';')
-    whole_substrate_info = sptline2[1]
-
-    participated_substrates = whole_substrate_info.split(':')
-    sptSubstrates = participated_substrates[1]
-    substrates = sptSubstrates.split(', ')
-
-    list_participated_sustrate = []
-
-    for each_substrate in substrates:
-        sptSubstrate = each_substrate.split('(')
-        participated_substrate = sptSubstrate[0].strip()
-
-        list_participated_sustrate.append(participated_substrate)
-
-    return list_participated_sustrate
-
-
 def get_biggid_from_aSid(each_substrate):
 
     if each_substrate == 'ala':

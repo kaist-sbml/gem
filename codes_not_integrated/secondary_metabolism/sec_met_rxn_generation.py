@@ -10,54 +10,9 @@ from sets import Set
 from cobra import Model, Reaction, Metabolite
 from cobra.io.sbml import create_cobra_model_from_sbml_file,write_cobra_model_to_sbml_file
 from MNX_checker2 import COBRA_TemplateModel_checking_MNXref_metabolites, fix_legacy_id
-from general_sec_met_info import determine_module, extract_substrate_information_nrps, extract_substrate_information_pks, get_biggid_from_aSid, get_metab_coeff_dict
+from general_sec_met_info import determine_module, get_biggid_from_aSid, get_metab_coeff_dict
 import pickle
 import copy
-
-
-#Output: e.g.
-#Cluster number: 2
-#Product: nrps
-#NC021055_Cluster_02_nrps
-def get_product_from_cluster_gbk(gbkFile, FileType):
- 
-    #Reads GenBank file
-    record = SeqIO.read(gbkFile, FileType)
-    
-    for feature in record.features:
-
-        #Retrieving "Cluster number"
-        if feature.type == 'cluster':
-
-            qualifier_cluster = feature.qualifiers.get('note')
-            qualifier_cluster = qualifier_cluster[0].split(':')
-            clusterNo = qualifier_cluster[1].strip()
-            #print "\n", "Cluster number:", clusterNo
-
-            #Retrieving "product"
-            product = feature.qualifiers.get('product')
-            product = product[0]
-            
-            gene_strain = record.id
-            gene_strain = gene_strain.split('.')
-            gene_strain = gene_strain[0].strip()
-            gene_strain = gene_strain.replace('_','') 
-            #if gene_strain != None:
-                #gene_strain = gene_strain[0].split(':')
-                #gene_strain = gene_strain[1].split('.')
-                #gene_strain = gene_strain[0].strip()
-                #print "gene strain:", gene_strain
-             #else:
-                #gene_strain = 'unknown'
-                #print "gene strain:", gene_strain
-                  
-    if float(clusterNo) < 10:
-        product = gene_strain+"_"+"Cluster_0"+clusterNo+"_"+product
-    else:
-        product = gene_strain+"_"+"Cluster_"+clusterNo+"_"+product
-
-    print product, "\n"
-    return product
 
 
 #Exracts all the information associated wiht a particular locus_tag
@@ -93,22 +48,56 @@ def get_cluster_info_from_cluster_gbk(gbkFile, FileType):
     return cluster_info_dict
 
 
+#Output: e.g.
+#Cluster number: 2
+#Product: nrps
+#NC021055_Cluster_02_nrps
+def get_product_from_cluster_gbk(gbkFile, FileType):
+ 
+    #Reads GenBank file
+    record = SeqIO.read(gbkFile, FileType)
+    
+    for feature in record.features:
+
+        #Retrieving "Cluster number"
+        if feature.type == 'cluster':
+
+            qualifier_cluster = feature.qualifiers.get('note')
+            qualifier_cluster = qualifier_cluster[0].split(':')
+            clusterNo = qualifier_cluster[1].strip()
+
+            #Retrieving "product"
+            product = feature.qualifiers.get('product')
+            product = product[0]
+            
+            gene_strain = record.id
+            gene_strain = gene_strain.split('.')
+            gene_strain = gene_strain[0].strip()
+            gene_strain = gene_strain.replace('_','') 
+                  
+    if float(clusterNo) < 10:
+        product = gene_strain+"_"+"Cluster_0"+clusterNo+"_"+product
+    else:
+        product = gene_strain+"_"+"Cluster_"+clusterNo+"_"+product
+
+    print product, "\n"
+    return product
+
+
 #Output: e.g.,
 #['SAV_938'] = ['PKS_AT', 'ACP', 'PKS_KS', 'PKS_AT', 'PKS_KR', 'ACP', 'PKS_KS']
 def get_cluster_domain(cluster_info_dict):
-    fp1 = open('Output_locustag_domain_dict.txt','w')
-    #fp3 = open('Output_second_metab_gene_KR_activity.txt','w')
     
     locustag_domain_dict = {}
         
     for each_gene in cluster_info_dict.keys():
         
-        list_sec_met = cluster_info_dict[each_gene][0]
+        sec_met_info_list = cluster_info_dict[each_gene][0]
 
         domain_count = 0
         sec_met_domain_list = []
 
-        for each_sub_set in list_sec_met:
+        for each_sub_set in sec_met_info_list:
 
             if "NRPS/PKS Domain" in each_sub_set:
                 sptline1 = each_sub_set.split('. ')
@@ -131,71 +120,99 @@ def get_cluster_domain(cluster_info_dict):
                 domain_count = domain_count + 1
                             
         locustag_domain_dict[each_gene] = sec_met_domain_list
-        print >>fp1, "%s\t%s" % (each_gene, sec_met_domain_list)
-
-    fp1.close()
-    #fp3.close()
 
     print 'locustag_domain_dict'
     print locustag_domain_dict, '\n'
 
     return locustag_domain_dict
 
+
+#Two nested functions: extract_nrp_monomers, extract_pk_monomers
 #Output: e.g., {'SAV_943_M1':['mmal', 'Ethyl_mal', 'pk']}
 def get_cluster_monomers(cluster_info_dict):
-    fp1 = open('Output_locustag_module_monomer_dict.txt','w')
 
     locustag_monomer_dict = {}
     for each_gene in cluster_info_dict.keys():
         module_count = 0
-        list_sec_met =  cluster_info_dict[each_gene][0]
-        
-        for each_sub_set in list_sec_met:
+        sec_met_info_list =  cluster_info_dict[each_gene][0]
+
+        for each_sub_set in sec_met_info_list:
             discriminator = "true"
-            print each_sub_set
 
             if "Substrate specificity predictions" in each_sub_set and "AMP-binding" in each_sub_set:
-                list_participated_sustrate, discriminator = extract_substrate_information_nrps(each_sub_set, discriminator)
+                pred_monomer_list, discriminator = extract_nrp_monomers(each_sub_set, discriminator)
                 module_number = each_gene + '_M' + str(module_count)
-                locustag_monomer_dict[module_number] = list_participated_sustrate
-
-                print module_number, list_participated_sustrate
-                print >>fp1, "%s\t%s" % (module_number, list_participated_sustrate)
-
-                module_count = module_count + 1
+                locustag_monomer_dict[module_number] = pred_monomer_list
+                module_count += 1
+                #print "check", module_number, pred_monomer_list
 
             if "Substrate specificity predictions" in each_sub_set and "A-OX" in each_sub_set:
-                list_participated_sustrate, discriminator = extract_substrate_information_nrps(each_sub_set, discriminator)
+                pred_monomer_list, discriminator = extract_nrp_monomers(each_sub_set, discriminator)
                 module_number = each_gene + '_M' + str(module_count)
-                locustag_monomer_dict[module_number] = list_participated_sustrate
-
-                print module_number, list_participated_sustrate
-                print >>fp1, "%s\t%s" % (module_number, list_participated_sustrate)
-
-                module_count = module_count + 1
+                locustag_monomer_dict[module_number] = pred_monomer_list
+                module_count += 1
+                #print "check", module_number, pred_monomer_list
 
             if "Substrate specificity predictions" in each_sub_set and "PKS_AT" in each_sub_set:
-                list_participated_sustrate = extract_substrate_information_pks(each_sub_set)
+                pred_monomer_list = extract_pk_monomers(each_sub_set)
                 module_number = each_gene + '_M' + str(module_count)
-                locustag_monomer_dict[module_number] = list_participated_sustrate
-
-                print module_number, list_participated_sustrate
-                print >>fp1, "%s\t%s" % (module_number, list_participated_sustrate)
-
-                module_count = module_count + 1
+                locustag_monomer_dict[module_number] = pred_monomer_list
+                module_count += 1
+                print "check", module_number, pred_monomer_list
 
             if discriminator == "false":
                 continue
  
-    fp1.close()
     print 'locustag_monomer_dict'
-    print locustag_monomer_dict, '\n'
+    #print locustag_monomer_dict, '\n'
     return locustag_monomer_dict
+
+
+def extract_nrp_monomers(each_sub_set, discriminator):
+    sptline2 = each_sub_set.split(';')
+    whole_substrate_info = sptline2[1]
+    pred_monomer_list = []
+
+    predicted_monomers = whole_substrate_info.split(':')
+    sptSubstrates = predicted_monomers[1]
+
+    if ', ' not in sptSubstrates:
+        print "Insufficient substrate_info"
+        discriminator = "false"
+        return pred_monomer_list
+
+    substrates = sptSubstrates.split(', ')
+
+    for each_substrate in substrates:
+        sptSubstrate = each_substrate.split('(')
+        predicted_monomer = sptSubstrate[0].strip()
+
+        pred_monomer_list.append(predicted_monomer)
+
+    return pred_monomer_list, discriminator
+
+
+def extract_pk_monomers(each_sub_set):
+    sptline2 = each_sub_set.split(';')
+    whole_substrate_info = sptline2[1]
+
+    predicted_monomers = whole_substrate_info.split(':')
+    sptSubstrates = predicted_monomers[1]
+    substrates = sptSubstrates.split(', ')
+
+    pred_monomer_list = []
+
+    for each_substrate in substrates:
+        sptSubstrate = each_substrate.split('(')
+        predicted_monomer = sptSubstrate[0].strip()
+
+        pred_monomer_list.append(predicted_monomer)
+
+    return pred_monomer_list
 
 
 #Output: e.g., {'SAV_943_M1': ['PKS_KS', 'PKS_AT', 'ACP']}
 def get_cluster_module(locustag_domain_dict):
-    fp1 = open('Output_locustag_module_domain.txt','w')
     
     locustag_module_domain_dict = {}
 
@@ -212,7 +229,6 @@ def get_cluster_module(locustag_domain_dict):
             if each_domain == 'PCP' or each_domain == 'ACP':
                 module_number = locustag + '_M' + str(count)
                 locustag_module_domain_dict[module_number] = list_module_info
-                print >>fp1, "%s\t%s\t%s" %(locustag, module_number, list_module_info)
 
                 list_module_info = []
                 count += 1
@@ -223,7 +239,6 @@ def get_cluster_module(locustag_domain_dict):
                 list_module_info = locustag_module_domain_dict[module_number]
                 list_module_info.append('Epimerization')
                 locustag_module_domain_dict[module_number] = list_module_info
-                print >>fp1, "%s\t%s\t%s" %(locustag, module_number, list_module_info)
 
                 list_module_info = []
                 count += 1
@@ -236,7 +251,6 @@ def get_cluster_module(locustag_domain_dict):
                 list_module_info = locustag_module_domain_dict[module_number]
                 list_module_info.append('Thioesterase')
                 locustag_module_domain_dict[module_number] = list_module_info
-                print >>fp1, "%s\t%s\t%s" %(locustag, module_number, list_module_info)
 
             elif list_module_info.count('PKS_KS') == 2:
                 module_number = t1pks_gene + '_M' + str(count)
@@ -258,19 +272,17 @@ def get_cluster_module(locustag_domain_dict):
             elif float(number_of_list) == 0:
                 module_number = locustag + '_M' + str(count)
                 locustag_module_domain_dict[module_number] = list_module_info
-                print >>fp1, "%s\t%s\t%s" % (locustag, module_number, list_module_info)
 
                 list_module_info = []
                 count += 1
 
-    fp1.close()
     print 'locustag_module_domain_dict'
     print locustag_module_domain_dict, '\n'
     return locustag_module_domain_dict
 
+
 #Ouput: e.g., {'SAV_943_M0':{'coa': 1, 'nadph': -1, 'nadp': 1, 'hco3': 1, 'h': -1}
 def get_currency_metabolites(locustag_module_domain_dict):
-    fp1 = open('Output_currency_metabolites.txt','w')
 
     module_currency_metab_dict = {}
 
@@ -282,7 +294,6 @@ def get_currency_metabolites(locustag_module_domain_dict):
 
         if discriminant == 'None':
             #print "Discriminant not defined : %s" % (domain_comb)
-            print >>fp1, "module_type:\t%s\t%s\t%s" % (each_module, domain_comb, 'None')
             continue
 
         if discriminant == 'A' or discriminant == 'Aox':
@@ -292,7 +303,6 @@ def get_currency_metabolites(locustag_module_domain_dict):
             each_module_substrates['h2o'] = 1
             module_currency_metab_dict[each_module] = each_module_substrates 
             #print 'A or Aox:', each_module_substrates 
-            print >>fp1, "module_type:\t%s\t%s\t%s" % (each_module, domain_comb, each_module_substrates)
 
         elif discriminant == 'A_PCP' or discriminant == 'Cs_A_PCP' or discriminant == 'C_A_PCP' or discriminant == 'Cdcl_A_PCP' or discriminant == 'Clcl_A_PCP' or discriminant == 'Clcl_A_PCP' or discriminant == 'Cglyc_A_PCP' or discriminant == 'CXglyc_A_PCP':
             each_module_substrates['atp'] = -1
@@ -301,7 +311,6 @@ def get_currency_metabolites(locustag_module_domain_dict):
             each_module_substrates['h2o'] = 1
             module_currency_metab_dict[each_module] = each_module_substrates
             #print 'A_PCP or C_A_PCP:', each_module_substrates
-            print >>fp1, "module_type:\t%s\t%s\t%s" % (each_module, domain_comb, each_module_substrates)
 
         elif discriminant == 'MT_A_PCP' or discriminant == 'Cs_A_MT_PCP' or discriminant == 'C_A_MT_PCP' or discriminant == 'Cdcl_A_MT_PCP' or discriminant == 'Clcl_A_MT_PCP' or discriminant == 'Cglyc_A_MT_PCP' or discriminant == 'CXglyc_A_MT_PCP':
             each_module_substrates['atp'] = -1
@@ -312,7 +321,6 @@ def get_currency_metabolites(locustag_module_domain_dict):
             each_module_substrates['h2o'] = 1
             module_currency_metab_dict[each_module] = each_module_substrates
             #print 'MT-A-PCP or C-A-MT-PCP:', each_module_substrates
-            print >>fp1, "module_type:\t%s\t%s\t%s" % (each_module, domain_comb, each_module_substrates)
 
         elif discriminant == 'Cs_A_PCP_E' or discriminant == 'C_A_PCP_E' or discriminant == 'Cdcl_A_PCP_E' or discriminant == 'Clcl_A_PCP_E' or discriminant == 'Cd_A_PCP' or discriminant == 'Cglyc_A_PCP_E' or discriminant == 'CXglyc_A_PCP_E':
             each_module_substrates['atp'] = -1
@@ -321,7 +329,6 @@ def get_currency_metabolites(locustag_module_domain_dict):
             each_module_substrates['h2o'] = 1
             module_currency_metab_dict[each_module] = each_module_substrates
             #print 'C_A_PCP_E:', each_module_substrates
-            print >>fp1, "module_type:\t%s\t%s\t%s" % (each_module, domain_comb, each_module_substrates)
 
         elif discriminant == 'Cs_A_MT_E_PCP' or discriminant == 'C_A_MT_E_PCP' or discriminant == 'Cdcl_A_MT_E_PCP' or discriminant == 'Clcl_A_MT_E_PCP' or discriminant == 'Cglyc_A_MT_E_PCP' or discriminant == 'CXglyc_A_MT_E_PCP' or discriminant == 'Cd_A_MT_PCP':
             each_module_substrates['atp'] = -1
@@ -332,7 +339,6 @@ def get_currency_metabolites(locustag_module_domain_dict):
             each_module_substrates['h2o'] = 1
             module_currency_metab_dict[each_module] = each_module_substrates
             #print 'C_A_MT_E_PCP:', each_module_substrates
-            print >>fp1, "module_type:\t%s\t%s\t%s" % (each_module, domain_comb, each_module_substrates)
 
         elif discriminant == 'HC_A_PCP' :
             each_module_substrates['atp'] = -1
@@ -341,7 +347,6 @@ def get_currency_metabolites(locustag_module_domain_dict):
             each_module_substrates['h2o'] = 2
             module_currency_metab_dict[each_module] = each_module_substrates
             #print 'HC_A_PCP:', each_module_substrates
-            print >>fp1, "module_type:\t%s\t%s\t%s" % (each_module, domain_comb, each_module_substrates)
 
         elif discriminant == 'HC_Aox_PCP':
             each_module_substrates['atp'] = -1
@@ -354,7 +359,6 @@ def get_currency_metabolites(locustag_module_domain_dict):
             each_module_substrates['h2o'] = 2
             module_currency_metab_dict[each_module] = each_module_substrates
             #print 'HC_Aox_PCP:', each_module_substrates
-            print >>fp1, "module_type:\t%s\t%s\t%s" % (each_module, domain_comb, each_module_substrates)
 
         elif discriminant == 'HC_A_MT_PCP' or discriminant == 'HC_A_MT_E_PCP':
             each_module_substrates['atp'] = -1
@@ -365,7 +369,6 @@ def get_currency_metabolites(locustag_module_domain_dict):
             each_module_substrates['ahcys'] = 1
             module_currency_metab_dict[each_module] = each_module_substrates
             #print 'HC_A_MT_PCP:', each_module_substrates
-            print >>fp1, "module_type:\t%s\t%s\t%s" % (each_module, domain_comb, each_module_substrates)
 
         elif discriminant == 'HC_Aox_MT_PCP' or discriminant == 'HC_Aox_MT_E_PCP':
             each_module_substrates['atp'] = -1
@@ -379,21 +382,18 @@ def get_currency_metabolites(locustag_module_domain_dict):
             each_module_substrates['h2o'] = 2
             module_currency_metab_dict[each_module] = each_module_substrates
             #print 'HC_Aox_MT_PCP:', each_module_substrates
-            print >>fp1, "module_type:\t%s\t%s\t%s" % (each_module, domain_comb, each_module_substrates)
 
         elif discriminant == 'AT_ACP' or discriminant == 'AT_KR(inactive)_ACP' or discriminant == 'AT_DH_KR(inactive)_ACP' or discriminant == 'AT_DH_ER_KR(inactive)_ACP':
             each_module_substrates['coa'] = 1
             each_module_substrates['hco3'] = 1
             module_currency_metab_dict[each_module] = each_module_substrates
             #print 'AT-ACP:', each_module_substrates
-            print >>fp1, "module_type:\t%s\t%s\t%s" % (each_module, domain_comb, each_module_substrates)
 
         elif discriminant == 'AT_KS_ACP' or discriminant == 'AT_KS' or discriminant == 'AT_KS_KR(inactive)_ACP' or discriminant == 'AT_KS_KR(inactive)' or discriminant == 'AT_KS_DH_KR(inactive)_ACP' or discriminant == 'AT_KS_DH_KR(inactive)' or discriminant == 'AT_KS_DH_KR(inactive)_ACP' or discriminant == 'AT_KS_DH_ER_KR(inactive)':
             each_module_substrates['coa'] = 1
             each_module_substrates['hco3'] = 1
             module_currency_metab_dict[each_module] = each_module_substrates
             #print 'AT-KS-ACP:', each_module_substrates
-            print >>fp1, "module_type:\t%s\t%s\t%s" % (each_module, domain_comb, each_module_substrates)
 
         elif discriminant == 'AT_KS_KR_ACP' or discriminant == 'AT_KR_ACP' or discriminant == 'AT_KS_KR' or discriminant == 'AT_ER_KR_ACP' or discriminant == 'AT_KS_ER_KR' or discriminant == 'AT_KS_ER_KR_ACP':
             each_module_substrates['coa'] = 1
@@ -403,7 +403,6 @@ def get_currency_metabolites(locustag_module_domain_dict):
             each_module_substrates['h'] = -1
             module_currency_metab_dict[each_module] = each_module_substrates
             #print 'KS-AT-KR-ACP:', each_module_substrates
-            print >>fp1, "module_type:\t%s\t%s\t%s" % (each_module, domain_comb, each_module_substrates)
 
         elif discriminant == 'AT_KS_DH_KR_ACP' or discriminant == 'AT_DH_KR_ACP' or discriminant == 'AT_KS_DH_KR':
             each_module_substrates['coa'] = 1
@@ -414,7 +413,6 @@ def get_currency_metabolites(locustag_module_domain_dict):
             each_module_substrates['h'] = -1
             module_currency_metab_dict[each_module] = each_module_substrates
             #print 'KS-AT-DH-KR-ACP:', each_module_substrates
-            print >>fp1, "module_type:\t%s\t%s\t%s" % (each_module, domain_comb, each_module_substrates)
 
         elif discriminant == 'AT_KS_DH_ER_KR_ACP' or discriminant == 'AT_DH_ER_KR_ACP' or discriminant == 'AT_KS_DH_ER_KR':
             each_module_substrates['coa'] = 1
@@ -425,7 +423,6 @@ def get_currency_metabolites(locustag_module_domain_dict):
             each_module_substrates['h'] = -2
             module_currency_metab_dict[each_module] = each_module_substrates
             #print 'KS-AT-DH-ER-KR-ACP:', each_module_substrates
-            print >>fp1, "module_type:\t%s\t%s\t%s" % (each_module, domain_comb, each_module_substrates)
 
         elif discriminant == 'AT_KS_cMT_ACP' or discriminant == 'AT_KS_cMT':
             each_module_substrates['coa'] = 1
@@ -434,7 +431,6 @@ def get_currency_metabolites(locustag_module_domain_dict):
             each_module_substrates['ahcys'] = 1
             module_currency_metab_dict[each_module] = each_module_substrates
             #print 'AT_KS_cMT_ACP:', each_module_substrates
-            print >>fp1, "module_type:\t%s\t%s\t%s" % (each_module, domain_comb, each_module_substrates)
 
         elif discriminant == 'AT_KS_KR_cMT_ACP' or discriminant == 'AT_KS_KR_cMT':
             each_module_substrates['coa'] = 1
@@ -446,7 +442,6 @@ def get_currency_metabolites(locustag_module_domain_dict):
             each_module_substrates['ahcys'] = 1
             module_currency_metab_dict[each_module] = each_module_substrates
             #print 'AT_KS_KR_cMT_ACP:', each_module_substrates
-            print >>fp1, "module_type:\t%s\t%s\t%s" % (each_module, domain_comb, each_module_substrates)
 
         elif discriminant == 'AT_KS_DH_KR_cMT_ACP' or discriminant == 'AT_KS_DH_KR_cMT':
             each_module_substrates['coa'] = 1
@@ -459,7 +454,6 @@ def get_currency_metabolites(locustag_module_domain_dict):
             each_module_substrates['ahcys'] = 1
             module_currency_metab_dict[each_module] = each_module_substrates
             #print 'AT_KS_DH_KR_cMT_ACP:', each_module_substrates
-            print >>fp1, "module_type:\t%s\t%s\t%s" % (each_module, domain_comb, each_module_substrates)
 
         elif discriminant == 'AT_KS_DH_KR_cMT_ER_ACP' or discriminant == 'AT_KS_DH_KR_cMT_ER':
             each_module_substrates['coa'] = 1
@@ -472,7 +466,6 @@ def get_currency_metabolites(locustag_module_domain_dict):
             each_module_substrates['ahcys'] = 1
             module_currency_metab_dict[each_module] = each_module_substrates
             #print 'AT_KS_DH_KR_cMT_ER_ACP:', each_module_substrates
-            print >>fp1, "module_type:\t%s\t%s\t%s" % (each_module, domain_comb, each_module_substrates)
 
         elif discriminant == 'TD':
             each_module_substrates['nadp'] = 1
@@ -480,14 +473,12 @@ def get_currency_metabolites(locustag_module_domain_dict):
             each_module_substrates['h'] = -1
             module_currency_metab_dict[each_module] = each_module_substrates                
             #print 'reaction 8: HC_Aox_MT_PCP', each_module_substrates 
-            print >>fp1, "module_type:\t%s\t%s\t%s" % (each_module, domain_comb, each_module_substrates)
             
         elif discriminant == 'ACP':
             continue
         elif discriminant == 'PCP':
             continue
 
-    fp1.close()
     print "module_currency_metab_dict"
     print module_currency_metab_dict, '\n'
     return module_currency_metab_dict
@@ -495,7 +486,6 @@ def get_currency_metabolites(locustag_module_domain_dict):
 
 #Output: {'nadph': 0, 'fmnh2': 0, 'h': 0, 'ppi': 1, 'ahcys': 0}
 def get_total_currency_metab_coeff(module_currency_metab_dict):
-    fp1 = open('Output_total_currency_metabolites.txt','w')
 
     currency_metab_coeff_dict = get_metab_coeff_dict()
 
@@ -505,18 +495,12 @@ def get_total_currency_metab_coeff(module_currency_metab_dict):
 
             if module_currency_metab_dict[each_module][each_metabolite] > 0:
                 currency_metab_coeff_dict[each_metabolite] += metab_coeff
-                print >>fp1, "currency metabolites:\t%s\t%s\t%s" % (each_module, each_metabolite, metab_coeff)
 
             else:
                 currency_metab_coeff_dict[each_metabolite] += metab_coeff
-                print >>fp1, "currency metabolites:\t%s\t%s\t%s" % (each_module, each_metabolite, metab_coeff)
 
-    print >>fp1, "#####"
-    for each_metab in currency_metab_coeff_dict.keys():
-        print >>fp1, "SUM_currency metabolites::\t%s\t%s" %(each_metab, currency_metab_coeff_dict[each_metab])
-
-    fp1.close()
-    print '\n', currency_metab_coeff_dict
+    print 'currency_metab_coeff_dict' 
+    print currency_metab_coeff_dict, '\n'
     return currency_metab_coeff_dict
 
 
@@ -541,7 +525,7 @@ def get_all_metab_coeff(locustag_monomer_dict, metab_coeff_dict, product):
                 #From NRPSPredictor2 SVM 
                 aSid_met2 = locustag_monomer_dict[each_module][0]
                 biggid_met2 = get_biggid_from_aSid(aSid_met2)
-                print "aSid_met2", aSid_met2, biggid_met2
+                #print "aSid_met2", aSid_met2, biggid_met2
 
                 #In case of non-consensus, NRPSPredictor2 SVM is considered 
                 metab_coeff_dict[biggid_met2] -= 1
@@ -550,7 +534,7 @@ def get_all_metab_coeff(locustag_monomer_dict, metab_coeff_dict, product):
             elif locustag_monomer_dict[each_module][3] != 'nrp':
                 aSid_met5 = locustag_monomer_dict[each_module][3]
                 biggid_met5 = get_biggid_from_aSid(aSid_met5)
-                print "aSid_met5", aSid_met5, biggid_met5
+                #print "aSid_met5", aSid_met5, biggid_met5
                 metab_coeff_dict[biggid_met5] -= 1
 
         #locustag_monomer_dict[each_module] for pks
@@ -568,7 +552,7 @@ def get_all_metab_coeff(locustag_monomer_dict, metab_coeff_dict, product):
                 #From PKS signature 
                 aSid_met6 = locustag_monomer_dict[each_module][0]
                 biggid_met6 = get_biggid_from_aSid(aSid_met6)
-                print "aSid_met6", aSid_met6, biggid_met6
+                #print "aSid_met6", aSid_met6, biggid_met6
 
                 #In case of non-consensus, PKS signature is considered
                 metab_coeff_dict[biggid_met6] -= 1
@@ -577,18 +561,14 @@ def get_all_metab_coeff(locustag_monomer_dict, metab_coeff_dict, product):
             elif locustag_monomer_dict[each_module][2] != 'pk':
                 aSid_met8 = locustag_monomer_dict[each_module][2]
                 biggid_met8 = get_biggid_from_aSid(aSid_met8)
-                print "aSid_met8", aSid_met8, biggid_met8
+                #print "aSid_met8", aSid_met8, biggid_met8
                 metab_coeff_dict[biggid_met8] -= 1
 
     #Add secondary metabolite product to the reaction
     metab_coeff_dict[product] = 1
 
-    fp1 = open('Output_monomers_secondary metabolite biosynthesizing reactions.txt','w')
-    for each_metab in metab_coeff_dict.keys():
-        print >>fp1, "All metabolites:\t%s\t%s" % (each_metab, metab_coeff_dict[each_metab])
-    fp1.close()
-
-    print metab_coeff_dict
+    print 'metab_coeff_dict'
+    print metab_coeff_dict, '\n'
     return metab_coeff_dict
 
 
@@ -716,10 +696,7 @@ def converting_MNXMID_to_biggid(MetID):
      
     return converted_MNXMID
 
-def second_metab_reactions_addition(cobra_model, product, locustag_product_monomer_dict, list_of_reaction_set_with_product, metab_MNXM_dict):
-#     fp1 = open('output_set_of_integrated_metabolic_reaction.txt','w')
-    fp2 = open('output_participated_gene_list_of_backbone_biosynthesis.txt','w')
-    fp3 = open("output_database_format_file.txt", 'w')
+def add_sec_met_rxn(cobra_model, product, locustag_product_monomer_dict, list_of_reaction_set_with_product, metab_MNXM_dict):
     product_count = 1
     
     list_reaction_name_SM = []
@@ -769,7 +746,6 @@ def second_metab_reactions_addition(cobra_model, product, locustag_product_monom
                 gpr_list = gpr_list + ' AND ' + each_gene
         
         print gpr_list
-        print >>fp2, gpr_list 
         reaction.add_gene_reaction_rule(gpr_list)
 
 #Adding the new reaction to the model
@@ -782,8 +758,6 @@ def second_metab_reactions_addition(cobra_model, product, locustag_product_monom
         print "\n", "Cluster reaction:", reaction
         print "Cluster genes:", reaction.gene_reaction_rule
         print reaction.reaction
-#         print >>fp1, reaction.reaction
-        print >>fp3, "%s\t%s\t%s\t%s" % (strain_name, reaction, reaction.gene_reaction_rule, reaction.reaction)
 
 #Creating a transport reaction
 #Creating reaction ID
@@ -827,8 +801,3 @@ def second_metab_reactions_addition(cobra_model, product, locustag_product_monom
 
         print "\n", "Exchange reaction:", reaction
         print reaction.reaction
-        
-#     fp1.close()
-    fp2.close()
-    fp3.close()
-    return cobra_model, list_reaction_name_SM, list_novel_secondary_metabolite_reactions
