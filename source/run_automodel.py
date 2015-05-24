@@ -4,8 +4,29 @@ Hyun Uk Kim, Tilmann Weber, Kyu-Sang Hwang and Jae Yong Ryu
 '''
 
 #Wildcard imports should never be used in production code.
-from prunPhase import *
-from augPhase import *
+from prunPhase import (
+    get_temp_fasta,
+    get_target_gbk,
+    get_targetGenomeInfo,
+    get_target_fasta,
+    make_blastDB,
+    run_blastp,
+    parseBlaspResults,
+    makeBestHits_dict,
+    getBBH,
+    get_nonBBH,
+    labelRxnToRemove,
+    pruneModel,
+    swap_locusTag_tempModel
+)
+from augPhase import (
+    get_targetGenome_locusTag_ec_nonBBH_dict,
+    make_all_rxnInfo_fromRefSeq,
+    check_existing_rxns,
+    get_mnxr_using_kegg,
+    extract_rxn_mnxm_coeff,
+    add_nonBBH_rxn
+)
 from cobra.io.sbml import write_cobra_model_to_sbml_file, create_cobra_model_from_sbml_file
 import pickle
 import time
