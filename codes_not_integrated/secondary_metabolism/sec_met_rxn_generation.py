@@ -70,15 +70,10 @@ def get_product_from_cluster_gbk(gbkFile, FileType):
             product = feature.qualifiers.get('product')
             product = product[0]
             
-            gene_strain = record.id
-            gene_strain = gene_strain.split('.')
-            gene_strain = gene_strain[0].strip()
-            gene_strain = gene_strain.replace('_','') 
-                  
     if float(clusterNo) < 10:
-        product = gene_strain+"_"+"Cluster_0"+clusterNo+"_"+product
+        product = "Cluster_0"+clusterNo+"_"+product
     else:
-        product = gene_strain+"_"+"Cluster_"+clusterNo+"_"+product
+        product = "Cluster_"+clusterNo+"_"+product
 
     print product, "\n"
     return product
@@ -696,108 +691,106 @@ def converting_MNXMID_to_biggid(MetID):
      
     return converted_MNXMID
 
-def add_sec_met_rxn(cobra_model, product, locustag_product_monomer_dict, list_of_reaction_set_with_product, metab_MNXM_dict):
+def add_sec_met_rxn(cobra_model, product, locustag_product_monomer_dict, metab_coeff_dict):
     product_count = 1
     
     list_reaction_name_SM = []
     list_novel_secondary_metabolite_reactions = []
     
-#Extracting each reaction dictionary
-    for each_integrated_reaction in list_of_reaction_set_with_product:
-        
-        new_product_name = product + '_' +  str(product_count)
-        list_reaction_name_SM.append(new_product_name)
-        list_novel_secondary_metabolite_reactions.append(each_integrated_reaction)
-        
-        product_count += 1
+    new_product_name = product + '_' +  str(product_count)
+    list_reaction_name_SM.append(new_product_name)
+    list_novel_secondary_metabolite_reactions.append(each_integrated_reaction)
+
+    product_count += 1
 
 #Creating reaction ID
-        reaction = Reaction(new_product_name)
+    reaction = Reaction(new_product_name)
 
 #Setting bounds
-        reaction.lower_bound = 0
-        reaction.upper_bound = 999999
+    reaction.lower_bound = 0
+    reaction.upper_bound = 999999
 
 #Adding substrate metabolites
-        for each_metabolite in each_integrated_reaction:
-            
-            converted_MNXMID = converting_MNXMID_to_biggid(each_metabolite)
-    
-            Met_MNXMID = converted_MNXMID[0]
-            abbr_MetID = converted_MNXMID[1]
-            Met_Name = converted_MNXMID[2]
-            Met_KEGG_ID = converted_MNXMID[3]
-            
-            if Met_MNXMID in metab_MNXM_dict and metab_MNXM_dict[Met_MNXMID][-1:] == 'c':
-                reaction.add_metabolites({cobra_model.metabolites.get_by_id(metab_MNXM_dict[Met_MNXMID]):each_integrated_reaction[abbr_MetID]})
-            elif each_integrated_reaction[abbr_MetID] == 0:
-                continue
-            else:
-                obj_each_metabolite = Metabolite(abbr_MetID+'_c', name=Met_Name, compartment='c')
-                reaction.add_metabolites({obj_each_metabolite:each_integrated_reaction[abbr_MetID]})
+    for each_metabolite in each_integrated_reaction:
+
+        converted_MNXMID = converting_MNXMID_to_biggid(each_metabolite)
+
+        Met_MNXMID = converted_MNXMID[0]
+        abbr_MetID = converted_MNXMID[1]
+        Met_Name = converted_MNXMID[2]
+        Met_KEGG_ID = converted_MNXMID[3]
+
+        if Met_MNXMID in metab_MNXM_dict and metab_MNXM_dict[Met_MNXMID][-1:] == 'c':
+            reaction.add_metabolites({cobra_model.metabolites.get_by_id(metab_MNXM_dict[Met_MNXMID]):each_integrated_reaction[abbr_MetID]})
+        elif each_integrated_reaction[abbr_MetID] == 0:
+            continue
+        else:
+            obj_each_metabolite = Metabolite(abbr_MetID+'_c', name=Met_Name, compartment='c')
+            reaction.add_metabolites({obj_each_metabolite:each_integrated_reaction[abbr_MetID]})
 
 #Setting GPR association
-        gpr_count = 0
-        for each_gene in locustag_product_monomer_dict:
-            if gpr_count == 0:
-                gpr_list = each_gene 
-                gpr_count += 1
-            else:
-                gpr_list = gpr_list + ' AND ' + each_gene
-        
-        print gpr_list
-        reaction.add_gene_reaction_rule(gpr_list)
+    gpr_count = 0
+    for each_gene in locustag_product_monomer_dict:
+        if gpr_count == 0:
+            gpr_list = each_gene 
+            gpr_count += 1
+        else:
+            gpr_list = gpr_list + ' AND ' + each_gene
+     
+    print gpr_list
+    reaction.add_gene_reaction_rule(gpr_list)
 
 #Adding the new reaction to the model
-        cobra_model.add_reaction(reaction)
-        
-        reaction_name = reaction.id
-        strain_name = reaction_name.split("_")
-        strain_name = strain_name[0].strip()
+    cobra_model.add_reaction(reaction)
 
-        print "\n", "Cluster reaction:", reaction
-        print "Cluster genes:", reaction.gene_reaction_rule
-        print reaction.reaction
+    reaction_name = reaction.id
+    strain_name = reaction_name.split("_")
+    strain_name = strain_name[0].strip()
+
+    print "\n", "Cluster reaction:", reaction
+    print "Cluster genes:", reaction.gene_reaction_rule
+    print reaction.reaction
 
 #Creating a transport reaction
 #Creating reaction ID
-        reaction = Reaction("Transport_" + new_product_name )
+    reaction = Reaction("Transport_" + new_product_name )
 
 #Setting bounds
-        reaction.reversibility = 0 # 1: reversible
-        reaction.lower_bound = 0
-        reaction.upper_bound = 999999
+    reaction.reversibility = 0 # 1: reversible
+    reaction.lower_bound = 0
+    reaction.upper_bound = 999999
 
 #Adding a substrate metabolite
 #    print cobra_model.metabolites.get_by_id(str(product_c))
-        reaction.add_metabolites({cobra_model.metabolites.get_by_id(str(new_product_name+'_c')):-1})
+    reaction.add_metabolites({cobra_model.metabolites.get_by_id(str(new_product_name+'_c')):-1})
 
 #Adding product metabolite(s)
-        new_product_name_e = Metabolite(new_product_name+"_e", name='', compartment='e')
-        reaction.add_metabolites({new_product_name_e:1})
+    new_product_name_e = Metabolite(new_product_name+"_e", name='', compartment='e')
+    reaction.add_metabolites({new_product_name_e:1})
 
 #Adding the new reaction to the model
-        cobra_model.add_reaction(reaction)
+    cobra_model.add_reaction(reaction)
 
-        print "\n", "Transport reaction:", reaction
-        print reaction.reaction
+    print "\n", "Transport reaction:", reaction
+    print reaction.reaction
 
 #Creating an exchange reaction
 #Creating reaction ID
-        reaction = Reaction("Ex_"+new_product_name)
+    reaction = Reaction("Ex_"+new_product_name)
 
 #Setting bounds
-        reaction.reversibility = 0 # 1: reversible 0: irreversible
-        reaction.lower_bound = 0
-        reaction.upper_bound = 999999
+    reaction.reversibility = 0 # 1: reversible 0: irreversible
+    reaction.lower_bound = 0
+    reaction.upper_bound = 999999
 
 #Adding a substrate metabolite
 #    print cobra_model.metabolites.get_by_id(str(product_c))
-        reaction.add_metabolites({cobra_model.metabolites.get_by_id(str(new_product_name_e)):-1})
+    reaction.add_metabolites({cobra_model.metabolites.get_by_id(str(new_product_name_e)):-1})
 
 
 #Adding the new reaction to the model
-        cobra_model.add_reaction(reaction)
+    cobra_model.add_reaction(reaction)
 
-        print "\n", "Exchange reaction:", reaction
-        print reaction.reaction
+    print "\n", "Exchange reaction:", reaction
+    print reaction.reaction
+
