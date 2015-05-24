@@ -44,7 +44,7 @@ def get_cluster_info_from_cluster_gbk(gbkFile, FileType):
     #print cluster_info_dict, '\n'
     for i in cluster_info_dict.keys():
         print i
-        print cluster_info_dict[i], '\n'
+        #print cluster_info_dict[i], '\n'
     return cluster_info_dict
 
 
@@ -71,9 +71,9 @@ def get_product_from_cluster_gbk(gbkFile, FileType):
             product = product[0]
             
     if float(clusterNo) < 10:
-        product = "Cluster_0"+clusterNo+"_"+product
+        product = "Cluster0"+clusterNo+"_"+product
     else:
-        product = "Cluster_"+clusterNo+"_"+product
+        product = "Cluster"+clusterNo+"_"+product
 
     print product, "\n"
     return product
@@ -567,7 +567,7 @@ def get_all_metab_coeff(locustag_monomer_dict, metab_coeff_dict, product):
     return metab_coeff_dict
 
 
-def add_sec_met_rxn(modelPrunedGPR, product, locustag_product_monomer_dict, metab_coeff_dict):
+def add_sec_met_rxn(modelPrunedGPR, metab_coeff_dict, product, bigg_mnxm_compound_dict, mnxm_compoundInfo_dict, cluster_info_dict):
     
     list_reaction_name_SM = []
     list_novel_secondary_metabolite_reactions = []
@@ -597,72 +597,68 @@ def add_sec_met_rxn(modelPrunedGPR, product, locustag_product_monomer_dict, meta
             rxn.add_metabolites({metab_compt:rxnid_mnxm_coeff_dict[rxnid][metab]})
 
         #Adding metabolites with KEGG compoundID and not in the model
-        else:
-            keggID = get_compoundInfo(metab)
-            metab_compt = Metabolite(metab, formula = keggID['FORMULA'], name = keggID['NAME'], compartment='c')
-            rxn.add_metabolites({metab_compt:rxnid_mnxm_coeff_dict[rxnid][metab]})
+        #else:
+        #    keggID = get_compoundInfo(metab)
+        #    metab_compt = Metabolite(metab, formula = keggID['FORMULA'], name = keggID['NAME'], compartment='c')
+        #    rxn.add_metabolites({metab_compt:rxnid_mnxm_coeff_dict[rxnid][metab]})
 
-#Setting GPR association
+    #GPR association
     gpr_count = 0
-    for each_gene in locustag_product_monomer_dict:
+    for each_gene in cluster_info_dict.keys():
         if gpr_count == 0:
             gpr_list = each_gene 
             gpr_count += 1
         else:
             gpr_list = gpr_list + ' AND ' + each_gene
      
-    print gpr_list
     reaction.add_gene_reaction_rule(gpr_list)
 
-#Adding the new reaction to the model
+    #Adding the new reaction to the model
     cobra_model.add_reaction(reaction)
 
     reaction_name = reaction.id
     strain_name = reaction_name.split("_")
     strain_name = strain_name[0].strip()
 
-    print "\n", "Cluster reaction:", reaction
-    print "Cluster genes:", reaction.gene_reaction_rule
-    print reaction.reaction
-
-#Creating a transport reaction
-#Creating reaction ID
+    ##############################
+    #Creating a transport reaction
+    #Creating reaction ID
     reaction = Reaction("Transport_" + new_product_name )
 
-#Setting bounds
+    #Reversibility / Lower and upper bounds
     reaction.reversibility = 0 # 1: reversible
     reaction.lower_bound = 0
-    reaction.upper_bound = 999999
+    reaction.upper_bound = 1000
 
-#Adding a substrate metabolite
-#    print cobra_model.metabolites.get_by_id(str(product_c))
+    #Adding a substrate metabolite
+    #print cobra_model.metabolites.get_by_id(str(product_c))
     reaction.add_metabolites({cobra_model.metabolites.get_by_id(str(new_product_name+'_c')):-1})
 
-#Adding product metabolite(s)
+    #Adding product metabolite(s)
     new_product_name_e = Metabolite(new_product_name+"_e", name='', compartment='e')
     reaction.add_metabolites({new_product_name_e:1})
 
-#Adding the new reaction to the model
+    #Adding the new reaction to the model
     cobra_model.add_reaction(reaction)
 
     print "\n", "Transport reaction:", reaction
     print reaction.reaction
 
-#Creating an exchange reaction
-#Creating reaction ID
+    ##############################
+    #Creating an exchange reaction
+    #Creating reaction ID
     reaction = Reaction("Ex_"+new_product_name)
 
-#Setting bounds
+    #Reversibility / Lower and upper bounds
     reaction.reversibility = 0 # 1: reversible 0: irreversible
     reaction.lower_bound = 0
-    reaction.upper_bound = 999999
+    reaction.upper_bound = 1000
 
-#Adding a substrate metabolite
-#    print cobra_model.metabolites.get_by_id(str(product_c))
+    #Adding a substrate metabolite
+    #print cobra_model.metabolites.get_by_id(str(product_c))
     reaction.add_metabolites({cobra_model.metabolites.get_by_id(str(new_product_name_e)):-1})
 
-
-#Adding the new reaction to the model
+    #Adding the new reaction to the model
     cobra_model.add_reaction(reaction)
 
     print "\n", "Exchange reaction:", reaction
