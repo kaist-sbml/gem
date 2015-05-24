@@ -6,8 +6,7 @@ Hyun Uk Kim, Tilmann Weber, Jae Yong Ryu and Kyu-Sang Hwang
 # import Model, Reaction, Metabolite classes in COBRA tool 
 from cobra import Model, Reaction, Metabolite
 from Bio import SeqIO
-from cobra.io.sbml import create_cobra_model_from_sbml_file
-from cobra.io.sbml import write_cobra_model_to_sbml_file
+from cobra.io.sbml import create_cobra_model_from_sbml_file, write_cobra_model_to_sbml_file, fix_legacy_id
 
 import copy
 import os
