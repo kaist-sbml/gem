@@ -19,7 +19,6 @@ import urllib2
 #make_locusTag_geneID_nonBBH
 #get_species_locusTag
 #get_ECNumberList_from_locusTag
-#make_all_rxnInfo_fromKEGG
 def make_locusTag_geneID_nonBBH(gbkFile, fileType, nonBBH_list):
     locusTag_geneID_dict = {}
     geneID_locusTag_dict = {}
@@ -78,38 +77,6 @@ def get_ECNumberList_from_locusTag(species_locusTag):
             ECNumbers = re.findall(r'[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+[\s\]]', line)
             return ECNumbers
     return []
-
-
-#Four nested function calling four functions above
-def make_all_rxnInfo_fromKEGG(locusTag_geneID_dict, targetGenome_locusTag_ec_dict):
-    rxnid_info_dict = {}
-    rxnid_locusTag_dict = {}
- 
-    for locusTag in locusTag_geneID_dict.keys():
-        ncbi_geneid = locusTag_geneID_dict[locusTag]
-	species_locusTag = get_species_locusTag(ncbi_geneid) 
-        ECnumbers = get_ECNumberList_from_locusTag(species_locusTag)
-	
-	if ECnumbers:
-            for enzymeEC in ECnumbers:
-                enzymeEC = enzymeEC.replace(']','')
-                enzymeEC = enzymeEC.replace(' ','')
-                rxnid_list = get_rxnid_from_ECNumber(enzymeEC)
-                for rxnid in rxnid_list:
-                    rxnid_info_dict[rxnid] = get_rxnInfo_from_rxnid(rxnid)
-
-		    if rxnid not in rxnid_locusTag_dict.keys():
-		        rxnid_locusTag_dict[rxnid] = [(locusTag)]
-
-                    #Appends additional different genes to the same reaction ID
-		    elif rxnid in rxnid_locusTag_dict.keys():
-			rxnid_locusTag_dict[rxnid].append((locusTag))
-	
-                    #print locusTag, rxnid, rxnid_info_dict[rxnid], "\n"
-	#else:
-	    #print locusTag, ": KEGG info NOT available", "\n"
-
-    return rxnid_info_dict, rxnid_locusTag_dict
 
 
 #Retrieves a list of reaction IDs using their EC numbers from KEGG
