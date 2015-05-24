@@ -567,7 +567,7 @@ def get_all_metab_coeff(locustag_monomer_dict, metab_coeff_dict, product):
     return metab_coeff_dict
 
 
-def add_sec_met_rxn(cobra_model, product, locustag_product_monomer_dict, metab_coeff_dict):
+def add_sec_met_rxn(modelPrunedGPR, product, locustag_product_monomer_dict, metab_coeff_dict):
     
     list_reaction_name_SM = []
     list_novel_secondary_metabolite_reactions = []
@@ -582,23 +582,25 @@ def add_sec_met_rxn(cobra_model, product, locustag_product_monomer_dict, metab_c
     reaction.lower_bound = 0
     reaction.upper_bound = 1000
 
-#Adding substrate metabolites
-    for each_metabolite in each_integrated_reaction:
+    #Metabolites and their stoichiometric coeff's
+    for metab in metab_coeff_dict:
+        metab_compt = '_'.join([metab,'c'])
 
-        converted_MNXMID = converting_MNXMID_to_biggid(each_metabolite)
+        #Adding metabolites already in the model
+        if metab_compt in modelPrunedGPR.metabolites:
+            rxn.add_metabolites({modelPrunedGPR.metabolites.get_by_id(metab_compt):metab_coeff_dict[metab]})
 
-        Met_MNXMID = converted_MNXMID[0]
-        abbr_MetID = converted_MNXMID[1]
-        Met_Name = converted_MNXMID[2]
-        Met_KEGG_ID = converted_MNXMID[3]
+        #Adding metabolites with bigg compoundID, but not in the model
+        elif metab in bigg_mnxm_compound_dict.keys():
+            mnxm = bigg_mnxm_compound_dict[metab]
+            metab_compt = Metabolite(metab, formula = mnxm_compoundInfo_dict[mnxm][1], name = mnxm_compoundInfo_dict[mnxm][0], compartment='c')
+            rxn.add_metabolites({metab_compt:rxnid_mnxm_coeff_dict[rxnid][metab]})
 
-        if Met_MNXMID in metab_MNXM_dict and metab_MNXM_dict[Met_MNXMID][-1:] == 'c':
-            reaction.add_metabolites({cobra_model.metabolites.get_by_id(metab_MNXM_dict[Met_MNXMID]):each_integrated_reaction[abbr_MetID]})
-        elif each_integrated_reaction[abbr_MetID] == 0:
-            continue
+        #Adding metabolites with KEGG compoundID and not in the model
         else:
-            obj_each_metabolite = Metabolite(abbr_MetID+'_c', name=Met_Name, compartment='c')
-            reaction.add_metabolites({obj_each_metabolite:each_integrated_reaction[abbr_MetID]})
+            keggID = get_compoundInfo(metab)
+            metab_compt = Metabolite(metab, formula = keggID['FORMULA'], name = keggID['NAME'], compartment='c')
+            rxn.add_metabolites({metab_compt:rxnid_mnxm_coeff_dict[rxnid][metab]})
 
 #Setting GPR association
     gpr_count = 0

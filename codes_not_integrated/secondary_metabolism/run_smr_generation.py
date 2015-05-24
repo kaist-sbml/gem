@@ -47,5 +47,6 @@ currency_metab_coeff_dict = get_total_currency_metab_coeff(module_currency_metab
 
 metab_coeff_dict = get_all_metab_coeff(locustag_monomer_dict, currency_metab_coeff_dict, product)
 
-add_sec_met_rxn(cobra_model, product, locustag_product_monomer_dict, list_of_reaction_set_with_product, metab_MNXM_dict)
-
+#IN PROGRESS
+#Metabolit parts to check
+add_sec_met_rxn(cobra_model, product, locustag_product_monomer_dict, metab_coeff_dict)
