@@ -205,7 +205,7 @@ S'murein5p4p'
 p102
 sS'MNXM2063'
 p103
-S'mi4p-D'
+S'mi4p_DASH_D'
 p104
 sS'MNXM88346'
 p105
@@ -233,7 +233,7 @@ S'murein3p3p'
 p116
 sS'MNXM114252'
 p117
-S'metsox-R-L'
+S'metsox_DASH_R_DASH_L'
 p118
 sS'MNXM11982'
 p119
@@ -285,7 +285,7 @@ S'u2hga_HP'
 p142
 sS'MNXM9055'
 p143
-S'Ser/Thr'
+S'Ser_FSLASH_Thr'
 p144
 sS'MNXM6961'
 p145
@@ -421,7 +421,7 @@ S'mphen'
 p210
 sS'MNXM59594'
 p211
-S'xu1p-D'
+S'xu1p_DASH_D'
 p212
 sS'MNXM1399'
 p213
@@ -433,7 +433,7 @@ S'aldstrn'
 p216
 sS'MNXM1464'
 p217
-S'arbtn-fe3'
+S'arbtn_DASH_fe3'
 p218
 sS'MNXM1462'
 p219
@@ -445,7 +445,7 @@ S'ddcaACP'
 p222
 sS'MNXM4638'
 p223
-S'sbt-L'
+S'sbt_DASH_L'
 p224
 sS'MNXM1469'
 p225
@@ -569,7 +569,7 @@ S'dgal6p'
 p284
 sS'MNXM1734'
 p285
-S'galctn-D'
+S'galctn_DASH_D'
 p286
 sS'MNXM114363'
 p287
@@ -649,7 +649,7 @@ S'2mb2coa'
 p324
 sS'MNXM608'
 p325
-S'mmcoa-R'
+S'mmcoa_DASH_R'
 p326
 sS'MNXM359'
 p327
@@ -677,7 +677,7 @@ S'h2mb4p'
 p338
 sS'MNXM353'
 p339
-S'hom-L'
+S'hom_DASH_L'
 p340
 sS'MNXM600'
 p341
@@ -701,7 +701,7 @@ S'tststerones'
 p350
 sS'MNXM93259'
 p351
-S'Cit-Mg'
+S'Cit_DASH_Mg'
 p352
 sS'MNXM4851'
 p353
@@ -781,7 +781,7 @@ S'3oodcoa'
 p390
 sS'MNXM512'
 p391
-S'lald-L'
+S'lald_DASH_L'
 p392
 sS'MNXM516'
 p393
@@ -809,7 +809,7 @@ S'quln'
 p404
 sS'MNXM199'
 p405
-S'val-L'
+S'val_DASH_L'
 p406
 sS'MNXM198'
 p407
@@ -841,7 +841,7 @@ S'q8h2'
 p420
 sS'MNXM190'
 p421
-S'mmcoa-S'
+S'mmcoa_DASH_S'
 p422
 sS'MNXM192'
 p423
@@ -905,7 +905,7 @@ S'dhna'
 p452
 sS'MNXM179'
 p453
-S'lac-L'
+S'lac_DASH_L'
 p454
 sS'MNXM29'
 p455
@@ -937,7 +937,7 @@ S'cspg_d'
 p468
 sS'MNXM7171'
 p469
-S'cs_c,d,e_pre1'
+S'cs_c_COMMA_d_COMMA_e_pre1'
 p470
 sS'MNXM26'
 p471
@@ -1029,7 +1029,7 @@ S'crncoa'
 p514
 sS'MNXM2110'
 p515
-S'f420-1'
+S'f420_DASH_1'
 p516
 sS'MNXM2111'
 p517
@@ -1045,7 +1045,7 @@ S'gdp'
 p522
 sS'MNXM37'
 p523
-S'gln-L'
+S'gln_DASH_L'
 p524
 sS'MNXM35'
 p525
@@ -1145,7 +1145,7 @@ S'glutrna'
 p572
 sS'MNXM646'
 p573
-S'mi1p-D'
+S'mi1p_DASH_D'
 p574
 sS'MNXM3898'
 p575
@@ -1293,7 +1293,7 @@ S'kdo2lipid4p'
 p646
 sS'MNXM1255'
 p647
-S'12ppd-S'
+S'12ppd_DASH_S'
 p648
 sS'MNXM58984'
 p649
@@ -1301,7 +1301,7 @@ S'kphphhlipa'
 p650
 sS'MNXM1251'
 p651
-S'citmcoa-L'
+S'citmcoa_DASH_L'
 p652
 sS'MNXM9212'
 p653
@@ -1373,7 +1373,7 @@ S'44mctr'
 p686
 sS'MNXM1037'
 p687
-S'oxoarg-L'
+S'oxoarg_DASH_L'
 p688
 sS'MNXM28933'
 p689
@@ -1417,7 +1417,7 @@ S'cpgn'
 p708
 sS'MNXM1748'
 p709
-S'fcl-L'
+S'fcl_DASH_L'
 p710
 sS'MNXM1749'
 p711
@@ -1445,11 +1445,11 @@ S'hpmdtria'
 p722
 sS'MNXM19199'
 p723
-S'm(em)3gacpail_prot_hs'
+S'm_LPAREN_em_RPAREN_3gacpail_prot_hs'
 p724
 sS'MNXM7419'
 p725
-S'harab-D'
+S'harab_DASH_D'
 p726
 sS'MNXM1438'
 p727
@@ -1605,7 +1605,7 @@ S'ethso3'
 p802
 sS'MNXM508'
 p803
-S'g6p-B'
+S'g6p_DASH_B'
 p804
 sS'MNXM509'
 p805
@@ -1621,7 +1621,7 @@ S'ni2'
 p810
 sS'MNXM3674'
 p811
-S'normete-L'
+S'normete_DASH_L'
 p812
 sS'MNXM7742'
 p813
@@ -1661,7 +1661,7 @@ S'anth'
 p830
 sS'MNXM189'
 p831
-S'glyc-R'
+S'glyc_DASH_R'
 p832
 sS'MNXM182'
 p833
@@ -1677,7 +1677,7 @@ S'4mtolbutamide'
 p838
 sS'MNXM186'
 p839
-S'xu5p-D'
+S'xu5p_DASH_D'
 p840
 sS'MNXM187'
 p841
@@ -1789,7 +1789,7 @@ S'coke'
 p894
 sS'MNXM58377'
 p895
-S'13-cis-retn'
+S'13_DASH_cis_DASH_retn'
 p896
 sS'MNXM2101'
 p897
@@ -1921,15 +1921,15 @@ S'dlnlcgcoa'
 p960
 sS'MNXM976'
 p961
-S'pro-D'
+S'pro_DASH_D'
 p962
 sS'MNXM975'
 p963
-S'lys-D'
+S'lys_DASH_D'
 p964
 sS'MNXM974'
 p965
-S'asp-D'
+S'asp_DASH_D'
 p966
 sS'MNXM9115'
 p967
@@ -2185,7 +2185,7 @@ S'nop'
 p1092
 sS'MNXM53290'
 p1093
-S'fecrm-un'
+S'fecrm_DASH_un'
 p1094
 sS'MNXM12618'
 p1095
@@ -2245,7 +2245,7 @@ S'ksi_deg32'
 p1122
 sS'MNXM379'
 p1123
-S'pser-L'
+S'pser_DASH_L'
 p1124
 sS'MNXM378'
 p1125
@@ -2253,7 +2253,7 @@ S'salc'
 p1126
 sS'MNXM114230'
 p1127
-S'sl-L'
+S'sl_DASH_L'
 p1128
 sS'MNXM371'
 p1129
@@ -2441,7 +2441,7 @@ S'dma'
 p1220
 sS'MNXM795'
 p1221
-S'tag6p-D'
+S'tag6p_DASH_D'
 p1222
 sS'MNXM794'
 p1223
@@ -2493,7 +2493,7 @@ S'dkmpp'
 p1246
 sS'MNXM156'
 p1247
-S'ala-D'
+S'ala_DASH_D'
 p1248
 sS'MNXM407'
 p1249
@@ -2513,7 +2513,7 @@ S'5hxkyn'
 p1256
 sS'MNXM2626'
 p1257
-S'retinol-9-cis'
+S'retinol_DASH_9_DASH_cis'
 p1258
 sS'MNXM402'
 p1259
@@ -2533,7 +2533,7 @@ S'cbl1hbi'
 p1266
 sS'MNXM7197'
 p1267
-S'f420-7'
+S'f420_DASH_7'
 p1268
 sS'MNXM7196'
 p1269
@@ -2553,7 +2553,7 @@ S'c190cACP'
 p1276
 sS'MNXM7351'
 p1277
-S'11-cis-retfa'
+S'11_DASH_cis_DASH_retfa'
 p1278
 sS'MNXM7867'
 p1279
@@ -2569,7 +2569,7 @@ S'gt1c_hs'
 p1284
 sS'MNXM7352'
 p1285
-S'9-cis-retfa'
+S'9_DASH_cis_DASH_retfa'
 p1286
 sS'MNXM11785'
 p1287
@@ -2609,7 +2609,7 @@ S'cs_b_pre4'
 p1304
 sS'MNXM10935'
 p1305
-S'cs_a,b_pre2'
+S'cs_a_COMMA_b_pre2'
 p1306
 sS'MNXM10936'
 p1307
@@ -2669,7 +2669,7 @@ S'mem2emgacpail_prot_hs'
 p1334
 sS'MNXM6020'
 p1335
-S'R-3hcddec5ecoa'
+S'R_DASH_3hcddec5ecoa'
 p1336
 sS'MNXM6753'
 p1337
@@ -2713,7 +2713,7 @@ S'trnaala'
 p1356
 sS'MNXM89798'
 p1357
-S'f420-2'
+S'f420_DASH_2'
 p1358
 sS'MNXM91267'
 p1359
@@ -2817,11 +2817,11 @@ S'tdm1'
 p1408
 sS'MNXM4661'
 p1409
-S'm-tol'
+S'm_DASH_tol'
 p1410
 sS'MNXM1238'
 p1411
-S'xu5p-L'
+S'xu5p_DASH_L'
 p1412
 sS'MNXM1239'
 p1413
@@ -2893,7 +2893,7 @@ S'cs_e_deg3'
 p1446
 sS'MNXM8417'
 p1447
-S'cs,hs_linkage'
+S'cs_COMMA_hs_linkage'
 p1448
 sS'MNXM8416'
 p1449
@@ -2909,7 +2909,7 @@ S'cs_e_pre2'
 p1454
 sS'MNXM5910'
 p1455
-S'Asn-X-Ser/Thr'
+S'Asn_DASH_X_DASH_Ser_FSLASH_Thr'
 p1456
 sS'MNXM18595'
 p1457
@@ -2997,11 +2997,11 @@ S'sl2a6o'
 p1498
 sS'MNXM1564'
 p1499
-S'L-dpchrm'
+S'L_DASH_dpchrm'
 p1500
 sS'MNXM1565'
 p1501
-S'idon-L'
+S'idon_DASH_L'
 p1502
 sS'MNXM75102'
 p1503
@@ -3033,7 +3033,7 @@ S'arachACP'
 p1516
 sS'MNXM5687'
 p1517
-S'f420-4'
+S'f420_DASH_4'
 p1518
 sS'MNXM1697'
 p1519
@@ -3169,7 +3169,7 @@ S'pe141'
 p1584
 sS'MNXM53310'
 p1585
-S'hemeA_#1'
+S'hemeA'
 p1586
 sS'MNXM53317'
 p1587
@@ -3197,7 +3197,7 @@ S'g3pc'
 p1598
 sS'MNXM364'
 p1599
-S'pnto-R'
+S'pnto_DASH_R'
 p1600
 sS'MNXM365'
 p1601
@@ -3229,7 +3229,7 @@ S'g3pe'
 p1614
 sS'MNXM61622'
 p1615
-S'mfr(b)'
+S'mfr_LPAREN_b_RPAREN_'
 p1616
 sS'MNXM788'
 p1617
@@ -3241,7 +3241,7 @@ S'meoh'
 p1620
 sS'MNXM7030'
 p1621
-S'adphep-LD'
+S'adphep_DASH_LD'
 p1622
 sS'MNXM785'
 p1623
@@ -3249,7 +3249,7 @@ S'uamr'
 p1624
 sS'MNXM786'
 p1625
-S'3aib-D'
+S'3aib_DASH_D'
 p1626
 sS'MNXM787'
 p1627
@@ -3373,7 +3373,7 @@ S'2dglcn'
 p1686
 sS'MNXM2125'
 p1687
-S'athr-L'
+S'athr_DASH_L'
 p1688
 sS'MNXM2124'
 p1689
@@ -3693,7 +3693,7 @@ S'mi14p'
 p1846
 sS'MNXM5672'
 p1847
-S'h2acon-C'
+S'h2acon_DASH_C'
 p1848
 sS'MNXM1134'
 p1849
@@ -3833,7 +3833,7 @@ S'melanin'
 p1916
 sS'MNXM7515'
 p1917
-S'm(em)3gacpail_hs'
+S'm_LPAREN_em_RPAREN_3gacpail_hs'
 p1918
 sS'MNXM1989'
 p1919
@@ -3933,7 +3933,7 @@ S'5thf'
 p1966
 sS'MNXM3685'
 p1967
-S'p-xyl'
+S'p_DASH_xyl'
 p1968
 sS'MNXM35720'
 p1969
@@ -3981,7 +3981,7 @@ S'thfglu'
 p1990
 sS'MNXM316'
 p1991
-S'dad-5'
+S'dad_DASH_5'
 p1992
 sS'MNXM315'
 p1993
@@ -3993,7 +3993,7 @@ S'ttdca'
 p1996
 sS'MNXM319'
 p1997
-S'cyst-L'
+S'cyst_DASH_L'
 p1998
 sS'MNXM318'
 p1999
@@ -4005,11 +4005,11 @@ S'm7masnA'
 p2002
 sS'MNXM1919'
 p2003
-S'all-D'
+S'all_DASH_D'
 p2004
 sS'MNXM7029'
 p2005
-S'adphep-DD'
+S'adphep_DASH_DD'
 p2006
 sS'MNXM7023'
 p2007
@@ -4069,7 +4069,7 @@ S'arachd'
 p2034
 sS'MNXM134'
 p2035
-S'his-L'
+S'his_DASH_L'
 p2036
 sS'MNXM2488'
 p2037
@@ -4169,7 +4169,7 @@ S'14glun'
 p2084
 sS'MNXM98'
 p2085
-S'mal-L'
+S'mal_DASH_L'
 p2086
 sS'MNXM91'
 p2087
@@ -4193,11 +4193,11 @@ S'k'
 p2096
 sS'MNXM94'
 p2097
-S'trp-L'
+S'trp_DASH_L'
 p2098
 sS'MNXM97'
 p2099
-S'phe-L'
+S'phe_DASH_L'
 p2100
 sS'MNXM323'
 p2101
@@ -4217,7 +4217,7 @@ S'2425dhvitd3'
 p2108
 sS'MNXM89557'
 p2109
-S'glu-L'
+S'glu_DASH_L'
 p2110
 sS'MNXM11645'
 p2111
@@ -4265,7 +4265,7 @@ S'S2hglut'
 p2132
 sS'MNXM5686'
 p2133
-S'f420-3'
+S'f420_DASH_3'
 p2134
 sS'MNXM942'
 p2135
@@ -4289,11 +4289,11 @@ S'tddec2eACP'
 p2144
 sS'MNXM5689'
 p2145
-S'f420-6'
+S'f420_DASH_6'
 p2146
 sS'MNXM5688'
 p2147
-S'f420-5'
+S'f420_DASH_5'
 p2148
 sS'MNXM91049'
 p2149
@@ -4317,11 +4317,11 @@ S'pe161'
 p2158
 sS'MNXM6640'
 p2159
-S'13-cis-oretn'
+S'13_DASH_cis_DASH_oretn'
 p2160
 sS'MNXM6641'
 p2161
-S'retinal-cis-13'
+S'retinal_DASH_cis_DASH_13'
 p2162
 sS'MNXM8541'
 p2163
@@ -4353,7 +4353,7 @@ S'mcbtt'
 p2176
 sS'MNXM4641'
 p2177
-S'lyx-L'
+S'lyx_DASH_L'
 p2178
 sS'MNXM5845'
 p2179
@@ -4417,7 +4417,7 @@ S'dolp_U'
 p2208
 sS'MNXM7514'
 p2209
-S'mharab-D'
+S'mharab_DASH_D'
 p2210
 sS'MNXM3356'
 p2211
@@ -4449,7 +4449,7 @@ S'Ntmelys'
 p2224
 sS'MNXM4792'
 p2225
-S'Ser-Gly/Ala-X-Gly'
+S'Ser_DASH_Gly_FSLASH_Ala_DASH_X_DASH_Gly'
 p2226
 sS'MNXM3215'
 p2227
@@ -4485,7 +4485,7 @@ S'gal14acglcgalgluside_hs'
 p2242
 sS'MNXM112'
 p2243
-S'gal-bD'
+S'gal_DASH_bD'
 p2244
 sS'MNXM65090'
 p2245
@@ -4637,7 +4637,7 @@ S'crtsl'
 p2318
 sS'MNXM540'
 p2319
-S'mi3p-D'
+S'mi3p_DASH_D'
 p2320
 sS'MNXM541'
 p2321
@@ -4669,7 +4669,7 @@ S'T_antigen'
 p2334
 sS'MNXM4930'
 p2335
-S'R-3hocoa'
+S'R_DASH_3hocoa'
 p2336
 sS'MNXM310'
 p2337
@@ -4929,7 +4929,7 @@ S'acgal1p'
 p2464
 sS'MNXM6018'
 p2465
-S'R-3hcmrs7ecoa'
+S'R_DASH_3hcmrs7ecoa'
 p2466
 sS'MNXM1778'
 p2467
@@ -5013,7 +5013,7 @@ S'1tdec7eg3p'
 p2506
 sS'MNXM90501'
 p2507
-S'hacon-T'
+S'hacon_DASH_T'
 p2508
 sS'MNXM932'
 p2509
@@ -5073,7 +5073,7 @@ S'mn'
 p2536
 sS'MNXM11293'
 p2537
-S'tag1p-D'
+S'tag1p_DASH_D'
 p2538
 sS'MNXM5780'
 p2539
@@ -5113,7 +5113,7 @@ S'acybut'
 p2556
 sS'MNXM89983'
 p2557
-S'f420-2h2'
+S'f420_DASH_2h2'
 p2558
 sS'MNXM6274'
 p2559
@@ -5173,7 +5173,7 @@ S'c226crn'
 p2586
 sS'MNXM59041'
 p2587
-S'srb-L'
+S'srb_DASH_L'
 p2588
 sS'MNXM1372'
 p2589
@@ -5205,7 +5205,7 @@ S'f1p'
 p2602
 sS'MNXM1552'
 p2603
-S'arg-D'
+S'arg_DASH_D'
 p2604
 sS'MNXM11981'
 p2605
@@ -5309,7 +5309,7 @@ S'ksii_core4_pre3'
 p2654
 sS'MNXM114079'
 p2655
-S'alac-S'
+S'alac_DASH_S'
 p2656
 sS'MNXM1334'
 p2657
@@ -5317,7 +5317,7 @@ S'phom'
 p2658
 sS'MNXM114070'
 p2659
-S'hcys-L'
+S'hcys_DASH_L'
 p2660
 sS'MNXM114072'
 p2661
@@ -5333,7 +5333,7 @@ S'mqn6'
 p2666
 sS'MNXM3331'
 p2667
-S'p-tol'
+S'p_DASH_tol'
 p2668
 sS'MNXM92326'
 p2669
@@ -5341,7 +5341,7 @@ S'ga1_hs'
 p2670
 sS'MNXM1253'
 p2671
-S'lgt-S'
+S'lgt_DASH_S'
 p2672
 sS'MNXM92167'
 p2673
@@ -5373,7 +5373,7 @@ S'udpLa4o'
 p2686
 sS'MNXM1793'
 p2687
-S'retinal-11-cis'
+S'retinal_DASH_11_DASH_cis'
 p2688
 sS'MNXM1792'
 p2689
@@ -5417,11 +5417,11 @@ S'no3'
 p2708
 sS'MNXM4929'
 p2709
-S'R-3hhcoa'
+S'R_DASH_3hhcoa'
 p2710
 sS'MNXM4928'
 p2711
-S'R-3hdcoa'
+S'R_DASH_3hdcoa'
 p2712
 sS'MNXM25221'
 p2713
@@ -5437,11 +5437,11 @@ S'meroacidcyc2ACP'
 p2718
 sS'MNXM4927'
 p2719
-S'R-3hmrscoa'
+S'R_DASH_3hmrscoa'
 p2720
 sS'MNXM4926'
 p2721
-S'R-3hddcoa'
+S'R_DASH_3hddcoa'
 p2722
 sS'MNXM7229'
 p2723
@@ -5509,7 +5509,7 @@ S'gal1p'
 p2754
 sS'MNXM331'
 p2755
-S'glu-D'
+S'glu_DASH_D'
 p2756
 sS'MNXM330'
 p2757
@@ -5517,7 +5517,7 @@ S'o2s'
 p2758
 sS'MNXM333'
 p2759
-S'mev-R'
+S'mev_DASH_R'
 p2760
 sS'MNXM332'
 p2761
@@ -5577,7 +5577,7 @@ S'ptrc'
 p2788
 sS'MNXM231'
 p2789
-S'ile-L'
+S'ile_DASH_L'
 p2790
 sS'MNXM4815'
 p2791
@@ -5645,7 +5645,7 @@ S'pe_HP'
 p2822
 sS'MNXM32'
 p2823
-S'ala-L'
+S'ala_DASH_L'
 p2824
 sS'MNXM7643'
 p2825
@@ -5669,7 +5669,7 @@ S'murein5p5p5p'
 p2834
 sS'MNXM2112'
 p2835
-S'cys-D'
+S'cys_DASH_D'
 p2836
 sS'MNXM87121'
 p2837
@@ -5705,7 +5705,7 @@ S'34dhbald'
 p2852
 sS'MNXM593'
 p2853
-S'pant-R'
+S'pant_DASH_R'
 p2854
 sS'MNXM17078'
 p2855
@@ -5717,7 +5717,7 @@ S'3spyr'
 p2858
 sS'MNXM597'
 p2859
-S'xylu-D'
+S'xylu_DASH_D'
 p2860
 sS'MNXM599'
 p2861
@@ -5765,7 +5765,7 @@ S'3dphb'
 p2882
 sS'MNXM2209'
 p2883
-S'retinal-cis-9'
+S'retinal_DASH_cis_DASH_9'
 p2884
 sS'MNXM92578'
 p2885
@@ -5801,7 +5801,7 @@ S'apep'
 p2900
 sS'MNXM920'
 p2901
-S'hacon-C'
+S'hacon_DASH_C'
 p2902
 sS'MNXM921'
 p2903
@@ -5853,7 +5853,7 @@ S'dggpi'
 p2926
 sS'MNXM89621'
 p2927
-S'f6p-B'
+S'f6p_DASH_B'
 p2928
 sS'MNXM6465'
 p2929
@@ -5869,7 +5869,7 @@ S'cchoxod'
 p2934
 sS'MNXM90191'
 p2935
-S'12ppd-R'
+S'12ppd_DASH_R'
 p2936
 sS'MNXM96694'
 p2937
@@ -6009,7 +6009,7 @@ S'3hodcoa'
 p3004
 sS'MNXM81222'
 p3005
-S'S-gtrdhdlp'
+S'S_DASH_gtrdhdlp'
 p3006
 sS'MNXM41359'
 p3007
@@ -6197,7 +6197,7 @@ S'pheacgln'
 p3098
 sS'MNXM3300'
 p3099
-S'm-xyl'
+S'm_DASH_xyl'
 p3100
 sS'MNXM2710'
 p3101
@@ -6237,7 +6237,7 @@ S'gchola'
 p3118
 sS'MNXM1608'
 p3119
-S'mal-D'
+S'mal_DASH_D'
 p3120
 sS'MNXM56096'
 p3121
@@ -6249,11 +6249,11 @@ S'3hadpcoa'
 p3124
 sS'MNXM46095'
 p3125
-S"cer2'_24"
+S'cer2_APOS__24'
 p3126
 sS'MNXM46096'
 p3127
-S"cer2'_26"
+S'cer2_APOS__26'
 p3128
 sS'MNXM49'
 p3129
@@ -6381,7 +6381,7 @@ S'sulfac'
 p3190
 sS'MNXM7078'
 p3191
-S'apoC-Lys'
+S'apoC_DASH_Lys'
 p3192
 sS'MNXM693'
 p3193
@@ -6397,7 +6397,7 @@ S'leutrna'
 p3198
 sS'MNXM694'
 p3199
-S'ser-D'
+S'ser_DASH_D'
 p3200
 sS'MNXM695'
 p3201
@@ -6461,7 +6461,7 @@ S'phpyr'
 p3230
 sS'MNXM211'
 p3231
-S'citr-L'
+S'citr_DASH_L'
 p3232
 sS'MNXM7676'
 p3233
@@ -6601,7 +6601,7 @@ S'gdchola'
 p3300
 sS'MNXM90521'
 p3301
-S'acglc-D'
+S'acglc_DASH_D'
 p3302
 sS'MNXM1514'
 p3303
@@ -6609,7 +6609,7 @@ S'ohpb'
 p3304
 sS'MNXM2374'
 p3305
-S'f420-0'
+S'f420_DASH_0'
 p3306
 sS'MNXM914'
 p3307
@@ -6685,7 +6685,7 @@ S'pap'
 p3342
 sS'MNXM42'
 p3343
-S'asp-L'
+S'asp_DASH_L'
 p3344
 sS'MNXM43'
 p3345
@@ -6697,7 +6697,7 @@ S'malcoa'
 p3348
 sS'MNXM41'
 p3349
-S'glc-D'
+S'glc_DASH_D'
 p3350
 sS'MNXM9197'
 p3351
@@ -6705,7 +6705,7 @@ S'acgalfucgalacgalfucgalacglcgal14acglcgalgluside_hs'
 p3352
 sS'MNXM9198'
 p3353
-S'Tyr-ggn'
+S'Tyr_DASH_ggn'
 p3354
 sS'MNXM89870'
 p3355
@@ -6785,7 +6785,7 @@ S'1agpg141'
 p3392
 sS'MNXM2999'
 p3393
-S'cpgn-un'
+S'cpgn_DASH_un'
 p3394
 sS'MNXM9445'
 p3395
@@ -6917,7 +6917,7 @@ S'g3m8mpdol_U'
 p3458
 sS'MNXM469'
 p3459
-S'sbt-D'
+S'sbt_DASH_D'
 p3460
 sS'MNXM1403'
 p3461
@@ -6981,7 +6981,7 @@ S'manglyc'
 p3490
 sS'MNXM7808'
 p3491
-S'ihcit-T'
+S'ihcit_DASH_T'
 p3492
 sS'MNXM17507'
 p3493
@@ -7049,7 +7049,7 @@ S'fe3dcit'
 p3524
 sS'MNXM1080'
 p3525
-S'galct-D'
+S'galct_DASH_D'
 p3526
 sS'MNXM7481'
 p3527
@@ -7093,7 +7093,7 @@ S'4hglusa'
 p3546
 sS'MNXM461'
 p3547
-S'arab-L'
+S'arab_DASH_L'
 p3548
 sS'MNXM460'
 p3549
@@ -7117,7 +7117,7 @@ S'h4mpt'
 p3558
 sS'MNXM666'
 p3559
-S'3ityr-L'
+S'3ityr_DASH_L'
 p3560
 sS'MNXM665'
 p3561
@@ -7125,7 +7125,7 @@ S'35cgmp'
 p3562
 sS'MNXM664'
 p3563
-S'actn-R'
+S'actn_DASH_R'
 p3564
 sS'MNXM663'
 p3565
@@ -7329,7 +7329,7 @@ S'thdp'
 p3664
 sS'MNXM1148'
 p3665
-S'orn-D'
+S'orn_DASH_D'
 p3666
 sS'MNXM399'
 p3667
@@ -7397,11 +7397,11 @@ S'glycogen'
 p3698
 sS'MNXM2428'
 p3699
-S'scys-L'
+S'scys_DASH_L'
 p3700
 sS'MNXM909'
 p3701
-S'lald-D'
+S'lald_DASH_D'
 p3702
 sS'MNXM902'
 p3703
@@ -7409,7 +7409,7 @@ S'malm'
 p3704
 sS'MNXM901'
 p3705
-S'ru5p-L'
+S'ru5p_DASH_L'
 p3706
 sS'MNXM2363'
 p3707
@@ -7457,7 +7457,7 @@ S'dgsn'
 p3728
 sS'MNXM55'
 p3729
-S'cys-L'
+S'cys_DASH_L'
 p3730
 sS'MNXM57'
 p3731
@@ -7477,7 +7477,7 @@ S'C120mclPHA'
 p3738
 sS'MNXM53'
 p3739
-S'ser-L'
+S'ser_DASH_L'
 p3740
 sS'MNXM52'
 p3741
@@ -7505,7 +7505,7 @@ S'cholcoaone'
 p3752
 sS'MNXM870'
 p3753
-S'retinol-cis-11'
+S'retinol_DASH_cis_DASH_11'
 p3754
 sS'MNXM871'
 p3755
@@ -7553,7 +7553,7 @@ S'ocdcyaACP'
 p3776
 sS'MNXM9506'
 p3777
-S'glyc-S'
+S'glyc_DASH_S'
 p3778
 sS'MNXM9507'
 p3779
@@ -7593,7 +7593,7 @@ S'cpppg1'
 p3796
 sS'MNXM4752'
 p3797
-S'pser-D'
+S'pser_DASH_D'
 p3798
 sS'MNXM4754'
 p3799
@@ -7653,7 +7653,7 @@ S'hexccrn'
 p3826
 sS'MNXM8018'
 p3827
-S'13-cis-retnglc'
+S'13_DASH_cis_DASH_retnglc'
 p3828
 sS'MNXM65211'
 p3829
@@ -7785,7 +7785,7 @@ S'ugggmda'
 p3892
 sS'MNXM90941'
 p3893
-S'xyl-D'
+S'xyl_DASH_D'
 p3894
 sS'MNXM4123'
 p3895
@@ -7805,7 +7805,7 @@ S'gggagicolipa'
 p3902
 sS'MNXM1058'
 p3903
-S'3hbcoa-R'
+S'3hbcoa_DASH_R'
 p3904
 sS'MNXM784'
 p3905
@@ -7817,7 +7817,7 @@ S'bz12diol'
 p3908
 sS'MNXM114114'
 p3909
-S'thyox-L'
+S'thyox_DASH_L'
 p3910
 sS'MNXM7138'
 p3911
@@ -7869,7 +7869,7 @@ S'sphs1p'
 p3934
 sS'MNXM144'
 p3935
-S'ala-B'
+S'ala_DASH_B'
 p3936
 sS'MNXM419'
 p3937
@@ -7917,7 +7917,7 @@ S'ind3acnl'
 p3958
 sS'MNXM474'
 p3959
-S'quin-kt'
+S'quin_DASH_kt'
 p3960
 sS'MNXM475'
 p3961
@@ -7937,7 +7937,7 @@ S'n5m2masn'
 p3968
 sS'MNXM147'
 p3969
-S'asn-L'
+S'asn_DASH_L'
 p3970
 sS'MNXM674'
 p3971
@@ -7973,11 +7973,11 @@ S'thcholstoic'
 p3986
 sS'MNXM145'
 p3987
-S'ru5p-D'
+S'ru5p_DASH_D'
 p3988
 sS'MNXM142'
 p3989
-S'thr-L'
+S'thr_DASH_L'
 p3990
 sS'MNXM59988'
 p3991
@@ -8033,7 +8033,7 @@ S'3cmp'
 p4016
 sS'MNXM140'
 p4017
-S'leu-L'
+S'leu_DASH_L'
 p4018
 sS'MNXM2187'
 p4019
@@ -8309,7 +8309,7 @@ S'hco3'
 p4154
 sS'MNXM61'
 p4155
-S'met-L'
+S'met_DASH_L'
 p4156
 sS'MNXM63'
 p4157
@@ -8349,7 +8349,7 @@ S'trypta'
 p4174
 sS'MNXM805'
 p4175
-S'4hpro-LT'
+S'4hpro_DASH_LT'
 p4176
 sS'MNXM804'
 p4177
@@ -8385,11 +8385,11 @@ S'eca_EC'
 p4192
 sS'MNXM8396'
 p4193
-S'cs_a,b_pre3'
+S'cs_a_COMMA_b_pre3'
 p4194
 sS'MNXM8397'
 p4195
-S'cs_a,b,e_pre1'
+S'cs_a_COMMA_b_COMMA_e_pre1'
 p4196
 sS'MNXM5296'
 p4197
@@ -8493,7 +8493,7 @@ S'ksi_deg35'
 p4246
 sS'MNXM92093'
 p4247
-S'adphep7p-LD'
+S'adphep7p_DASH_LD'
 p4248
 sS'MNXM52342'
 p4249
@@ -8505,7 +8505,7 @@ S'2mcit'
 p4252
 sS'MNXM90827'
 p4253
-S'feoxam-un'
+S'feoxam_DASH_un'
 p4254
 sS'MNXM5273'
 p4255
@@ -8717,7 +8717,7 @@ S'34dhpha'
 p4358
 sS'MNXM644'
 p4359
-S'26dap-LL'
+S'26dap_DASH_LL'
 p4360
 sS'MNXM395'
 p4361
@@ -8757,7 +8757,7 @@ S'protrna'
 p4378
 sS'MNXM246'
 p4379
-S'crn-D'
+S'crn_DASH_D'
 p4380
 sS'MNXM243'
 p4381
@@ -8765,7 +8765,7 @@ S'camp'
 p4382
 sS'MNXM242'
 p4383
-S'rib-D'
+S'rib_DASH_D'
 p4384
 sS'MNXM7133'
 p4385
@@ -8793,7 +8793,7 @@ S'ragund'
 p4396
 sS'MNXM92401'
 p4397
-S'tagat-D'
+S'tagat_DASH_D'
 p4398
 sS'MNXM7733'
 p4399
@@ -8949,7 +8949,7 @@ S'dhap'
 p4474
 sS'MNXM76'
 p4475
-S'tyr-L'
+S'tyr_DASH_L'
 p4476
 sS'MNXM75'
 p4477
@@ -8965,7 +8965,7 @@ S'trnagln'
 p4482
 sS'MNXM70'
 p4483
-S'arg-L'
+S'arg_DASH_L'
 p4484
 sS'MNXM5'
 p4485
@@ -9033,7 +9033,7 @@ S'25hvitd3'
 p4516
 sS'MNXM813'
 p4517
-S'acon-C'
+S'acon_DASH_C'
 p4518
 sS'MNXM814'
 p4519
@@ -9041,7 +9041,7 @@ S'cbl2'
 p4520
 sS'MNXM816'
 p4521
-S'tartr-L'
+S'tartr_DASH_L'
 p4522
 sS'MNXM817'
 p4523
@@ -9157,7 +9157,7 @@ S'cytcc'
 p4578
 sS'MNXM78'
 p4579
-S'lys-L'
+S'lys_DASH_L'
 p4580
 sS'MNXM21840'
 p4581
@@ -9245,7 +9245,7 @@ S'ksii_core4_deg3'
 p4622
 sS'MNXM90811'
 p4623
-S'arab-D'
+S'arab_DASH_D'
 p4624
 sS'MNXM4488'
 p4625
@@ -9365,7 +9365,7 @@ S'2oxoadp'
 p4682
 sS'MNXM62437'
 p4683
-S'ascb-L'
+S'ascb_DASH_L'
 p4684
 sS'MNXM4398'
 p4685
@@ -9457,7 +9457,7 @@ S'aso3'
 p4728
 sS'MNXM659'
 p4729
-S'fuc-L'
+S'fuc_DASH_L'
 p4730
 sS'MNXM388'
 p4731
@@ -9485,7 +9485,7 @@ S'ind3ac'
 p4742
 sS'MNXM384'
 p4743
-S'saccrp-L'
+S'saccrp_DASH_L'
 p4744
 sS'MNXM385'
 p4745
@@ -9521,7 +9521,7 @@ S'gua'
 p4760
 sS'MNXM252'
 p4761
-S'dhor-S'
+S'dhor_DASH_S'
 p4762
 sS'MNXM250'
 p4763
@@ -9597,7 +9597,7 @@ S'hdcea'
 p4798
 sS'MNXM10969'
 p4799
-S'retinol-cis-13'
+S'retinol_DASH_cis_DASH_13'
 p4800
 sS'MNXM163'
 p4801
@@ -9745,7 +9745,7 @@ S'kdo2lipid4'
 p4872
 sS'MNXM2246'
 p4873
-S'metsox-S-L'
+S'metsox_DASH_S_DASH_L'
 p4874
 sS'MNXM826'
 p4875
@@ -9829,7 +9829,7 @@ S'L2aadp6sa'
 p4914
 sS'MNXM91213'
 p4915
-S'glutrna(gln)'
+S'glutrna_LPAREN_gln_RPAREN_'
 p4916
 sS'MNXM63797'
 p4917
@@ -9853,7 +9853,7 @@ S'db4p'
 p4926
 sS'MNXM2888'
 p4927
-S'2plac-L'
+S'2plac_DASH_L'
 p4928
 sS'MNXM90585'
 p4929
@@ -9985,7 +9985,7 @@ S'glu5p'
 p4992
 sS'MNXM1282'
 p4993
-S'xylu-L'
+S'xylu_DASH_L'
 p4994
 sS'MNXM1667'
 p4995
@@ -10181,7 +10181,7 @@ S'4tmeabutn'
 p5090
 sS'MNXM625'
 p5091
-S'dad-2'
+S'dad_DASH_2'
 p5092
 sS'MNXM624'
 p5093
@@ -10253,7 +10253,7 @@ S'hexc'
 p5126
 sS'MNXM2473'
 p5127
-S'ttc-ggdp'
+S'ttc_DASH_ggdp'
 p5128
 sS'MNXM281'
 p5129
@@ -10273,7 +10273,7 @@ S'taur'
 p5136
 sS'MNXM285'
 p5137
-S'lac-D'
+S'lac_DASH_D'
 p5138
 sS'MNXM284'
 p5139
@@ -10317,7 +10317,7 @@ S'17ahprgnlone'
 p5158
 sS'MNXM7795'
 p5159
-S'tarab-D'
+S'tarab_DASH_D'
 p5160
 sS'MNXM28031'
 p5161
@@ -10605,7 +10605,7 @@ S'pe_SC'
 p5302
 sS'MNXM114'
 p5303
-S'pro-L'
+S'pro_DASH_L'
 p5304
 sS'MNXM96506'
 p5305
@@ -10617,7 +10617,7 @@ S'2ddglcn'
 p5308
 sS'MNXM91223'
 p5309
-S'slp-L'
+S'slp_DASH_L'
 p5310
 sS'MNXM1206'
 p5311
@@ -10721,7 +10721,7 @@ S'3hcmrs7eACP'
 p5360
 sS'MNXM1388'
 p5361
-S'acon-T'
+S'acon_DASH_T'
 p5362
 sS'MNXM9347'
 p5363
@@ -10737,7 +10737,7 @@ S'tih3cit'
 p5368
 sS'MNXM685'
 p5369
-S'rbl-L'
+S'rbl_DASH_L'
 p5370
 sS'MNXM1470'
 p5371
@@ -10745,7 +10745,7 @@ S'crtn'
 p5372
 sS'MNXM5673'
 p5373
-S'h3acon-C'
+S'h3acon_DASH_C'
 p5374
 sS'MNXM4157'
 p5375
@@ -10757,7 +10757,7 @@ S'Lpipecol'
 p5378
 sS'MNXM1275'
 p5379
-S'met-D'
+S'met_DASH_D'
 p5380
 sS'MNXM8639'
 p5381
@@ -10789,7 +10789,7 @@ S'ppap'
 p5394
 sS'MNXM53150'
 p5395
-S'fe3hox-un'
+S'fe3hox_DASH_un'
 p5396
 sS'MNXM298'
 p5397
@@ -10897,7 +10897,7 @@ S'yvite'
 p5448
 sS'MNXM1727'
 p5449
-S'fuc1p-L'
+S'fuc1p_DASH_L'
 p5450
 sS'MNXM1722'
 p5451
@@ -10953,7 +10953,7 @@ S'ha_pre1'
 p5476
 sS'MNXM7435'
 p5477
-S'apoC-Lys_btn'
+S'apoC_DASH_Lys_btn'
 p5478
 sS'MNXM6448'
 p5479
@@ -10989,7 +10989,7 @@ S'cu2'
 p5494
 sS'MNXM633'
 p5495
-S'rbl-D'
+S'rbl_DASH_D'
 p5496
 sS'MNXM634'
 p5497
@@ -11001,7 +11001,7 @@ S'hista'
 p5500
 sS'MNXM636'
 p5501
-S'galctn-L'
+S'galctn_DASH_L'
 p5502
 sS'MNXM637'
 p5503
@@ -11073,11 +11073,11 @@ S'5mtr'
 p5536
 sS'MNXM90967'
 p5537
-S'tagdp-D'
+S'tagdp_DASH_D'
 p5538
 sS'MNXM7361'
 p5539
-S'formmfr(b)'
+S'formmfr_LPAREN_b_RPAREN_'
 p5540
 sS'MNXM7362'
 p5541
@@ -11101,7 +11101,7 @@ S'hxdcal'
 p5550
 sS'MNXM529'
 p5551
-S'26dap-M'
+S'26dap_DASH_M'
 p5552
 sS'MNXM1870'
 p5553
