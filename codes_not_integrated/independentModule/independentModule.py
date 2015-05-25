@@ -121,58 +121,58 @@ def parse_templateModel_gpr(outputFile1, root, cobra_reaction_dic, tempGenome_lo
     tempModel_biggRxnid_wo_gene_list = []
     tempModel_biggRxnidwithGene_woSeq_list = [] #For reactions with genes, but no seq info
 
-#Starts model parsing
+    #Starts model parsing
     for Reaction_name in cobra_reaction_dic.keys():
         gpr = cobra_reaction_dic[Reaction_name]['gpr']
-                
-#Parsing gene associations into a list
+
+        #Parsing gene associations into a list
         Genes_list = get_gpr_fromString_toList(gpr)
 
-#Saves reaction names and their intact GPR associations
-#Input for "makeBooleanFormat" in "Reconstruction_GPRCalculation_Edited.py"
+        #Saves reaction names and their intact GPR associations
+        #Input for "makeBooleanFormat" in "Reconstruction_GPRCalculation_Edited.py"
         tempModel_biggRxnid_locusTag_dict[Reaction_name] = Genes_list
 
         for Genes_each_list in Genes_list:
-#Stores reactions without genes
+            #Stores reactions without genes
             if not Genes_each_list:
                 tempModel_biggRxnid_wo_gene_list.append(Reaction_name)
  
-#Checks if the element itself is List.
-#'if type(Genes_each_list) == list' also works.
-#Genes connected with 'AND' come in the List type.
+            #Checks if the element itself is List.
+            #'if type(Genes_each_list) == list' also works.
+            #Genes connected with 'AND' come in the List type.
             elif isinstance(Genes_each_list, list):
                 for Genes_each2_list in Genes_each_list:
                     if Genes_each2_list in tempGenome_locusTag_aaSeq_dict.keys():
-#Dictionary - ORF:AA seq
-#Stores only reactions with genes and their amino acid seq in Dictionary                   
+                        #Dictionary - ORF:AA seq
+                        #Stores only reactions with genes and their amino acid seq in Dictionary
                         if tempGenome_locusTag_aaSeq_dict[Genes_each2_list]:
                             tempModel_locusTag_aaSeq_dict[Genes_each2_list] = tempGenome_locusTag_aaSeq_dict[Genes_each2_list]
 
-#Some reactions do not have seq info despite their presence of genes (e.g., b2092)
+                    #Some reactions do not have seq info despite their presence of genes (e.g., b2092)
                     else:
                         tempModel_biggRxnidwithGene_woSeq_list.append(Reaction_name)
-                                    
-#Single genes for a reaction, or genes connected with 'OR'
+
+            #Single genes for a reaction, or genes connected with 'OR'
 	    else:
                 if Genes_each_list in tempGenome_locusTag_aaSeq_dict.keys():
-                            
-#Dictionary - ORF:AA seq
-#Stores only reactions with genes and their amino acid seq in Dictionary  
+
+                    #Dictionary - ORF:AA seq
+                    #Stores only reactions with genes and their amino acid seq in Dictionary
                     if tempGenome_locusTag_aaSeq_dict[Genes_each_list]:
                         tempModel_locusTag_aaSeq_dict[Genes_each_list] = tempGenome_locusTag_aaSeq_dict[Genes_each_list]
 
-#Some reactions in iAF1260 do not have aa seq despite their presence of genes (e.g., b2092)
+                #Some reactions in iAF1260 do not have aa seq despite their presence of genes (e.g., b2092)
                 else:
                     tempModel_biggRxnidwithGene_woSeq_list.append(Reaction_name)
-                            
+
     pickle.dump(tempModel_biggRxnid_locusTag_dict, open('%s/tempModel_biggRxnid_locusTag_dict.p' %(root),'wb'))
     pickle.dump(tempModel_locusTag_aaSeq_dict, open('./forChecking/tempModel_locusTag_aaSeq_dict.p','wb'))
     pickle.dump(tempModel_biggRxnid_wo_gene_list, open('./forChecking/tempModel_biggRxnid_wo_gene_list.p','wb'))
     pickle.dump(tempModel_biggRxnidwithGene_woSeq_list, open('./forChecking/tempModel_biggRxnidwithGene_woSeq_list.p','wb'))
-   
+
     for key in tempModel_biggRxnid_locusTag_dict.keys():
 	print >>fp1, '%s\t%s' %(key, tempModel_biggRxnid_locusTag_dict[key])
-    fp1.close() 
+    fp1.close()
     return tempModel_biggRxnid_locusTag_dict, tempModel_locusTag_aaSeq_dict, tempModel_biggRxnid_wo_gene_list, tempModel_biggRxnidwithGene_woSeq_list
 
 
@@ -296,8 +296,27 @@ def pickling_Input_MNXreaction():
     fp1.close()
 
 
+#Based on fix_legacy_id(id, use_hyphens=False, fix_compartments=False) of cobrapy:
+def replace_special_characters_compoundid(biggid):
+    biggid = biggid.replace('-', '_DASH_')
+    biggid = biggid.replace('/', '_FSLASH_')
+    biggid = biggid.replace("\\",'_BSLASH_')
+    biggid = biggid.replace('(', '_LPAREN_')
+    biggid = biggid.replace('[', '_LSQBKT_')
+    biggid = biggid.replace(']', '_RSQBKT_')
+    biggid = biggid.replace(')', '_RPAREN_')
+    biggid = biggid.replace(',', '_COMMA_')
+    biggid = biggid.replace('.', '_PERIOD_')
+    biggid = biggid.replace("'", '_APOS_')
+    biggid = biggid.replace('&', '&amp;')
+    biggid = biggid.replace('<', '&lt;')
+    biggid = biggid.replace('>', '&gt;')
+    biggid = biggid.replace('"', '&quot;')
+
+    return biggid
+
 def pickle_input_bigg_kegg_mnx_compoundID():
-    fp1 = open('Input_BiGG_KEGG_MNX_compoundID_v1_2.tsv',"r")
+    fp1 = open('Input_BiGG_KEGG_MNX_compoundID_v1_3.tsv',"r")
     bigg_mnxm_compound_dict = {}
     mnxm_bigg_compound_dict = {}
     kegg_mnxm_compound_dict = {}
@@ -309,8 +328,9 @@ def pickle_input_bigg_kegg_mnx_compoundID():
 	text[1] = text[1].strip()
 	text[2] = text[2].strip()
 	if text[0] == 'bigg':
-	    bigg_mnxm_compound_dict[text[1]] = text[2]
-	    mnxm_bigg_compound_dict[text[2]] = text[1]
+            biggid = replace_special_characters_compoundid(text[1])
+	    bigg_mnxm_compound_dict[biggid] = text[2]
+	    mnxm_bigg_compound_dict[text[2]] = biggid
 	elif text[0] == 'kegg':
 	    kegg_mnxm_compound_dict[text[1]] = text[2]
 

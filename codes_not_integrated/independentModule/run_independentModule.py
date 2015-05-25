@@ -9,7 +9,7 @@ This file executes functions handling:
 Current template model: "TemplateModel_MNXref.xml"
 '''
 from cobra.io.sbml import create_cobra_model_from_sbml_file
-from independentModule_v1_3 import *
+from independentModule import *
 import pickle
 import subprocess
 
@@ -20,7 +20,7 @@ import subprocess
 
 ################################################################################
 #Loading and parsing of the template model
-#cobra_model, cobra_reaction_dic = readCobraModel(root, tempModel)
+cobra_model, cobra_reaction_dic = readCobraModel(root, tempModel)
 #cobra_model = pickle.load(open("Pickle_template_model_original.p","rb"))
 #cobra_reaction_dic = pickle.load(open('./forChecking/cobra_reaction_dic.p','rb'))
 #cobra_metabolite_dic = pickle.load(open("Pickle_cobra_metabolite_dic.p","rb"))
@@ -48,7 +48,7 @@ import subprocess
 #pickling_Input_MNXreaction()
 #mnxr_rxn_dict = pickle.load(open("Pickle_mnxr_rxn_dict.p","rb"))
 
-pickle_input_bigg_kegg_mnx_compoundID()
+#pickle_input_bigg_kegg_mnx_compoundID()
 #mnxm_bigg_compound_dict = pickle.load(open("Pickle_mnxm_bigg_compound_dict.p","rb"))
 #kegg_mnxm_compound_dict = pickle.load(open("Pickle_kegg_mnxm_compound_dict.p","rb"))
 #mnxm_kegg_compound_dict = pickle.load( open("Pickle_mnxm_kegg_compound_dict.p","rb"))
