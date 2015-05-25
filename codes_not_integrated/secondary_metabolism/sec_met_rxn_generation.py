@@ -566,40 +566,41 @@ def get_all_metab_coeff(locustag_monomer_dict, metab_coeff_dict, product):
     return metab_coeff_dict
 
 
-def add_sec_met_rxn(modelPrunedGPR, metab_coeff_dict, product, bigg_mnxm_compound_dict, mnxm_compoundInfo_dict, cluster_info_dict):
+def add_sec_met_rxn(target_model, metab_coeff_dict, product, bigg_mnxm_compound_dict, mnxm_compoundInfo_dict, cluster_info_dict):
     
-    list_reaction_name_SM = []
-    list_novel_secondary_metabolite_reactions = []
-    
-    list_reaction_name_SM.append(new_product_name)
-    list_novel_secondary_metabolite_reactions.append(each_integrated_reaction)
-
     #ID
     rxn = Reaction(product)
 
     #Reversibility / Lower and upper bounds
-    reaction.lower_bound = 0
-    reaction.upper_bound = 1000
+    rxn.lower_bound = 0
+    rxn.upper_bound = 1000
 
     #Metabolites and their stoichiometric coeff's
-    for metab in metab_coeff_dict:
-        metab_compt = '_'.join([metab,'c'])
+    for metab in metab_coeff_dict.keys():
 
-        #Adding metabolites already in the model
-        if metab_compt in modelPrunedGPR.metabolites:
-            rxn.add_metabolites({modelPrunedGPR.metabolites.get_by_id(metab_compt):metab_coeff_dict[metab]})
+        #Consider only metabolites consumed or produced
+        if metab_coeff_dict[metab] != 0:
+            metab_compt = '_'.join([metab,'c'])
 
-        #Adding metabolites with bigg compoundID, but not in the model
-        elif metab in bigg_mnxm_compound_dict.keys():
-            mnxm = bigg_mnxm_compound_dict[metab]
-            metab_compt = Metabolite(metab, formula = mnxm_compoundInfo_dict[mnxm][1], name = mnxm_compoundInfo_dict[mnxm][0], compartment='c')
-            rxn.add_metabolites({metab_compt:rxnid_mnxm_coeff_dict[rxnid][metab]})
+            #Adding metabolites already in the model
+            if metab_compt in target_model.metabolites:
+                rxn.add_metabolites({target_model.metabolites.get_by_id(metab_compt):metab_coeff_dict[metab]})
 
-        #Adding metabolites with KEGG compoundID and not in the model
-        #else:
-        #    keggID = get_compoundInfo(metab)
-        #    metab_compt = Metabolite(metab, formula = keggID['FORMULA'], name = keggID['NAME'], compartment='c')
-        #    rxn.add_metabolites({metab_compt:rxnid_mnxm_coeff_dict[rxnid][metab]})
+            #Adding metabolites with bigg compoundID, but not in the model
+            elif metab in bigg_mnxm_compound_dict.keys():
+                mnxm = bigg_mnxm_compound_dict[metab]
+                metab_compt = Metabolite(metab_compt, formula = mnxm_compoundInfo_dict[mnxm][1], name = mnxm_compoundInfo_dict[mnxm][0], compartment='c')
+                rxn.add_metabolites({metab_compt:metab_coeff_dict[metab]})
+
+            elif 'Cluster' in metab:
+                metab_compt = Metabolite(metab_compt, compartment='c')
+                rxn.add_metabolites({metab_compt:metab_coeff_dict[metab]})
+
+            #Adding metabolites with KEGG compoundID and not in the model
+            #else:
+            #    keggID = get_compoundInfo(metab)
+            #    metab_compt = Metabolite(metab, formula = keggID['FORMULA'], name = keggID['NAME'], compartment='c')
+            #    rxn.add_metabolites({metab_compt:rxnid_mnxm_coeff_dict[rxnid][metab]})
 
     #GPR association
     gpr_count = 0
@@ -610,56 +611,55 @@ def add_sec_met_rxn(modelPrunedGPR, metab_coeff_dict, product, bigg_mnxm_compoun
         else:
             gpr_list = gpr_list + ' AND ' + each_gene
      
-    reaction.add_gene_reaction_rule(gpr_list)
+    rxn.add_gene_reaction_rule(gpr_list)
 
     #Adding the new reaction to the model
-    cobra_model.add_reaction(reaction)
+    target_model.add_reaction(rxn)
 
-    reaction_name = reaction.id
-    strain_name = reaction_name.split("_")
-    strain_name = strain_name[0].strip()
+    print "\n", "Secondary metabolite reaction:", rxn
+    print rxn.reaction
 
     ##############################
     #Creating a transport reaction
     #Creating reaction ID
-    reaction = Reaction("Transport_" + new_product_name )
+    rxn = Reaction("Transport_" + product)
 
     #Reversibility / Lower and upper bounds
-    reaction.reversibility = 0 # 1: reversible
-    reaction.lower_bound = 0
-    reaction.upper_bound = 1000
+    rxn.reversibility = 0 # 1: reversible
+    rxn.lower_bound = 0
+    rxn.upper_bound = 1000
 
     #Adding a substrate metabolite
     #print cobra_model.metabolites.get_by_id(str(product_c))
-    reaction.add_metabolites({cobra_model.metabolites.get_by_id(str(new_product_name+'_c')):-1})
+    rxn.add_metabolites({target_model.metabolites.get_by_id(str(product+'_c')):-1})
 
     #Adding product metabolite(s)
-    new_product_name_e = Metabolite(new_product_name+"_e", name='', compartment='e')
-    reaction.add_metabolites({new_product_name_e:1})
+    product_e = Metabolite(product+"_e", name='', compartment='e')
+    rxn.add_metabolites({product_e:1})
 
     #Adding the new reaction to the model
-    cobra_model.add_reaction(reaction)
+    target_model.add_reaction(rxn)
 
-    print "\n", "Transport reaction:", reaction
-    print reaction.reaction
+    print "\n", "Transport reaction:", rxn
+    print rxn.reaction
 
     ##############################
     #Creating an exchange reaction
     #Creating reaction ID
-    reaction = Reaction("Ex_"+new_product_name)
+    rxn = Reaction("Ex_"+product)
 
     #Reversibility / Lower and upper bounds
-    reaction.reversibility = 0 # 1: reversible 0: irreversible
-    reaction.lower_bound = 0
-    reaction.upper_bound = 1000
+    rxn.reversibility = 0 # 1: reversible 0: irreversible
+    rxn.lower_bound = 0
+    rxn.upper_bound = 1000
 
     #Adding a substrate metabolite
     #print cobra_model.metabolites.get_by_id(str(product_c))
-    reaction.add_metabolites({cobra_model.metabolites.get_by_id(str(new_product_name_e)):-1})
+    rxn.add_metabolites({target_model.metabolites.get_by_id(str(product_e)):-1})
 
     #Adding the new reaction to the model
-    cobra_model.add_reaction(reaction)
+    target_model.add_reaction(rxn)
 
-    print "\n", "Exchange reaction:", reaction
-    print reaction.reaction
+    print "\n", "Exchange reaction:", rxn
+    print rxn.reaction
 
