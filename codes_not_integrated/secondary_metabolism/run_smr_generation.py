@@ -7,7 +7,6 @@ from Bio import SeqIO
 from sets import Set
 from cobra import Model, Reaction, Metabolite
 from cobra.io.sbml import create_cobra_model_from_sbml_file, write_cobra_model_to_sbml_file
-from MNX_checker2 import COBRA_TemplateModel_checking_MNXref_metabolites, fix_legacy_id
 import pickle
 import copy
 from sec_met_rxn_generation import get_product_from_cluster_gbk, get_cluster_info_from_cluster_gbk, get_cluster_domain, get_cluster_monomers, get_cluster_module, get_currency_metabolites, get_total_currency_metab_coeff, get_all_metab_coeff, add_sec_met_rxn 

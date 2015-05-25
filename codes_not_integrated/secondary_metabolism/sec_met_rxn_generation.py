@@ -9,7 +9,6 @@ from Bio import SeqIO
 from sets import Set
 from cobra import Model, Reaction, Metabolite
 from cobra.io.sbml import create_cobra_model_from_sbml_file,write_cobra_model_to_sbml_file
-from MNX_checker2 import COBRA_TemplateModel_checking_MNXref_metabolites, fix_legacy_id
 from general_sec_met_info import determine_module, get_biggid_from_aSid, get_metab_coeff_dict
 import pickle
 import copy
