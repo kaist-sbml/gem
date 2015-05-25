@@ -5,9 +5,7 @@ by Hyun Uk Kim, Jan - Nov 2014
 
 from Bio import SeqIO
 from cobra import Model, Reaction, Metabolite
-from cobra.io.sbml import create_cobra_model_from_sbml_file
-from cobra.io.sbml import write_cobra_model_to_sbml_file
-
+from cobra.io.sbml import create_cobra_model_from_sbml_file, write_cobra_model_to_sbml_file
 import os
 import pickle
 import re
@@ -316,7 +314,7 @@ def pickle_input_bigg_kegg_mnx_compoundID():
 	elif text[0] == 'kegg':
 	    kegg_mnxm_compound_dict[text[1]] = text[2]
 
-#Following conditions give priority to the compoundID starting with 'C' than others.
+            #Following conditions give priority to compoundID starting with 'C' than others
 	    if 'D' not in text[1] and 'E' not in text[1] and 'G' not in text[1]:
 	        mnxm_kegg_compound_dict[text[2]] = text[1]
 	    else:
