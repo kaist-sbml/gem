@@ -14,19 +14,15 @@ from sec_met_rxn_generation import get_product_from_cluster_gbk, get_cluster_inf
 print "Generating secondary metabolite biosynthesizing reactions.."
 
 #WHY DO WE NEED THIS?
-cobra_model = create_cobra_model_from_sbml_file('sma_target_model_sco.xml')
+target_model = create_cobra_model_from_sbml_file('sma_target_model_sco.xml')
 #inputfile = './NC_021055.1.cluster002.gbk' #NRPS
-inputfile = './NC_013929.1.cluster031.gbk' #PKS
-#inputfile = './NC_020990.1.cluster023.gbk' #Hybrid
+#inputfile = './NC_013929.1.cluster031.gbk' #PKS
+inputfile = './NC_020990.1.cluster023.gbk' #Hybrid
 
 #TO MODIFY LATER
-mnxm_bigg_compound_dict = pickle.load(open('bigg_mnxm_compound_dict.p','rb'))
-mnxm_bigg_compound_dict = pickle.load(open('mnxm_compoundInfo_dict.p','rb'))
+bigg_mnxm_compound_dict = pickle.load(open('bigg_mnxm_compound_dict.p','rb'))
+mnxm_compoundInfo_dict = pickle.load(open('mnxm_compoundInfo_dict.p','rb'))
 
-#WHO DO WE NEED THIS?
-# making dictionary file of metabolites in template model (V)
-# (e.g. ''MNXM37': 'gln_DASH_L_p'])
-#metab_MNXM_dic = COBRA_TemplateModel_checking_MNXref_metabolites(cobra_model, mnxm_bigg_compound_dict)
 ##########################################################################
 
 
@@ -49,6 +45,4 @@ currency_metab_coeff_dict = get_total_currency_metab_coeff(module_currency_metab
 
 metab_coeff_dict = get_all_metab_coeff(locustag_monomer_dict, currency_metab_coeff_dict, product)
 
-#IN PROGRESS
-#Metabolit parts to check
-add_sec_met_rxn(cobra_model, metab_coeff_dict, product, bigg_mnxm_compound_dict, mnxm_compoundInfo_dict, cluster_info_dict)
+add_sec_met_rxn(target_model, metab_coeff_dict, product, bigg_mnxm_compound_dict, mnxm_compoundInfo_dict, cluster_info_dict)
