@@ -13,7 +13,7 @@ from independentModule import *
 import pickle
 import subprocess
 
-#root, tempGenome, tempModel = get_tempInfo(orgName='sco')
+root, tempGenome, tempModel = get_tempInfo(orgName='sco')
 #print root
 #print tempGenome
 #print tempModel
