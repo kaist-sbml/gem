@@ -641,7 +641,7 @@ def get_metab_coeff_dict():
     metab_coeff_dict['val_DASH_L'] = 0 #'L-Valine', 'C00183', 'MNXM199'
     metab_coeff_dict['ile_DASH_L'] = 0 #'L-Isoleucine', 'C00407', 'MNXM231'
     metab_coeff_dict['phg_DASH_L'] = 0 #'phenylglycine', 'C18623', 'MNXM59292'
-    metab_coeff_dict['bht_DASH_L'] = 0 #'beta-hydroxyn-tyrosine', 'N/A', 'N/A'
+    metab_coeff_dict['bht_DASH_L'] = 0 #'beta-hydroxyl-tyrosine', 'N/A', 'N/A'
     metab_coeff_dict['orn'] = 0 #'Ornithine', 'C01602', 'MNXM89689'
     metab_coeff_dict['abu'] = 0 #'D-2-Aminobutyric acid', 'C02261', 'MNXM17054'
     metab_coeff_dict['iva'] = 0 #'2-Amino-2-methylbutanoate', 'C03571', 'MNXM34821'
@@ -656,7 +656,7 @@ def get_metab_coeff_dict():
     metab_coeff_dict['24dab'] = 0 #'L-2,4-diazaniumylbutyrate', 'C03283', 'MNXM840'
     metab_coeff_dict['pac'] = 0 #'phenylacetate', 'C00548', 'MNXM497'
     metab_coeff_dict['tcl'] = 0 #'4-Chlorothreonine', 'N/A', 'MNXM37380'
-    metab_coeff_dict['qa'] = 0 #'quinoxaline', 'C18575','MNXM80501' VV
+    metab_coeff_dict['qa'] = 0 #'quinoxaline', 'C18575','MNXM80501'
     metab_coeff_dict['malcoa'] = 0 #'malonyl-CoA', 'C00083', 'MNXM40'
     metab_coeff_dict['mmcoa_DASH_S'] = 0 #'(S)-methylmalonyl-CoA(5-)','C00683', 'MNXM190'
     metab_coeff_dict['2mbcoa'] = 0 #'2-methylbutanoyl-CoA', C01033,'MNXM569'
