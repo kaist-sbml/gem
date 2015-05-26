@@ -706,3 +706,4 @@ def add_sec_met_rxn(target_model, metab_coeff_dict, product, bigg_mnxm_compound_
     print "\n", "Exchange reaction:", rxn
     print rxn.reaction
 
+    return target_model
