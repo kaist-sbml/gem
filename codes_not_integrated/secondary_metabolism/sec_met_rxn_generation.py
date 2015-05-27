@@ -126,7 +126,6 @@ def get_cluster_monomers(cluster_info_dict):
 
         for each_sub_set in sec_met_info_list:
             discriminator = "true"
-            print each_sub_set
             if "Substrate specificity predictions" in each_sub_set and "AMP-binding" in each_sub_set:
                 pred_monomer_list, discriminator = extract_nrp_monomers(each_sub_set, discriminator)
                 module_number = each_gene + '_M' + str(module_count)
@@ -157,15 +156,14 @@ def get_cluster_monomers(cluster_info_dict):
 
 
 def extract_nrp_monomers(each_sub_set, discriminator):
-    print each_sub_set
     sptline2 = each_sub_set.split(';')
-    print sptline2
-    whole_substrate_info = sptline2[1]
-    print whole_substrate_info
-    pred_monomer_list = []
 
-    predicted_monomers = whole_substrate_info.split(':')
-    sptSubstrates = predicted_monomers[1]
+    for element in sptline2:
+        if 'Substrate specificity predictions' in element:
+            pred_monomer_list = []
+
+            predicted_monomers = element.split(':')
+            sptSubstrates = predicted_monomers[1]
 
     if ', ' not in sptSubstrates:
         print "Insufficient substrate_info"
@@ -515,11 +513,24 @@ def get_all_metab_coeff(locustag_monomer_dict, metab_coeff_dict, product):
             if locustag_monomer_dict[each_module][3] == 'nrp':
                 #From NRPSPredictor2 SVM 
                 aSid_met2 = locustag_monomer_dict[each_module][0]
-                biggid_met2 = get_biggid_from_aSid(aSid_met2)
-                #print "aSid_met2", aSid_met2, biggid_met2
+                if aSid_met2 != 'hydrophobic-aliphatic' and aSid_met2 != 'hydrophilic' and aSid_met2 != 'N/A':
+                    biggid_met2 = get_biggid_from_aSid(aSid_met2)
 
-                #In case of non-consensus, NRPSPredictor2 SVM is considered 
-                metab_coeff_dict[biggid_met2] -= 1
+                    #In case of non-consensus, NRPSPredictor2 SVM is considered 
+                    metab_coeff_dict[biggid_met2] -= 1
+
+                #If NRPSPredictor2 SVM has invalid monomer, then Stachelhaus code is considered
+                elif aSid_met2 == 'hydrophobic-aliphatic' or aSid_met2 == 'hydrophilic' or aSid_met2 == 'N/A':
+                    aSid_met3 = locustag_monomer_dict[each_module][1]
+                    if aSid_met3 != 'hydrophobic-aliphatic' and aSid_met3 != 'hydrophilic' and aSid_met3 != 'N/A':
+                        biggid_met3 = get_biggid_from_aSid(aSid_met3)
+                        metab_coeff_dict[biggid_met3] -= 1
+
+                    #If Stachelhaus code has invalid monomer, then Minowa is considered
+                    elif aSid_met3 == 'hydrophobic-aliphatic' or aSid_met3 == 'hydrophilic' or aSid_met3 == 'N/A':
+                        aSid_met4 = locustag_monomer_dict[each_module][2]
+                        biggid_met4 = get_biggid_from_aSid(aSid_met4)
+                        metab_coeff_dict[biggid_met4] -= 1
 
             #In case "consensus" is reached:
             elif locustag_monomer_dict[each_module][3] != 'nrp':
