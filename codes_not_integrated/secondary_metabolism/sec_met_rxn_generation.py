@@ -6,12 +6,9 @@ This file generates metabolic reactions for the genes newly annotated to be pres
 '''
 
 from Bio import SeqIO
-from sets import Set
 from cobra import Model, Reaction, Metabolite
 from cobra.io.sbml import create_cobra_model_from_sbml_file,write_cobra_model_to_sbml_file
 from general_sec_met_info import determine_module, get_biggid_from_aSid, get_metab_coeff_dict
-import pickle
-import copy
 
 
 #Exracts all the information associated wiht a particular locus_tag
@@ -41,9 +38,6 @@ def get_cluster_info_from_cluster_gbk(gbkFile, FileType):
 
     #print 'cluster_info_dict'
     #print cluster_info_dict, '\n'
-    for i in cluster_info_dict.keys():
-        print i
-        #print cluster_info_dict[i], '\n'
     return cluster_info_dict
 
 
@@ -74,7 +68,7 @@ def get_product_from_cluster_gbk(gbkFile, FileType):
     else:
         product = "Cluster"+clusterNo+"_"+product
 
-    print product, "\n"
+    #print product, "\n"
     return product
 
 
@@ -116,7 +110,7 @@ def get_cluster_domain(cluster_info_dict):
         locustag_domain_dict[each_gene] = sec_met_domain_list
 
     print 'locustag_domain_dict'
-    print locustag_domain_dict, '\n'
+    #print locustag_domain_dict, '\n'
 
     return locustag_domain_dict
 
@@ -152,7 +146,7 @@ def get_cluster_monomers(cluster_info_dict):
                 module_number = each_gene + '_M' + str(module_count)
                 locustag_monomer_dict[module_number] = pred_monomer_list
                 module_count += 1
-                print "check", module_number, pred_monomer_list
+                #print "check", module_number, pred_monomer_list
 
             if discriminator == "false":
                 continue
@@ -271,7 +265,7 @@ def get_cluster_module(locustag_domain_dict):
                 count += 1
 
     print 'locustag_module_domain_dict'
-    print locustag_module_domain_dict, '\n'
+    #print locustag_module_domain_dict, '\n'
     return locustag_module_domain_dict
 
 
@@ -474,7 +468,7 @@ def get_currency_metabolites(locustag_module_domain_dict):
             continue
 
     print "module_currency_metab_dict"
-    print module_currency_metab_dict, '\n'
+    #print module_currency_metab_dict, '\n'
     return module_currency_metab_dict
 
 
@@ -494,7 +488,7 @@ def get_total_currency_metab_coeff(module_currency_metab_dict):
                 currency_metab_coeff_dict[each_metabolite] += metab_coeff
 
     print 'currency_metab_coeff_dict' 
-    print currency_metab_coeff_dict, '\n'
+    #print currency_metab_coeff_dict, '\n'
     return currency_metab_coeff_dict
 
 
@@ -562,7 +556,7 @@ def get_all_metab_coeff(locustag_monomer_dict, metab_coeff_dict, product):
     metab_coeff_dict[product] = 1
 
     print 'metab_coeff_dict'
-    print metab_coeff_dict, '\n'
+    #print metab_coeff_dict, '\n'
     return metab_coeff_dict
 
 
