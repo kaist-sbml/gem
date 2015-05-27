@@ -7,7 +7,6 @@ from cobra.io.sbml import create_cobra_model_from_sbml_file, write_cobra_model_t
 import pickle
 import os
 from sec_met_rxn_generation import get_product_from_cluster_gbk, get_cluster_info_from_cluster_gbk, get_cluster_domain, get_cluster_monomers, get_cluster_module, get_currency_metabolites, get_total_currency_metab_coeff, get_all_metab_coeff, add_sec_met_rxn 
-from sets import Set
 
 print "Generating secondary metabolite biosynthesizing reactions.."
 
@@ -19,8 +18,8 @@ target_model = create_cobra_model_from_sbml_file('sma_target_model_sco.xml')
 bigg_mnxm_compound_dict = pickle.load(open('bigg_mnxm_compound_dict.p','rb'))
 mnxm_compoundInfo_dict = pickle.load(open('mnxm_compoundInfo_dict.p','rb'))
 
-#dirname = './target_genome/'
-dirname = './'
+dirname = './target_genome/'
+#dirname = './'
 cluster_files = []
 for inputfile in os.listdir(dirname):
     if inputfile.endswith('.gbk') and 'cluster' in inputfile:
@@ -29,24 +28,26 @@ for inputfile in os.listdir(dirname):
 cluster_files.sort()
 
 for cluster_f in cluster_files:
-    print cluster_f
+    print '\n', cluster_f
 
     cluster_info_dict = get_cluster_info_from_cluster_gbk(dirname+cluster_f, "genbank")
 
     product = get_product_from_cluster_gbk(dirname+cluster_f, "genbank")
 
-    locustag_domain_dict = get_cluster_domain(cluster_info_dict)
+    if 't1pks' in product or 'nrps' in product:
 
-    locustag_monomer_dict = get_cluster_monomers(cluster_info_dict)
+        locustag_domain_dict = get_cluster_domain(cluster_info_dict)
 
-    locustag_module_domain_dict = get_cluster_module(locustag_domain_dict)
+        locustag_monomer_dict = get_cluster_monomers(cluster_info_dict)
 
-    module_currency_metab_dict = get_currency_metabolites(locustag_module_domain_dict)
+        locustag_module_domain_dict = get_cluster_module(locustag_domain_dict)
 
-    currency_metab_coeff_dict = get_total_currency_metab_coeff(module_currency_metab_dict)
+        module_currency_metab_dict = get_currency_metabolites(locustag_module_domain_dict)
 
-    metab_coeff_dict = get_all_metab_coeff(locustag_monomer_dict, currency_metab_coeff_dict, product)
+        currency_metab_coeff_dict = get_total_currency_metab_coeff(module_currency_metab_dict)
 
-    target_model = add_sec_met_rxn(target_model, metab_coeff_dict, product, bigg_mnxm_compound_dict, mnxm_compoundInfo_dict, cluster_info_dict)
+        metab_coeff_dict = get_all_metab_coeff(locustag_monomer_dict, currency_metab_coeff_dict, product)
+
+        target_model = add_sec_met_rxn(target_model, metab_coeff_dict, product, bigg_mnxm_compound_dict, mnxm_compoundInfo_dict, cluster_info_dict)
 
 write_cobra_model_to_sbml_file(target_model, 'sma_target_model_sco_complete.xml')

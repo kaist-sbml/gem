@@ -126,7 +126,7 @@ def get_cluster_monomers(cluster_info_dict):
 
         for each_sub_set in sec_met_info_list:
             discriminator = "true"
-
+            print each_sub_set
             if "Substrate specificity predictions" in each_sub_set and "AMP-binding" in each_sub_set:
                 pred_monomer_list, discriminator = extract_nrp_monomers(each_sub_set, discriminator)
                 module_number = each_gene + '_M' + str(module_count)
@@ -157,8 +157,11 @@ def get_cluster_monomers(cluster_info_dict):
 
 
 def extract_nrp_monomers(each_sub_set, discriminator):
+    print each_sub_set
     sptline2 = each_sub_set.split(';')
+    print sptline2
     whole_substrate_info = sptline2[1]
+    print whole_substrate_info
     pred_monomer_list = []
 
     predicted_monomers = whole_substrate_info.split(':')
@@ -548,6 +551,17 @@ def get_all_metab_coeff(locustag_monomer_dict, metab_coeff_dict, product):
             #In case "consensus" is reached:
             elif locustag_monomer_dict[each_module][2] != 'pk':
                 aSid_met8 = locustag_monomer_dict[each_module][2]
+
+                #Original monomers are considered for those reduced by KR, DH and/or ER
+                if aSid_met8 == 'ohmal' or aSid_met8 == 'ccmal' or aSid_met8 == 'redmal':
+                    aSid_met8 = 'mal'
+                elif aSid_met8 == 'ohmmal' or aSid_met8 == 'ccmmal' or aSid_met8 == 'redmmal':
+                    aSid_met8 = 'mmal'
+                elif aSid_met8 == 'ohmxmal' or aSid_met8 == 'ccmxmal' or aSid_met8 == 'redmxmal':
+                    aSid_met8 = 'mxmal'
+                elif aSid_met8 == 'ohemal' or aSid_met8 == 'ccemal' or aSid_met8 == 'redemal':
+                    aSid_met8 = 'emal'
+
                 biggid_met8 = get_biggid_from_aSid(aSid_met8)
                 #print "aSid_met8", aSid_met8, biggid_met8
                 metab_coeff_dict[biggid_met8] -= 1
