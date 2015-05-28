@@ -7,19 +7,21 @@ from cobra.io.sbml import create_cobra_model_from_sbml_file, write_cobra_model_t
 import pickle
 import os
 from sec_met_rxn_generation import get_product_from_cluster_gbk, get_cluster_info_from_cluster_gbk, get_cluster_domain, get_cluster_monomers, get_cluster_module, get_currency_metabolites, get_total_currency_metab_coeff, get_all_metab_coeff, add_sec_met_rxn 
+import sys
 
 print "Generating secondary metabolite biosynthesizing reactions.."
 
-target_model = create_cobra_model_from_sbml_file('sma_target_model_sco.xml')
-#inputfile = './NC_021055.1.cluster002.gbk' #NRPS
-#inputfile = './NC_013929.1.cluster031.gbk' #PKS
-#inputfile = './NC_020990.1.cluster023.gbk' #Hybrid
+orgname = sys.argv[1]
 
 bigg_mnxm_compound_dict = pickle.load(open('bigg_mnxm_compound_dict.p','rb'))
 mnxm_compoundInfo_dict = pickle.load(open('mnxm_compoundInfo_dict.p','rb'))
 
-dirname = './target_genome/'
-#dirname = './'
+dirname = './%s/' %orgname
+target_model = create_cobra_model_from_sbml_file(dirname+'%s_target_model_sco.xml' %orgname)
+#inputfile = './NC_021055.1.cluster002.gbk' #NRPS
+#inputfile = './NC_013929.1.cluster031.gbk' #PKS
+#inputfile = './NC_020990.1.cluster023.gbk' #Hybrid
+
 cluster_files = []
 for inputfile in os.listdir(dirname):
     if inputfile.endswith('.gbk') and 'cluster' in inputfile:
@@ -50,4 +52,20 @@ for cluster_f in cluster_files:
 
         target_model = add_sec_met_rxn(target_model, metab_coeff_dict, product, bigg_mnxm_compound_dict, mnxm_compoundInfo_dict, cluster_info_dict)
 
-write_cobra_model_to_sbml_file(target_model, 'sma_target_model_sco_complete.xml')
+write_cobra_model_to_sbml_file(target_model, dirname+'%s_target_model_sco_complete.xml' %orgname)
+
+fp1 = open(dirname+'%s_target_model_reactions.txt' %orgname, "w")
+fp2 = open(dirname+'%s_target_model_metabolites.txt' %orgname, "w")
+fp1.write("Reaction ID"+"\t"+"Reaction name"+"\t"+"Lower bound"+"\t"+"Reaction equation"+"\t"+"GPR"+"\t"+"Pathway"+"\n")
+fp2.write("Metabolite ID"+"\t"+"Metabolite name"+"\t"+"Formula"+"\t"+"Compartment"+"\n")
+
+for j in range(len(target_model.reactions)):
+    rxn = target_model.reactions[j]
+    print >>fp1, '%s\t%s\t%s\t%s\t%s\t%s' %(rxn.id, rxn.name, rxn.lower_bound, rxn.reaction, rxn.gene_reaction_rule, rxn.subsystem)
+
+for i in range(len(target_model.metabolites)):
+    metab = target_model.metabolites[i]
+    print >>fp2, '%s\t%s\t%s\t%s' %(metab.id, metab.name, metab.formula, metab.compartment)
+
+fp1.close()
+fp2.close()
