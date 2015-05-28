@@ -38,18 +38,15 @@ def get_cluster_info_from_cluster_gbk(gbkFile, FileType):
 
     #print 'cluster_info_dict'
     #print cluster_info_dict, '\n'
-    return cluster_info_dict
+    return cluster_info_dict, record
 
 
 #Output: e.g.
 #Cluster number: 2
 #Product: nrps
 #NC021055_Cluster_02_nrps
-def get_product_from_cluster_gbk(gbkFile, FileType):
+def get_product_from_cluster_gbk(record):
  
-    #Reads GenBank file
-    record = SeqIO.read(gbkFile, FileType)
-    
     for feature in record.features:
 
         #Retrieving "Cluster number"

@@ -32,9 +32,9 @@ cluster_files.sort()
 for cluster_f in cluster_files:
     print '\n', cluster_f
 
-    cluster_info_dict = get_cluster_info_from_cluster_gbk(dirname+cluster_f, "genbank")
+    cluster_info_dict, record = get_cluster_info_from_cluster_gbk(dirname+cluster_f, "genbank")
 
-    product = get_product_from_cluster_gbk(dirname+cluster_f, "genbank")
+    product = get_product_from_cluster_gbk(record)
 
     if 't1pks' in product or 'nrps' in product:
 
