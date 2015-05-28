@@ -33,6 +33,9 @@ target_model = create_cobra_model_from_sbml_file(dirname+model_sbml)
 #inputfile = './NC_013929.1.cluster031.gbk' #PKS
 #inputfile = './NC_020990.1.cluster023.gbk' #Hybrid
 
+#if __name__ == '__main__':
+#    cluster_f = 'NC_018750.1.cluster003.gbk'
+
 for cluster_f in cluster_files:
     print '\n', cluster_f
 

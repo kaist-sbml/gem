@@ -23,18 +23,12 @@ def get_cluster_info_from_cluster_gbk(gbkFile, FileType):
     for feature in record.features:
         sec_met_info_list = []
         if feature.type == 'CDS':
-            #MIGHT NEED TO ADD 'function' for the qualifier
-            #Prevent extracting genes without specific information
-            #Necessary not to have unidentified monomers in subsequent functions, cuasing error
-            if 'hypothetical' not in feature.qualifiers.get('product')[0]: 
-                qualifier_locus_tag = feature.qualifiers.get('locus_tag')[0]
-                if feature.qualifiers.get('sec_met'):
-                
-                    qualifier_sec_met = feature.qualifiers.get('sec_met')
-                    #print qualifier_sec_et
-                    sec_met_info_list.append(qualifier_sec_met)
+            qualifier_locus_tag = feature.qualifiers.get('locus_tag')[0]
+            if feature.qualifiers.get('sec_met'):
+                qualifier_sec_met = feature.qualifiers.get('sec_met')
+                sec_met_info_list.append(qualifier_sec_met)
 
-                    cluster_info_dict[qualifier_locus_tag] = sec_met_info_list
+                cluster_info_dict[qualifier_locus_tag] = sec_met_info_list
 
     #print 'cluster_info_dict'
     #print cluster_info_dict, '\n'
@@ -494,7 +488,7 @@ def get_total_currency_metab_coeff(module_currency_metab_dict):
 #Output: e.g.,
 #{'coa': 13, 'mmalcoa': -4, 'h': -10, 'malcoa': -7,     'hco3': 13, 'nadph': -10, 'h2o': 5, 'nadp': 10}
 def get_all_metab_coeff(locustag_monomer_dict, metab_coeff_dict, product):
-    
+
     for each_module in locustag_monomer_dict.keys():
         #locustag_monomer_dict[each_module] for nrps
         #Position [0]: NRPSPredictor2 SVM
