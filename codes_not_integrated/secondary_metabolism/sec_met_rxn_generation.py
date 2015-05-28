@@ -519,18 +519,18 @@ def get_all_metab_coeff(locustag_monomer_dict, metab_coeff_dict, product):
                     #In case of non-consensus, NRPSPredictor2 SVM is considered 
                     metab_coeff_dict[biggid_met2] -= 1
 
-                #If NRPSPredictor2 SVM has invalid monomer, then Stachelhaus code is considered
                 elif aSid_met2 == 'hydrophobic-aliphatic' or aSid_met2 == 'hydrophilic' or aSid_met2 == 'N/A':
-                    aSid_met3 = locustag_monomer_dict[each_module][1]
-                    if aSid_met3 != 'hydrophobic-aliphatic' and aSid_met3 != 'hydrophilic' and aSid_met3 != 'N/A':
-                        biggid_met3 = get_biggid_from_aSid(aSid_met3)
-                        metab_coeff_dict[biggid_met3] -= 1
-
-                    #If Stachelhaus code has invalid monomer, then Minowa is considered
-                    elif aSid_met3 == 'hydrophobic-aliphatic' or aSid_met3 == 'hydrophilic' or aSid_met3 == 'N/A':
-                        aSid_met4 = locustag_monomer_dict[each_module][2]
+                    #If NRPSPredictor2 SVM has invalid monomer, then Minowa is considered
+                    aSid_met4 = locustag_monomer_dict[each_module][2]
+                    if aSid_met4 != 'hydrophobic-aliphatic' and aSid_met4 != 'hydrophilic' and aSid_met4 != 'N/A':
                         biggid_met4 = get_biggid_from_aSid(aSid_met4)
                         metab_coeff_dict[biggid_met4] -= 1
+
+                    #If Minowa has invalid monomer, then Stachelhaus code is considered
+                    elif aSid_met4 == 'hydrophobic-aliphatic' or aSid_met4 == 'hydrophilic' or aSid_met4 == 'N/A':
+                        aSid_met3 = locustag_monomer_dict[each_module][1]
+                        biggid_met3 = get_biggid_from_aSid(aSid_met3)
+                        metab_coeff_dict[biggid_met3] -= 1
 
             #In case "consensus" is reached:
             elif locustag_monomer_dict[each_module][3] != 'nrp':
