@@ -233,9 +233,9 @@ def get_cluster_module(locustag_domain_dict):
                 locustag_module_domain_dict[module_number] = list_module_info
 
             elif list_module_info.count('PKS_KS') == 2:
-                module_number = t1pks_gene + '_M' + str(count)
+                module_number = locustag + '_M' + str(count)
                 poped_domain = list_module_info.pop()
-                dic_pksnrps_module[module_number] = list_module_info
+                locustag_module_domain_dict[module_number] = list_module_info
 
                 list_module_info = []
                 list_module_info.append(poped_domain)
