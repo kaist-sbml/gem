@@ -17,17 +17,21 @@ bigg_mnxm_compound_dict = pickle.load(open('bigg_mnxm_compound_dict.p','rb'))
 mnxm_compoundInfo_dict = pickle.load(open('mnxm_compoundInfo_dict.p','rb'))
 
 dirname = './%s/' %orgname
-target_model = create_cobra_model_from_sbml_file(dirname+'%s_target_model_sco.xml' %orgname)
+cluster_files = []
+for f in os.listdir(dirname):
+    if f.endswith('.gbk') and 'cluster' in f:
+        cluster_files.append(f)
+
+cluster_files.sort()
+
+for f in os.listdir(dirname):
+    if f.endswith('.xml'):
+       model_sbml = f
+
+target_model = create_cobra_model_from_sbml_file(dirname+model_sbml)
 #inputfile = './NC_021055.1.cluster002.gbk' #NRPS
 #inputfile = './NC_013929.1.cluster031.gbk' #PKS
 #inputfile = './NC_020990.1.cluster023.gbk' #Hybrid
-
-cluster_files = []
-for inputfile in os.listdir(dirname):
-    if inputfile.endswith('.gbk') and 'cluster' in inputfile:
-        cluster_files.append(inputfile)
-
-cluster_files.sort()
 
 for cluster_f in cluster_files:
     print '\n', cluster_f
@@ -52,7 +56,7 @@ for cluster_f in cluster_files:
 
         target_model = add_sec_met_rxn(target_model, metab_coeff_dict, product, bigg_mnxm_compound_dict, mnxm_compoundInfo_dict, cluster_info_dict)
 
-write_cobra_model_to_sbml_file(target_model, dirname+'%s_target_model_sco_complete.xml' %orgname)
+write_cobra_model_to_sbml_file(target_model, dirname+model_sbml[:-4]+'_complete.xml')
 
 fp1 = open(dirname+'%s_target_model_reactions.txt' %orgname, "w")
 fp2 = open(dirname+'%s_target_model_metabolites.txt' %orgname, "w")
