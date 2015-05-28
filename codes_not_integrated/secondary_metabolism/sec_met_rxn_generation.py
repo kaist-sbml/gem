@@ -109,7 +109,7 @@ def get_cluster_domain(cluster_info_dict):
                             
         locustag_domain_dict[each_gene] = sec_met_domain_list
 
-    print 'locustag_domain_dict'
+    #print 'locustag_domain_dict'
     #print locustag_domain_dict, '\n'
 
     return locustag_domain_dict
@@ -150,7 +150,7 @@ def get_cluster_monomers(cluster_info_dict):
             if discriminator == "false":
                 continue
  
-    print 'locustag_monomer_dict'
+    #print 'locustag_monomer_dict'
     #print locustag_monomer_dict, '\n'
     return locustag_monomer_dict
 
@@ -265,7 +265,7 @@ def get_cluster_module(locustag_domain_dict):
                 list_module_info = []
                 count += 1
 
-    print 'locustag_module_domain_dict'
+    #print 'locustag_module_domain_dict'
     #print locustag_module_domain_dict, '\n'
     return locustag_module_domain_dict
 
@@ -468,7 +468,7 @@ def get_currency_metabolites(locustag_module_domain_dict):
         elif discriminant == 'PCP':
             continue
 
-    print "module_currency_metab_dict"
+    #print "module_currency_metab_dict"
     #print module_currency_metab_dict, '\n'
     return module_currency_metab_dict
 
@@ -488,7 +488,7 @@ def get_total_currency_metab_coeff(module_currency_metab_dict):
             else:
                 currency_metab_coeff_dict[each_metabolite] += metab_coeff
 
-    print 'currency_metab_coeff_dict' 
+    #print 'currency_metab_coeff_dict' 
     #print currency_metab_coeff_dict, '\n'
     return currency_metab_coeff_dict
 
@@ -507,19 +507,20 @@ def get_all_metab_coeff(locustag_monomer_dict, metab_coeff_dict, product):
         if len(locustag_monomer_dict[each_module]) == 4:
 
             sptlist1 = locustag_monomer_dict[each_module][0].split(',')
-            #print "CHECK", sptlist1, len(sptlist1)
 
             #In case "consensus" is not reached:
             if locustag_monomer_dict[each_module][3] == 'nrp':
-                #From NRPSPredictor2 SVM 
+                #From NRPSPredictor2 SVM
+                #Not considered: e.g., NRPSPredictor2 SVM: val,leu,ile,abu,iva
+                #Checked by ',' in aSid_met2
                 aSid_met2 = locustag_monomer_dict[each_module][0]
-                if aSid_met2 != 'hydrophobic-aliphatic' and aSid_met2 != 'hydrophilic' and aSid_met2 != 'N/A':
+                if aSid_met2 != 'hydrophobic-aliphatic' and aSid_met2 != 'hydrophilic' and aSid_met2 != 'N/A' and ',' not in aSid_met2:
                     biggid_met2 = get_biggid_from_aSid(aSid_met2)
 
                     #In case of non-consensus, NRPSPredictor2 SVM is considered 
                     metab_coeff_dict[biggid_met2] -= 1
 
-                elif aSid_met2 == 'hydrophobic-aliphatic' or aSid_met2 == 'hydrophilic' or aSid_met2 == 'N/A':
+                elif aSid_met2 == 'hydrophobic-aliphatic' or aSid_met2 == 'hydrophilic' or aSid_met2 == 'N/A' or ',' in aSid_met2:
                     #If NRPSPredictor2 SVM has invalid monomer, then Minowa is considered
                     aSid_met4 = locustag_monomer_dict[each_module][2]
                     if aSid_met4 != 'hydrophobic-aliphatic' and aSid_met4 != 'hydrophilic' and aSid_met4 != 'N/A':
@@ -551,13 +552,20 @@ def get_all_metab_coeff(locustag_monomer_dict, metab_coeff_dict, product):
             #In case "consensus" is not reached:
             if locustag_monomer_dict[each_module][2] == 'pk':
 
-                #From PKS signature 
-                aSid_met6 = locustag_monomer_dict[each_module][0]
-                biggid_met6 = get_biggid_from_aSid(aSid_met6)
-                #print "aSid_met6", aSid_met6, biggid_met6
-
+                #From PKS signature
                 #In case of non-consensus, PKS signature is considered
-                metab_coeff_dict[biggid_met6] -= 1
+                aSid_met6 = locustag_monomer_dict[each_module][0]
+                if aSid_met6 != 'N/A':
+                    biggid_met6 = get_biggid_from_aSid(aSid_met6)
+                    #print "aSid_met6", aSid_met6, biggid_met6
+
+                    metab_coeff_dict[biggid_met6] -= 1
+
+                #If PKS signature has invalid monomer, then Minowa is considered
+                else:
+                    aSid_met7 = locustag_monomer_dict[each_module][1]
+                    biggid_met7 = get_biggid_from_aSid(aSid_met7)
+                    metab_coeff_dict[biggid_met7] -= 1
 
             #In case "consensus" is reached:
             elif locustag_monomer_dict[each_module][2] != 'pk':
@@ -580,7 +588,7 @@ def get_all_metab_coeff(locustag_monomer_dict, metab_coeff_dict, product):
     #Add secondary metabolite product to the reaction
     metab_coeff_dict[product] = 1
 
-    print 'metab_coeff_dict'
+    #print 'metab_coeff_dict'
     #print metab_coeff_dict, '\n'
     return metab_coeff_dict
 
