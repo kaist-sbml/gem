@@ -301,9 +301,12 @@ def add_nonBBH_rxn(modelPrunedGPR, rxnid_info_dict, rxnid_mnxm_coeff_dict, rxnid
 	    else:
 	        count = 1
 	        for locusTag in rxnid_locusTag_dict[rxnid]:
-                    #Considers "and" relationship in the GPR association
-		    if 'subunit' in targetGenome_locusTag_prod_dict[locusTag]:
-		        count += 1
+
+                    #Check the submitted gbk file contains "/product" for CDS
+                    if targetGenome_locusTag_prod_dict:
+                        #Considers "and" relationship in the GPR association
+		        if 'subunit' in targetGenome_locusTag_prod_dict[locusTag]:
+		            count += 1
 	        if count == len(rxnid_locusTag_dict[rxnid]):
 	            gpr = ' and '.join(rxnid_locusTag_dict[rxnid])
  	        else:
