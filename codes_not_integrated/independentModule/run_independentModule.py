@@ -13,14 +13,14 @@ from independentModule import *
 import pickle
 import subprocess
 
-root, tempGenome, tempModel = get_tempInfo(orgName='sco')
+#root, tempGenome, tempModel = get_tempInfo(orgName='sco')
 #print root
 #print tempGenome
 #print tempModel
 
 ################################################################################
 #Loading and parsing of the template model
-cobra_model, cobra_reaction_dic = readCobraModel(root, tempModel)
+#cobra_model, cobra_reaction_dic = readCobraModel(root, tempModel)
 #cobra_model = pickle.load(open("Pickle_template_model_original.p","rb"))
 #cobra_reaction_dic = pickle.load(open('./forChecking/cobra_reaction_dic.p','rb'))
 #cobra_metabolite_dic = pickle.load(open("Pickle_cobra_metabolite_dic.p","rb"))
@@ -40,7 +40,7 @@ cobra_model, cobra_reaction_dic = readCobraModel(root, tempModel)
 ################################################################################
 
 ################################################################################
-#pickling_Input_BiGG_KEGG_MNX_reactionID('./forChecking/allDB_mnxr_dict.txt', './forChecking/kegg_mnxr_dict.txt', './forChecking/mnxr_kegg_dict.txt')
+pickle_input_mnxr_rxnid('./forChecking/allDB_mnxr_dict.txt', './forChecking/kegg_mnxr_dict.txt', './forChecking/mnxr_kegg_dict.txt', './forChecking/bigg_mnxr_dict.txt')
 #allDB_mnxr_dict = pickle.load(open('./input2/allDB_mnxr_dict.p','rb'))
 #kegg_mnxr_dict = pickle.load(open("Pickle_kegg_mnxr_dict.p","rb"))
 #mnxr_kegg_dict = pickle.load(open("Pickle_mnxr_kegg_dict.p","rb"))

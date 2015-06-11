@@ -227,15 +227,17 @@ def get_rxnInfo_from_rxnid(rxnid):
 	    return {'NAME':NAME, 'DEFINITION':DEFINITION, 'EQUATION':EQUATION, 'ENZYME':ENZYME, 'PATHWAY':PATHWAY}
 
 
-def pickling_Input_BiGG_KEGG_MNX_reactionID(outputFile1, outputFile2, outputFile3):
-    fp1 = open('Input_KEGG_MNX_reactionID_v1_1.tsv',"r")
-    fp2 = open(outputFile1, "w")
-    fp3 = open(outputFile2, "w")
-    fp4 = open(outputFile3, "w")
+def pickle_input_mnxr_rxnid(outputFile1, outputFile2, outputFile3, outputFile4):
+    fp1 = open('Input_MNXR_reactionID_v1_1.tsv',"r")
+#    fp2 = open(outputFile1, "w")
+#    fp3 = open(outputFile2, "w")
+#    fp4 = open(outputFile3, "w")
+    fp5 = open(outputFile4, "w")
 
     allDB_mnxr_dict = {}
     kegg_mnxr_dict = {}
     mnxr_kegg_dict = {}
+    bigg_mnxr_dict = {}
 
     rxnid = fp1.readline()
     while rxnid:
@@ -244,39 +246,49 @@ def pickling_Input_BiGG_KEGG_MNX_reactionID(outputFile1, outputFile2, outputFile
 	rxnid[1] = rxnid[1].strip()
 	rxnid[2] = rxnid[2].strip()
 
-#Output = {reaction IDs in all the DB except for KEGG:MNXR}	
-	if rxnid[0] != 'kegg':
-	    allDB_mnxr_dict[rxnid[1]] = rxnid[2]
+        #Output = {reaction IDs in all the DB except for KEGG:MNXR}	
+#	if rxnid[0] != 'kegg':
+#	    allDB_mnxr_dict[rxnid[1]] = rxnid[2]
 
-#Output = {KEGG reaction ID:MNXR}
-	elif rxnid[0] == 'kegg':
-#	    print rxnid[0], rxnid[1]
-#Some reaction ID do not exist at KEGG, causing HTTPError
-	    try:
-#Some different reaction IDs assigned to the same MNXR
-#Only reactions IDs with "PATHWAY" are considered by implementing this function
-	        if get_rxnInfo_from_rxnid(rxnid[1]):
-	            kegg_mnxr_dict[rxnid[1]] = rxnid[2]
-	            mnxr_kegg_dict[rxnid[2]] = rxnid[1]
-	    except:
-	        print "Not available @ KEGG:", rxnid[1]
+        #Output = {KEGG reaction ID:MNXR}
+#	elif rxnid[0] == 'kegg':
+	    #print rxnid[0], rxnid[1]
+            #Some reaction ID do not exist at KEGG, causing HTTPError
+#	    try:
+                #Some different reaction IDs assigned to the same MNXR
+                #Only reactions IDs with "PATHWAY" are considered by implementing this function
+#	        if get_rxnInfo_from_rxnid(rxnid[1]):
+#	            kegg_mnxr_dict[rxnid[1]] = rxnid[2]
+#	            mnxr_kegg_dict[rxnid[2]] = rxnid[1]
+#	    except:
+#	        print "Not available @ KEGG:", rxnid[1]
+
+        #Output = {bigg reactionID:MNXR}
+        if rxnid[0] == 'bigg':
+            bigg_mnxr_dict[rxnid[1]] = rxnid[2]
+
 	print rxnid[1], rxnid[2]
 	rxnid = fp1.readline()
-    pickle.dump(allDB_mnxr_dict, open('./forChecking/allDB_mnxr_dict.p','wb'))
-    pickle.dump(kegg_mnxr_dict, open('./input2/kegg_mnxr_dict.p','wb'))
-    pickle.dump(mnxr_kegg_dict, open('./input2/mnxr_kegg_dict.p','wb'))
+
+#    pickle.dump(allDB_mnxr_dict, open('./forChecking/allDB_mnxr_dict.p','wb'))
+#    pickle.dump(kegg_mnxr_dict, open('./input2/kegg_mnxr_dict.p','wb'))
+#    pickle.dump(mnxr_kegg_dict, open('./input2/mnxr_kegg_dict.p','wb'))
+    pickle.dump(bigg_mnxr_dict, open('./input2/bigg_mnxr_dict.p','wb'))
     
-    for key in allDB_mnxr_dict.keys():
-	print >>fp2, '%s\t%s' %(key, allDB_mnxr_dict[key]) 
-    for key in allDB_mnxr_dict.keys():
-	print >>fp3, '%s\t%s' %(key, kegg_mnxr_dict[key]) 
-    for key in allDB_mnxr_dict.keys():
-	print >>fp4, '%s\t%s' %(key, mnxr_kegg_dict[key]) 
+#    for key in allDB_mnxr_dict.keys():
+#	print >>fp2, '%s\t%s' %(key, allDB_mnxr_dict[key]) 
+#    for key in allDB_mnxr_dict.keys():
+#	print >>fp3, '%s\t%s' %(key, kegg_mnxr_dict[key]) 
+#    for key in allDB_mnxr_dict.keys():
+#	print >>fp4, '%s\t%s' %(key, mnxr_kegg_dict[key]) 
+    for key in bigg_mnxr_dict.keys():
+	print >>fp5, '%s\t%s' %(key, bigg_mnxr_dict[key]) 
 
     fp1.close()
-    fp2.close()
-    fp3.close()
-    fp4.close()
+#    fp2.close()
+#    fp3.close()
+#    fp4.close()
+    fp5.close()
 
 
 def pickling_Input_MNXreaction():
