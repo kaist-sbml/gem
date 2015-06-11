@@ -40,12 +40,12 @@ import subprocess
 ################################################################################
 
 ################################################################################
-pickle_input_mnxr_rxnid('./forChecking/allDB_mnxr_dict.txt', './forChecking/kegg_mnxr_dict.txt', './forChecking/mnxr_kegg_dict.txt', './forChecking/bigg_mnxr_dict.txt')
+#pickle_input_mnxr_rxnid('./forChecking/allDB_mnxr_dict.txt', './forChecking/kegg_mnxr_dict.txt', './forChecking/mnxr_kegg_dict.txt', './forChecking/bigg_mnxr_dict.txt')
 #allDB_mnxr_dict = pickle.load(open('./input2/allDB_mnxr_dict.p','rb'))
 #kegg_mnxr_dict = pickle.load(open("Pickle_kegg_mnxr_dict.p","rb"))
 #mnxr_kegg_dict = pickle.load(open("Pickle_mnxr_kegg_dict.p","rb"))
 
-#pickling_Input_MNXreaction()
+pickle_input_mnxr_rxn_info()
 #mnxr_rxn_dict = pickle.load(open("Pickle_mnxr_rxn_dict.p","rb"))
 
 #pickle_input_bigg_kegg_mnx_compoundID()

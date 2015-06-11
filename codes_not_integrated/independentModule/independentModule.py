@@ -291,20 +291,26 @@ def pickle_input_mnxr_rxnid(outputFile1, outputFile2, outputFile3, outputFile4):
     fp5.close()
 
 
-def pickling_Input_MNXreaction():
+def pickle_input_mnxr_rxn_info():
     fp1 = open('Input_MNXreaction.tsv',"r")
     mnxr_rxn_dict = {}
+    mnxr_rxn_all_dict = {}
     rxn = fp1.readline()
 
     while rxn:
 	rxn = rxn.split('\t')
 	rxn[0] = rxn[0].strip()
 	rxn[1] = rxn[1].strip()
+	rxn[2] = rxn[2].strip()
+	rxn[3] = rxn[3].strip()
+	rxn[4] = rxn[4].strip()
 
 	print rxn[0], rxn[1]
-	mnxr_rxn_dict[rxn[0]] = rxn[1]
+	#mnxr_rxn_dict[rxn[0]] = rxn[1]
+	mnxr_rxn_all_dict[rxn[0]] = [rxn[1], rxn[2], rxn[3], rxn[4]]
 	rxn = fp1.readline()
-    pickle.dump(mnxr_rxn_dict, open('./input2/mnxr_rxn_dict.p','wb'))
+    #pickle.dump(mnxr_rxn_dict, open('./input2/mnxr_rxn_dict.p','wb'))
+    pickle.dump(mnxr_rxn_all_dict, open('./input2/mnxr_rxn_all_dict.p','wb'))
     fp1.close()
 
 
