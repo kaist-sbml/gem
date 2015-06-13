@@ -195,6 +195,7 @@ class gapfilling_precursor():
             m.addConstr(v[each_reaction]-1000.0*b_bool[each_reaction] <= 0)
             m.addConstr(v[each_reaction]+1000.0*b_bool[each_reaction] >= 0)
 
+        #Check tolerance: too small number may cause infeasibility
         #addConstr modification : 0.01 -> 1.00
         m.addConstr(v[target_reaction]>= 1.00)
 
