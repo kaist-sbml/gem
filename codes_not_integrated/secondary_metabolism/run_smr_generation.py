@@ -6,7 +6,15 @@
 from cobra.io.sbml import create_cobra_model_from_sbml_file, write_cobra_model_to_sbml_file
 import pickle
 import os
-from sec_met_rxn_generation import get_product_from_cluster_gbk, get_cluster_info_from_cluster_gbk, get_cluster_domain, get_cluster_monomers, get_cluster_module, get_currency_metabolites, get_total_currency_metab_coeff, get_all_metab_coeff, add_sec_met_rxn 
+from sec_met_rxn_generation import (
+    get_product_from_cluster_gbk,
+    get_cluster_info_from_cluster_gbk,
+    get_cluster_domain, get_cluster_monomers,
+    get_cluster_module, get_currency_metabolites,
+    get_total_currency_metab_coeff,
+    get_all_metab_coeff,
+    add_sec_met_rxn
+)
 import sys
 
 print "Generating secondary metabolite biosynthesizing reactions.."
