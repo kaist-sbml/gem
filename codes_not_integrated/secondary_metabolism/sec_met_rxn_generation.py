@@ -725,3 +725,23 @@ def add_sec_met_rxn(target_model, metab_coeff_dict, product, bigg_mnxm_compound_
     print rxn.reaction
 
     return target_model
+
+
+def check_producibility_sec_met(dirname, orgname, target_model, metab_coeff_dict, product):
+
+    fp1 = open(dirname+'%s_sec_met_flux.txt' %orgname, 'a')
+
+    #Change objective function from biomass to desired precursor
+    #This is for Sco as a template model
+    target_model.reactions.get_by_id('Biomass_SCO').objective_coefficient = 0
+    target_model.reactions.get_by_id("Ex_"+product).objective_coefficient = 1
+    target_model.optimize()
+    print "Flux:", target_model.solution.f
+    print >>fp1, '%s\t%f\t%s' %("Ex_"+product, target_model.solution.f, target_model.solution.status)
+
+    target_model.reactions.get_by_id('Biomass_SCO').objective_coefficient = 1 
+
+    fp1.close()
+     
+    if target_model.solution.f < 0.001:
+        return product
