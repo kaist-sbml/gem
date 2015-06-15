@@ -104,5 +104,5 @@ obj = gapfilling_precursor()
 
 #Load merged model
 obj.load_cobra_model(target_model)
-
+obj.change_reversibility('Biomass_SCO', target_model)
 obj.fill_gap(demand_reaction.id, target_model, universal_model2)
