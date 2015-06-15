@@ -745,3 +745,15 @@ def check_producibility_sec_met(dirname, orgname, target_model, metab_coeff_dict
      
     if target_model.solution.f < 0.001:
         return product
+
+
+def get_monomers_nonprod_sec_met(metab_coeff_dict):
+
+    nonprod_sec_met_metab_list = []
+
+    for metab in metab_coeff_dict.keys():
+        #Exclude currency metabolites
+        if metab_coeff_dict[metab] <0 and metab != 'atp' and metab != 'amp' and metab != 'ppi' and metab != 'amet' and metab != 'ahcys' and metab != 'fmn' and metab != 'fmnh2' and metab != 'nadp' and metab != 'nadph' and metab != 'h' and metab != 'h2o' and metab != 'hco3' and metab != 'coa':
+            nonprod_sec_met_metab_list.append(metab)
+
+    return nonprod_sec_met_metab_list

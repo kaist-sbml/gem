@@ -16,7 +16,8 @@ from sec_met_rxn_generation import (
     get_total_currency_metab_coeff,
     get_all_metab_coeff,
     add_sec_met_rxn,
-    check_producibility_sec_met
+    check_producibility_sec_met,
+    get_monomers_nonprod_sec_met
 )
 from gapfill_network_manipulation import (
     get_mnxr_bigg_in_target_model,
@@ -54,7 +55,7 @@ target_model = create_cobra_model_from_sbml_file(dirname+model_sbml)
 #if __name__ == '__main__':
 #    cluster_f = 'NC_018750.1.cluster003.gbk'
 
-nonproducible_sec_met = []
+nonprod_sec_met = {}
 
 for cluster_f in cluster_files:
     print '\n', cluster_f
@@ -80,15 +81,14 @@ for cluster_f in cluster_files:
         target_model = add_sec_met_rxn(target_model, metab_coeff_dict, product, bigg_mnxm_compound_dict, mnxm_compoundInfo_dict, cluster_info_dict)
         
         product = check_producibility_sec_met(dirname, orgname, target_model, metab_coeff_dict, product)
+
         if product != None:
-            nonproducible_sec_met.append(product)
+            nonprod_sec_met_metab_list = get_monomers_nonprod_sec_met(metab_coeff_dict)
+            nonprod_sec_met[product] = nonprod_sec_met_metab_list
 
 print "\n", "Nonproducible secondary metabolites:"
-print nonproducible_sec_met
+print nonprod_sec_met
 
-for rxn in nonproducible_sec_met:
-    print rxn
-    print target_model.reactions.get_by_id(rxn).metabolites
 
 '''
 write_cobra_model_to_sbml_file(target_model, dirname+model_sbml[:-4]+'_complete.xml')
@@ -108,6 +108,7 @@ for i in range(len(target_model.metabolites)):
 
 fp1.close()
 fp2.close()
+'''
 
 print "Gap-filling for the production of secondary metabolites..."
 
