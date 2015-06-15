@@ -86,6 +86,10 @@ for cluster_f in cluster_files:
 print "\n", "Nonproducible secondary metabolites:"
 print nonproducible_sec_met
 
+for rxn in nonproducible_sec_met:
+    print rxn
+    print target_model.reactions.get_by_id(rxn).metabolites
+
 '''
 write_cobra_model_to_sbml_file(target_model, dirname+model_sbml[:-4]+'_complete.xml')
 
@@ -105,11 +109,7 @@ for i in range(len(target_model.metabolites)):
 fp1.close()
 fp2.close()
 
-
 print "Gap-filling for the production of secondary metabolites..."
-
-target_model = create_cobra_model_from_sbml_file('./E_coli_iAF1260_rewrite.xml')
-#cobra_model = create_cobra_model_from_sbml_file('./sma_target_model_sco_complete.xml')
 
 #ivcoa_c, 3-Methylbutanoyl-CoA: one of the precursors for non-ribosomal peptide
 if 'ivcoa_c' in target_model.metabolites:
