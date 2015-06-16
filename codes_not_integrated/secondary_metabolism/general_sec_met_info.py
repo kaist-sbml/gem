@@ -513,8 +513,9 @@ def get_biggid_from_aSid(each_substrate):
     elif each_substrate == 'phg':
         met_name = 'phg_DASH_L'
 
+    #No MNXM, KEGG ID and bigg ID for "bht"
     elif each_substrate == 'bht':
-        met_name = 'bht_DASH_L'
+        met_name = 'bht'
 
     elif each_substrate == 'orn':
         met_name = 'orn'
@@ -522,23 +523,27 @@ def get_biggid_from_aSid(each_substrate):
     elif each_substrate == 'abu':
         met_name = 'abu'
 
+    #No bigg ID
     elif each_substrate == 'iva':
-        met_name = 'iva'
+        met_name = 'MNXM34821'
 
     elif each_substrate == 'aad':
         met_name = 'L2aadp'
 
+    #No bigg ID
     elif each_substrate == 'hpg':
-        met_name = 'hpg'
+        met_name = 'MNXM4544'
 
     elif each_substrate == 'dhb':
         met_name = '23dhb'
 
+    #No bigg ID
     elif each_substrate == 'dhpg':
-        met_name = 'dhpg'
+        met_name = 'MNXM9962'
 
+    #No bigg ID
     elif each_substrate == 'hty':
-        met_name = 'hty'
+        met_name = 'MNXM59438'
 
     elif each_substrate == 'cit':
         met_name = 'citr_DASH_L'
@@ -555,11 +560,13 @@ def get_biggid_from_aSid(each_substrate):
     elif each_substrate == 'phenylacetate' or each_substrate == 'Pha':
         met_name = 'pac'
 
+    #No bigg ID
     elif each_substrate == 'tcl':
-        met_name = 'tcl'
+        met_name = 'MNXM37380'
 
+    #No bigg ID
     elif each_substrate == 'qa':
-        met_name = 'qa'
+        met_name = 'MNXM80501'
 
     #t1pks substreate
     elif each_substrate == 'mal':
@@ -586,11 +593,13 @@ def get_biggid_from_aSid(each_substrate):
     elif each_substrate == '3metbut':
         met_name = 'ivcoa'
 
+    #No bigg ID
     elif each_substrate == 'mxmal':
-        met_name = 'mxmalacp'
+        met_name = 'MNXM61686'
 
+    #No bigg ID
     elif each_substrate == 'CHC-CoA':
-        met_name = 'chccoa'
+        met_name = 'MNXM5111'
 
     elif each_substrate == 'N/A':
         met_name = 'N/A'
@@ -641,22 +650,22 @@ def get_metab_coeff_dict():
     metab_coeff_dict['val_DASH_L'] = 0 #'L-Valine', 'C00183', 'MNXM199'
     metab_coeff_dict['ile_DASH_L'] = 0 #'L-Isoleucine', 'C00407', 'MNXM231'
     metab_coeff_dict['phg_DASH_L'] = 0 #'phenylglycine', 'C18623', 'MNXM59292'
-    metab_coeff_dict['bht_DASH_L'] = 0 #'beta-hydroxyl-tyrosine', 'N/A', 'N/A'
+    metab_coeff_dict['bht'] = 0 #'beta-hydroxyl-tyrosine', 'N/A', 'N/A'
     metab_coeff_dict['orn'] = 0 #'Ornithine', 'C01602', 'MNXM89689'
     metab_coeff_dict['abu'] = 0 #'D-2-Aminobutyric acid', 'C02261', 'MNXM17054'
-    metab_coeff_dict['iva'] = 0 #'2-Amino-2-methylbutanoate', 'C03571', 'MNXM34821'
+    metab_coeff_dict['MNXM34821'] = 0 #'iva', '2-Amino-2-methylbutanoate', 'C03571', 'MNXM34821'
     metab_coeff_dict['L2aadp'] = 0 #'L-2-Aminoadipic acid', 'C00956', 'MNXM268'
-    metab_coeff_dict['hpg'] = 0 #'D-4-Hydroxyphenylglycine', 'C03493', 'MNXM4544'
+    metab_coeff_dict['MNXM4544'] = 0 #'hpg', 'D-4-Hydroxyphenylglycine', 'C03493', 'MNXM4544'
     metab_coeff_dict['23dhb'] = 0 #'2,3-Dihydroxybenzoic acid', 'C00196', 'MNXM455'
-    metab_coeff_dict['dhpg'] = 0 #'3,5-Dihydroxy-phenylglycine', 'C12026', 'MNXM9962'
-    metab_coeff_dict['hty'] = 0 #'L-Homotyrosine', 'C18622', 'MNXM59438'
+    metab_coeff_dict['MNXM9962'] = 0 #'dhpg', '3,5-Dihydroxy-phenylglycine', 'C12026', 'MNXM9962'
+    metab_coeff_dict['MNXM59438'] = 0 #'hty', 'L-Homotyrosine', 'C18622', 'MNXM59438'
     metab_coeff_dict['citr_DASH_L'] = 0 #'L-citruline', 'C00327', 'MNXM211'
     metab_coeff_dict['Lpipecol'] = 0 #'L-pipecolate', 'C00408', 'MNXM684'
     metab_coeff_dict['ala_DASH_B'] = 0 #'beta-alanine zwitterion', 'C00099', 'MNXM144'
     metab_coeff_dict['24dab'] = 0 #'L-2,4-diazaniumylbutyrate', 'C03283', 'MNXM840'
     metab_coeff_dict['pac'] = 0 #'phenylacetate', 'C00548', 'MNXM497'
-    metab_coeff_dict['tcl'] = 0 #'4-Chlorothreonine', 'N/A', 'MNXM37380'
-    metab_coeff_dict['qa'] = 0 #'quinoxaline', 'C18575','MNXM80501'
+    metab_coeff_dict['MNXM37380'] = 0 #'tcl', '4-Chlorothreonine', 'N/A', 'MNXM37380'
+    metab_coeff_dict['MNXM80501'] = 0 #'qa', 'quinoxaline', 'C18575','MNXM80501'
     metab_coeff_dict['malcoa'] = 0 #'malonyl-CoA', 'C00083', 'MNXM40'
     metab_coeff_dict['mmcoa_DASH_S'] = 0 #'(S)-methylmalonyl-CoA(5-)','C00683', 'MNXM190'
     metab_coeff_dict['2mbcoa'] = 0 #'2-methylbutanoyl-CoA', C01033,'MNXM569'
@@ -665,8 +674,8 @@ def get_metab_coeff_dict():
     metab_coeff_dict['accoa'] = 0 #'Acetyl-CoA', 'C00024', 'MNXM21'
     metab_coeff_dict['ppcoa'] = 0 #'Propionyl-CoA', 'C00100', 'MNXM86'
     metab_coeff_dict['ivcoa'] = 0 #'3-Methylbutanoyl-CoA', 'C02939', 'MNXM471'
-    metab_coeff_dict['mxmalacp'] = 0 #'Methoxymalonyl-[acp]A', 'C18616', 'MNXM61686'
-    metab_coeff_dict['chccoa'] = 0 #'cyclohexane-1-carboxyl-CoA', 'C09823', 'MNXM5111'
+    metab_coeff_dict['MNXM61686'] = 0 #'mxmalacp', 'Methoxymalonyl-[acp]', 'C18616', 'MNXM61686'
+    metab_coeff_dict['MNXM5111'] = 0 #'chccoa', 'cyclohexane-1-carboxyl-CoA', 'C09823', 'MNXM5111'
 
     return metab_coeff_dict
 
