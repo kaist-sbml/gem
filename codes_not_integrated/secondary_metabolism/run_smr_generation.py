@@ -141,27 +141,37 @@ target_model2, universal_model2 = get_manipulated_target_universal_models(balanc
 
 
 print "Step 2: Optimization-based gap-filling process..", "\n"
+nonprod_monomer = 'malcoa'
+target_model_temp = add_transport_exchange_rxn_nonprod_monomer(target_model2, nonprod_monomer)
+target_model_temp = check_producibility_nonprod_monomer(target_model_temp, nonprod_monomer)
+#Run gap-filling algorithm based on MILP in gurobipy
+obj = gapfilling_precursor()
 
+#Load merged model
+obj.load_cobra_model(target_model_temp)
+#obj.change_reversibility(target_model_temp.reactions.get_by_id('Ex_'+nonprod_monomer), target_model_temp)
+obj.fill_gap("Transport_"+nonprod_monomer, target_model_temp, universal_model2)
+
+
+'''
 for nonprod_monomers_list in nonprod_sec_met.keys():
     for nonprod_monomer in nonprod_sec_met[nonprod_monomers_list]:
         print nonprod_monomers_list, nonprod_monomer
 
         target_model_temp = add_transport_exchange_rxn_nonprod_monomer(target_model2, nonprod_monomer)
-        #if check_producibility_nonprod_monomer(target_model_temp, nonprod_monomer) == False:
-        print check_producibility_nonprod_monomer(target_model_temp, nonprod_monomer)
+        if check_producibility_nonprod_monomer(target_model_temp, nonprod_monomer) == False:
+            #Run gap-filling algorithm based on MILP in gurobipy
+            obj = gapfilling_precursor()
 
-        #Run gap-filling algorithm based on MILP in gurobipy
-        #obj = gapfilling_precursor()
+            #Load merged model
+            obj.load_cobra_model(target_model_temp)
+            #obj.change_reversibility(target_model_temp.reactions.get_by_id('Ex_'+nonprod_monomer), target_model_temp)
+            obj.fill_gap(target_model_temp.reactions.get_by_id("Ex_"+nonprod_monomer), target_model_temp, universal_model2)
 
-        #Load merged model
-        #obj.load_cobra_model(target_model_temp)
-        #obj.change_reversibility(target_model_temp.reactions.get_by_id('Ex_'+nonprod_monomer), target_model_temp)
-        #obj.fill_gap(target_model_temp.reactions.get_by_id("Transport_"+nonprod_monomer), target_model_temp, universal_model2)
+        else:
+            continue
 
-        #else:
-        #    continue
 
-'''
 #Output
 write_cobra_model_to_sbml_file(target_model, dirname+model_sbml[:-4]+'_complete2.xml')
 
