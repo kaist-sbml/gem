@@ -579,6 +579,7 @@ def get_biggid_from_aSid(each_substrate):
     elif each_substrate == '2metbut':
         met_name = '2mbcoa'
 
+    #Not available in bigg, but available in iMK1208
     elif each_substrate == 'Ethyl_mal' or each_substrate == 'emal':
         met_name = 'emcoa_DASH_S'
 

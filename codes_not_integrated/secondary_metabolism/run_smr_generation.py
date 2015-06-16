@@ -23,7 +23,9 @@ from gapfill_network_manipulation import (
     get_mnxr_bigg_in_target_model,
     get_mnxr_unique_to_universal_model,
     get_balanced_rxns_from_mnxr,
-    get_manipulated_target_universal_models
+    get_manipulated_target_universal_models,
+    add_transport_exchange_rxn_nonprod_monomer,
+    check_producibility_nonprod_monomer
 )
 from gapfill_core import gapfilling_precursor
 
@@ -87,7 +89,7 @@ for cluster_f in cluster_files:
             nonprod_sec_met[product] = nonprod_sec_met_metab_list
 
 print "\n", "Nonproducible secondary metabolites:"
-print nonprod_sec_met
+print nonprod_sec_met, "\n"
 
 
 '''
@@ -110,20 +112,11 @@ fp1.close()
 fp2.close()
 '''
 
-print "Gap-filling for the production of secondary metabolites..."
+print "Gap-filling for the production of secondary metabolites.."
+print "Step 1: Network manipulation for gap-filling process..", "\n"
 
-#ivcoa_c, 3-Methylbutanoyl-CoA: one of the precursors for non-ribosomal peptide
-if 'ivcoa_c' in target_model.metabolites:
-    print "\n"
-    print "ivcoa_c (ivcoa_c) is already included in template_model"
-else:
-    print "\n"
-    print "'Metabolite (ivcoa_c) is not included in template_model"
-
-#Load universal network in sbml format
 #universal_model = create_cobra_model_from_sbml_file('./universal_network_fiexed_bigg_mnxref.xml')
 
-# fixing the definition of metabolite id (e.g. ala__L_c --> ala_DASH_L_c)
 #universal_model = fix_special_characters_compoundid(universal_model)
 
 #pickle.dump(universal_model, open('./input/universal_model.p','wb'))
@@ -131,7 +124,9 @@ universal_model = pickle.load(open("./input/universal_model.p","rb"))
 
 #From gapfill_network_manipulation.py
 bigg_mnxr_dict = pickle.load(open("./input/bigg_mnxr_dict.p","rb"))
-gg_target_model_dict = get_mnxr_bigg_in_target_model(target_model, bigg_mnxr_dict)
+
+print "Retrieving reaction information from target_model and universal_model.."
+mnxr_bigg_target_model_dict = get_mnxr_bigg_in_target_model(target_model, bigg_mnxr_dict)
 
 mnxr_unique_to_universal_model_list = get_mnxr_unique_to_universal_model(mnxr_bigg_target_model_dict, universal_model)
 
@@ -139,18 +134,35 @@ mnxr_rxn_all_dict = pickle.load(open("./input/mnxr_rxn_all_dict.p","rb"))
 
 balanced_unique_mnxr_list = get_balanced_rxns_from_mnxr(mnxr_unique_to_universal_model_list, mnxr_rxn_all_dict)
 
-target_model, universal_model2 = get_manipulated_target_universal_models(balanced_unique_mnxr_list, target_model, universal_model)
+print "Merging target_model and universal_model.."
+print "Also generating also having a truncated universal_model with its exclusive reactions.."
+print "\n"
+target_model2, universal_model2 = get_manipulated_target_universal_models(balanced_unique_mnxr_list, target_model, universal_model)
 
 
-#Run gap-filling algorithm based on MILP in gurobipy
-obj = gapfilling_precursor()
+print "Step 2: Optimization-based gap-filling process..", "\n"
 
-#Load merged model
-obj.load_cobra_model(target_model)
-obj.change_reversibility('Biomass_SCO', target_model)
-obj.fill_gap(demand_reaction.id, target_model, universal_model2)
+for nonprod_monomers_list in nonprod_sec_met.keys():
+    for nonprod_monomer in nonprod_sec_met[nonprod_monomers_list]:
+        print nonprod_monomers_list, nonprod_monomer
 
+        target_model_temp = add_transport_exchange_rxn_nonprod_monomer(target_model2, nonprod_monomer)
+        #if check_producibility_nonprod_monomer(target_model_temp, nonprod_monomer) == False:
+        print check_producibility_nonprod_monomer(target_model_temp, nonprod_monomer)
 
+        #Run gap-filling algorithm based on MILP in gurobipy
+        #obj = gapfilling_precursor()
+
+        #Load merged model
+        #obj.load_cobra_model(target_model_temp)
+        #obj.change_reversibility(target_model_temp.reactions.get_by_id('Ex_'+nonprod_monomer), target_model_temp)
+        #obj.fill_gap(target_model_temp.reactions.get_by_id("Transport_"+nonprod_monomer), target_model_temp, universal_model2)
+
+        #else:
+        #    continue
+
+'''
+#Output
 write_cobra_model_to_sbml_file(target_model, dirname+model_sbml[:-4]+'_complete2.xml')
 
 fp1 = open(dirname+'%s_target_model_reactions2.txt' %orgname, "w")

@@ -7,7 +7,7 @@ This file generates metabolic reactions for the genes newly annotated to be pres
 
 from Bio import SeqIO
 from cobra import Model, Reaction, Metabolite
-from cobra.io.sbml import create_cobra_model_from_sbml_file,write_cobra_model_to_sbml_file
+from cobra.io.sbml import create_cobra_model_from_sbml_file, write_cobra_model_to_sbml_file
 from general_sec_met_info import determine_module, get_biggid_from_aSid, get_metab_coeff_dict
 
 
@@ -614,20 +614,20 @@ def add_sec_met_rxn(target_model, metab_coeff_dict, product, bigg_mnxm_compound_
                 metab_compt = Metabolite(metab_compt, compartment='c')
                 rxn.add_metabolites({metab_compt:metab_coeff_dict[metab]})
 
-            elif metab == 'abu':
+            elif metab == 'MNXM17054': #'abu'
                 metab_compt = Metabolite(metab_compt, formula = mnxm_compoundInfo_dict['MNXM17054'][1], name = mnxm_compoundInfo_dict['MNXM17054'][0], compartment='c')
                 rxn.add_metabolites({metab_compt:metab_coeff_dict[metab]})
 
-            #MNXM not available
-            elif metab == 'bht_DASH_L':
+            #No MNXM, KEGG ID and bigg ID for "bht"
+            elif metab == 'bht':
                 metab_compt = Metabolite(metab_compt, compartment='c')
                 rxn.add_metabolites({metab_compt:metab_coeff_dict[metab]})
 
-            elif metab == 'chccoa':
+            elif metab == 'MNXM5111': #'chccoa'
                 metab_compt = Metabolite(metab_compt, formula = mnxm_compoundInfo_dict['MNXM5111'][1], name = mnxm_compoundInfo_dict['MNXM5111'][0], compartment='c')
                 rxn.add_metabolites({metab_compt:metab_coeff_dict[metab]})
 
-            elif metab == 'dhpg':
+            elif metab == 'MNXM9962': #'dhpg'
                 metab_compt = Metabolite(metab_compt, formula = mnxm_compoundInfo_dict['MNXM9962'][1], name = mnxm_compoundInfo_dict['MNXM9962'][0], compartment='c')
                 rxn.add_metabolites({metab_compt:metab_coeff_dict[metab]})
 
@@ -635,19 +635,19 @@ def add_sec_met_rxn(target_model, metab_coeff_dict, product, bigg_mnxm_compound_
                 metab_compt = Metabolite(metab_compt, formula = mnxm_compoundInfo_dict['MNXM2043'][1], name = mnxm_compoundInfo_dict['MNXM2043'][0], compartment='c')
                 rxn.add_metabolites({metab_compt:metab_coeff_dict[metab]})
 
-            elif metab == 'hpg':
+            elif metab == 'MNXM4544': #'hpg'
                 metab_compt = Metabolite(metab_compt, formula = mnxm_compoundInfo_dict['MNXM4544'][1], name = mnxm_compoundInfo_dict['MNXM4544'][0], compartment='c')
                 rxn.add_metabolites({metab_compt:metab_coeff_dict[metab]})
 
-            elif metab == 'hty':
+            elif metab == 'MNXM59438': #'hty'
                 metab_compt = Metabolite(metab_compt, formula = mnxm_compoundInfo_dict['MNXM59438'][1], name = mnxm_compoundInfo_dict['MNXM59438'][0], compartment='c')
                 rxn.add_metabolites({metab_compt:metab_coeff_dict[metab]})
 
-            elif metab == 'iva':
+            elif metab == 'MNXM34821': #'iva'
                 metab_compt = Metabolite(metab_compt, formula = mnxm_compoundInfo_dict['MNXM34821'][1], name = mnxm_compoundInfo_dict['MNXM34821'][0], compartment='c')
                 rxn.add_metabolites({metab_compt:metab_coeff_dict[metab]})
 
-            elif metab == 'mxmalacp':
+            elif metab == 'MNXM61686': #'mxmalacp'
                 metab_compt = Metabolite(metab_compt, formula = mnxm_compoundInfo_dict['MNXM61686'][1], name = mnxm_compoundInfo_dict['MNXM61686'][0], compartment='c')
                 rxn.add_metabolites({metab_compt:metab_coeff_dict[metab]})
 
@@ -655,11 +655,11 @@ def add_sec_met_rxn(target_model, metab_coeff_dict, product, bigg_mnxm_compound_
                 metab_compt = Metabolite(metab_compt, formula = mnxm_compoundInfo_dict['MNXM59292'][1], name = mnxm_compoundInfo_dict['MNXM59292'][0], compartment='c')
                 rxn.add_metabolites({metab_compt:metab_coeff_dict[metab]})
 
-            elif metab == 'qa':
+            elif metab == 'MNXM80501': #'qa'
                 metab_compt = Metabolite(metab_compt, formula = mnxm_compoundInfo_dict['MNXM80501'][1], name = mnxm_compoundInfo_dict['MNXM80501'][0], compartment='c')
                 rxn.add_metabolites({metab_compt:metab_coeff_dict[metab]})
 
-            elif metab == 'tcl':
+            elif metab == 'MNXM37380': #'tcl'
                 metab_compt = Metabolite(metab_compt, formula = mnxm_compoundInfo_dict['MNXM37380'][1], name = mnxm_compoundInfo_dict['MNXM37380'][0], compartment='c')
                 rxn.add_metabolites({metab_compt:metab_coeff_dict[metab]})
 
@@ -729,7 +729,7 @@ def add_sec_met_rxn(target_model, metab_coeff_dict, product, bigg_mnxm_compound_
 
 def check_producibility_sec_met(dirname, orgname, target_model, metab_coeff_dict, product):
 
-    fp1 = open(dirname+'%s_sec_met_flux.txt' %orgname, 'a')
+    #fp1 = open(dirname+'%s_sec_met_flux.txt' %orgname, 'a')
 
     #Change objective function from biomass to desired precursor
     #This is for Sco as a template model
@@ -737,11 +737,12 @@ def check_producibility_sec_met(dirname, orgname, target_model, metab_coeff_dict
     target_model.reactions.get_by_id("Ex_"+product).objective_coefficient = 1
     target_model.optimize()
     print "Flux:", target_model.solution.f
-    print >>fp1, '%s\t%f\t%s' %("Ex_"+product, target_model.solution.f, target_model.solution.status)
+    #print >>fp1, '%s\t%f\t%s' %("Ex_"+product, target_model.solution.f, target_model.solution.status)
 
     target_model.reactions.get_by_id('Biomass_SCO').objective_coefficient = 1 
+    target_model.reactions.get_by_id("Ex_"+product).objective_coefficient = 0
 
-    fp1.close()
+    #fp1.close()
      
     if target_model.solution.f < 0.001:
         return product
