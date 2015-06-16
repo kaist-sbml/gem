@@ -520,8 +520,9 @@ def get_biggid_from_aSid(each_substrate):
     elif each_substrate == 'orn':
         met_name = 'orn'
 
+    #No bigg ID
     elif each_substrate == 'abu':
-        met_name = 'abu'
+        met_name = 'MNXM17054'
 
     #No bigg ID
     elif each_substrate == 'iva':
@@ -652,7 +653,7 @@ def get_metab_coeff_dict():
     metab_coeff_dict['phg_DASH_L'] = 0 #'phenylglycine', 'C18623', 'MNXM59292'
     metab_coeff_dict['bht'] = 0 #'beta-hydroxyl-tyrosine', 'N/A', 'N/A'
     metab_coeff_dict['orn'] = 0 #'Ornithine', 'C01602', 'MNXM89689'
-    metab_coeff_dict['abu'] = 0 #'D-2-Aminobutyric acid', 'C02261', 'MNXM17054'
+    metab_coeff_dict['MNXM17054'] = 0 #'abu', 'D-2-Aminobutyric acid', 'C02261', 'MNXM17054'
     metab_coeff_dict['MNXM34821'] = 0 #'iva', '2-Amino-2-methylbutanoate', 'C03571', 'MNXM34821'
     metab_coeff_dict['L2aadp'] = 0 #'L-2-Aminoadipic acid', 'C00956', 'MNXM268'
     metab_coeff_dict['MNXM4544'] = 0 #'hpg', 'D-4-Hydroxyphenylglycine', 'C03493', 'MNXM4544'
