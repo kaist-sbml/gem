@@ -25,7 +25,8 @@ from gapfill_network_manipulation import (
     get_balanced_rxns_from_mnxr,
     get_manipulated_target_universal_models,
     add_transport_exchange_rxn_nonprod_monomer,
-    check_producibility_nonprod_monomer
+    check_producibility_nonprod_monomer,
+    get_unique_nonprod_monomers_list
 )
 from gapfill_core import gapfilling_precursor
 
@@ -141,35 +142,33 @@ target_model2, universal_model2 = get_manipulated_target_universal_models(balanc
 
 
 print "Step 2: Optimization-based gap-filling process..", "\n"
-nonprod_monomer = 'malcoa'
-target_model_temp = add_transport_exchange_rxn_nonprod_monomer(target_model2, nonprod_monomer)
-target_model_temp = check_producibility_nonprod_monomer(target_model_temp, nonprod_monomer)
+#nonprod_monomer = 'malcoa'
+#target_model_temp = add_transport_exchange_rxn_nonprod_monomer(target_model2, nonprod_monomer)
+#target_model_temp = check_producibility_nonprod_monomer(target_model_temp, nonprod_monomer)
+
 #Run gap-filling algorithm based on MILP in gurobipy
-obj = gapfilling_precursor()
+#obj = gapfilling_precursor()
 
 #Load merged model
-obj.load_cobra_model(target_model_temp)
+#obj.load_cobra_model(target_model_temp)
 #obj.change_reversibility(target_model_temp.reactions.get_by_id('Ex_'+nonprod_monomer), target_model_temp)
-obj.fill_gap("Transport_"+nonprod_monomer, target_model_temp, universal_model2)
+#obj.fill_gap("Transport_"+nonprod_monomer, target_model_temp, universal_model2)
 
+unique_nonprod_monomers_list = get_unique_nonprod_monomers_list(nonprod_sec_met)
 
-'''
-for nonprod_monomers_list in nonprod_sec_met.keys():
-    for nonprod_monomer in nonprod_sec_met[nonprod_monomers_list]:
-        print nonprod_monomers_list, nonprod_monomer
+for nonprod_monomer in unique_nonprod_monomers_list:
+    target_model_temp = add_transport_exchange_rxn_nonprod_monomer(target_model2, nonprod_monomer)
+    if check_producibility_nonprod_monomer(target_model_temp, nonprod_monomer) != None:
+        #Run gap-filling algorithm based on MILP in gurobipy
+        obj = gapfilling_precursor()
 
-        target_model_temp = add_transport_exchange_rxn_nonprod_monomer(target_model2, nonprod_monomer)
-        if check_producibility_nonprod_monomer(target_model_temp, nonprod_monomer) == False:
-            #Run gap-filling algorithm based on MILP in gurobipy
-            obj = gapfilling_precursor()
+        #Load merged model
+        obj.load_cobra_model(target_model_temp)
+        #obj.change_reversibility(target_model_temp.reactions.get_by_id('Ex_'+nonprod_monomer), target_model_temp)
+        obj.fill_gap("Ex_"+nonprod_monomer, target_model_temp, universal_model2)
 
-            #Load merged model
-            obj.load_cobra_model(target_model_temp)
-            #obj.change_reversibility(target_model_temp.reactions.get_by_id('Ex_'+nonprod_monomer), target_model_temp)
-            obj.fill_gap(target_model_temp.reactions.get_by_id("Ex_"+nonprod_monomer), target_model_temp, universal_model2)
-
-        else:
-            continue
+    else:
+        continue
 
 
 #Output
@@ -190,4 +189,4 @@ for i in range(len(target_model.metabolites)):
 
 fp1.close()
 fp2.close()
-'''
+
