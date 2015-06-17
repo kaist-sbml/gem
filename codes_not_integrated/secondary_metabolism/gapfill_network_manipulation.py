@@ -158,14 +158,23 @@ def check_producibility_nonprod_monomer(target_model_temp, nonprod_monomer):
     else:
         return target_model_temp
 
-def get_unique_nonprod_monomers_list(nonprod_sec_met):
+
+def get_unique_nonprod_monomers_list(nonprod_sec_met_dict, prod_sec_met_dict):
+
+    unique_prod_monomers_list = []
     unique_nonprod_monomers_list = []
 
-    for nonprod_monomers_list in nonprod_sec_met.keys():
-        for nonprod_monomer in nonprod_sec_met[nonprod_monomers_list]:
-            if nonprod_monomer not in unique_nonprod_monomers_list:
+    for prod_monomers_list in prod_sec_met_dict.keys():
+        for prod_monomer in prod_sec_met_dict[prod_monomers_list]:
+            if prod_monomer not in unique_prod_monomers_list:
+                unique_prod_monomers_list.append(prod_monomer)
+
+    for nonprod_monomers_list in nonprod_sec_met_dict.keys():
+        for nonprod_monomer in nonprod_sec_met_dict[nonprod_monomers_list]:
+            if nonprod_monomer not in unique_nonprod_monomers_list and nonprod_monomer not in unique_prod_monomers_list:
                 unique_nonprod_monomers_list.append(nonprod_monomer)
 
-    print unique_nonprod_monomers_list
+    print unique_nonprod_monomers_list, "\n"
     return unique_nonprod_monomers_list
+
 
