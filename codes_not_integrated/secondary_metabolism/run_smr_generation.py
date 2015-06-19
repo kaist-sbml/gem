@@ -165,12 +165,12 @@ for nonprod_monomer in unique_nonprod_monomers_list:
     else:
         print "Gap-filling not possible: target_model with reactions from universal_model does not produce this monomer", nonprod_monomer, "\n"
 
-'''
-#Output
-write_cobra_model_to_sbml_file(target_model, dirname+model_sbml[:-4]+'_complete2.xml')
 
-fp1 = open(dirname+'%s_target_model_reactions2.txt' %orgname, "w")
-fp2 = open(dirname+'%s_target_model_metabolites2.txt' %orgname, "w")
+#Output
+write_cobra_model_to_sbml_file(target_model, dirname+model_sbml[:-4]+'_complete.xml')
+
+fp1 = open(dirname+'%s_target_model_reactions.txt' %orgname, "w")
+fp2 = open(dirname+'%s_target_model_metabolites.txt' %orgname, "w")
 fp1.write("Reaction ID"+"\t"+"Reaction name"+"\t"+"Lower bound"+"\t"+"Reaction equation"+"\t"+"GPR"+"\t"+"Pathway"+"\n")
 fp2.write("Metabolite ID"+"\t"+"Metabolite name"+"\t"+"Formula"+"\t"+"Compartment"+"\n")
 
@@ -184,4 +184,4 @@ for i in range(len(target_model.metabolites)):
 
 fp1.close()
 fp2.close()
-'''
+
