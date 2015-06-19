@@ -132,8 +132,7 @@ def add_transport_exchange_rxn_nonprod_monomer(target_model, nonprod_monomer):
     return target_model_temp
 
 
-def check_producibility_nonprod_monomer(cobra_model, nonprod_monomer):
-    #Change objective function from biomass to desired precursor
+def check_producibility_nonprod_monomer(cobra_model, nonprod_monomer, dirname):
     for rxn in cobra_model.reactions:
         rxn.objective_coefficient = 0
 
@@ -141,18 +140,13 @@ def check_producibility_nonprod_monomer(cobra_model, nonprod_monomer):
 
     #Model reloading and overwrtting are necessary for model stability
     #Without these, model does not produce an accurate prediction
-    write_cobra_model_to_sbml_file(cobra_model, "target_model_temp_%s.xml" %nonprod_monomer)
-    cobra_model = create_cobra_model_from_sbml_file("target_model_temp_%s.xml" %nonprod_monomer)
+    write_cobra_model_to_sbml_file(cobra_model, dirname+"target_model_temp_%s.xml" %nonprod_monomer)
+    cobra_model = create_cobra_model_from_sbml_file(dirname+"target_model_temp_%s.xml" %nonprod_monomer)
     cobra_model.optimize()
 
     print cobra_model.reactions.get_by_id("Ex_"+nonprod_monomer)
     print cobra_model.reactions.get_by_id("Ex_"+nonprod_monomer).reaction
     print "Flux:", cobra_model.solution.f, "\n"
-
-    #fp1 = open("%s_fba.txt" %nonprod_monomer,"w")
-    #for the_reaction, the_value in cobra_model.solution.x_dict.items():
-    #    fp1.write(str(the_reaction)+"\t"+str(the_value)+"\n")
-    #fp1.close()
 
     return cobra_model
 
