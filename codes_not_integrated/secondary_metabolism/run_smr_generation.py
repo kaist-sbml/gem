@@ -52,9 +52,6 @@ for f in os.listdir(dirname):
        model_sbml = f
 
 target_model = create_cobra_model_from_sbml_file(dirname+model_sbml)
-#inputfile = './NC_021055.1.cluster002.gbk' #NRPS
-#inputfile = './NC_013929.1.cluster031.gbk' #PKS
-#inputfile = './NC_020990.1.cluster023.gbk' #Hybrid
 
 #if __name__ == '__main__':
 #    cluster_f = 'NC_018750.1.cluster003.gbk'
@@ -143,29 +140,39 @@ mnxr_rxn_all_dict = pickle.load(open("./input/mnxr_rxn_all_dict.p","rb"))
 balanced_unique_mnxr_list = get_balanced_rxns_from_mnxr(mnxr_unique_to_universal_model_list, mnxr_rxn_all_dict)
 
 print "Merging target_model and universal_model.."
-print "Also generating also having a truncated universal_model with its exclusive reactions.."
+print "Also generating a truncated universal_model with its exclusive reactions.."
 print "\n"
 target_model2, universal_model2 = get_manipulated_target_universal_models(balanced_unique_mnxr_list, target_model, universal_model)
 
 
 print "Step 2: Optimization-based gap-filling process..", "\n"
-#nonprod_monomer = 'malcoa'
-#target_model_temp = add_transport_exchange_rxn_nonprod_monomer(target_model2, nonprod_monomer)
-#target_model_temp = check_producibility_nonprod_monomer(target_model_temp, nonprod_monomer)
-
-#Run gap-filling algorithm based on MILP in gurobipy
-#obj = gapfilling_precursor()
-
-#Load merged model
-#obj.load_cobra_model(target_model_temp)
-#obj.change_reversibility(target_model_temp.reactions.get_by_id('Ex_'+nonprod_monomer), target_model_temp)
-#obj.fill_gap("Transport_"+nonprod_monomer, target_model_temp, universal_model2)
 
 unique_nonprod_monomers_list = get_unique_nonprod_monomers_list(nonprod_sec_met_dict, prod_sec_met_dict)
 
+#Some monomers used for nonproducible secondary metabolites can be produced from an initial target_model
+#They need to be excluded from the list for gap-filling targets
 for nonprod_monomer in unique_nonprod_monomers_list:
+    print nonprod_monomer
+    target_model_monomer = add_transport_exchange_rxn_nonprod_monomer(target_model, nonprod_monomer)
+    target_model_monomer = check_producibility_nonprod_monomer(target_model_monomer, nonprod_monomer)
+    if target_model_monomer.solution.f > 0:
+        print "Optimal value for :", nonprod_monomer, target_model_monomer.solution.f
+        unique_nonprod_monomers_list.remove(nonprod_monomer)
+
+    else:
+        continue
+
+print "Adjusted unique_nonprod_monomers_list", unique_nonprod_monomers_list
+
+for nonprod_monomer in unique_nonprod_monomers_list:
+
     target_model_temp = add_transport_exchange_rxn_nonprod_monomer(target_model2, nonprod_monomer)
-    if check_producibility_nonprod_monomer(target_model_temp, nonprod_monomer) != None:
+    target_model_temp = check_producibility_nonprod_monomer(target_model_temp, nonprod_monomer)
+    target_model_temp.optimize()
+
+    #Run gap-filling procedure only for monomers producible from target_model with reactions from universal_model
+    if target_model_temp.solution.f > 0:
+
         #Run gap-filling algorithm based on MILP in gurobipy
         obj = gapfilling_precursor()
 
@@ -175,7 +182,7 @@ for nonprod_monomer in unique_nonprod_monomers_list:
         obj.fill_gap("Ex_"+nonprod_monomer, target_model_temp, universal_model2)
 
     else:
-        continue
+        print "Gap-filling not possible: target_model with reactions from universal_model does not produce this monomer", nonprod_monomer, "\n"
 
 '''
 #Output

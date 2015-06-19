@@ -132,32 +132,29 @@ def add_transport_exchange_rxn_nonprod_monomer(target_model, nonprod_monomer):
     return target_model_temp
 
 
-def check_producibility_nonprod_monomer(target_model_temp, nonprod_monomer):
+def check_producibility_nonprod_monomer(cobra_model, nonprod_monomer):
     #Change objective function from biomass to desired precursor
-    #This is for Sco as a template model
-    target_model_temp.reactions.get_by_id('Biomass_SCO').objective_coefficient = 0
-    target_model_temp.reactions.get_by_id("Ex_"+nonprod_monomer).objective_coefficient = 1
+    for rxn in cobra_model.reactions:
+        rxn.objective_coefficient = 0
+
+    cobra_model.reactions.get_by_id("Ex_"+nonprod_monomer).objective_coefficient = 1
 
     #Model reloading and overwrtting are necessary for model stability
     #Without these, model does not produce an accurate prediction
-    write_cobra_model_to_sbml_file(target_model_temp, "target_model_temp_%s.xml" %nonprod_monomer)
-    target_model_temp = create_cobra_model_from_sbml_file("target_model_temp_%s.xml" %nonprod_monomer)
-    target_model_temp.optimize()
+    write_cobra_model_to_sbml_file(cobra_model, "target_model_temp_%s.xml" %nonprod_monomer)
+    cobra_model = create_cobra_model_from_sbml_file("target_model_temp_%s.xml" %nonprod_monomer)
+    cobra_model.optimize()
 
-    print target_model_temp.reactions.get_by_id("Ex_"+nonprod_monomer)
-    print target_model_temp.reactions.get_by_id("Ex_"+nonprod_monomer).reaction
-    print "Flux:", target_model_temp.solution.f, "\n"
+    print cobra_model.reactions.get_by_id("Ex_"+nonprod_monomer)
+    print cobra_model.reactions.get_by_id("Ex_"+nonprod_monomer).reaction
+    print "Flux:", cobra_model.solution.f, "\n"
 
     #fp1 = open("%s_fba.txt" %nonprod_monomer,"w")
-    #for the_reaction, the_value in target_model_temp.solution.x_dict.items():
+    #for the_reaction, the_value in cobra_model.solution.x_dict.items():
     #    fp1.write(str(the_reaction)+"\t"+str(the_value)+"\n")
     #fp1.close()
 
-    if target_model_temp.solution.f >= 0.001:
-        return None
-    else:
-        return target_model_temp
-
+    return cobra_model
 
 def get_unique_nonprod_monomers_list(nonprod_sec_met_dict, prod_sec_met_dict):
 
