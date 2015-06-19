@@ -97,25 +97,6 @@ print prod_sec_met_dict, "\n"
 print "\n", "Nonproducible secondary metabolites:"
 print nonprod_sec_met_dict, "\n"
 
-'''
-write_cobra_model_to_sbml_file(target_model, dirname+model_sbml[:-4]+'_complete.xml')
-
-fp1 = open(dirname+'%s_target_model_reactions.txt' %orgname, "w")
-fp2 = open(dirname+'%s_target_model_metabolites.txt' %orgname, "w")
-fp1.write("Reaction ID"+"\t"+"Reaction name"+"\t"+"Lower bound"+"\t"+"Reaction equation"+"\t"+"GPR"+"\t"+"Pathway"+"\n")
-fp2.write("Metabolite ID"+"\t"+"Metabolite name"+"\t"+"Formula"+"\t"+"Compartment"+"\n")
-
-for j in range(len(target_model.reactions)):
-    rxn = target_model.reactions[j]
-    print >>fp1, '%s\t%s\t%s\t%s\t%s\t%s' %(rxn.id, rxn.name, rxn.lower_bound, rxn.reaction, rxn.gene_reaction_rule, rxn.subsystem)
-
-for i in range(len(target_model.metabolites)):
-    metab = target_model.metabolites[i]
-    print >>fp2, '%s\t%s\t%s\t%s' %(metab.id, metab.name, metab.formula, metab.compartment)
-
-fp1.close()
-fp2.close()
-'''
 
 print "Gap-filling for the production of secondary metabolites.."
 print "Step 1: Network manipulation for gap-filling process..", "\n"
