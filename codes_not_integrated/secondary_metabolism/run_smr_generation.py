@@ -82,7 +82,7 @@ for cluster_f in cluster_files:
 
         target_model = add_sec_met_rxn(target_model, metab_coeff_dict, product, bigg_mnxm_compound_dict, mnxm_compoundInfo_dict, cluster_info_dict)
         
-        target_model.solution.f, product = check_producibility_sec_met(dirname, orgname, target_model, metab_coeff_dict, product)
+        target_model.solution.f, product = check_producibility_sec_met(target_model, metab_coeff_dict, product)
 
         if target_model.solution.f < 0.0001:
             nonprod_sec_met_metab_list = get_monomers_nonprod_sec_met(metab_coeff_dict)
@@ -169,8 +169,8 @@ for nonprod_monomer in unique_nonprod_monomers_list:
 #Output
 write_cobra_model_to_sbml_file(target_model, dirname+model_sbml[:-4]+'_complete.xml')
 
-fp1 = open(dirname+'%s_target_model_reactions.txt' %orgname, "w")
-fp2 = open(dirname+'%s_target_model_metabolites.txt' %orgname, "w")
+fp1 = open('%s_target_model_reactions.txt' %orgname, "w")
+fp2 = open('%s_target_model_metabolites.txt' %orgname, "w")
 fp1.write("Reaction ID"+"\t"+"Reaction name"+"\t"+"Lower bound"+"\t"+"Reaction equation"+"\t"+"GPR"+"\t"+"Pathway"+"\n")
 fp2.write("Metabolite ID"+"\t"+"Metabolite name"+"\t"+"Formula"+"\t"+"Compartment"+"\n")
 

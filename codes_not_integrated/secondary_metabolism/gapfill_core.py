@@ -24,8 +24,8 @@ class gapfilling_precursor():
 
         self.cobra_model = cobra_model
         model = cobra_model
-        model.optimize()
-        print('\nSimulated production rate of the target metabolite is %1.3f' % model.solution.f)
+        #model.optimize()
+        #print('\nSimulated production rate of the target metabolite is %1.3f' % model.solution.f)
         model_metabolites = []
         model_reactions = []
         Lower_Boundary_Constraint = {}
@@ -226,11 +226,11 @@ class gapfilling_precursor():
 
     def fill_gap(self, target_reaction, cobra_model, universal_reaction_model):
         universal_reactions = [each_reaction.id for each_reaction in universal_reaction_model.reactions]
-        cobra_model.add_reactions(universal_reaction_model.reactions)
-        cobra_model.optimize()
-        print cobra_model.solution.f
+        #cobra_model.add_reactions(universal_reaction_model.reactions)
+        #cobra_model.optimize()
+        #print cobra_model.solution.f
         status, ObjVal, added_reaction  =  self.run_GapFill(target_reaction=target_reaction, UniversalReactions=universal_reactions)
-        #?print status
+        #print status
         #print ObjVal
         print "Reactions to add:", added_reaction
         return
