@@ -655,8 +655,8 @@ def add_sec_met_rxn(target_model, metab_coeff_dict, product, bigg_mnxm_compound_
                 metab_compt = Metabolite(metab_compt, formula = mnxm_compoundInfo_dict['MNXM59292'][1], name = mnxm_compoundInfo_dict['MNXM59292'][0], compartment='c')
                 rxn.add_metabolites({metab_compt:metab_coeff_dict[metab]})
 
-            elif metab == 'MNXM80501': #'qa'
-                metab_compt = Metabolite(metab_compt, formula = mnxm_compoundInfo_dict['MNXM80501'][1], name = mnxm_compoundInfo_dict['MNXM80501'][0], compartment='c')
+            elif metab == 'MNXM80505': #'qa'
+                metab_compt = Metabolite(metab_compt, formula = mnxm_compoundInfo_dict['MNXM80505'][1], name = mnxm_compoundInfo_dict['MNXM80505'][0], compartment='c')
                 rxn.add_metabolites({metab_compt:metab_coeff_dict[metab]})
 
             elif metab == 'MNXM37380': #'tcl'

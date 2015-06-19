@@ -567,7 +567,7 @@ def get_biggid_from_aSid(each_substrate):
 
     #No bigg ID
     elif each_substrate == 'qa':
-        met_name = 'MNXM80501'
+        met_name = 'MNXM80505'
 
     #t1pks substreate
     elif each_substrate == 'mal':
@@ -667,7 +667,7 @@ def get_metab_coeff_dict():
     metab_coeff_dict['24dab'] = 0 #'L-2,4-diazaniumylbutyrate', 'C03283', 'MNXM840'
     metab_coeff_dict['pac'] = 0 #'phenylacetate', 'C00548', 'MNXM497'
     metab_coeff_dict['MNXM37380'] = 0 #'tcl', '4-Chlorothreonine', 'N/A', 'MNXM37380'
-    metab_coeff_dict['MNXM80501'] = 0 #'qa', 'quinoxaline', 'C18575','MNXM80501'
+    metab_coeff_dict['MNXM80505'] = 0 #'qa', 'quinoxaline', 'C18575','MNXM80505'
     metab_coeff_dict['malcoa'] = 0 #'malonyl-CoA', 'C00083', 'MNXM40'
     metab_coeff_dict['mmcoa_DASH_S'] = 0 #'(S)-methylmalonyl-CoA(5-)','C00683', 'MNXM190'
     metab_coeff_dict['2mbcoa'] = 0 #'2-methylbutanoyl-CoA', C01033,'MNXM569'
