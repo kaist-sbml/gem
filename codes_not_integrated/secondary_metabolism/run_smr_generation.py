@@ -1,6 +1,6 @@
 '''
-2015 Kyu-Sang Hwang
 2015 Hyun Uk Kim
+2015 Kyu-Sang Hwang
 '''
 
 from cobra.io.sbml import create_cobra_model_from_sbml_file, write_cobra_model_to_sbml_file
