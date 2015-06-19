@@ -14,16 +14,16 @@ def fix_special_characters_compoundid(model):
         
         met_id = each_metabolite.id
         
-        met_id = met_id.replace('__', '_DASH_')
-        met_id = met_id.replace('/', '_FSLASH_')
-        met_id = met_id.replace("\\", '_BSLASH_')
-        met_id = met_id.replace('(', '_LPAREN_')
-        met_id = met_id.replace('[', '_LSQBKT_')
-        met_id = met_id.replace(']', '_RSQBKT_')
-        met_id = met_id.replace(')', '_RPAREN_')
-        met_id = met_id.replace(',', '_COMMA_')
-        met_id = met_id.replace('.', '_PERIOD_')
-        met_id = met_id.replace("'", '_APOS_')
+        met_id = met_id.replace('__', '_dash_')
+        met_id = met_id.replace('/', '_fslash_')
+        met_id = met_id.replace("\\", '_bslash_')
+        met_id = met_id.replace('(', '_lparen_')
+        met_id = met_id.replace('[', '_lsqbkt_')
+        met_id = met_id.replace(']', '_rsqbkt_')
+        met_id = met_id.replace(')', '_rparen_')
+        met_id = met_id.replace(',', '_comma_')
+        met_id = met_id.replace('.', '_period_')
+        met_id = met_id.replace("'", '_apos_')
         met_id = met_id.replace('&', '&amp;')
         met_id = met_id.replace('<', '&lt;')
         met_id = met_id.replace('>', '&gt;')
@@ -168,4 +168,10 @@ def get_unique_nonprod_monomers_list(nonprod_sec_met_dict, prod_sec_met_dict):
     print unique_nonprod_monomers_list, "\n"
     return unique_nonprod_monomers_list
 
+
+def add_gapfill_rxn_target_model(target_model, universal_model, added_reaction):
+    for gapfill_rxn in added_reaction:
+        target_model.add_reaction(universal_model.reactions.get_by_id(gapfill_rxn))
+        print "Reaction added to the target_model:", gapfill_rxn, "\n"
+    return target_model
 

@@ -27,7 +27,8 @@ from gapfill_network_manipulation import (
     get_manipulated_target_universal_models,
     add_transport_exchange_rxn_nonprod_monomer,
     check_producibility_nonprod_monomer,
-    get_unique_nonprod_monomers_list
+    get_unique_nonprod_monomers_list,
+    add_gapfill_rxn_target_model,
 )
 from gapfill_core import gapfilling_precursor
 
@@ -82,7 +83,7 @@ for cluster_f in cluster_files:
 
         target_model = add_sec_met_rxn(target_model, metab_coeff_dict, product, bigg_mnxm_compound_dict, mnxm_compoundInfo_dict, cluster_info_dict)
         
-        target_model.solution.f, product = check_producibility_sec_met(target_model, metab_coeff_dict, product)
+        target_model.solution.f, product = check_producibility_sec_met(target_model, product)
 
         if target_model.solution.f < 0.0001:
             nonprod_sec_met_metab_list = get_monomers_nonprod_sec_met(metab_coeff_dict)
@@ -111,7 +112,7 @@ universal_model = pickle.load(open("./input/universal_model.p","rb"))
 #From gapfill_network_manipulation.py
 bigg_mnxr_dict = pickle.load(open("./input/bigg_mnxr_dict.p","rb"))
 
-print orgname
+
 print "Retrieving reaction information from target_model and universal_model.."
 mnxr_bigg_target_model_dict = get_mnxr_bigg_in_target_model(target_model, bigg_mnxr_dict)
 
@@ -144,7 +145,7 @@ for nonprod_monomer in unique_nonprod_monomers_list:
     else:
         continue
 
-print "Adjusted unique_nonprod_monomers_list", unique_nonprod_monomers_list
+print "Adjusted unique_nonprod_monomers_list", unique_nonprod_monomers_list, "\n"
 
 for nonprod_monomer in unique_nonprod_monomers_list:
 
@@ -161,11 +162,16 @@ for nonprod_monomer in unique_nonprod_monomers_list:
         #Load merged model
         obj.load_cobra_model(target_model_temp)
         #obj.change_reversibility(target_model_temp.reactions.get_by_id('Ex_'+nonprod_monomer), target_model_temp)
-        obj.fill_gap("Ex_"+nonprod_monomer, target_model_temp, universal_model2)
-
+        added_reaction = obj.fill_gap("Ex_"+nonprod_monomer, target_model_temp, universal_model2)
+        target_model = add_gapfill_rxn_target_model(target_model, universal_model, added_reaction)
     else:
         print "Gap-filling not possible: target_model with reactions from universal_model does not produce this monomer", nonprod_monomer, "\n"
 
+for nonprod_sec_met in nonprod_sec_met_dict.keys():
+    print "check", nonprod_sec_met
+    print "check", target_model.reactions.get_by_id(target_model).id
+    check_producibility_sec_met(target_model, nonprod_sec_met)
+    print nonprod_sec_met, "is now produced from the cell!", "\n"
 
 #Output
 write_cobra_model_to_sbml_file(target_model, dirname+model_sbml[:-4]+'_complete.xml')

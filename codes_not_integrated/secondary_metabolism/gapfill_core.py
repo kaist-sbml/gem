@@ -233,7 +233,7 @@ class gapfilling_precursor():
         #print status
         #print ObjVal
         print "Reactions to add:", added_reaction
-        return
+        return added_reaction
 
     #Based on MILP optimization, this function is followed by the equations as below.
     #Satish_Kumar_et_al,_BMC_Bioinformatics,_2007 -> GapFill algorithm

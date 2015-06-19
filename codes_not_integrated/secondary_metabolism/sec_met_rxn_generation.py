@@ -727,9 +727,12 @@ def add_sec_met_rxn(target_model, metab_coeff_dict, product, bigg_mnxm_compound_
     return target_model
 
 
-def check_producibility_sec_met(target_model, metab_coeff_dict, product):
+def check_producibility_sec_met(target_model, product):
 
-    target_model.reactions.get_by_id('Biomass_SCO').objective_coefficient = 0
+    for rxn in target_model.reactions:
+        rxn.objective_coefficient = 0
+
+    #target_model.reactions.get_by_id('Biomass_SCO').objective_coefficient = 0
     target_model.reactions.get_by_id("Ex_"+product).objective_coefficient = 1
     target_model.optimize()
     print "Flux:", target_model.solution.f
