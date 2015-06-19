@@ -111,6 +111,7 @@ universal_model = pickle.load(open("./input/universal_model.p","rb"))
 #From gapfill_network_manipulation.py
 bigg_mnxr_dict = pickle.load(open("./input/bigg_mnxr_dict.p","rb"))
 
+print orgname
 print "Retrieving reaction information from target_model and universal_model.."
 mnxr_bigg_target_model_dict = get_mnxr_bigg_in_target_model(target_model, bigg_mnxr_dict)
 
@@ -169,8 +170,8 @@ for nonprod_monomer in unique_nonprod_monomers_list:
 #Output
 write_cobra_model_to_sbml_file(target_model, dirname+model_sbml[:-4]+'_complete.xml')
 
-fp1 = open('%s_target_model_reactions.txt' %orgname, "w")
-fp2 = open('%s_target_model_metabolites.txt' %orgname, "w")
+fp1 = open(dirname+'%s_target_model_reactions.txt' %orgname, "w")
+fp2 = open(dirname+'%s_target_model_metabolites.txt' %orgname, "w")
 fp1.write("Reaction ID"+"\t"+"Reaction name"+"\t"+"Lower bound"+"\t"+"Reaction equation"+"\t"+"GPR"+"\t"+"Pathway"+"\n")
 fp2.write("Metabolite ID"+"\t"+"Metabolite name"+"\t"+"Formula"+"\t"+"Compartment"+"\n")
 
