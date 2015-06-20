@@ -167,11 +167,11 @@ for nonprod_monomer in unique_nonprod_monomers_list:
     else:
         print "Gap-filling not possible: target_model with reactions from universal_model does not produce this monomer", nonprod_monomer, "\n"
 
-for nonprod_sec_met in nonprod_sec_met_dict.keys():
-    print "check", nonprod_sec_met
+#for nonprod_sec_met in nonprod_sec_met_dict.keys():
+    #print "check", nonprod_sec_met
     #print "check", target_model.reactions.get_by_id(target_model).id
-    check_producibility_sec_met(target_model, nonprod_sec_met)
-    print nonprod_sec_met, "is now produced from the cell!", "\n"
+    #check_producibility_sec_met(target_model, nonprod_sec_met)
+    #print nonprod_sec_met, "is now produced from the cell!", "\n"
 
 #Output
 write_cobra_model_to_sbml_file(target_model, dirname+model_sbml[:-4]+'_complete.xml')

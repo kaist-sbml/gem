@@ -3,6 +3,8 @@
 2014-2015 Hyun Uk Kim
 '''
 
+from cobra import Metabolite
+
 def determine_module(domain_comb):
 ## domain information(nrps) :
 ## Condensation    Condensation domain
@@ -448,6 +450,189 @@ def determine_module(domain_comb):
     return discriminant
 
 
+def get_module_currency_metab_dict(discriminant, each_module, each_module_substrates, module_currency_metab_dict):
+
+    if discriminant == 'A' or discriminant == 'Aox':
+        each_module_substrates['atp'] = -1
+        each_module_substrates['amp'] = 1
+        each_module_substrates['ppi'] = 1
+        each_module_substrates['h2o'] = 1
+        module_currency_metab_dict[each_module] = each_module_substrates
+        #print 'A or Aox:', each_module_substrates
+
+    elif discriminant == 'A_PCP' or discriminant == 'Cs_A_PCP' or discriminant == 'C_A_PCP' or discriminant == 'Cdcl_A_PCP' or discriminant == 'Clcl_A_PCP' or discriminant == 'Clcl_A_PCP' or discriminant == 'Cglyc_A_PCP' or discriminant == 'CXglyc_A_PCP':
+        each_module_substrates['atp'] = -1
+        each_module_substrates['amp'] = 1
+        each_module_substrates['ppi'] = 1
+        each_module_substrates['h2o'] = 1
+        module_currency_metab_dict[each_module] = each_module_substrates
+        #print 'A_PCP or C_A_PCP:', each_module_substrates
+
+    elif discriminant == 'MT_A_PCP' or discriminant == 'Cs_A_MT_PCP' or discriminant == 'C_A_MT_PCP' or discriminant == 'Cdcl_A_MT_PCP' or discriminant == 'Clcl_A_MT_PCP' or discriminant == 'Cglyc_A_MT_PCP' or discriminant == 'CXglyc_A_MT_PCP':
+        each_module_substrates['atp'] = -1
+        each_module_substrates['amp'] = 1
+        each_module_substrates['ppi'] = 1
+        each_module_substrates['amet'] = -1
+        each_module_substrates['ahcys'] = 1
+        each_module_substrates['h2o'] = 1
+        module_currency_metab_dict[each_module] = each_module_substrates
+        #print 'MT-A-PCP or C-A-MT-PCP:', each_module_substrates
+
+    elif discriminant == 'Cs_A_PCP_E' or discriminant == 'C_A_PCP_E' or discriminant == 'Cdcl_A_PCP_E' or discriminant == 'Clcl_A_PCP_E' or discriminant == 'Cd_A_PCP' or discriminant == 'Cglyc_A_PCP_E' or discriminant == 'CXglyc_A_PCP_E':
+        each_module_substrates['atp'] = -1
+        each_module_substrates['amp'] = 1
+        each_module_substrates['ppi'] = 1
+        each_module_substrates['h2o'] = 1
+        module_currency_metab_dict[each_module] = each_module_substrates
+        #print 'C_A_PCP_E:', each_module_substrates
+
+    elif discriminant == 'Cs_A_MT_E_PCP' or discriminant == 'C_A_MT_E_PCP' or discriminant == 'Cdcl_A_MT_E_PCP' or discriminant == 'Clcl_A_MT_E_PCP' or discriminant == 'Cglyc_A_MT_E_PCP' or discriminant == 'CXglyc_A_MT_E_PCP' or discriminant == 'Cd_A_MT_PCP':
+        each_module_substrates['atp'] = -1
+        each_module_substrates['amp'] = 1
+        each_module_substrates['ppi'] = 1
+        each_module_substrates['amet'] = -1
+        each_module_substrates['ahcys'] = 1
+        each_module_substrates['h2o'] = 1
+        module_currency_metab_dict[each_module] = each_module_substrates
+        #print 'C_A_MT_E_PCP:', each_module_substrates
+
+    elif discriminant == 'HC_A_PCP':
+        each_module_substrates['atp'] = -1
+        each_module_substrates['amp'] = 1
+        each_module_substrates['ppi'] = 1
+        each_module_substrates['h2o'] = 2
+        module_currency_metab_dict[each_module] = each_module_substrates
+        #print 'HC_A_PCP:', each_module_substrates
+
+    elif discriminant == 'HC_Aox_PCP':
+        each_module_substrates['atp'] = -1
+        each_module_substrates['amp'] = 1
+        each_module_substrates['ppi'] = 1
+        each_module_substrates['amet'] = -1
+        each_module_substrates['ahcys'] = 1
+        each_module_substrates['fmn'] = 1
+        each_module_substrates['fmnh2'] = -1
+        each_module_substrates['h2o'] = 2
+        module_currency_metab_dict[each_module] = each_module_substrates
+        #print 'HC_Aox_PCP:', each_module_substrates
+
+    elif discriminant == 'HC_A_MT_PCP' or discriminant == 'HC_A_MT_E_PCP':
+        each_module_substrates['atp'] = -1
+        each_module_substrates['amp'] = 1
+        each_module_substrates['ppi'] = 1
+        each_module_substrates['h2o'] = 2
+        each_module_substrates['amet'] = -1
+        each_module_substrates['ahcys'] = 1
+        module_currency_metab_dict[each_module] = each_module_substrates
+        #print 'HC_A_MT_PCP:', each_module_substrates
+
+    elif discriminant == 'HC_Aox_MT_PCP' or discriminant == 'HC_Aox_MT_E_PCP':
+        each_module_substrates['atp'] = -1
+        each_module_substrates['amp'] = 1
+        each_module_substrates['amet'] = -1
+        each_module_substrates['ahcys'] = 1
+        each_module_substrates['fmn'] = 1
+        each_module_substrates['fmnh2'] = -1
+        each_module_substrates['amet'] = -1
+        each_module_substrates['ahcys'] = 1
+        each_module_substrates['h2o'] = 2
+        module_currency_metab_dict[each_module] = each_module_substrates
+        #print 'HC_Aox_MT_PCP:', each_module_substrates
+
+    elif discriminant == 'AT_ACP' or discriminant == 'AT_KR(inactive)_ACP' or discriminant == 'AT_DH_KR(inactive)_ACP' or discriminant == 'AT_DH_ER_KR(inactive)_ACP':
+        each_module_substrates['coa'] = 1
+        each_module_substrates['hco3'] = 1
+        module_currency_metab_dict[each_module] = each_module_substrates
+        #print 'AT-ACP:', each_module_substrates
+
+    elif discriminant == 'AT_KS_ACP' or discriminant == 'AT_KS' or discriminant == 'AT_KS_KR(inactive)_ACP' or discriminant == 'AT_KS_KR(inactive)' or discriminant == 'AT_KS_DH_KR(inactive)_ACP' or discriminant == 'AT_KS_DH_KR(inactive)' or discriminant == 'AT_KS_DH_KR(inactive)_ACP' or discriminant == 'AT_KS_DH_ER_KR(inactive)':
+        each_module_substrates['coa'] = 1
+        each_module_substrates['hco3'] = 1
+        module_currency_metab_dict[each_module] = each_module_substrates
+        #print 'AT-KS-ACP:', each_module_substrates
+
+    elif discriminant == 'AT_KS_KR_ACP' or discriminant == 'AT_KR_ACP' or discriminant == 'AT_KS_KR' or discriminant == 'AT_ER_KR_ACP' or discriminant == 'AT_KS_ER_KR' or discriminant == 'AT_KS_ER_KR_ACP':
+        each_module_substrates['coa'] = 1
+        each_module_substrates['hco3'] = 1
+        each_module_substrates['nadp'] = 1
+        each_module_substrates['nadph'] = -1
+        each_module_substrates['h'] = -1
+        module_currency_metab_dict[each_module] = each_module_substrates
+        #print 'KS-AT-KR-ACP:', each_module_substrates
+
+    elif discriminant == 'AT_KS_DH_KR_ACP' or discriminant == 'AT_DH_KR_ACP' or discriminant == 'AT_KS_DH_KR':
+        each_module_substrates['coa'] = 1
+        each_module_substrates['hco3'] = 1
+        each_module_substrates['h2o'] = 1
+        each_module_substrates['nadp'] = 1
+        each_module_substrates['nadph'] = -1
+        each_module_substrates['h'] = -1
+        module_currency_metab_dict[each_module] = each_module_substrates
+        #print 'KS-AT-DH-KR-ACP:', each_module_substrates
+
+    elif discriminant == 'AT_KS_DH_ER_KR_ACP' or discriminant == 'AT_DH_ER_KR_ACP' or discriminant == 'AT_KS_DH_ER_KR':
+        each_module_substrates['coa'] = 1
+        each_module_substrates['hco3'] = 1
+        each_module_substrates['h2o'] = 1
+        each_module_substrates['nadp'] = 2
+        each_module_substrates['nadph'] = -2
+        each_module_substrates['h'] = -2
+        module_currency_metab_dict[each_module] = each_module_substrates
+        #print 'KS-AT-DH-ER-KR-ACP:', each_module_substrates
+
+    elif discriminant == 'AT_KS_cMT_ACP' or discriminant == 'AT_KS_cMT':
+        each_module_substrates['coa'] = 1
+        each_module_substrates['hco3'] = 1
+        each_module_substrates['amet'] = -1
+        each_module_substrates['ahcys'] = 1
+        module_currency_metab_dict[each_module] = each_module_substrates
+        #print 'AT_KS_cMT_ACP:', each_module_substrates
+
+    elif discriminant == 'AT_KS_KR_cMT_ACP' or discriminant == 'AT_KS_KR_cMT':
+        each_module_substrates['coa'] = 1
+        each_module_substrates['hco3'] = 1
+        each_module_substrates['nadp'] = 1
+        each_module_substrates['nadph'] = -1
+        each_module_substrates['h'] = -1
+        each_module_substrates['amet'] = -1
+        each_module_substrates['ahcys'] = 1
+        module_currency_metab_dict[each_module] = each_module_substrates
+        #print 'AT_KS_KR_cMT_ACP:', each_module_substrates
+
+    elif discriminant == 'AT_KS_DH_KR_cMT_ACP' or discriminant == 'AT_KS_DH_KR_cMT':
+        each_module_substrates['coa'] = 1
+        each_module_substrates['hco3'] = 1
+        each_module_substrates['h2o'] = 1
+        each_module_substrates['nadp'] = 1
+        each_module_substrates['nadph'] = -1
+        each_module_substrates['h'] = -1
+        each_module_substrates['amet'] = -1
+        each_module_substrates['ahcys'] = 1
+        module_currency_metab_dict[each_module] = each_module_substrates
+        #print 'AT_KS_DH_KR_cMT_ACP:', each_module_substrates
+
+    elif discriminant == 'AT_KS_DH_KR_cMT_ER_ACP' or discriminant == 'AT_KS_DH_KR_cMT_ER':
+        each_module_substrates['coa'] = 1
+        each_module_substrates['hco3'] = 1
+        each_module_substrates['h2o'] = 1
+        each_module_substrates['nadp'] = 2
+        each_module_substrates['nadph'] = -2
+        each_module_substrates['h'] = -2
+        each_module_substrates['amet'] = -1
+        each_module_substrates['ahcys'] = 1
+        module_currency_metab_dict[each_module] = each_module_substrates
+        #print 'AT_KS_DH_KR_cMT_ER_ACP:', each_module_substrates
+
+    elif discriminant == 'TD':
+        each_module_substrates['nadp'] = 1
+        each_module_substrates['nadph'] = -1
+        each_module_substrates['h'] = -1
+        module_currency_metab_dict[each_module] = each_module_substrates
+        #print 'reaction 8: HC_Aox_MT_PCP', each_module_substrates
+
+    return module_currency_metab_dict
+
+
 def get_biggid_from_aSid(each_substrate):
 
     if each_substrate == 'ala':
@@ -681,3 +866,57 @@ def get_metab_coeff_dict():
 
     return metab_coeff_dict
 
+
+#Add metabolite MNXM having no bigg ID to the model
+def add_sec_met_mnxm_having_no_biggid_to_model(metab, metab_compt, mnxm_compoundInfo_dict):
+
+    if metab == 'MNXM17054': #'abu'
+        metab_compt = Metabolite(metab_compt, formula = mnxm_compoundInfo_dict['MNXM17054'][1], name = mnxm_compoundInfo_dict['MNXM17054'][0], compartment='c')
+        #rxn.add_metabolites({metab_compt:metab_coeff_dict[metab]})
+
+    #No MNXM, KEGG ID and bigg ID for "bht"
+    elif metab == 'bht':
+        metab_compt = Metabolite(metab_compt, compartment='c')
+        #rxn.add_metabolites({metab_compt:metab_coeff_dict[metab]})
+
+    elif metab == 'MNXM5111': #'chccoa'
+        metab_compt = Metabolite(metab_compt, formula = mnxm_compoundInfo_dict['MNXM5111'][1], name = mnxm_compoundInfo_dict['MNXM5111'][0], compartment='c')
+        #rxn.add_metabolites({metab_compt:metab_coeff_dict[metab]})
+
+    elif metab == 'MNXM9962': #'dhpg'
+        metab_compt = Metabolite(metab_compt, formula = mnxm_compoundInfo_dict['MNXM9962'][1], name = mnxm_compoundInfo_dict['MNXM9962'][0], compartment='c')
+        #rxn.add_metabolites({metab_compt:metab_coeff_dict[metab]})
+
+    elif metab == 'emcoa_DASH_S':
+        metab_compt = Metabolite(metab_compt, formula = mnxm_compoundInfo_dict['MNXM2043'][1], name = mnxm_compoundInfo_dict['MNXM2043'][0], compartment='c')
+        #rxn.add_metabolites({metab_compt:metab_coeff_dict[metab]})
+
+    elif metab == 'MNXM4544': #'hpg'
+        metab_compt = Metabolite(metab_compt, formula = mnxm_compoundInfo_dict['MNXM4544'][1], name = mnxm_compoundInfo_dict['MNXM4544'][0], compartment='c')
+        #rxn.add_metabolites({metab_compt:metab_coeff_dict[metab]})
+
+    elif metab == 'MNXM59438': #'hty'
+        metab_compt = Metabolite(metab_compt, formula = mnxm_compoundInfo_dict['MNXM59438'][1], name = mnxm_compoundInfo_dict['MNXM59438'][0], compartment='c')
+        #rxn.add_metabolites({metab_compt:metab_coeff_dict[metab]})
+
+    elif metab == 'MNXM34821': #'iva'
+        metab_compt = Metabolite(metab_compt, formula = mnxm_compoundInfo_dict['MNXM34821'][1], name = mnxm_compoundInfo_dict['MNXM34821'][0], compartment='c')
+        #rxn.add_metabolites({metab_compt:metab_coeff_dict[metab]})
+
+    elif metab == 'MNXM61686': #'mxmalacp'
+        metab_compt = Metabolite(metab_compt, formula = mnxm_compoundInfo_dict['MNXM61686'][1], name = mnxm_compoundInfo_dict['MNXM61686'][0], compartment='c')
+        #rxn.add_metabolites({metab_compt:metab_coeff_dict[metab]})
+
+    elif metab == 'phg_DASH_L':
+        metab_compt = Metabolite(metab_compt, formula = mnxm_compoundInfo_dict['MNXM59292'][1], name = mnxm_compoundInfo_dict['MNXM59292'][0], compartment='c')
+        #rxn.add_metabolites({metab_compt:metab_coeff_dict[metab]})
+
+    elif metab == 'MNXM80505': #'qa'
+        metab_compt = Metabolite(metab_compt, formula = mnxm_compoundInfo_dict['MNXM80505'][1], name = mnxm_compoundInfo_dict['MNXM80505'][0], compartment='c')
+        #rxn.add_metabolites({metab_compt:metab_coeff_dict[metab]})
+
+    elif metab == 'MNXM37380': #'tcl'
+        metab_compt = Metabolite(metab_compt, formula = mnxm_compoundInfo_dict['MNXM37380'][1], name = mnxm_compoundInfo_dict['MNXM37380'][0], compartment='c')
+        #rxn.add_metabolites({metab_compt:metab_coeff_dict[metab]})
+
+    return metab_compt
