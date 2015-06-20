@@ -162,7 +162,7 @@ for nonprod_monomer in unique_nonprod_monomers_list:
         #Load merged model
         obj.load_cobra_model(target_model_temp)
         #obj.change_reversibility(target_model_temp.reactions.get_by_id('Ex_'+nonprod_monomer), target_model_temp)
-        added_reaction = obj.fill_gap("Ex_"+nonprod_monomer, target_model_temp, balanced_unique_mnxr_list)
+        added_reaction = obj.fill_gap("Ex_"+nonprod_monomer, balanced_unique_mnxr_list)
         target_model = add_gapfill_rxn_target_model(target_model, universal_model, added_reaction)
     else:
         print "Gap-filling not possible: target_model with reactions from universal_model does not produce this monomer", nonprod_monomer, "\n"

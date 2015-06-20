@@ -143,6 +143,7 @@ def check_producibility_nonprod_monomer(cobra_model, nonprod_monomer, dirname):
 
     return cobra_model
 
+
 def get_unique_nonprod_monomers_list(nonprod_sec_met_dict, prod_sec_met_dict):
 
     unique_prod_monomers_list = []
