@@ -125,7 +125,7 @@ balanced_unique_mnxr_list = get_balanced_rxns_from_mnxr(mnxr_unique_to_universal
 print "Merging target_model and universal_model.."
 print "Also generating a truncated universal_model with its exclusive reactions.."
 print "\n"
-target_model2, universal_model2 = get_manipulated_target_universal_models(balanced_unique_mnxr_list, target_model, universal_model)
+target_model2 = get_manipulated_target_universal_models(balanced_unique_mnxr_list, target_model, universal_model)
 
 
 print "Step 2: Optimization-based gap-filling process..", "\n"
@@ -162,14 +162,14 @@ for nonprod_monomer in unique_nonprod_monomers_list:
         #Load merged model
         obj.load_cobra_model(target_model_temp)
         #obj.change_reversibility(target_model_temp.reactions.get_by_id('Ex_'+nonprod_monomer), target_model_temp)
-        added_reaction = obj.fill_gap("Ex_"+nonprod_monomer, target_model_temp, universal_model2)
+        added_reaction = obj.fill_gap("Ex_"+nonprod_monomer, target_model_temp, balanced_unique_mnxr_list)
         target_model = add_gapfill_rxn_target_model(target_model, universal_model, added_reaction)
     else:
         print "Gap-filling not possible: target_model with reactions from universal_model does not produce this monomer", nonprod_monomer, "\n"
 
 for nonprod_sec_met in nonprod_sec_met_dict.keys():
     print "check", nonprod_sec_met
-    print "check", target_model.reactions.get_by_id(target_model).id
+    #print "check", target_model.reactions.get_by_id(target_model).id
     check_producibility_sec_met(target_model, nonprod_sec_met)
     print nonprod_sec_met, "is now produced from the cell!", "\n"
 

@@ -72,11 +72,7 @@ def get_balanced_rxns_from_mnxr(mnxr_unique_to_universal_model_list, mnxr_rxn_al
 
 
 def get_manipulated_target_universal_models(balanced_unique_mnxr_list, target_model, universal_model):
-
     target_model2 = copy.deepcopy(target_model)
-
-    #This is an empty model
-    universal_model2 = Model("universal model wihout overlapping reactions")
 
     #Add reactions in universal network to template model
     for mnxr in balanced_unique_mnxr_list:
@@ -87,10 +83,8 @@ def get_manipulated_target_universal_models(balanced_unique_mnxr_list, target_mo
         mnxr_from_universal_model = copy.deepcopy(mnxr_from_universal_model)
         #Integrated model having reactions from both target and universal models
         target_model2.add_reaction(mnxr_from_universal_model)
-        #A model having only reactions unique to universal model
-        universal_model2.add_reaction(mnxr_from_universal_model)
 
-    return target_model2, universal_model2
+    return target_model2
 
 
 def add_transport_exchange_rxn_nonprod_monomer(target_model, nonprod_monomer):

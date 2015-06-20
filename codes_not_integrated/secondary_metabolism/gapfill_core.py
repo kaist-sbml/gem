@@ -224,12 +224,8 @@ class gapfilling_precursor():
         return m.status, m.ObjVal, rev_changed_reactions
 
 
-    def fill_gap(self, target_reaction, cobra_model, universal_reaction_model):
-        universal_reactions = [each_reaction.id for each_reaction in universal_reaction_model.reactions]
-        #cobra_model.add_reactions(universal_reaction_model.reactions)
-        #cobra_model.optimize()
-        #print cobra_model.solution.f
-        status, ObjVal, added_reaction  =  self.run_GapFill(target_reaction=target_reaction, UniversalReactions=universal_reactions)
+    def fill_gap(self, target_reaction, cobra_model, balanced_unique_mnxr_list):
+        status, ObjVal, added_reaction  =  self.run_GapFill(target_reaction=target_reaction, UniversalReactions=balanced_unique_mnxr_list)
         #print status
         #print ObjVal
         print "Reactions to add:", added_reaction
