@@ -71,12 +71,11 @@ def get_balanced_rxns_from_mnxr(mnxr_unique_to_universal_model_list, mnxr_rxn_al
     return balanced_unique_mnxr_list
 
 
-def get_manipulated_target_universal_models(balanced_unique_mnxr_list, target_model, universal_model):
+def integrate_target_universal_models(balanced_unique_mnxr_list, target_model, universal_model):
     target_model2 = copy.deepcopy(target_model)
 
     #Add reactions in universal network to template model
     for mnxr in balanced_unique_mnxr_list:
-    #for mnxr in universal_model.reactions:
         mnxr_from_universal_model = universal_model.reactions.get_by_id(mnxr)
 
         #cobrapy doc: "When copying a reaction, it is necessary to deepcopy the components so the list references are not carried over"

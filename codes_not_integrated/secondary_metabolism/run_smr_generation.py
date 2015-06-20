@@ -24,7 +24,7 @@ from gapfill_network_manipulation import (
     get_mnxr_bigg_in_target_model,
     get_mnxr_unique_to_universal_model,
     get_balanced_rxns_from_mnxr,
-    get_manipulated_target_universal_models,
+    integrate_target_universal_models,
     add_transport_exchange_rxn_nonprod_monomer,
     check_producibility_nonprod_monomer,
     get_unique_nonprod_monomers_list,
@@ -125,7 +125,7 @@ balanced_unique_mnxr_list = get_balanced_rxns_from_mnxr(mnxr_unique_to_universal
 print "Merging target_model and universal_model.."
 print "Also generating a truncated universal_model with its exclusive reactions.."
 print "\n"
-target_model2 = get_manipulated_target_universal_models(balanced_unique_mnxr_list, target_model, universal_model)
+target_model2 = integrate_target_universal_models(balanced_unique_mnxr_list, target_model, universal_model)
 
 
 print "Step 2: Optimization-based gap-filling process..", "\n"
