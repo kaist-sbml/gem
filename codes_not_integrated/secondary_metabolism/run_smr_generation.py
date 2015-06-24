@@ -23,7 +23,6 @@ from sec_met_rxn_generation import (
 from gapfill_network_manipulation import (
     get_mnxr_bigg_in_target_model,
     get_mnxr_unique_to_universal_model,
-    get_balanced_rxns_from_mnxr,
     integrate_target_universal_models,
     add_transport_exchange_rxn_nonprod_monomer,
     check_producibility_nonprod_monomer,
@@ -104,8 +103,6 @@ print "Step 1: Network manipulation for gap-filling process..", "\n"
 
 #universal_model = create_cobra_model_from_sbml_file('./universal_network_fiexed_bigg_mnxref.xml')
 
-#universal_model = fix_special_characters_compoundid(universal_model)
-
 #pickle.dump(universal_model, open('./input/universal_model.p','wb'))
 universal_model = pickle.load(open("./input/universal_model.p","rb"))
 
@@ -120,12 +117,10 @@ mnxr_unique_to_universal_model_list = get_mnxr_unique_to_universal_model(mnxr_bi
 
 mnxr_rxn_all_dict = pickle.load(open("./input/mnxr_rxn_all_dict.p","rb"))
 
-balanced_unique_mnxr_list = get_balanced_rxns_from_mnxr(mnxr_unique_to_universal_model_list, mnxr_rxn_all_dict)
-
 print "Merging target_model and universal_model.."
 print "Also generating a truncated universal_model with its exclusive reactions.."
 print "\n"
-target_model2 = integrate_target_universal_models(balanced_unique_mnxr_list, target_model, universal_model)
+target_model2 = integrate_target_universal_models(mnxr_unique_to_universal_model_list, target_model, universal_model)
 
 
 print "Step 2: Optimization-based gap-filling process..", "\n"
@@ -139,7 +134,7 @@ for nonprod_monomer in unique_nonprod_monomers_list:
     target_model_monomer = add_transport_exchange_rxn_nonprod_monomer(target_model, nonprod_monomer)
     target_model_monomer = check_producibility_nonprod_monomer(target_model_monomer, nonprod_monomer, dirname)
     if target_model_monomer.solution.f > 0:
-        print "Optimal value for :", nonprod_monomer, target_model_monomer.solution.f
+        print "Optimal value for", nonprod_monomer, ":", target_model_monomer.solution.f
         unique_nonprod_monomers_list.remove(nonprod_monomer)
 
     else:
@@ -162,7 +157,7 @@ for nonprod_monomer in unique_nonprod_monomers_list:
         #Load merged model
         obj.load_cobra_model(target_model_temp)
         #obj.change_reversibility(target_model_temp.reactions.get_by_id('Ex_'+nonprod_monomer), target_model_temp)
-        added_reaction = obj.fill_gap("Ex_"+nonprod_monomer, balanced_unique_mnxr_list)
+        added_reaction = obj.fill_gap("Ex_"+nonprod_monomer, mnxr_unique_to_universal_model_list)
         target_model = add_gapfill_rxn_target_model(target_model, universal_model, added_reaction)
     else:
         print "Gap-filling not possible: target_model with reactions from universal_model does not produce this monomer", nonprod_monomer, "\n"

@@ -7,33 +7,6 @@ from cobra import Model, Reaction, Metabolite
 from cobra.io.sbml import create_cobra_model_from_sbml_file, write_cobra_model_to_sbml_file
 import copy
 
-#Similar to replace_special_characters_compoundid(biggid) in independentModule.py
-def fix_special_characters_compoundid(model):
-
-    for each_metabolite in model.metabolites:
-        
-        met_id = each_metabolite.id
-        
-        met_id = met_id.replace('__', '_dash_')
-        met_id = met_id.replace('/', '_fslash_')
-        met_id = met_id.replace("\\", '_bslash_')
-        met_id = met_id.replace('(', '_lparen_')
-        met_id = met_id.replace('[', '_lsqbkt_')
-        met_id = met_id.replace(']', '_rsqbkt_')
-        met_id = met_id.replace(')', '_rparen_')
-        met_id = met_id.replace(',', '_comma_')
-        met_id = met_id.replace('.', '_period_')
-        met_id = met_id.replace("'", '_apos_')
-        met_id = met_id.replace('&', '&amp;')
-        met_id = met_id.replace('<', '&lt;')
-        met_id = met_id.replace('>', '&gt;')
-        met_id = met_id.replace('"', '&quot;')
-        
-        conv_met_id = met_id
-        each_metabolite.id = conv_met_id
-
-    return model
-
 
 def get_mnxr_bigg_in_target_model(target_model, bigg_mnxr_dict):
 
@@ -59,23 +32,11 @@ def get_mnxr_unique_to_universal_model(mnxr_bigg_target_model_dict, universal_mo
     return mnxr_unique_to_universal_model_list
 
 
-def get_balanced_rxns_from_mnxr(mnxr_unique_to_universal_model_list, mnxr_rxn_all_dict):
-
-    balanced_unique_mnxr_list = []
-
-    for mnxr in mnxr_unique_to_universal_model_list:
-        if mnxr in mnxr_rxn_all_dict.keys():
-            if mnxr_rxn_all_dict[mnxr][2] == 'true':
-                balanced_unique_mnxr_list.append(mnxr)
-
-    return balanced_unique_mnxr_list
-
-
-def integrate_target_universal_models(balanced_unique_mnxr_list, target_model, universal_model):
+def integrate_target_universal_models(mnxr_unique_to_universal_model_list, target_model, universal_model):
     target_model2 = copy.deepcopy(target_model)
 
     #Add reactions in universal network to template model
-    for mnxr in balanced_unique_mnxr_list:
+    for mnxr in mnxr_unique_to_universal_model_list:
         mnxr_from_universal_model = universal_model.reactions.get_by_id(mnxr)
 
         #cobrapy doc: "When copying a reaction, it is necessary to deepcopy the components so the list references are not carried over"
