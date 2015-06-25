@@ -402,7 +402,7 @@ def pickle_templateModel_bigg_mnxr(cobra_model, allDB_mnxr_dict):
 
 
 def pickle_universal_model_for_gapfill():
-    universal_model = create_cobra_model_from_sbml_file('./input2/Universal_bigg_model_for_balacedR_MNXDB.xml')
+    universal_model = create_cobra_model_from_sbml_file('./input2/Universal_bigg_model_for_balacedR_MNXDB_with_gapfill_RxnMet.xml')
     pickle.dump(universal_model, open('./input2/universal_model.p','wb'))
 
 
