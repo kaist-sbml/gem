@@ -700,7 +700,7 @@ def get_biggid_from_aSid(each_substrate):
 
     #No MNXM, KEGG ID and bigg ID for "bht"
     elif each_substrate == 'bht':
-        met_name = 'bht'
+        met_name = 'bht_DASH_L'
 
     elif each_substrate == 'orn':
         met_name = 'orn'
@@ -837,7 +837,7 @@ def get_metab_coeff_dict():
     metab_coeff_dict['val_DASH_L'] = 0 #'L-Valine', 'C00183', 'MNXM199'
     metab_coeff_dict['ile_DASH_L'] = 0 #'L-Isoleucine', 'C00407', 'MNXM231'
     metab_coeff_dict['phg_DASH_L'] = 0 #'phenylglycine', 'C18623', 'MNXM59292'
-    metab_coeff_dict['bht'] = 0 #'beta-hydroxyl-tyrosine', 'N/A', 'N/A'
+    metab_coeff_dict['bht_DASH_L'] = 0 #'beta-hydroxyl-tyrosine', 'N/A', 'N/A'
     metab_coeff_dict['orn'] = 0 #'Ornithine', 'C01602', 'MNXM89689'
     metab_coeff_dict['MNXM17054'] = 0 #'abu', 'D-2-Aminobutyric acid', 'C02261', 'MNXM17054'
     metab_coeff_dict['MNXM34821'] = 0 #'iva', '2-Amino-2-methylbutanoate', 'C03571', 'MNXM34821'
@@ -875,7 +875,7 @@ def add_sec_met_mnxm_having_no_biggid_to_model(metab, metab_compt, mnxm_compound
         #rxn.add_metabolites({metab_compt:metab_coeff_dict[metab]})
 
     #No MNXM, KEGG ID and bigg ID for "bht"
-    elif metab == 'bht':
+    elif metab == 'bht_DASH_L':
         metab_compt = Metabolite(metab_compt, compartment='c')
         #rxn.add_metabolites({metab_compt:metab_coeff_dict[metab]})
 
