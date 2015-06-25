@@ -59,7 +59,10 @@ def get_product_from_cluster_gbk(record):
             #Retrieving "product"
             product = feature.qualifiers.get('product')
             product = product[0]
-            
+
+    #Handle legacy problem
+    product = product.replace("-","_")
+
     if float(clusterNo) < 10:
         product = "Cluster0"+clusterNo+"_"+product
     else:
@@ -515,7 +518,12 @@ def add_sec_met_rxn(target_model, metab_coeff_dict, product, bigg_mnxm_compound_
     return target_model
 
 
-def check_producibility_sec_met(target_model, product):
+def check_producibility_sec_met(target_model, product, dirname):
+
+    #Model reloading and overwrtting are necessary for model stability
+    #Without these, model does not produce an accurate prediction
+    write_cobra_model_to_sbml_file(target_model, dirname+"target_model_%s.xml" %product)
+    target_model = create_cobra_model_from_sbml_file(dirname+"target_model_%s.xml" %product)
 
     for rxn in target_model.reactions:
         rxn.objective_coefficient = 0
