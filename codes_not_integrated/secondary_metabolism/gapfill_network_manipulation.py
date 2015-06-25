@@ -127,6 +127,6 @@ def get_unique_nonprod_monomers_list(nonprod_sec_met_dict, prod_sec_met_dict):
 def add_gapfill_rxn_target_model(target_model, universal_model, added_reaction):
     for gapfill_rxn in added_reaction:
         target_model.add_reaction(universal_model.reactions.get_by_id(gapfill_rxn))
-        print "Reaction added to the target_model:", gapfill_rxn, "\n"
+        print "\n", "Reaction added to the target_model:", gapfill_rxn
     return target_model
 
