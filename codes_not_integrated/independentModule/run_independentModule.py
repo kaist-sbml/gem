@@ -45,7 +45,7 @@ import subprocess
 #kegg_mnxr_dict = pickle.load(open("Pickle_kegg_mnxr_dict.p","rb"))
 #mnxr_kegg_dict = pickle.load(open("Pickle_mnxr_kegg_dict.p","rb"))
 
-pickle_input_mnxr_rxn_info()
+#pickle_input_mnxr_rxn_info()
 #mnxr_rxn_dict = pickle.load(open("Pickle_mnxr_rxn_dict.p","rb"))
 
 #pickle_input_bigg_kegg_mnx_compoundID()
@@ -55,10 +55,10 @@ pickle_input_mnxr_rxn_info()
 
 #pickling_Input_MNXM_compoundInfo()
 #mnxm_compoundInfo_dict = pickle.load(open("Pickle_mnxm_compoundInfo_dict.p","rb"))
-################################################################################
 
 #cobra_model = pickle.load(open('./input2/template_model_pruned_GPRCorrected.p', 'rb'))
-#templateModel_bigg_mnxr_dict = get_templateModel_bigg_mnxr(cobra_model, allDB_mnxr_dict)
+#templateModel_bigg_mnxr_dict = pickle_templateModel_bigg_mnxr(cobra_model, allDB_mnxr_dict)
 
-
+pickle_universal_model_for_gapfill()
+################################################################################
 

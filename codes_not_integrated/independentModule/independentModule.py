@@ -314,25 +314,6 @@ def pickle_input_mnxr_rxn_info():
     fp1.close()
 
 
-#Based on fix_legacy_id(id, use_hyphens=False, fix_compartments=False) of cobrapy:
-def replace_special_characters_compoundid(biggid):
-    biggid = biggid.replace('-', '_DASH_')
-    biggid = biggid.replace('/', '_FSLASH_')
-    biggid = biggid.replace("\\",'_BSLASH_')
-    biggid = biggid.replace('(', '_LPAREN_')
-    biggid = biggid.replace('[', '_LSQBKT_')
-    biggid = biggid.replace(']', '_RSQBKT_')
-    biggid = biggid.replace(')', '_RPAREN_')
-    biggid = biggid.replace(',', '_COMMA_')
-    biggid = biggid.replace('.', '_PERIOD_')
-    biggid = biggid.replace("'", '_APOS_')
-    biggid = biggid.replace('&', '&amp;')
-    biggid = biggid.replace('<', '&lt;')
-    biggid = biggid.replace('>', '&gt;')
-    biggid = biggid.replace('"', '&quot;')
-
-    return biggid
-
 def pickle_input_bigg_kegg_mnx_compoundID():
     fp1 = open('Input_BiGG_KEGG_MNX_compoundID_v1_3.tsv',"r")
     bigg_mnxm_compound_dict = {}
@@ -389,35 +370,7 @@ def pickling_Input_MNXM_compoundInfo():
     fp1.close()
 
 
-#e.g., "EX_ca2_LPAREN_e_RPAREN_" => "EX_ca2(e)"
-def fix_legacy_id(id, use_hyphens=False, fix_compartments=False):
-    id = id.replace('_DASH_', '__')
-    id = id.replace('_FSLASH_', '/')
-    id = id.replace('_BSLASH_', "\\")
-    id = id.replace('_LPAREN_', '(')
-    id = id.replace('_LSQBKT_', '[')
-    id = id.replace('_RSQBKT_', ']')
-    id = id.replace('_RPAREN_', ')')
-    id = id.replace('_COMMA_', ',')
-    id = id.replace('_PERIOD_', '.')
-    id = id.replace('_APOS_', "'")
-    id = id.replace('&amp;', '&')
-    id = id.replace('&lt;', '<')
-    id = id.replace('&gt;', '>')
-    id = id.replace('&quot;', '"')
-    if use_hyphens:
-        id = id.replace('__', '-')
-    else:
-        id = id.replace("-", "__")
-    if fix_compartments:
-        if len(id) > 2:
-            if (id[-3] == "(" and id[-1] == ")") or \
-               (id[-3] == "[" and id[-1] == "]"):
-                id = id[:-3] + "_" + id[-2]
-    return id
-
-
-def get_templateModel_bigg_mnxr(cobra_model, allDB_mnxr_dict):
+def pickle_templateModel_bigg_mnxr(cobra_model, allDB_mnxr_dict):
     fp1 = open('./input2/templateModel_bigg_mnxr_dict.txt','w')
     templateModel_bigg_mnxr_dict = {}
 
@@ -446,3 +399,58 @@ def get_templateModel_bigg_mnxr(cobra_model, allDB_mnxr_dict):
     pickle.dump(templateModel_bigg_mnxr_dict, open('./input2/templateModel_bigg_mnxr_dict.p',"wb"))
     fp1.close()
     return templateModel_bigg_mnxr_dic
+
+
+def pickle_universal_model_for_gapfill():
+    universal_model = create_cobra_model_from_sbml_file('./input2/Universal_bigg_model_for_balacedR_MNXDB.xml')
+    pickle.dump(universal_model, open('./input2/universal_model.p','wb'))
+
+
+#Based on fix_legacy_id(id, use_hyphens=False, fix_compartments=False) of cobrapy:
+def replace_special_characters_compoundid(biggid):
+    biggid = biggid.replace('-', '_DASH_')
+    biggid = biggid.replace('/', '_FSLASH_')
+    biggid = biggid.replace("\\",'_BSLASH_')
+    biggid = biggid.replace('(', '_LPAREN_')
+    biggid = biggid.replace('[', '_LSQBKT_')
+    biggid = biggid.replace(']', '_RSQBKT_')
+    biggid = biggid.replace(')', '_RPAREN_')
+    biggid = biggid.replace(',', '_COMMA_')
+    biggid = biggid.replace('.', '_PERIOD_')
+    biggid = biggid.replace("'", '_APOS_')
+    biggid = biggid.replace('&', '&amp;')
+    biggid = biggid.replace('<', '&lt;')
+    biggid = biggid.replace('>', '&gt;')
+    biggid = biggid.replace('"', '&quot;')
+
+    return biggid
+
+
+#e.g., "EX_ca2_LPAREN_e_RPAREN_" => "EX_ca2(e)"
+def fix_legacy_id(id, use_hyphens=False, fix_compartments=False):
+    id = id.replace('_DASH_', '__')
+    id = id.replace('_FSLASH_', '/')
+    id = id.replace('_BSLASH_', "\\")
+    id = id.replace('_LPAREN_', '(')
+    id = id.replace('_LSQBKT_', '[')
+    id = id.replace('_RSQBKT_', ']')
+    id = id.replace('_RPAREN_', ')')
+    id = id.replace('_COMMA_', ',')
+    id = id.replace('_PERIOD_', '.')
+    id = id.replace('_APOS_', "'")
+    id = id.replace('&amp;', '&')
+    id = id.replace('&lt;', '<')
+    id = id.replace('&gt;', '>')
+    id = id.replace('&quot;', '"')
+    if use_hyphens:
+        id = id.replace('__', '-')
+    else:
+        id = id.replace("-", "__")
+    if fix_compartments:
+        if len(id) > 2:
+            if (id[-3] == "(" and id[-1] == ")") or \
+               (id[-3] == "[" and id[-1] == "]"):
+                id = id[:-3] + "_" + id[-2]
+    return id
+
+
