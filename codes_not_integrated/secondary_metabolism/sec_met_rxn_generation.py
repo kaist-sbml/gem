@@ -519,24 +519,25 @@ def add_sec_met_rxn(target_model, metab_coeff_dict, product, bigg_mnxm_compound_
 
 
 def check_producibility_sec_met(target_model, product, dirname):
+    for rxn in target_model.reactions:
+        rxn.objective_coefficient = 0
+
+    #target_model.reactions.get_by_id('Biomass_SCO').objective_coefficient = 0
+    target_model.reactions.get_by_id("Ex_"+product).objective_coefficient = 1
 
     #Model reloading and overwrtting are necessary for model stability
     #Without these, model does not produce an accurate prediction
     write_cobra_model_to_sbml_file(target_model, dirname+"target_model_%s.xml" %product)
     target_model = create_cobra_model_from_sbml_file(dirname+"target_model_%s.xml" %product)
 
-    for rxn in target_model.reactions:
-        rxn.objective_coefficient = 0
-
-    #target_model.reactions.get_by_id('Biomass_SCO').objective_coefficient = 0
-    target_model.reactions.get_by_id("Ex_"+product).objective_coefficient = 1
     target_model.optimize()
     print "Flux:", target_model.solution.f
 
     target_model.reactions.get_by_id('Biomass_SCO').objective_coefficient = 1 
     target_model.reactions.get_by_id("Ex_"+product).objective_coefficient = 0
 
-    return target_model.solution.f, product
+    #return target_model.solution.f, product
+    return target_model, product
 
 
 def get_monomers_nonprod_sec_met(metab_coeff_dict):

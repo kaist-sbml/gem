@@ -82,7 +82,8 @@ for cluster_f in cluster_files:
 
         target_model = add_sec_met_rxn(target_model, metab_coeff_dict, product, bigg_mnxm_compound_dict, mnxm_compoundInfo_dict, cluster_info_dict)
         
-        target_model.solution.f, product = check_producibility_sec_met(target_model, product)
+        #target_model.solution.f, product = check_producibility_sec_met(target_model, product, dirname)
+        target_model, product = check_producibility_sec_met(target_model, product, dirname)
 
         if target_model.solution.f < 0.0001:
             nonprod_sec_met_metab_list = get_monomers_nonprod_sec_met(metab_coeff_dict)
@@ -101,9 +102,7 @@ print nonprod_sec_met_dict, "\n"
 print "Gap-filling for the production of secondary metabolites.."
 print "Step 1: Network manipulation for gap-filling process..", "\n"
 
-#universal_model = create_cobra_model_from_sbml_file('./universal_network_fiexed_bigg_mnxref.xml')
 
-#pickle.dump(universal_model, open('./input/universal_model.p','wb'))
 universal_model = pickle.load(open("./input/universal_model.p","rb"))
 
 #From gapfill_network_manipulation.py
@@ -162,11 +161,6 @@ for nonprod_monomer in unique_nonprod_monomers_list:
     else:
         print "Gap-filling not possible: target_model with reactions from universal_model does not produce this monomer", nonprod_monomer, "\n"
 
-#for nonprod_sec_met in nonprod_sec_met_dict.keys():
-    #print "check", nonprod_sec_met
-    #print "check", target_model.reactions.get_by_id(target_model).id
-    #check_producibility_sec_met(target_model, nonprod_sec_met)
-    #print nonprod_sec_met, "is now produced from the cell!", "\n"
 
 #Output
 write_cobra_model_to_sbml_file(target_model, dirname+model_sbml[:-4]+'_complete.xml')
