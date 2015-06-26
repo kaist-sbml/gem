@@ -218,6 +218,7 @@ class gapfilling_precursor():
             print 'Objective value : ', m.ObjVal
             ReactionFlux = {}
             for reaction in IrreversibleReaction:
+                #Try > 0
                 if b_bool[reaction].x == 1.0:
                     rev_changed_reactions.append(reaction)
 
