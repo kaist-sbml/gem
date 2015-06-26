@@ -447,6 +447,26 @@ def determine_module(domain_comb):
     return discriminant
 
 
+def determine_kr_activity(each_locustag, domain_comb, locustag_kr_dict, discriminant):
+
+    domain_kr_activity_dict = locustag_kr_dict[each_locustag]
+
+    for each_domain in domain_comb:
+        domain_name = each_domain[:-5]
+        if domain_name == 'PKS_KR' and domain_kr_activity_dict[each_domain] == 'active':
+            f_discriminant = discriminant
+            return f_discriminant
+
+        elif domain_name == "PKS_KR" and domain_kr_activity_dict[each_domain] == 'inactive':
+            f_discriminant = discriminant.replace('KR','KR(inactive)')
+            return f_discriminant
+
+    #This assignment is given
+    #only if all the checked domains do not enter the above two conditions
+    f_discriminant = discriminant
+    return f_discriminant
+
+
 def get_module_currency_metab_dict(discriminant, each_module, each_module_substrates, module_currency_metab_dict):
 
     if discriminant == 'A' or discriminant == 'Aox':

@@ -68,13 +68,13 @@ for cluster_f in cluster_files:
 
     if 't1pks' in product or 'nrps' in product:
 
-        locustag_domain_dict = get_cluster_domain(cluster_info_dict)
+        locustag_domain_dict, locustag_kr_dict = get_cluster_domain(cluster_info_dict)
 
         locustag_monomer_dict = get_cluster_monomers(cluster_info_dict)
 
         locustag_module_domain_dict = get_cluster_module(locustag_domain_dict)
 
-        module_currency_metab_dict = get_currency_metabolites(locustag_module_domain_dict)
+        module_currency_metab_dict = get_currency_metabolites(locustag_module_domain_dict, locustag_kr_dict)
 
         currency_metab_coeff_dict = get_total_currency_metab_coeff(module_currency_metab_dict)
 
@@ -158,6 +158,7 @@ for nonprod_monomer in unique_nonprod_monomers_list:
         #obj.change_reversibility(target_model_temp.reactions.get_by_id('Ex_'+nonprod_monomer), target_model_temp)
         added_reaction = obj.fill_gap("Ex_"+nonprod_monomer, mnxr_unique_to_universal_model_list)
         target_model = add_gapfill_rxn_target_model(target_model, universal_model, added_reaction)
+        print "\n"
     else:
         print "Gap-filling not possible: target_model with reactions from universal_model does not produce this monomer", nonprod_monomer, "\n"
 

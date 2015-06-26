@@ -10,6 +10,7 @@ from cobra import Model, Reaction, Metabolite
 from cobra.io.sbml import create_cobra_model_from_sbml_file, write_cobra_model_to_sbml_file
 from general_sec_met_info import (
     determine_module,
+    determine_kr_activity,
     get_module_currency_metab_dict,
     get_biggid_from_aSid,
     get_metab_coeff_dict,
@@ -77,13 +78,15 @@ def get_product_from_cluster_gbk(record):
 def get_cluster_domain(cluster_info_dict):
     
     locustag_domain_dict = {}
-        
+    locustag_kr_dict = {}
+    
     for each_gene in cluster_info_dict.keys():
         
         sec_met_info_list = cluster_info_dict[each_gene][0]
 
         domain_count = 0
         sec_met_domain_list = []
+        kr_domain_info_dict = {}
 
         for each_sub_set in sec_met_info_list:
 
@@ -99,20 +102,32 @@ def get_cluster_domain(cluster_info_dict):
 
                 spt_list_domain_info = whole_domain_info.split()
                 spt_list_domain_info.append(each_gene)
-
                 each_sec_met_domain = spt_list_domain_info[0]
-                sec_met_domain_list.append(each_sec_met_domain)
-                
+
                 #Domain information
-                domain_number = each_gene + '_DM' + str(domain_count)
-                domain_count = domain_count + 1
-                            
+                #Correction by HKS; counts the number of domains
+                if float(domain_count) < 10:
+                    domain_number = "_DM0"+str(domain_count)
+                else:
+                    domain_number = "_DM"+str(domain_count)
+
+                domain_number = each_sec_met_domain + domain_number
+                sec_met_domain_list.append(domain_number)
+                domain_count += 1
+
+                #Collects KR activity information
+                if domain_number[:-5] == "PKS_KR":   
+                    kr_info_list = sptline2[1].split(': ')
+                    dm_kr_activity = kr_info_list[1]
+                    kr_domain_info_dict[domain_number] = dm_kr_activity
+ 
         locustag_domain_dict[each_gene] = sec_met_domain_list
+        locustag_kr_dict[each_gene] = kr_domain_info_dict
 
     #print 'locustag_domain_dict'
     #print locustag_domain_dict, '\n'
 
-    return locustag_domain_dict
+    return locustag_domain_dict, locustag_kr_dict
 
 
 #Two nested functions: extract_nrp_monomers, extract_pk_monomers
@@ -206,63 +221,75 @@ def get_cluster_module(locustag_domain_dict):
     locustag_module_domain_dict = {}
 
     for locustag in locustag_domain_dict.keys():
-        
+
         count = 0
-        list_module_info = []
+        module_info_list = []
+        module_info_trunc_list = []
         number_of_list = len(locustag_domain_dict[locustag])
 
         for each_domain in locustag_domain_dict[locustag]:
-            list_module_info.append(each_domain)
+            domain_name = each_domain[:-5]
+            module_info_list.append(each_domain)
+            module_info_trunc_list.append(domain_name)
             number_of_list -= 1
-        
-            if each_domain == 'PCP' or each_domain == 'ACP':
-                module_number = locustag + '_M' + str(count)
-                locustag_module_domain_dict[module_number] = list_module_info
 
-                list_module_info = []
+            if domain_name == 'PCP' or domain_name == 'ACP':
+                module_number = get_loucstag_module_number(locustag, count)
+                locustag_module_domain_dict[module_number] = module_info_list
+
+                module_info_list = []
+                module_info_trunc_list = []
                 count += 1
 
-            elif each_domain == 'Epimerization':
+            elif domain_name == 'Epimerization':
+                count -= 1
+                module_number = get_loucstag_module_number(locustag, count)
+                module_info_list = locustag_module_domain_dict[module_number]
+                module_info_list.append(str(each_domain))
+                locustag_module_domain_dict[module_number] = module_info_list
+
+                module_info_list = []
+                module_info_trunc_list = []
+                count += 1
+
+            elif domain_name == 'PKS_Docking_Cterm' and 'ACP' in locustag_domain_dict[locustag]:
                 count -= 1
                 module_number = locustag + '_M' + str(count)
-                list_module_info = locustag_module_domain_dict[module_number]
-                list_module_info.append('Epimerization')
-                locustag_module_domain_dict[module_number] = list_module_info
+                module_info_list = locustag_module_domain_dict[module_number]
+                module_info_list.append('PKS_Docking_Cterm')
+                locustag_module_domain_dict[module_number] = module_info_list
 
-                list_module_info = []
+                module_info_list = []
+                module_info_trunc_list = []
                 count += 1
 
             #'ACP' was inserted, otherwise it causes an error
             #by having a locus_tag with unspecified monomer
-            elif each_domain == 'Thioesterase' and 'ACP' in locustag_domain_dict[locustag]:
+            elif domain_name == 'Thioesterase' and 'ACP' in locustag_domain_dict[locustag]:
                 count -= 1
-                module_number = locustag + '_M' + str(count)
-                list_module_info = locustag_module_domain_dict[module_number]
-                list_module_info.append('Thioesterase')
-                locustag_module_domain_dict[module_number] = list_module_info
+                module_number = get_loucstag_module_number(locustag, count)
+                module_info_list = locustag_module_domain_dict[module_number]
+                module_info_list.append(str(each_domain))
+                locustag_module_domain_dict[module_number] = module_info_list
 
-            elif list_module_info.count('PKS_KS') == 2:
-                module_number = locustag + '_M' + str(count)
-                poped_domain = list_module_info.pop()
-                locustag_module_domain_dict[module_number] = list_module_info
+            elif module_info_list.count('PKS_KS') == 2 or module_info_list.count('Condensation') == 2 or module_info_list.count('Condensation_DCL') == 2 or module_info_list.count('Condensation_LCL') == 2 or module_info_list.count('Condensation_LCL') + module_info_list.count('Condensation_DCL') == 2 or module_info_list.count('Condensation_Dual') == 2 or module_info_list.count('Cglyc') == 2 or module_info_list.count('CXglyc') == 2 or module_info_list.count('Heterocyclization') == 2:
+                module_number = get_loucstag_module_number(locustag, count)
+                poped_domain = module_info_list.pop()
+                abbr_poped_domain = module_info_trunc_list.pop()
+                locustag_module_domain_dict[module_number] = module_info_list
 
-                list_module_info = []
-                list_module_info.append(poped_domain)
-                count += 1
-
-            elif list_module_info.count('Condensation_DCL') == 2 or list_module_info.count('Condensation_LCL') == 2 or list_module_info.count('Condensation_LCL') + list_module_info.count('Condensation_DCL') == 2:
-                module_number = locustag + '_M' + str(count)
-                list_module_info.pop()
-                locustag_module_domain_dict[module_number] = list_module_info
-
-                list_module_info = []
+                module_info_list = []
+                module_info_trunc_list = []
+                module_info_list.append(poped_domain)
+                module_info_trunc_list.append(abbr_poped_domain)
                 count += 1
 
             elif float(number_of_list) == 0:
-                module_number = locustag + '_M' + str(count)
-                locustag_module_domain_dict[module_number] = list_module_info
+                module_number = get_loucstag_module_number(locustag, count)
+                locustag_module_domain_dict[module_number] = module_info_list
 
-                list_module_info = []
+                module_info_list = []
+                module_info_trunc_list = []
                 count += 1
 
     #print 'locustag_module_domain_dict'
@@ -270,29 +297,46 @@ def get_cluster_module(locustag_domain_dict):
     return locustag_module_domain_dict
 
 
+def get_loucstag_module_number(locustag, count):
+    
+    if float(count) < 10:
+        module_number = locustag + '_M0' + str(count)
+    else:
+        module_number = locustag + '_M' + str(count)
+
+    return module_number
+
+
 #Ouput: e.g., {'SAV_943_M0':{'coa': 1, 'nadph': -1, 'nadp': 1, 'hco3': 1, 'h': -1}
-def get_currency_metabolites(locustag_module_domain_dict):
+def get_currency_metabolites(locustag_module_domain_dict, locustag_kr_dict):
 
     module_currency_metab_dict = {}
 
     for each_module in locustag_module_domain_dict:
+        each_locustag = each_module[:-4]
         domain_comb = locustag_module_domain_dict[each_module]
 
         each_module_substrates = {}
-        discriminant = determine_module(domain_comb)
+        domain_trunc_list = []
 
-        if discriminant == 'None':
-            #print "Discriminant not defined : %s" % (domain_comb)
+        for each_domain in domain_comb:
+            abbr_domain = each_domain[:-5]
+            domain_trunc_list.append(abbr_domain)
+
+        discriminant = determine_module(domain_trunc_list)
+        f_discriminant = determine_kr_activity(each_locustag, domain_comb, locustag_kr_dict, discriminant)
+
+        if f_discriminant == 'None':
             continue
 
-        elif discriminant == 'ACP':
+        elif f_discriminant == 'ACP':
             continue
 
-        elif discriminant == 'PCP':
+        elif f_discriminant == 'PCP':
             continue
 
         else:
-            module_currency_metab_dict = get_module_currency_metab_dict(discriminant, each_module, each_module_substrates, module_currency_metab_dict)
+            module_currency_metab_dict = get_module_currency_metab_dict(f_discriminant, each_module, each_module_substrates, module_currency_metab_dict)
 
     #print "module_currency_metab_dict"
     #print module_currency_metab_dict, '\n'
