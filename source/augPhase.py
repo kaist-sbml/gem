@@ -240,24 +240,7 @@ def extract_rxn_mnxm_coeff(mnxr_to_add_list, mnxr_rxn_dict, mnxm_bigg_compound_d
     return rxnid_mnxm_coeff_dict
 
 
-#Extracts compound information for name, entry, and formula using compound ID from KEGG
-def get_compoundInfo(compoundID):
-    url = "http://rest.kegg.jp/get/%s"%(compoundID)
-    data = urllib2.urlopen(url).read()
-    split_text = data.strip().split('\n')
-    NAME = ''
-    FORMULA = ''
-    for line in split_text:
-        sptlist = line.split()
-        if sptlist[0].strip() == 'NAME':
-            NAME = sptlist[1].strip()
-            NAME = NAME.replace(';','')
-        elif sptlist[0].strip() == 'FORMULA':
-            FORMULA = sptlist[1].strip()
-    return {'NAME':NAME, 'FORMULA':FORMULA}
-
-
-def add_nonBBH_rxn(modelPrunedGPR, rxnid_info_dict, rxnid_mnxm_coeff_dict, rxnid_locusTag_dict, bigg_mnxm_compound_dict, mnxm_compoundInfo_dict, targetGenome_locusTag_prod_dict):
+def add_nonBBH_rxn(modelPrunedGPR, rxnid_info_dict, rxnid_mnxm_coeff_dict, rxnid_locusTag_dict, bigg_mnxm_compound_dict, kegg_mnxm_compound_dict, mnxm_compoundInfo_dict, targetGenome_locusTag_prod_dict):
 
     for rxnid in rxnid_mnxm_coeff_dict.keys():
 	print rxnid
@@ -289,10 +272,10 @@ def add_nonBBH_rxn(modelPrunedGPR, rxnid_info_dict, rxnid_mnxm_coeff_dict, rxnid
 		    metab_compt = Metabolite(metab, formula = mnxm_compoundInfo_dict[mnxm][1], name = mnxm_compoundInfo_dict[mnxm][0], compartment='c')
 		    rxn.add_metabolites({metab_compt:rxnid_mnxm_coeff_dict[rxnid][metab]})
 
-                #Adding metabolites with KEGG compoundID and not in the model
+                #Adding metabolites with MNXM and not in the model
 	        else:
-		    keggID = get_compoundInfo(metab)
-		    metab_compt = Metabolite(metab, formula = keggID['FORMULA'], name = keggID['NAME'], compartment='c')
+		    mnxm = kegg_mnxm_compound_dict[metab]
+		    metab_compt = Metabolite(mnxm, formula = mnxm_compoundInfo_dict[mnxm][1], name = mnxm_compoundInfo_dict[mnxm][0], compartment='c')
 		    rxn.add_metabolites({metab_compt:rxnid_mnxm_coeff_dict[rxnid][metab]})
 
             #GPR association
