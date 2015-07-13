@@ -47,7 +47,7 @@ def integrate_target_universal_models(mnxr_unique_to_universal_model_list, targe
     return target_model2
 
 
-def add_transport_exchange_rxn_nonprod_monomer(target_model, nonprod_monomer):
+def add_transport_exchange_rxn_nonprod_monomer(target_model, nonprod_monomer, dirname):
 
     target_model_temp = copy.deepcopy(target_model)
 
@@ -83,19 +83,18 @@ def add_transport_exchange_rxn_nonprod_monomer(target_model, nonprod_monomer):
     #Add the new reaction to the model
     target_model_temp.add_reaction(rxn)
 
+    #Model reloading and overwrtting are necessary for model stability
+    write_cobra_model_to_sbml_file(target_model_temp, dirname+"target_model_temp_%s.xml" %nonprod_monomer)
+    target_model_temp = create_cobra_model_from_sbml_file(dirname+"target_model_temp_%s.xml" %nonprod_monomer)
+
     return target_model_temp
 
 
-def check_producibility_nonprod_monomer(cobra_model, nonprod_monomer, dirname):
+def check_producibility_nonprod_monomer(cobra_model, nonprod_monomer):
     for rxn in cobra_model.reactions:
         rxn.objective_coefficient = 0
 
     cobra_model.reactions.get_by_id("Ex_"+nonprod_monomer).objective_coefficient = 1
-
-    #Model reloading and overwrtting are necessary for model stability
-    #Without these, model does not produce an accurate prediction
-    write_cobra_model_to_sbml_file(cobra_model, dirname+"target_model_temp_%s.xml" %nonprod_monomer)
-    cobra_model = create_cobra_model_from_sbml_file(dirname+"target_model_temp_%s.xml" %nonprod_monomer)
     cobra_model.optimize()
 
     print cobra_model.reactions.get_by_id("Ex_"+nonprod_monomer)

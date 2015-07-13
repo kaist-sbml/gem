@@ -128,23 +128,25 @@ unique_nonprod_monomers_list = get_unique_nonprod_monomers_list(nonprod_sec_met_
 
 #Some monomers used for nonproducible secondary metabolites can be produced from an initial target_model
 #They need to be excluded from the list for gap-filling targets
+adj_unique_nonprod_monomers_list = []
+
 for nonprod_monomer in unique_nonprod_monomers_list:
     print nonprod_monomer
-    target_model_monomer = add_transport_exchange_rxn_nonprod_monomer(target_model, nonprod_monomer)
-    target_model_monomer = check_producibility_nonprod_monomer(target_model_monomer, nonprod_monomer, dirname)
-    if target_model_monomer.solution.f > 0:
-        print "Optimal value for", nonprod_monomer, ":", target_model_monomer.solution.f
-        unique_nonprod_monomers_list.remove(nonprod_monomer)
-
+    target_model_monomer = add_transport_exchange_rxn_nonprod_monomer(target_model, nonprod_monomer, dirname)
+    target_model_monomer = check_producibility_nonprod_monomer(target_model_monomer, nonprod_monomer)
+    if target_model_monomer.solution.f < 0.0001:
+    #    unique_nonprod_monomers_list.remove(nonprod_monomer)
+        adj_unique_nonprod_monomers_list.append(nonprod_monomer)
     else:
         continue
 
-print "Adjusted unique_nonprod_monomers_list", unique_nonprod_monomers_list, "\n"
 
-for nonprod_monomer in unique_nonprod_monomers_list:
+print "Adjusted unique_nonprod_monomers_list", adj_unique_nonprod_monomers_list, "\n"
 
-    target_model_temp = add_transport_exchange_rxn_nonprod_monomer(target_model2, nonprod_monomer)
-    target_model_temp = check_producibility_nonprod_monomer(target_model_temp, nonprod_monomer, dirname)
+for nonprod_monomer in adj_unique_nonprod_monomers_list:
+
+    target_model_temp = add_transport_exchange_rxn_nonprod_monomer(target_model2, nonprod_monomer, dirname)
+    target_model_temp = check_producibility_nonprod_monomer(target_model_temp, nonprod_monomer)
     target_model_temp.optimize()
 
     #Run gap-filling procedure only for monomers producible from target_model with reactions from universal_model
