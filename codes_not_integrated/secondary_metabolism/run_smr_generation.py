@@ -117,7 +117,6 @@ mnxr_unique_to_universal_model_list = get_mnxr_unique_to_universal_model(mnxr_bi
 mnxr_rxn_all_dict = pickle.load(open("./input/mnxr_rxn_all_dict.p","rb"))
 
 print "Merging target_model and universal_model.."
-print "Also generating a truncated universal_model with its exclusive reactions.."
 print "\n"
 target_model2 = integrate_target_universal_models(mnxr_unique_to_universal_model_list, target_model, universal_model)
 
@@ -135,7 +134,6 @@ for nonprod_monomer in unique_nonprod_monomers_list:
     target_model_monomer = add_transport_exchange_rxn_nonprod_monomer(target_model, nonprod_monomer, dirname)
     target_model_monomer = check_producibility_nonprod_monomer(target_model_monomer, nonprod_monomer)
     if target_model_monomer.solution.f < 0.0001:
-    #    unique_nonprod_monomers_list.remove(nonprod_monomer)
         adj_unique_nonprod_monomers_list.append(nonprod_monomer)
     else:
         continue

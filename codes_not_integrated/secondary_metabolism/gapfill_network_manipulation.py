@@ -98,7 +98,6 @@ def check_producibility_nonprod_monomer(cobra_model, nonprod_monomer):
     cobra_model.optimize()
 
     print cobra_model.reactions.get_by_id("Ex_"+nonprod_monomer)
-    print cobra_model.reactions.get_by_id("Ex_"+nonprod_monomer).reaction
     print "Flux:", cobra_model.solution.f, "\n"
 
     return cobra_model
