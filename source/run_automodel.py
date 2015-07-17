@@ -161,9 +161,9 @@ target_model = add_nonBBH_rxn(modelPrunedGPR, rxnid_info_dict, rxnid_mnxm_coeff_
 #e.g., metabolite IDs with correct compartment suffices & accurate model stats
 #This can also mask the effects of model error (e.g., undeclared metabolite ID)
 #Cobrapy IO module seems to have an error for adding new reactions
-write_cobra_model_to_sbml_file(target_model, './%s/2_primary_metabolic_model/target_model_%s.xml' %(dirname, orgName))
-target_model = create_cobra_model_from_sbml_file('./%s/2_primary_metabolic_model/target_model_%s.xml' %(dirname, orgName))
-write_cobra_model_to_sbml_file(target_model, './%s/2_primary_metabolic_model/target_model_%s.xml' %(dirname, orgName))
+write_cobra_model_to_sbml_file(target_model, './%s/2_primary_metabolic_model/%s_target_model_%s.xml' %(dirname, dirname, orgName))
+target_model = create_cobra_model_from_sbml_file('./%s/2_primary_metabolic_model/%s_target_model_%s.xml' %(dirname, dirname, orgName))
+write_cobra_model_to_sbml_file(target_model, './%s/2_primary_metabolic_model/%s_target_model_%s.xml' %(dirname, dirname, orgName))
 
 #Output on screen
 model = pickle.load(open('%s/model.p' %(root),'rb'))
@@ -171,8 +171,8 @@ print "Number of genes:", len(model.genes), "/", len(modelPruned.genes), "/", le
 print "Number of reactions:", len(model.reactions), "/", len(modelPruned.reactions), "/", len(target_model.reactions)
 print "Number of metabolites:",  len(model.metabolites), "/", len(modelPruned.metabolites), "/", len(target_model.metabolites)
 
-fp1 = open('./%s/2_primary_metabolic_model/target_model_reactions.txt' %dirname, "w")
-fp2 = open('./%s/2_primary_metabolic_model/target_model_metabolites.txt' %dirname, "w")
+fp1 = open('./%s/2_primary_metabolic_model/%s_target_model_reactions.txt' %(dirname, dirname), "w")
+fp2 = open('./%s/2_primary_metabolic_model/%s_target_model_metabolites.txt' %(dirname, dirname), "w")
 fp1.write("Reaction ID"+"\t"+"Reaction name"+"\t"+"Lower bound"+"\t"+"Reaction equation"+"\t"+"GPR"+"\t"+"Pathway"+"\n")
 fp2.write("Metabolite ID"+"\t"+"Metabolite name"+"\t"+"Formula"+"\t"+"Compartment"+"\n")
 
