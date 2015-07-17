@@ -189,6 +189,36 @@ def get_mnxr_using_kegg(rxnid_to_add_list, kegg_mnxr_dict):
 	    mnxr_to_add_list.append(kegg_mnxr_dict[rxnid])
     return mnxr_to_add_list
 
+
+def get_correct_metab_coeff(converted_metab_id, metab_coeff, metab_type, mnxm_coeff_dict, mnxm_metab_list):
+
+    #If the same metabolite appears multiple times as either substrates or products,
+    #their stoichiometric coeff's are all added up
+    if converted_metab_id in mnxm_metab_list:
+        overlap_metab_coeff = float(mnxm_coeff_dict[converted_metab_id])
+        mnxm_coeff_dict[converted_metab_id] = overlap_metab_coeff+float(metab_coeff)*-1
+    else:
+        if metab_type == 'substrate':
+            mnxm_coeff_dict[converted_metab_id] = float(metab_coeff)*-1
+        elif metab_type == 'product':
+            mnxm_coeff_dict[converted_metab_id] = float(metab_coeff)
+
+    return mnxm_coeff_dict
+
+
+#Check if the same metabolite appears as a substrate and a product
+def check_overlap_subs_prod(mnxm_subs_list, mnxm_prod_list):
+
+    for each_substrate in mnxm_subs_list:
+        if each_substrate in mnxm_prod_list:
+            overlap_check = True
+            break
+        else:
+            overlap_check = False
+
+    return overlap_check
+
+
 #Creating: e.g., {'R03232': {'f1p': -1.0, 'C04261': 1.0, 'fru': 1.0, 'C00615': -1.0}}
 #Metabolites are presented primarily with bigg, otherwise with KEGG
 def extract_rxn_mnxm_coeff(mnxr_to_add_list, mnxr_rxn_dict, mnxm_bigg_compound_dict, mnxm_kegg_compound_dict, mnxr_kegg_dict):
@@ -212,30 +242,53 @@ def extract_rxn_mnxm_coeff(mnxr_to_add_list, mnxr_rxn_dict, mnxm_bigg_compound_d
             #or {mnxm:(-1)coeff}
 	    substrates = substrates.split(' + ')
 	    mnxm_coeff_dict = {}
+            mnxm_subs_list = []
+            mnxm_prod_list = []
+
 	    for substrate in substrates:
+                metab_type = 'substrate'
 	        substrate = substrate.split()
+
 	        if substrate[1] in mnxm_bigg_compound_dict.keys():
-		    mnxm_coeff_dict[mnxm_bigg_compound_dict[substrate[1]]] = float(substrate[0])*-1
+                    mnxm_coeff_dict = get_correct_metab_coeff(mnxm_bigg_compound_dict[substrate[1]], substrate[0], metab_type, mnxm_coeff_dict, mnxm_subs_list)
+                    mnxm_subs_list.append(mnxm_bigg_compound_dict[substrate[1]])
+
 	        elif substrate[1] in mnxm_kegg_compound_dict.keys():
-		    mnxm_coeff_dict[mnxm_kegg_compound_dict[substrate[1]]] = float(substrate[0])*-1
+                    mnxm_coeff_dict = get_correct_metab_coeff(mnxm_kegg_compound_dict[substrate[1]], substrate[0], metab_type, mnxm_coeff_dict, mnxm_subs_list)
+                    mnxm_subs_list.append(mnxm_kegg_compound_dict[substrate[1]])
+
 	        else:
-		    mnxm_coeff_dict[substrate[1]] = float(substrate[0])*-1
+                    mnxm_coeff_dict = get_correct_metab_coeff(substrate[1], substrate[0], metab_type, mnxm_coeff_dict, mnxm_subs_list)
+                    mnxm_subs_list.append(substrate[1])
 
             #Creating:
             #e.g., {bigg compoundID:coeff}, {kegg compoundID:coeff} or {mnxm:coeff}
 	    products = products.split(' + ')
 	    for product in products:
+                metab_type = 'product'
 	        product = product.split()
-	        if product[1] in mnxm_bigg_compound_dict.keys():
-		    mnxm_coeff_dict[mnxm_bigg_compound_dict[product[1]]] = float(product[0])
-	        elif product[1] in mnxm_kegg_compound_dict.keys():
-		    mnxm_coeff_dict[mnxm_kegg_compound_dict[product[1]]] = float(product[0])
-	        else:
-		    mnxm_coeff_dict[product[1]] = float(product[0])
 
-            #Creating: 
-            #e.g., {'R03232': {'f1p': -1.0, 'C04261': 1.0, 'fru': 1.0, 'C00615': -1.0}}
-	    rxnid_mnxm_coeff_dict[mnxr_kegg_dict[mnxr]] = mnxm_coeff_dict
+	        if product[1] in mnxm_bigg_compound_dict.keys():
+                    mnxm_coeff_dict = get_correct_metab_coeff(mnxm_bigg_compound_dict[product[1]], product[0], metab_type, mnxm_coeff_dict, mnxm_prod_list)
+                    mnxm_prod_list.append(mnxm_bigg_compound_dict[product[1]])
+
+	        elif product[1] in mnxm_kegg_compound_dict.keys():
+                    mnxm_coeff_dict = get_correct_metab_coeff(mnxm_kegg_compound_dict[product[1]], product[0], metab_type, mnxm_coeff_dict, mnxm_prod_list)
+                    mnxm_prod_list.append(mnxm_kegg_compound_dict[product[1]])
+
+	        else:
+                    mnxm_coeff_dict = get_correct_metab_coeff(product[1], product[0], metab_type, mnxm_coeff_dict, mnxm_prod_list)
+                    mnxm_prod_list.append(product[1])
+
+            #Check overlapping metabolites as a substrate and a product
+            #e.g., ATP + ADP <=> ADP + ATP 
+            overlap_check = check_overlap_subs_prod(mnxm_subs_list, mnxm_prod_list)
+            if overlap_check == True:
+                continue
+            else:
+                #Creating: 
+                #e.g., {'R03232': {'f1p': -1.0, 'C04261': 1.0, 'fru': 1.0, 'C00615': -1.0}}
+	        rxnid_mnxm_coeff_dict[mnxr_kegg_dict[mnxr]] = mnxm_coeff_dict
 
     return rxnid_mnxm_coeff_dict
 
