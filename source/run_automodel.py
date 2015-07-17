@@ -47,8 +47,6 @@ for folder in folders:
 
 #List of input (static) files as pickles
 ###################################################################
-#from "independentModule_"
-
 #For model pruning phase
 #Choose "eco" or "sco"
 orgName = 'sco'
@@ -155,8 +153,6 @@ mnxr_to_add_list = get_mnxr_using_kegg(rxnid_to_add_list, kegg_mnxr_dict)
 
 rxnid_mnxm_coeff_dict = extract_rxn_mnxm_coeff(mnxr_to_add_list, mnxr_rxn_dict, mnxm_bigg_compound_dict, mnxm_kegg_compound_dict, mnxr_kegg_dict)
 
-#One nested function
-#get_compoundInfo(compoundID)
 target_model = add_nonBBH_rxn(modelPrunedGPR, rxnid_info_dict, rxnid_mnxm_coeff_dict, rxnid_locusTag_dict, bigg_mnxm_compound_dict, kegg_mnxm_compound_dict, mnxm_compoundInfo_dict, targetGenome_locusTag_prod_dict)
 ###################################################################
 
@@ -190,5 +186,10 @@ for i in range(len(target_model.metabolites)):
 
 fp1.close()
 fp2.close()
+
+
+###################################################################
+#Secondary metabolic modeling
+import run_smr_generation
 
 print "Elapsed time:", time.strftime("%H:%M:%S", time.gmtime(time.time() - start))

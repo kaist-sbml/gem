@@ -51,7 +51,7 @@ for f in os.listdir(dirname+'2_primary_metabolic_model'):
     if f.endswith('.xml'):
        model_sbml = f
 
-target_model = create_cobra_model_from_sbml_file(dirname+'2_primary_metabolic_model'+model_sbml)
+target_model = create_cobra_model_from_sbml_file(dirname+'2_primary_metabolic_model/'+model_sbml)
 
 #if __name__ == '__main__':
 #    cluster_f = 'NC_018750.1.cluster003.gbk'
@@ -163,10 +163,10 @@ for nonprod_monomer in adj_unique_nonprod_monomers_list:
 
 
 #Output
-write_cobra_model_to_sbml_file(target_model, dirname+'4_complete_model'+model_sbml[:-4]+'_complete.xml')
+write_cobra_model_to_sbml_file(target_model, dirname+'4_complete_model/'+model_sbml[:-4]+'_complete.xml')
 
-fp1 = open(dirname+'4_complete_model'+'%s_target_model_reactions.txt' %orgname, "w")
-fp2 = open(dirname+'4_complete_model'+'%s_target_model_metabolites.txt' %orgname, "w")
+fp1 = open(dirname+'4_complete_model/'+'%s_target_model_reactions.txt' %orgname, "w")
+fp2 = open(dirname+'4_complete_model/'+'%s_target_model_metabolites.txt' %orgname, "w")
 fp1.write("Reaction ID"+"\t"+"Reaction name"+"\t"+"Lower bound"+"\t"+"Reaction equation"+"\t"+"GPR"+"\t"+"Pathway"+"\n")
 fp2.write("Metabolite ID"+"\t"+"Metabolite name"+"\t"+"Formula"+"\t"+"Compartment"+"\n")
 

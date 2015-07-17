@@ -84,8 +84,8 @@ def add_transport_exchange_rxn_nonprod_monomer(target_model, nonprod_monomer, di
     target_model_temp.add_reaction(rxn)
 
     #Model reloading and overwrtting are necessary for model stability
-    write_cobra_model_to_sbml_file(target_model_temp, dirname+'3_temp_models'+"target_model_temp_%s.xml" %nonprod_monomer)
-    target_model_temp = create_cobra_model_from_sbml_file(dirname+'3_temp_models'+"target_model_temp_%s.xml" %nonprod_monomer)
+    write_cobra_model_to_sbml_file(target_model_temp, dirname+'3_temp_models/'+"target_model_temp_%s.xml" %nonprod_monomer)
+    target_model_temp = create_cobra_model_from_sbml_file(dirname+'3_temp_models/'+"target_model_temp_%s.xml" %nonprod_monomer)
 
     return target_model_temp
 
