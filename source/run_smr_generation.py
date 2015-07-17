@@ -82,7 +82,6 @@ for cluster_f in cluster_files:
 
         target_model = add_sec_met_rxn(target_model, metab_coeff_dict, product, bigg_mnxm_compound_dict, mnxm_compoundInfo_dict, cluster_info_dict)
         
-        #target_model.solution.f, product = check_producibility_sec_met(target_model, product, dirname)
         target_model, product = check_producibility_sec_met(target_model, product, dirname)
 
         if target_model.solution.f < 0.0001:
