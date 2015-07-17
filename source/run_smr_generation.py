@@ -36,8 +36,8 @@ print "Generating secondary metabolite biosynthesizing reactions.."
 
 orgname = sys.argv[1]
 
-bigg_mnxm_compound_dict = pickle.load(open('./input/bigg_mnxm_compound_dict.p','rb'))
-mnxm_compoundInfo_dict = pickle.load(open('./input/mnxm_compoundInfo_dict.p','rb'))
+bigg_mnxm_compound_dict = pickle.load(open('./input2/bigg_mnxm_compound_dict.p','rb'))
+mnxm_compoundInfo_dict = pickle.load(open('./input2/mnxm_compoundInfo_dict.p','rb'))
 
 dirname = './%s/' %orgname
 cluster_files = []
@@ -47,11 +47,11 @@ for f in os.listdir(dirname):
 
 cluster_files.sort()
 
-for f in os.listdir(dirname):
+for f in os.listdir(dirname+'2_primary_metabolic_model'):
     if f.endswith('.xml'):
        model_sbml = f
 
-target_model = create_cobra_model_from_sbml_file(dirname+model_sbml)
+target_model = create_cobra_model_from_sbml_file(dirname+'2_primary_metabolic_model'+model_sbml)
 
 #if __name__ == '__main__':
 #    cluster_f = 'NC_018750.1.cluster003.gbk'
@@ -103,10 +103,10 @@ print "Gap-filling for the production of secondary metabolites.."
 print "Step 1: Network manipulation for gap-filling process..", "\n"
 
 
-universal_model = pickle.load(open("./input/universal_model.p","rb"))
+universal_model = pickle.load(open("./input2/universal_model.p","rb"))
 
 #From gapfill_network_manipulation.py
-bigg_mnxr_dict = pickle.load(open("./input/bigg_mnxr_dict.p","rb"))
+bigg_mnxr_dict = pickle.load(open("./input2/bigg_mnxr_dict.p","rb"))
 
 
 print "Retrieving reaction information from target_model and universal_model.."
@@ -114,7 +114,7 @@ mnxr_bigg_target_model_dict = get_mnxr_bigg_in_target_model(target_model, bigg_m
 
 mnxr_unique_to_universal_model_list = get_mnxr_unique_to_universal_model(mnxr_bigg_target_model_dict, universal_model)
 
-mnxr_rxn_all_dict = pickle.load(open("./input/mnxr_rxn_all_dict.p","rb"))
+mnxr_rxn_all_dict = pickle.load(open("./input2/mnxr_rxn_all_dict.p","rb"))
 
 print "Merging target_model and universal_model.."
 print "\n"
@@ -164,10 +164,10 @@ for nonprod_monomer in adj_unique_nonprod_monomers_list:
 
 
 #Output
-write_cobra_model_to_sbml_file(target_model, dirname+model_sbml[:-4]+'_complete.xml')
+write_cobra_model_to_sbml_file(target_model, dirname+'4_complete_model'+model_sbml[:-4]+'_complete.xml')
 
-fp1 = open(dirname+'%s_target_model_reactions.txt' %orgname, "w")
-fp2 = open(dirname+'%s_target_model_metabolites.txt' %orgname, "w")
+fp1 = open(dirname+'4_complete_model'+'%s_target_model_reactions.txt' %orgname, "w")
+fp2 = open(dirname+'4_complete_model'+'%s_target_model_metabolites.txt' %orgname, "w")
 fp1.write("Reaction ID"+"\t"+"Reaction name"+"\t"+"Lower bound"+"\t"+"Reaction equation"+"\t"+"GPR"+"\t"+"Pathway"+"\n")
 fp2.write("Metabolite ID"+"\t"+"Metabolite name"+"\t"+"Formula"+"\t"+"Compartment"+"\n")
 

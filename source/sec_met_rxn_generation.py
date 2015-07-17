@@ -571,8 +571,8 @@ def check_producibility_sec_met(target_model, product, dirname):
 
     #Model reloading and overwrtting are necessary for model stability
     #Without these, model does not produce an accurate prediction
-    write_cobra_model_to_sbml_file(target_model, dirname+"target_model_%s.xml" %product)
-    target_model = create_cobra_model_from_sbml_file(dirname+"target_model_%s.xml" %product)
+    write_cobra_model_to_sbml_file(target_model, dirname+'3_temp_models'+"target_model_%s.xml" %product)
+    target_model = create_cobra_model_from_sbml_file(dirname+'3_temp_models'+"target_model_%s.xml" %product)
 
     target_model.optimize()
     print "Flux:", target_model.solution.f

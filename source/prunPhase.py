@@ -21,21 +21,21 @@ def get_temp_fasta(orgName):
             	return root, tempFasta
 
 
-#Looks for .fa and .gbk  files in the pre-defined folder
-def get_target_gbk():
-    target_gbk = sys.argv[1]
-    print "Target genome:", target_gbk
-    return target_gbk
+#Look for a target .gbk file from antiSMASH
+def get_target_gbk(dirname):
+    for target_gbk in os.listdir(dirname):
+        if target_gbk.endswith('.gbk') and 'final' in target_gbk:
+            return target_gbk
 
 
-def get_targetGenomeInfo(gbkFile, FileType):
-    fp = open('./temp1/targetGenome_locusTag_aaSeq.fa','w')
+def get_targetGenomeInfo(dirname, gbkFile, FileType):
+    fp = open('./%s/1_blastp_results/targetGenome_locusTag_aaSeq.fa' %dirname,'w')
     targetGenome_locusTag_aaSeq_dict = {}
     targetGenome_locusTag_ec_dict = {}
     targetGenome_locusTag_prod_dict = {}
 
     #Reads GenBank file
-    record = SeqIO.read(gbkFile, FileType)
+    record = SeqIO.read(dirname+'/'+gbkFile, FileType)
     for feature in record.features:
         if feature.type == 'CDS':
 
@@ -80,8 +80,8 @@ def get_targetGenomeInfo(gbkFile, FileType):
 
 
 #Looks for .fa and .gbk  files in the pre-defined folder
-def get_target_fasta():
-    for root, _, files in os.walk('./temp1/'):
+def get_target_fasta(dirname):
+    for root, _, files in os.walk('./%s/1_blastp_results' %dirname):
         for f in files:
             if f.endswith('.fa'):
                 target_fasta = os.path.join(root, f)
@@ -91,13 +91,13 @@ def get_target_fasta():
 	    sys.exit(1)
 
 #making database files using fasta files
-def make_blastDB(query_fasta):  
-    db_dir = './temp1/targetBlastDB'
+def make_blastDB(dirname, query_fasta):
+    db_dir = './%s/1_blastp_results/targetBlastDB' %dirname
     DBprogramName = './blastpfiles/makeblastdb.exe'
     subprocess.call([DBprogramName,'-in',query_fasta,'-out',db_dir,'-dbtype','prot'])  
 
     #Checks if DB is properly created; otherwise shutdown
-    if os.path.isfile('./temp1/targetBlastDB.psq') == False:
+    if os.path.isfile('./%s/1_blastp_results/targetBlastDB.psq' %dirname) == False:
 	print "error in make_blastDB: blast DB not created"
         #FIXME: Don't use sys.exit
 	sys.exit(1)

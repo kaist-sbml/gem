@@ -28,10 +28,22 @@ from augPhase import (
     add_nonBBH_rxn
 )
 from cobra.io.sbml import write_cobra_model_to_sbml_file, create_cobra_model_from_sbml_file
+import os
 import pickle
+import sys
 import time
 
 start = time.time()
+
+dirname = sys.argv[1]
+
+#Create output folders
+folders = ['1_blastp_results', '2_primary_metabolic_model', '3_temp_models', '4_complete_model']
+
+for folder in folders:
+   if not os.path.isdir('./%s/'%dirname+folder):
+       os.makedirs('./%s/'%dirname+folder)
+
 
 #List of input (static) files as pickles
 ###################################################################
@@ -67,34 +79,34 @@ templateModel_bigg_mnxr_dict = pickle.load(open('./input2/templateModel_bigg_mnx
 print "\n", "pruning phase starting..", "\n"
 ###################################################################
 print "looking for a gbk file of a target genome.."
-target_gbk = get_target_gbk()
+target_gbk = get_target_gbk(dirname)
 
 print "reading genbank file of the target genome.."    
-targetGenome_locusTag_ec_dict, targetGenome_locusTag_prod_dict = get_targetGenomeInfo(target_gbk, "genbank")
+targetGenome_locusTag_ec_dict, targetGenome_locusTag_prod_dict = get_targetGenomeInfo(dirname, target_gbk, "genbank")
 
 print "\n", "looking for a fasta file of a target genome..", "\n"
-target_fasta = get_target_fasta()
+target_fasta = get_target_fasta(dirname)
 
 print "generating a DB for the genes from the target genome.."
-make_blastDB(query_fasta=target_fasta)
+make_blastDB(dirname, query_fasta=target_fasta)
 
 print "\n", "running BLASTP #1: genes in the target genome against genes in the template model.."
-run_blastp(target_fasta='./temp1/targetGenome_locusTag_aaSeq.fa', blastp_result='./temp1/blastp_targetGenome_against_tempGenome.txt', db_dir = '%s/tempBlastDB' %(root), evalue=1e-30)
+run_blastp(target_fasta='./%s/1_blastp_results/targetGenome_locusTag_aaSeq.fa' %dirname, blastp_result='./%s/1_blastp_results/blastp_targetGenome_against_tempGenome.txt' %dirname, db_dir = '%s/tempBlastDB' %(root), evalue=1e-30)
 
 print "\n", "running BLASTP #2: genes in the template model against genes in the target genome.."
-run_blastp(target_fasta='%s/tempModel_locusTag_aaSeq.fa' %(root), blastp_result='./temp1/blastp_tempGenome_against_targetGenome.txt', db_dir = './temp1/targetBlastDB', evalue=1e-30)
+run_blastp(target_fasta='%s/tempModel_locusTag_aaSeq.fa' %(root), blastp_result='./%s/1_blastp_results/blastp_tempGenome_against_targetGenome.txt' %dirname, db_dir = './%s/1_blastp_results/targetBlastDB' %dirname, evalue=1e-30)
 
 print "parsing the results of BLASTP #1.."
-blastpResults_dict1 = parseBlaspResults('./temp1/blastp_targetGenome_against_tempGenome.txt', './temp1/blastp_targetGenome_against_tempGenome_parsed.txt')
+blastpResults_dict1 = parseBlaspResults('./%s/1_blastp_results/blastp_targetGenome_against_tempGenome.txt' %dirname, './%s/1_blastp_results/blastp_targetGenome_against_tempGenome_parsed.txt' %dirname)
  
 print "parsing the results of BLASTP #2.."
-blastpResults_dict2 = parseBlaspResults('./temp1/blastp_tempGenome_against_targetGenome.txt', './temp1/blastp_tempGenome_against_targetGenome_parsed.txt')
+blastpResults_dict2 = parseBlaspResults('./%s/1_blastp_results/blastp_tempGenome_against_targetGenome.txt' %dirname, './%s/1_blastp_results/blastp_tempGenome_against_targetGenome_parsed.txt' %dirname)
 
 print "selecting the best hits for BLASTP #1.."
-bestHits_dict1 = makeBestHits_dict('./temp1/blastp_targetGenome_against_tempGenome_parsed.txt')
+bestHits_dict1 = makeBestHits_dict('./%s/1_blastp_results/blastp_targetGenome_against_tempGenome_parsed.txt' %dirname)
 
 print "selecting the best hits for BLASTP #2.."
-bestHits_dict2 = makeBestHits_dict('./temp1/blastp_tempGenome_against_targetGenome_parsed.txt')
+bestHits_dict2 = makeBestHits_dict('./%s/1_blastp_results/blastp_tempGenome_against_targetGenome_parsed.txt' %dirname)
 
 print "selecting the bidirectional best hits.."
 targetBBH_list, temp_target_BBH_dict = getBBH(bestHits_dict1, bestHits_dict2)
@@ -159,9 +171,9 @@ target_model = add_nonBBH_rxn(modelPrunedGPR, rxnid_info_dict, rxnid_mnxm_coeff_
 #e.g., metabolite IDs with correct compartment suffices & accurate model stats
 #This can also mask the effects of model error (e.g., undeclared metabolite ID)
 #Cobrapy IO module seems to have an error for adding new reactions
-write_cobra_model_to_sbml_file(target_model, './temp2/target_model_%s.xml' %orgName)
-target_model = create_cobra_model_from_sbml_file('./temp2/target_model_%s.xml' %orgName)
-write_cobra_model_to_sbml_file(target_model, './temp2/target_model_%s.xml' %orgName)
+write_cobra_model_to_sbml_file(target_model, './%s/2_primary_metabolic_model/target_model_%s.xml' %(dirname, orgName))
+target_model = create_cobra_model_from_sbml_file('./%s/2_primary_metabolic_model/target_model_%s.xml' %(dirname, orgName))
+write_cobra_model_to_sbml_file(target_model, './%s/2_primary_metabolic_model/target_model_%s.xml' %(dirname, orgName))
 
 #Output on screen
 model = pickle.load(open('%s/model.p' %(root),'rb'))
@@ -169,8 +181,8 @@ print "Number of genes:", len(model.genes), "/", len(modelPruned.genes), "/", le
 print "Number of reactions:", len(model.reactions), "/", len(modelPruned.reactions), "/", len(target_model.reactions)
 print "Number of metabolites:",  len(model.metabolites), "/", len(modelPruned.metabolites), "/", len(target_model.metabolites)
 
-fp1 = open('./temp2/target_model_reactions.txt', "w")
-fp2 = open('./temp2/target_model_metabolites.txt', "w")
+fp1 = open('./%s/2_primary_metabolic_model/target_model_reactions.txt' %dirname, "w")
+fp2 = open('./%s/2_primary_metabolic_model/target_model_metabolites.txt' %dirname, "w")
 fp1.write("Reaction ID"+"\t"+"Reaction name"+"\t"+"Lower bound"+"\t"+"Reaction equation"+"\t"+"GPR"+"\t"+"Pathway"+"\n")
 fp2.write("Metabolite ID"+"\t"+"Metabolite name"+"\t"+"Formula"+"\t"+"Compartment"+"\n")
 
