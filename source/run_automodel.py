@@ -130,12 +130,6 @@ modelPrunedGPR = swap_locusTag_tempModel(modelPruned, temp_target_BBH_dict)
 
 print "\n", "augmentation phase starting..", "\n"
 ###################################################################
-#NOT USED AT THE MOMENT
-print "creacting dictionary files for the noBBH genes..."
-#locusTag_geneID_dict, geneID_locusTag_dict = make_locusTag_geneID_nonBBH(target_gbk, "genbank", nonBBH_list)
-###################################################################
-
-###################################################################
 print "creating various dictionary files for the nonBBH gene-associted reactions..."
 
 #NOT USED AT THE MOMENT

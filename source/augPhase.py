@@ -14,40 +14,6 @@ import pickle
 import re
 import urllib2
 
-#Following functions are used when retrieving information from KEGG
-#make_locusTag_geneID_nonBBH
-#get_species_locusTag
-#get_ECNumberList_from_locusTag
-def make_locusTag_geneID_nonBBH(gbkFile, fileType, nonBBH_list):
-    locusTag_geneID_dict = {}
-    geneID_locusTag_dict = {}
-
-    #Reads GenBank file
-    record = SeqIO.read(gbkFile, fileType)
-
-    for feature in record.features:
-        if feature.type == 'CDS' and 'db_xref' in feature.qualifiers:
-
-            #Reads first non-BBH file    
-	    for  targetLocusTag in nonBBH_list:
-                #Looks for identical ORF from non-BBH list
-		if feature.qualifiers['locus_tag'][0] == targetLocusTag:
-		    print "feature.qualifiers['locus_tag']:", feature.qualifiers['locus_tag']
-
-                    #Standard .gbk has "GI" for the first db_xref and "GeneID"
-                    #for the second db_xref.
-                    #Following lines take whichever comes first.
-		    geneID = feature.qualifiers.get('db_xref')
-		    print "feature.qualifiers.get('db_xref'):", geneID
-		    geneID = geneID[0].split(':')
-		    geneID = geneID[1].strip()
-		    print "geneID:", geneID 
-
-                    #Saves data in Dictionary
-		    locusTag_geneID_dict[feature.qualifiers['locus_tag'][0]] = geneID
-		    geneID_locusTag_dict[geneID] = feature.qualifiers['locus_tag'][0] 
-    return locusTag_geneID_dict, geneID_locusTag_dict
-
 
 #Converts ncbi_geneid(e.g. 944762) to species_geneid (e.g. b0031) in KEGG database by using KEGGAPI
 #Input: ncbi_gene_id (string) (e.g., 1217641)
