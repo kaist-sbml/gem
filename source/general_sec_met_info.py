@@ -763,6 +763,12 @@ def get_biggid_from_aSid(each_substrate):
     elif each_substrate == 'phenylacetate' or each_substrate == 'Pha':
         met_name = 'pac'
 
+    elif each_substrate == '2-3-diaminoproprionate':
+        met_name = '23dappa'
+        
+    elif each_substrate == 'thr-4-cl':
+        met_name = 'MNXM37380'
+
     #No bigg ID
     elif each_substrate == 'tcl':
         met_name = 'MNXM37380'
@@ -770,6 +776,21 @@ def get_biggid_from_aSid(each_substrate):
     #No bigg ID
     elif each_substrate == 'qa':
         met_name = 'MNXM80505'
+
+    #No bigg ID
+    elif each_substrate == 'trans-1,2-CPDA':
+        met_name = '23cpda'
+        
+    #No bigg ID
+    elif each_substrate == 'bmt':
+        met_name = 'MNXM31446'
+
+    elif each_substrate == 'sal':
+        met_name = 'salc'
+        
+    #No bigg ID
+    elif each_substrate == 'alaninol':
+        met_name = 'MNXM8817'
 
     #t1pks substreate
     elif each_substrate == 'mal':
@@ -868,8 +889,14 @@ def get_metab_coeff_dict():
     metab_coeff_dict['ala_DASH_B'] = 0 #'beta-alanine zwitterion', 'C00099', 'MNXM144'
     metab_coeff_dict['24dab'] = 0 #'L-2,4-diazaniumylbutyrate', 'C03283', 'MNXM840'
     metab_coeff_dict['pac'] = 0 #'phenylacetate', 'C00548', 'MNXM497'
+    metab_coeff_dict['23dappa'] = 0 #'3-aminoalanine zwitterion', 'C06393', 'MNXM91374'
     metab_coeff_dict['MNXM37380'] = 0 #'tcl', '4-Chlorothreonine', 'N/A', 'MNXM37380'
+    metab_coeff_dict['tcl'] = 0 #(4S)-5,5,5-trichloro-leucine', 'N/A','N/A'
     metab_coeff_dict['MNXM80505'] = 0 #'qa', 'quinoxaline', 'C18575','MNXM80505'
+    metab_coeff_dict['23cpda'] = 0 #'Trans-cyclopentane-(1R, 2R)-dicarboxylic acid', 'N/A','N/A'
+    metab_coeff_dict['MNXM31446'] = 0 #'2-Butenyl-4-methyl-threonine', 'C12029','MNXM31446'
+    metab_coeff_dict['salc'] = 0 #'salicylate', 'C00805','MNXM378'
+    metab_coeff_dict['MNXM8817'] = 0 #'L-alaninol', 'N/A','MNXM8817'
     metab_coeff_dict['malcoa'] = 0 #'malonyl-CoA', 'C00083', 'MNXM40'
     metab_coeff_dict['mmcoa_DASH_S'] = 0 #'(S)-methylmalonyl-CoA(5-)','C00683', 'MNXM190'
     metab_coeff_dict['2mbcoa'] = 0 #'2-methylbutanoyl-CoA', C01033,'MNXM569'
@@ -887,8 +914,8 @@ def get_metab_coeff_dict():
 #Add metabolite MNXM having no bigg ID to the model
 def add_sec_met_mnxm_having_no_biggid_to_model(metab, metab_compt, mnxm_compoundInfo_dict):
 
-    if metab == 'MNXM17054': #'abu'
-        metab_compt = Metabolite(metab_compt, formula = mnxm_compoundInfo_dict['MNXM17054'][1], name = mnxm_compoundInfo_dict['MNXM17054'][0], compartment='c')
+    if metab == 'phg_DASH_L':
+        metab_compt = Metabolite(metab_compt, formula = mnxm_compoundInfo_dict['MNXM59292'][1], name = mnxm_compoundInfo_dict['MNXM59292'][0], compartment='c')
         #rxn.add_metabolites({metab_compt:metab_coeff_dict[metab]})
 
     #No MNXM, KEGG ID and bigg ID for "bht"
@@ -896,44 +923,57 @@ def add_sec_met_mnxm_having_no_biggid_to_model(metab, metab_compt, mnxm_compound
         metab_compt = Metabolite(metab_compt, compartment='c')
         #rxn.add_metabolites({metab_compt:metab_coeff_dict[metab]})
 
-    elif metab == 'MNXM5111': #'chccoa'
-        metab_compt = Metabolite(metab_compt, formula = mnxm_compoundInfo_dict['MNXM5111'][1], name = mnxm_compoundInfo_dict['MNXM5111'][0], compartment='c')
-        #rxn.add_metabolites({metab_compt:metab_coeff_dict[metab]})
-
-    elif metab == 'MNXM9962': #'dhpg'
-        metab_compt = Metabolite(metab_compt, formula = mnxm_compoundInfo_dict['MNXM9962'][1], name = mnxm_compoundInfo_dict['MNXM9962'][0], compartment='c')
-        #rxn.add_metabolites({metab_compt:metab_coeff_dict[metab]})
-
-    elif metab == 'emcoa_DASH_S':
-        metab_compt = Metabolite(metab_compt, formula = mnxm_compoundInfo_dict['MNXM2043'][1], name = mnxm_compoundInfo_dict['MNXM2043'][0], compartment='c')
-        #rxn.add_metabolites({metab_compt:metab_coeff_dict[metab]})
-
-    elif metab == 'MNXM4544': #'hpg'
-        metab_compt = Metabolite(metab_compt, formula = mnxm_compoundInfo_dict['MNXM4544'][1], name = mnxm_compoundInfo_dict['MNXM4544'][0], compartment='c')
-        #rxn.add_metabolites({metab_compt:metab_coeff_dict[metab]})
-
-    elif metab == 'MNXM59438': #'hty'
-        metab_compt = Metabolite(metab_compt, formula = mnxm_compoundInfo_dict['MNXM59438'][1], name = mnxm_compoundInfo_dict['MNXM59438'][0], compartment='c')
+    elif metab == 'MNXM17054': #'abu'
+        metab_compt = Metabolite(metab_compt, formula = mnxm_compoundInfo_dict['MNXM17054'][1], name = mnxm_compoundInfo_dict['MNXM17054'][0], compartment='c')
         #rxn.add_metabolites({metab_compt:metab_coeff_dict[metab]})
 
     elif metab == 'MNXM34821': #'iva'
         metab_compt = Metabolite(metab_compt, formula = mnxm_compoundInfo_dict['MNXM34821'][1], name = mnxm_compoundInfo_dict['MNXM34821'][0], compartment='c')
         #rxn.add_metabolites({metab_compt:metab_coeff_dict[metab]})
 
-    elif metab == 'MNXM61686': #'mxmalacp'
-        metab_compt = Metabolite(metab_compt, formula = mnxm_compoundInfo_dict['MNXM61686'][1], name = mnxm_compoundInfo_dict['MNXM61686'][0], compartment='c')
+    elif metab == 'MNXM4544': #'hpg'
+        metab_compt = Metabolite(metab_compt, formula = mnxm_compoundInfo_dict['MNXM4544'][1], name = mnxm_compoundInfo_dict['MNXM4544'][0], compartment='c')
         #rxn.add_metabolites({metab_compt:metab_coeff_dict[metab]})
 
-    elif metab == 'phg_DASH_L':
-        metab_compt = Metabolite(metab_compt, formula = mnxm_compoundInfo_dict['MNXM59292'][1], name = mnxm_compoundInfo_dict['MNXM59292'][0], compartment='c')
+    elif metab == 'MNXM9962': #'dhpg'
+        metab_compt = Metabolite(metab_compt, formula = mnxm_compoundInfo_dict['MNXM9962'][1], name = mnxm_compoundInfo_dict['MNXM9962'][0], compartment='c')
         #rxn.add_metabolites({metab_compt:metab_coeff_dict[metab]})
 
-    elif metab == 'MNXM80505': #'qa'
-        metab_compt = Metabolite(metab_compt, formula = mnxm_compoundInfo_dict['MNXM80505'][1], name = mnxm_compoundInfo_dict['MNXM80505'][0], compartment='c')
+    elif metab == 'MNXM59438': #'hty'
+        metab_compt = Metabolite(metab_compt, formula = mnxm_compoundInfo_dict['MNXM59438'][1], name = mnxm_compoundInfo_dict['MNXM59438'][0], compartment='c')
         #rxn.add_metabolites({metab_compt:metab_coeff_dict[metab]})
 
     elif metab == 'MNXM37380': #'tcl'
         metab_compt = Metabolite(metab_compt, formula = mnxm_compoundInfo_dict['MNXM37380'][1], name = mnxm_compoundInfo_dict['MNXM37380'][0], compartment='c')
+        #rxn.add_metabolites({metab_compt:metab_coeff_dict[metab]})
+
+    #No MNXM, KEGG ID and bigg ID for "bht"    
+    elif metab == 'tcl':
+        metab_compt = Metabolite(metab_compt, compartment='c')
+        
+    elif metab == 'MNXM80505': #'qa'
+        metab_compt = Metabolite(metab_compt, formula = mnxm_compoundInfo_dict['MNXM80505'][1], name = mnxm_compoundInfo_dict['MNXM80505'][0], compartment='c')
+        #rxn.add_metabolites({metab_compt:metab_coeff_dict[metab]})
+
+    elif metab == '23cpda':
+        metab_compt = Metabolite(metab_compt, compartment='c')
+        
+    elif metab == 'MNXM31446':
+        metab_compt = Metabolite(metab_compt, formula = mnxm_compoundInfo_dict['MNXM31446'][1], name = mnxm_compoundInfo_dict['MNXM31446'][0], compartment='c')
+
+    elif metab == 'MNXM8817':
+        metab_compt = Metabolite(metab_compt, formula = mnxm_compoundInfo_dict['MNXM8817'][1], name = mnxm_compoundInfo_dict['MNXM8817'][0], compartment='c')
+      
+    elif metab == 'emcoa_DASH_S':
+        metab_compt = Metabolite(metab_compt, formula = mnxm_compoundInfo_dict['MNXM2043'][1], name = mnxm_compoundInfo_dict['MNXM2043'][0], compartment='c')
+        #rxn.add_metabolites({metab_compt:metab_coeff_dict[metab]})
+
+    elif metab == 'MNXM61686': #'mxmalacp'
+        metab_compt = Metabolite(metab_compt, formula = mnxm_compoundInfo_dict['MNXM61686'][1], name = mnxm_compoundInfo_dict['MNXM61686'][0], compartment='c')
+        #rxn.add_metabolites({metab_compt:metab_coeff_dict[metab]})
+
+    elif metab == 'MNXM5111': #'chccoa'
+        metab_compt = Metabolite(metab_compt, formula = mnxm_compoundInfo_dict['MNXM5111'][1], name = mnxm_compoundInfo_dict['MNXM5111'][0], compartment='c')
         #rxn.add_metabolites({metab_compt:metab_coeff_dict[metab]})
 
     return metab_compt
