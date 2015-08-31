@@ -162,7 +162,7 @@ for nonprod_monomer in adj_unique_nonprod_monomers_list:
         print "Gap-filling not possible: target_model with reactions from universal_model does not produce this monomer", nonprod_monomer, "\n"
 
 #Output
-write_cobra_model_to_sbml_file(target_model, dirname+'4_complete_model/'+'%s_'+model_sbml[:-4]+'_complete.xml' %orgname)
+write_cobra_model_to_sbml_file(target_model, dirname+'4_complete_model/'+'%s_target_model_complete.xml' %orgname)
 
 fp1 = open(dirname+'4_complete_model/'+'%s_target_model_complete_reactions.txt' %orgname, "w")
 fp2 = open(dirname+'4_complete_model/'+'%s_target_model_complete_metabolites.txt' %orgname, "w")
