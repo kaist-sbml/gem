@@ -32,7 +32,7 @@ from gapfill_network_manipulation import (
 from gapfill_core import gapfilling_precursor
 
 
-print "Generating secondary metabolite biosynthesizing reactions.."
+print "\n", "Generating secondary metabolite biosynthesizing reactions.."
 
 orgname = sys.argv[1]
 
@@ -161,9 +161,8 @@ for nonprod_monomer in adj_unique_nonprod_monomers_list:
     else:
         print "Gap-filling not possible: target_model with reactions from universal_model does not produce this monomer", nonprod_monomer, "\n"
 
-
 #Output
-write_cobra_model_to_sbml_file(target_model, dirname+'4_complete_model/'+'%s_'+model_sbml[:-4]+'_complete.xml' %dirname)
+write_cobra_model_to_sbml_file(target_model, dirname+'4_complete_model/'+'%s_'+model_sbml[:-4]+'_complete.xml' %orgname)
 
 fp1 = open(dirname+'4_complete_model/'+'%s_target_model_complete_reactions.txt' %orgname, "w")
 fp2 = open(dirname+'4_complete_model/'+'%s_target_model_complete_metabolites.txt' %orgname, "w")

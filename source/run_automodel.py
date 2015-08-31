@@ -176,6 +176,7 @@ fp2 = open('./%s/2_primary_metabolic_model/%s_target_model_metabolites.txt' %(di
 fp1.write("Reaction ID"+"\t"+"Reaction name"+"\t"+"Lower bound"+"\t"+"Reaction equation"+"\t"+"GPR"+"\t"+"Pathway"+"\n")
 fp2.write("Metabolite ID"+"\t"+"Metabolite name"+"\t"+"Formula"+"\t"+"Compartment"+"\n")
 
+print "\n"
 for j in range(len(target_model.reactions)):
     rxn = target_model.reactions[j]
     print >>fp1, '%s\t%s\t%s\t%s\t%s\t%s' %(rxn.id, rxn.name, rxn.lower_bound, rxn.reaction, rxn.gene_reaction_rule, rxn.subsystem)
