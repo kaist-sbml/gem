@@ -1,12 +1,11 @@
 '''
-2014
+2014-2015
 Hyun Uk Kim, Tilmann Weber, Jae Yong Ryu and Kyu-Sang Hwang
 '''
 
 # import Model, Reaction, Metabolite classes in COBRA tool 
 from cobra import Model, Reaction, Metabolite
 from Bio import SeqIO
-from cobra.io.sbml import create_cobra_model_from_sbml_file, write_cobra_model_to_sbml_file
 
 import copy
 import os
@@ -259,7 +258,7 @@ def extract_rxn_mnxm_coeff(mnxr_to_add_list, mnxr_rxn_dict, mnxm_bigg_compound_d
     return rxnid_mnxm_coeff_dict
 
 
-def add_nonBBH_rxn(modelPrunedGPR, rxnid_info_dict, rxnid_mnxm_coeff_dict, rxnid_locusTag_dict, bigg_mnxm_compound_dict, kegg_mnxm_compound_dict, mnxm_compoundInfo_dict, targetGenome_locusTag_prod_dict):
+def add_nonBBH_rxn(modelPrunedGPR, rxnid_info_dict, rxnid_mnxm_coeff_dict, rxnid_locusTag_dict, bigg_mnxm_compound_dict, kegg_mnxm_compound_dict, mnxm_compoundInfo_dict, targetGenome_locusTag_prod_dict, template_exrxnid_flux_dict):
 
     for rxnid in rxnid_mnxm_coeff_dict.keys():
 	print rxnid
@@ -323,9 +322,49 @@ def add_nonBBH_rxn(modelPrunedGPR, rxnid_info_dict, rxnid_mnxm_coeff_dict, rxnid
             #Objective coeff: default
 	    rxn.objective_coefficient = 0
 
-            #Addition of a reaction to the model
+            #Add a reaction to the model if it does not affect Exchange reaction flux direction
 	    modelPrunedGPR.add_reaction(rxn)
+            target_exrxnid_flux_dict = get_exrxnid_flux(modelPrunedGPR, template_exrxnid_flux_dict)
+            exrxn_flux_change_list = check_exrxn_flux_direction(template_exrxnid_flux_dict, target_exrxnid_flux_dict)
+            if 'F' in exrxn_flux_change_list:
+	        modelPrunedGPR.remove_reactions(rxn)
 
     target_model = copy.deepcopy(modelPrunedGPR)
     return target_model
 
+
+#Output: a dictionary file for major Exchange reactions {Exchange reaction ID:flux value}
+def get_exrxnid_flux(model, template_exrxnid_flux_dict):
+
+    target_exrxnid_flux_dict = {}
+    model.optimize()
+
+    for exrxn_id in template_exrxnid_flux_dict.keys():
+        if exrxn_id in model.solution.x_dict:
+            exrxn_flux = model.solution.x_dict[exrxn_id]
+            target_exrxnid_flux_dict[exrxn_id] = exrxn_flux
+        else:
+            continue
+    return target_exrxnid_flux_dict
+
+
+#Output: a list file having either T or F for major Exchange reactions
+def check_exrxn_flux_direction(template_exrxnid_flux_dict, target_exrxnid_flux_dict):
+
+    exrxn_flux_change_list = []
+
+    for exrxn_id in template_exrxnid_flux_dict.keys():
+        if exrxn_id in target_exrxnid_flux_dict.keys():
+            template_exrxn_flux = template_exrxnid_flux_dict[exrxn_id]
+            target_exrxn_flux = target_exrxnid_flux_dict[exrxn_id]
+            ratio_exrxn_flux = float(target_exrxn_flux)/float(template_exrxn_flux)
+
+            #Similar species are allowed to uptake nutrients within a decent range
+            if float(target_exrxn_flux)*float(template_exrxn_flux) > 0.0 and 0.2 < ratio_exrxn_flux and ratio_exrxn_flux < 2.0:
+                exrxn_flux_change_list.append('T')
+
+            #Causing drastic changes in Exchange reaction fluxes (direction and/or magnitude)
+            else:
+                exrxn_flux_change_list.append('F')
+
+    return exrxn_flux_change_list

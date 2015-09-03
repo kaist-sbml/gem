@@ -72,6 +72,7 @@ mnxm_kegg_compound_dict = pickle.load( open('./input2/mnxm_kegg_compound_dict.p'
 mnxm_compoundInfo_dict = pickle.load(open('./input2/mnxm_compoundInfo_dict.p','rb'))
 
 templateModel_bigg_mnxr_dict = pickle.load(open('./input2/templateModel_bigg_mnxr_dict.p','rb'))
+template_exrxnid_flux_dict = pickle.load(open('./input2/template_exrxnid_flux_dict.p','rb'))
 ###################################################################
                            
 print "\n", "pruning phase starting..", "\n"
@@ -153,7 +154,7 @@ mnxr_to_add_list = get_mnxr_using_kegg(rxnid_to_add_list, kegg_mnxr_dict)
 
 rxnid_mnxm_coeff_dict = extract_rxn_mnxm_coeff(mnxr_to_add_list, mnxr_rxn_dict, mnxm_bigg_compound_dict, mnxm_kegg_compound_dict, mnxr_kegg_dict)
 
-target_model = add_nonBBH_rxn(modelPrunedGPR, rxnid_info_dict, rxnid_mnxm_coeff_dict, rxnid_locusTag_dict, bigg_mnxm_compound_dict, kegg_mnxm_compound_dict, mnxm_compoundInfo_dict, targetGenome_locusTag_prod_dict)
+target_model = add_nonBBH_rxn(modelPrunedGPR, rxnid_info_dict, rxnid_mnxm_coeff_dict, rxnid_locusTag_dict, bigg_mnxm_compound_dict, kegg_mnxm_compound_dict, mnxm_compoundInfo_dict, targetGenome_locusTag_prod_dict, template_exrxnid_flux_dict)
 ###################################################################
 
 #Output files
