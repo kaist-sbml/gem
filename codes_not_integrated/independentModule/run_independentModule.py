@@ -13,10 +13,10 @@ from independentModule import *
 import pickle
 import subprocess
 
-#root, tempGenome, tempModel = get_tempInfo(orgName='sco')
-#print root
-#print tempGenome
-#print tempModel
+root, tempGenome, tempModel = get_tempInfo(orgName='sco')
+print root
+print tempGenome
+print tempModel
 
 ################################################################################
 #Loading and parsing of the template model
@@ -59,6 +59,8 @@ import subprocess
 #cobra_model = pickle.load(open('./input2/template_model_pruned_GPRCorrected.p', 'rb'))
 #templateModel_bigg_mnxr_dict = pickle_templateModel_bigg_mnxr(cobra_model, allDB_mnxr_dict)
 
-pickle_universal_model_for_gapfill()
+pickel_template_exchange_rxnid_flux_dict()
+
+#pickle_universal_model_for_gapfill()
 ################################################################################
 
