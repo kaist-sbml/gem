@@ -131,7 +131,24 @@ def make_all_rxnInfo_fromRefSeq(targetGenome_locusTag_ec_nonBBH_dict):
     return rxnid_info_dict, rxnid_locusTag_dict
 
 
-def check_existing_rxns(kegg_mnxr_dict, templateModel_bigg_mnxr_dict, rxnid_info_dict):
+#Output: a list of MNXRs available in the modelPrunedGPR
+def get_mnxr_list_from_modelPrunedGPR(modelPrunedGPR, bigg_mnxr_dict):
+    modelPrunedGPR_mnxr_list = []
+
+    index_last = len(modelPrunedGPR.reactions)
+    index_last = index_last - 1
+    index = 0
+
+    while index <= index_last:
+        rxn = modelPrunedGPR.reactions[index].id
+        if rxn in bigg_mnxr_dict.keys():
+            modelPrunedGPR_mnxr_list.append(bigg_mnxr_dict[rxn])
+        index+=1
+
+    return modelPrunedGPR_mnxr_list
+
+
+def check_existing_rxns(kegg_mnxr_dict, modelPrunedGPR_mnxr_list, rxnid_info_dict):
     rxnid_to_add_list =[]
 
     for rxnid in rxnid_info_dict.keys():
@@ -140,11 +157,12 @@ def check_existing_rxns(kegg_mnxr_dict, templateModel_bigg_mnxr_dict, rxnid_info
             kegg_mnxr = kegg_mnxr_dict[rxnid]
 
             #Checks with reactions in the template model through MNXref
-            if kegg_mnxr not in templateModel_bigg_mnxr_dict.values() and rxnid not in rxnid_to_add_list:
+            if kegg_mnxr not in modelPrunedGPR_mnxr_list and rxnid not in rxnid_to_add_list:
                 rxnid_to_add_list.append(rxnid)
 
     rxnid_to_add_list = list(sorted(set(rxnid_to_add_list)))
     return rxnid_to_add_list
+
 
 #Output: MNXR for the reactions to add, converted from KEGG rxnid
 def get_mnxr_using_kegg(rxnid_to_add_list, kegg_mnxr_dict):

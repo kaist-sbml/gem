@@ -22,6 +22,7 @@ from prunPhase import (
 from augPhase import (
     get_targetGenome_locusTag_ec_nonBBH_dict,
     make_all_rxnInfo_fromRefSeq,
+    get_mnxr_list_from_modelPrunedGPR,
     check_existing_rxns,
     get_mnxr_using_kegg,
     extract_rxn_mnxm_coeff,
@@ -59,6 +60,7 @@ tempModel_biggRxnid_locusTag_dict = pickle.load(open('%s/tempModel_biggRxnid_loc
 
 #For model augmentation  phase
 print "loading pickle files of the parsed template model and its relevant genbank data.."
+bigg_mnxr_dict = pickle.load(open('./input2/bigg_mnxr_dict.p','rb'))
 kegg_mnxr_dict = pickle.load(open('./input2/kegg_mnxr_dict.p','rb'))
 mnxr_kegg_dict = pickle.load(open('./input2/mnxr_kegg_dict.p','rb'))
 
@@ -71,8 +73,7 @@ mnxm_kegg_compound_dict = pickle.load( open('./input2/mnxm_kegg_compound_dict.p'
 
 mnxm_compoundInfo_dict = pickle.load(open('./input2/mnxm_compoundInfo_dict.p','rb'))
 
-templateModel_bigg_mnxr_dict = pickle.load(open('./input2/templateModel_bigg_mnxr_dict.p','rb'))
-template_exrxnid_flux_dict = pickle.load(open('./input2/template_exrxnid_flux_dict.p','rb'))
+template_exrxnid_flux_dict = pickle.load(open('%s/template_exrxnid_flux_dict.p' %(root),'rb'))
 ###################################################################
                            
 print "\n", "pruning phase starting..", "\n"
@@ -144,11 +145,13 @@ targetGenome_locusTag_ec_nonBBH_dict = get_targetGenome_locusTag_ec_nonBBH_dict(
 #def get_rxnid_from_ECNumber(enzymeEC):
 #def get_rxnInfo_from_rxnid(rxnid):
 rxnid_info_dict, rxnid_locusTag_dict = make_all_rxnInfo_fromRefSeq(targetGenome_locusTag_ec_nonBBH_dict)
+
+modelPrunedGPR_mnxr_list = get_mnxr_list_from_modelPrunedGPR(modelPrunedGPR, bigg_mnxr_dict) 
 ###################################################################
 
 ###################################################################
 print "adding the nonBBH gene-associated reactions..."
-rxnid_to_add_list = check_existing_rxns(kegg_mnxr_dict, templateModel_bigg_mnxr_dict, rxnid_info_dict)
+rxnid_to_add_list = check_existing_rxns(kegg_mnxr_dict, modelPrunedGPR_mnxr_list, rxnid_info_dict)
 
 mnxr_to_add_list = get_mnxr_using_kegg(rxnid_to_add_list, kegg_mnxr_dict)
 
