@@ -402,7 +402,7 @@ def pickle_templateModel_bigg_mnxr(cobra_model, allDB_mnxr_dict):
 
 
 #Reaction IDs and their flux values for major Exchange reactions
-def pickel_template_exchange_rxnid_flux_dict():
+def pickle_template_exchange_rxnid_flux_dict():
     fp1 = open('./input2/template_exrxnid_flux_dict.txt',"r")
     template_exrxnid_flux_dict = {}
     text = fp1.readline()
@@ -413,7 +413,7 @@ def pickel_template_exchange_rxnid_flux_dict():
 	text[1] = text[1].strip()
 	template_exrxnid_flux_dict[text[0]] = text[1]
 
-	print text[0], text[1]
+	print text[0],template_exrxnid_flux_dict[text[0]]  
 	text = fp1.readline()
 
     print template_exrxnid_flux_dict
