@@ -385,10 +385,6 @@ def check_exrxn_flux_direction(template_exrxnid_flux_dict, target_exrxnid_flux_d
             target_exrxn_flux = target_exrxnid_flux_dict[exrxn_id]
             ratio_exrxn_flux = float(target_exrxn_flux)/float(template_exrxn_flux)
 
-            print type(template_exrxn_flux), template_exrxn_flux
-            print type(target_exrxn_flux), target_exrxn_flux
-            print type(ratio_exrxn_flux), ratio_exrxn_flux
-
             #Similar species are allowed to uptake nutrients within a decent range
             if float(target_exrxn_flux)*float(template_exrxn_flux) > 0.0 and 0.2 < ratio_exrxn_flux and ratio_exrxn_flux < 2.0:
                 exrxn_flux_change_list.append('T')
