@@ -3,9 +3,10 @@
 Hyun Uk Kim, Tilmann Weber, Jae Yong Ryu and Kyu-Sang Hwang
 '''
 
-# import Model, Reaction, Metabolite classes in COBRA tool 
-from cobra import Model, Reaction, Metabolite
 from Bio import SeqIO
+from cobra import Model, Reaction, Metabolite
+from cobra.io.sbml import write_cobra_model_to_sbml_file, create_cobra_model_from_sbml_file
+from cobra.manipulation.delete import prune_unused_metabolites
 
 import copy
 import os
@@ -276,7 +277,7 @@ def extract_rxn_mnxm_coeff(mnxr_to_add_list, mnxr_rxn_dict, mnxm_bigg_compound_d
     return rxnid_mnxm_coeff_dict
 
 
-def add_nonBBH_rxn(modelPrunedGPR, rxnid_info_dict, rxnid_mnxm_coeff_dict, rxnid_locusTag_dict, bigg_mnxm_compound_dict, kegg_mnxm_compound_dict, mnxm_compoundInfo_dict, targetGenome_locusTag_prod_dict, template_exrxnid_flux_dict):
+def add_nonBBH_rxn(modelPrunedGPR, rxnid_info_dict, rxnid_mnxm_coeff_dict, rxnid_locusTag_dict, bigg_mnxm_compound_dict, kegg_mnxm_compound_dict, mnxm_compoundInfo_dict, targetGenome_locusTag_prod_dict, template_exrxnid_flux_dict, dirname):
 
     for rxnid in rxnid_mnxm_coeff_dict.keys():
 	print rxnid
@@ -342,11 +343,19 @@ def add_nonBBH_rxn(modelPrunedGPR, rxnid_info_dict, rxnid_mnxm_coeff_dict, rxnid
 
             #Add a reaction to the model if it does not affect Exchange reaction flux direction
 	    modelPrunedGPR.add_reaction(rxn)
+
+            write_cobra_model_to_sbml_file(modelPrunedGPR, "./%s/3_temp_models/modelPrunedGPR.xml" %dirname)
+            modelPrunedGPR = create_cobra_model_from_sbml_file("./%s/3_temp_models/modelPrunedGPR.xml" %dirname)
             target_exrxnid_flux_dict = get_exrxnid_flux(modelPrunedGPR, template_exrxnid_flux_dict)
             exrxn_flux_change_list = check_exrxn_flux_direction(template_exrxnid_flux_dict, target_exrxnid_flux_dict)
+
             if 'F' in exrxn_flux_change_list:
 	        modelPrunedGPR.remove_reactions(rxn)
+                
+                write_cobra_model_to_sbml_file(modelPrunedGPR, "./%s/3_temp_models/modelPrunedGPR.xml" %dirname)
+                modelPrunedGPR = create_cobra_model_from_sbml_file("./%s/3_temp_models/modelPrunedGPR.xml" %dirname)
 
+    prune_unused_metabolites(modelPrunedGPR)
     target_model = copy.deepcopy(modelPrunedGPR)
     return target_model
 
@@ -359,8 +368,7 @@ def get_exrxnid_flux(model, template_exrxnid_flux_dict):
 
     for exrxn_id in template_exrxnid_flux_dict.keys():
         if exrxn_id in model.solution.x_dict:
-            exrxn_flux = model.solution.x_dict[exrxn_id]
-            target_exrxnid_flux_dict[exrxn_id] = exrxn_flux
+            target_exrxnid_flux_dict[exrxn_id] = model.solution.x_dict[exrxn_id]
         else:
             continue
     return target_exrxnid_flux_dict
@@ -376,6 +384,10 @@ def check_exrxn_flux_direction(template_exrxnid_flux_dict, target_exrxnid_flux_d
             template_exrxn_flux = template_exrxnid_flux_dict[exrxn_id]
             target_exrxn_flux = target_exrxnid_flux_dict[exrxn_id]
             ratio_exrxn_flux = float(target_exrxn_flux)/float(template_exrxn_flux)
+
+            print type(template_exrxn_flux), template_exrxn_flux
+            print type(target_exrxn_flux), target_exrxn_flux
+            print type(ratio_exrxn_flux), ratio_exrxn_flux
 
             #Similar species are allowed to uptake nutrients within a decent range
             if float(target_exrxn_flux)*float(template_exrxn_flux) > 0.0 and 0.2 < ratio_exrxn_flux and ratio_exrxn_flux < 2.0:
