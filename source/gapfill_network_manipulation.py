@@ -6,7 +6,8 @@
 from cobra import Model, Reaction, Metabolite
 from cobra.io.sbml import create_cobra_model_from_sbml_file, write_cobra_model_to_sbml_file
 import copy
-
+from augPhase import get_exrxnid_flux, check_exrxn_flux_direction
+from gapfill_core import gapfilling_precursor
 
 def get_mnxr_bigg_in_target_model(target_model, bigg_mnxr_dict):
 
@@ -97,8 +98,8 @@ def check_producibility_nonprod_monomer(cobra_model, nonprod_monomer):
     cobra_model.reactions.get_by_id("Ex_"+nonprod_monomer).objective_coefficient = 1
     cobra_model.optimize()
 
-    print cobra_model.reactions.get_by_id("Ex_"+nonprod_monomer)
-    print "Flux:", cobra_model.solution.f, "\n"
+    print "\n", "\n", cobra_model.reactions.get_by_id("Ex_"+nonprod_monomer)
+    print "Flux:", cobra_model.solution.f
 
     return cobra_model
 
@@ -122,9 +123,49 @@ def get_unique_nonprod_monomers_list(nonprod_sec_met_dict, prod_sec_met_dict):
     return unique_nonprod_monomers_list
 
 
+def execute_gapfill(target_model_temp, nonprod_monomer, mnxr_unique_to_universal_model_list):
+
+    #Run gap-filling algorithm based on MILP in gurobipy
+    obj = gapfilling_precursor()
+
+    #Load merged model
+    obj.load_cobra_model(target_model_temp)
+    added_reaction = obj.fill_gap("Ex_"+nonprod_monomer, mnxr_unique_to_universal_model_list)
+
+    return added_reaction
+
+
+def check_gapfill_rxn_biomass_effects(target_model, target_model_temp, universal_model, added_reaction, template_exrxnid_flux_dict, mnxr_unique_to_universal_model_list, dirname):
+
+    target_model_gapFilled = copy.deepcopy(target_model)
+    target_model_temp2 = copy.deepcopy(target_model_temp)
+    mnxr_unique_to_universal_model_list2 = copy.deepcopy(mnxr_unique_to_universal_model_list)
+
+    for gapfill_rxn in added_reaction:
+        target_model_gapFilled.add_reaction(universal_model.reactions.get_by_id(gapfill_rxn))
+
+        write_cobra_model_to_sbml_file(target_model_gapFilled, "./%s/3_temp_models/target_model_gapFilled.xml" %dirname)
+        target_model_gapFilled = create_cobra_model_from_sbml_file("./%s/3_temp_models/target_model_gapFilled.xml" %dirname)
+
+        target_exrxnid_flux_dict = get_exrxnid_flux(target_model_gapFilled, template_exrxnid_flux_dict)
+        exrxn_flux_change_list = check_exrxn_flux_direction(template_exrxnid_flux_dict, target_exrxnid_flux_dict)
+
+        if 'F' in exrxn_flux_change_list:
+            target_model_gapFilled.remove_reactions(universal_model.reactions.get_by_id(gapfill_rxn))
+            write_cobra_model_to_sbml_file(target_model_gapFilled, "./%s/3_temp_models/target_model_gapFilled.xml" %dirname)
+            target_model_gapFilled = create_cobra_model_from_sbml_file("./%s/3_temp_models/target_model_gapFilled.xml" %dirname)
+
+            target_model_temp2.remove_reactions(gapfill_rxn)
+            mnxr_unique_to_universal_model_list2.remove(gapfill_rxn)
+            print "Gap-filling reaction causing wrong fluxes:", gapfill_rxn, "\n"
+            write_cobra_model_to_sbml_file(target_model_temp2, "./%s/3_temp_models/target_model_temp_integrated.xml" %dirname)
+            target_model_temp2 = create_cobra_model_from_sbml_file("./%s/3_temp_models/target_model_temp_integrated.xml" %dirname)
+            
+    return target_model_temp2, mnxr_unique_to_universal_model_list2
+
+
 def add_gapfill_rxn_target_model(target_model, universal_model, added_reaction):
     for gapfill_rxn in added_reaction:
         target_model.add_reaction(universal_model.reactions.get_by_id(gapfill_rxn))
         print "Reaction added to the target_model:", gapfill_rxn
     return target_model
-

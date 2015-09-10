@@ -27,9 +27,11 @@ from gapfill_network_manipulation import (
     add_transport_exchange_rxn_nonprod_monomer,
     check_producibility_nonprod_monomer,
     get_unique_nonprod_monomers_list,
+    execute_gapfill,
+    check_gapfill_rxn_biomass_effects,
     add_gapfill_rxn_target_model,
 )
-from gapfill_core import gapfilling_precursor
+from cobra.manipulation.delete import prune_unused_metabolites
 
 
 print "\n", "Generating secondary metabolite biosynthesizing reactions.."
@@ -38,6 +40,7 @@ orgname = sys.argv[1]
 
 bigg_mnxm_compound_dict = pickle.load(open('./input2/bigg_mnxm_compound_dict.p','rb'))
 mnxm_compoundInfo_dict = pickle.load(open('./input2/mnxm_compoundInfo_dict.p','rb'))
+template_exrxnid_flux_dict = pickle.load(open('./input1/%s/template_exrxnid_flux_dict.p' %'sco','rb'))
 
 dirname = './%s/' %orgname
 cluster_files = []
@@ -129,7 +132,6 @@ unique_nonprod_monomers_list = get_unique_nonprod_monomers_list(nonprod_sec_met_
 adj_unique_nonprod_monomers_list = []
 
 for nonprod_monomer in unique_nonprod_monomers_list:
-    print nonprod_monomer
     target_model_monomer = add_transport_exchange_rxn_nonprod_monomer(target_model, nonprod_monomer, dirname)
     target_model_monomer = check_producibility_nonprod_monomer(target_model_monomer, nonprod_monomer)
     if target_model_monomer.solution.f < 0.0001:
@@ -145,21 +147,39 @@ for nonprod_monomer in adj_unique_nonprod_monomers_list:
     target_model_temp = add_transport_exchange_rxn_nonprod_monomer(target_model2, nonprod_monomer, dirname)
     target_model_temp = check_producibility_nonprod_monomer(target_model_temp, nonprod_monomer)
     target_model_temp.optimize()
+    print "target_model_temp, first", len(target_model_temp.reactions)
+    print "mnxr_unique_to_universal_model_list, first", len(mnxr_unique_to_universal_model_list), "\n"
 
     #Run gap-filling procedure only for monomers producible from target_model with reactions from universal_model
     if target_model_temp.solution.f > 0:
 
-        #Run gap-filling algorithm based on MILP in gurobipy
-        obj = gapfilling_precursor()
+        added_reaction = execute_gapfill(target_model_temp, nonprod_monomer, mnxr_unique_to_universal_model_list)
+        print "target_model_temp, second", len(target_model_temp.reactions)
+        print "mnxr_unique_to_universal_model_list, second", len(mnxr_unique_to_universal_model_list), "\n" 
+        target_model_temp2, mnxr_unique_to_universal_model_list2  = check_gapfill_rxn_biomass_effects(target_model, target_model_temp, universal_model, added_reaction, template_exrxnid_flux_dict, mnxr_unique_to_universal_model_list, dirname)
+        print "target_model_temp2", len(target_model_temp2.reactions)
+        print "mnxr_unique_to_universal_model_list2", len(mnxr_unique_to_universal_model_list2), "\n"
 
-        #Load merged model
-        obj.load_cobra_model(target_model_temp)
-        #obj.change_reversibility(target_model_temp.reactions.get_by_id('Ex_'+nonprod_monomer), target_model_temp)
-        added_reaction = obj.fill_gap("Ex_"+nonprod_monomer, mnxr_unique_to_universal_model_list)
+        size = len(target_model_temp.reactions)
+        size2 = len(target_model_temp2.reactions)
+
+        if size != size2:
+            while size != size2:
+                print "check", size, size2
+                added_reaction = execute_gapfill(target_model_temp2, nonprod_monomer, mnxr_unique_to_universal_model_list2)
+                target_model_temp2, mnxr_unique_to_universal_model_list2  = check_gapfill_rxn_biomass_effects(target_model, target_model_temp2, universal_model, added_reaction, template_exrxnid_flux_dict, mnxr_unique_to_universal_model_list2, dirname)
+
+                size = size2
+                size2 = len(target_model_temp2.reactions)
+
         target_model = add_gapfill_rxn_target_model(target_model, universal_model, added_reaction)
-        print "\n"
+
     else:
         print "Gap-filling not possible: target_model with reactions from universal_model does not produce this monomer", nonprod_monomer, "\n"
+
+
+#Cleanup of the final version of the target model
+prune_unused_metabolites(target_model)
 
 #Output
 write_cobra_model_to_sbml_file(target_model, dirname+'4_complete_model/'+'%s_target_model_complete.xml' %orgname)

@@ -346,6 +346,7 @@ def add_nonBBH_rxn(modelPrunedGPR, rxnid_info_dict, rxnid_mnxm_coeff_dict, rxnid
 
             write_cobra_model_to_sbml_file(modelPrunedGPR, "./%s/3_temp_models/modelPrunedGPR.xml" %dirname)
             modelPrunedGPR = create_cobra_model_from_sbml_file("./%s/3_temp_models/modelPrunedGPR.xml" %dirname)
+
             target_exrxnid_flux_dict = get_exrxnid_flux(modelPrunedGPR, template_exrxnid_flux_dict)
             exrxn_flux_change_list = check_exrxn_flux_direction(template_exrxnid_flux_dict, target_exrxnid_flux_dict)
 

@@ -235,7 +235,7 @@ class gapfilling_precursor():
     #Satish_Kumar_et_al,_BMC_Bioinformatics,_2007 -> GapFill algorithm
     def run_GapFill(self, target_reaction, flux_constraints={}, UniversalReactions=[]):
 
-        print 'Start Gap filling  ... '
+        print "\n", 'Start gap filling..'
         added_reactions = []
 
         model_metabolites = self.model_metabolites
@@ -264,6 +264,7 @@ class gapfilling_precursor():
         #Create variables
         v = {}
         b_bool = {}
+
 
         for each_reaction in model_reactions:
             each_reaction = each_reaction.strip()
