@@ -218,4 +218,3 @@ class gapfilling_precursor():
                     added_reactions.append(reaction)
 
         return m.status, m.ObjVal, added_reactions
-
