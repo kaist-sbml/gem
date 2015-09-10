@@ -147,32 +147,15 @@ for nonprod_monomer in adj_unique_nonprod_monomers_list:
     target_model_temp = add_transport_exchange_rxn_nonprod_monomer(target_model2, nonprod_monomer, dirname)
     target_model_temp = check_producibility_nonprod_monomer(target_model_temp, nonprod_monomer)
     target_model_temp.optimize()
-    print "target_model_temp, first", len(target_model_temp.reactions)
-    print "mnxr_unique_to_universal_model_list, first", len(mnxr_unique_to_universal_model_list), "\n"
 
     #Run gap-filling procedure only for monomers producible from target_model with reactions from universal_model
     if target_model_temp.solution.f > 0:
 
         added_reaction = execute_gapfill(target_model_temp, nonprod_monomer, mnxr_unique_to_universal_model_list)
-        print "target_model_temp, second", len(target_model_temp.reactions)
-        print "mnxr_unique_to_universal_model_list, second", len(mnxr_unique_to_universal_model_list), "\n" 
-        target_model_temp2, mnxr_unique_to_universal_model_list2  = check_gapfill_rxn_biomass_effects(target_model, target_model_temp, universal_model, added_reaction, template_exrxnid_flux_dict, mnxr_unique_to_universal_model_list, dirname)
-        print "target_model_temp2", len(target_model_temp2.reactions)
-        print "mnxr_unique_to_universal_model_list2", len(mnxr_unique_to_universal_model_list2), "\n"
 
-        size = len(target_model_temp.reactions)
-        size2 = len(target_model_temp2.reactions)
+        added_reaction2  = check_gapfill_rxn_biomass_effects(target_model, universal_model, added_reaction, template_exrxnid_flux_dict, dirname)
 
-        if size != size2:
-            while size != size2:
-                print "check", size, size2
-                added_reaction = execute_gapfill(target_model_temp2, nonprod_monomer, mnxr_unique_to_universal_model_list2)
-                target_model_temp2, mnxr_unique_to_universal_model_list2  = check_gapfill_rxn_biomass_effects(target_model, target_model_temp2, universal_model, added_reaction, template_exrxnid_flux_dict, mnxr_unique_to_universal_model_list2, dirname)
-
-                size = size2
-                size2 = len(target_model_temp2.reactions)
-
-        target_model = add_gapfill_rxn_target_model(target_model, universal_model, added_reaction)
+        target_model = add_gapfill_rxn_target_model(target_model, universal_model, added_reaction2)
 
     else:
         print "Gap-filling not possible: target_model with reactions from universal_model does not produce this monomer", nonprod_monomer, "\n"
