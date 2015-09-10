@@ -434,8 +434,9 @@ def get_all_metab_coeff(locustag_monomer_dict, metab_coeff_dict, product):
                 #If PKS signature has invalid monomer, then Minowa is considered
                 else:
                     aSid_met7 = locustag_monomer_dict[each_module][1]
-                    biggid_met7 = get_biggid_from_aSid(aSid_met7)
-                    metab_coeff_dict[biggid_met7] -= 1
+                    if aSid_met7 != 'inactive':
+                        biggid_met7 = get_biggid_from_aSid(aSid_met7)
+                        metab_coeff_dict[biggid_met7] -= 1
 
             #In case "consensus" is reached:
             elif locustag_monomer_dict[each_module][2] != 'pk':

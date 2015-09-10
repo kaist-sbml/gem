@@ -829,13 +829,6 @@ def get_biggid_from_aSid(each_substrate):
     elif each_substrate == 'cemal':
         met_name = 'MNXM10927'
 
-    elif each_substrate == 'N/A':
-        met_name = 'N/A'
-
-    else:
-        print each_substrate
-        raw_input('substrate_not_defined')
-
     return met_name
 
 
