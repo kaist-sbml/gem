@@ -367,7 +367,6 @@ def get_total_currency_metab_coeff(module_currency_metab_dict):
 #Output: e.g.,
 #{'coa': 13, 'mmalcoa': -4, 'h': -10, 'malcoa': -7,     'hco3': 13, 'nadph': -10, 'h2o': 5, 'nadp': 10}
 def get_all_metab_coeff(locustag_monomer_dict, metab_coeff_dict, product):
-    print "check", locustag_monomer_dict
     for each_module in locustag_monomer_dict.keys():
         #locustag_monomer_dict[each_module] for nrps
         #Position [0]: NRPSPredictor2 SVM
@@ -384,7 +383,6 @@ def get_all_metab_coeff(locustag_monomer_dict, metab_coeff_dict, product):
                 #Not considered: e.g., NRPSPredictor2 SVM: val,leu,ile,abu,iva
                 #Checked by ',' in aSid_met2
                 aSid_met2 = locustag_monomer_dict[each_module][0]
-                print "aSid_met2", aSid_met2
                 if aSid_met2 != 'hydrophobic-aliphatic' and aSid_met2 != 'hydrophilic' and aSid_met2 != 'hydrophobic-aromatic' and aSid_met2 != 'N/A' and ',' not in aSid_met2:
                     biggid_met2 = get_biggid_from_aSid(aSid_met2)
 
@@ -394,7 +392,6 @@ def get_all_metab_coeff(locustag_monomer_dict, metab_coeff_dict, product):
                 elif aSid_met2 == 'hydrophobic-aliphatic' or aSid_met2 == 'hydrophilic' or aSid_met2 == 'hydrophobic-aromatic' or aSid_met2 == 'N/A' or ',' in aSid_met2:
                     #If NRPSPredictor2 SVM has invalid monomer, then Minowa is considered
                     aSid_met4 = locustag_monomer_dict[each_module][2]
-                    print "aSid_met4", aSid_met4
                     if aSid_met4 != 'hydrophobic-aliphatic' and aSid_met4 != 'hydrophilic' and aSid_met4 != 'hydrophobic-aromatic' and aSid_met4 != 'N/A':
                         biggid_met4 = get_biggid_from_aSid(aSid_met4)
                         metab_coeff_dict[biggid_met4] -= 1
