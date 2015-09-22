@@ -233,21 +233,22 @@ def get_cluster_module(locustag_domain_dict):
             module_info_trunc_list.append(domain_name)
             number_of_list -= 1
 
+            #Check final domain of a module: core domain
             if domain_name == 'PCP' or domain_name == 'ACP':
                 module_number = get_locustag_module_number(locustag, count)
                 locustag_module_domain_dict[module_number] = module_info_list
-                print "check_module_info_list:", module_info_list
 
                 module_info_list = []
                 module_info_trunc_list = []
                 count += 1
 
-            elif domain_name == 'Epimerization':
-                if count != 0:
-                    count -= 1
-                print "check_Epimerization:", count
+            #Check final domain of a module: optional domain
+            #Presence of 'PCP' was considered in case Epimerization appears first before 'PCP'
+            #e.g., 'M271_46685' in cluster 46 of 'src' (KEGG organism code)
+            elif domain_name == 'Epimerization' and 'PCP' in module_info_list:
+                count -= 1
+
                 module_number = get_locustag_module_number(locustag, count)
-                print "check_Epimerization2:", locustag_module_domain_dict
                 module_info_list = locustag_module_domain_dict[module_number]
                 module_info_list.append(str(each_domain))
                 locustag_module_domain_dict[module_number] = module_info_list
@@ -256,9 +257,9 @@ def get_cluster_module(locustag_domain_dict):
                 module_info_trunc_list = []
                 count += 1
 
+            #Check final domain of a module: linker domain
             elif domain_name == 'PKS_Docking_Cterm' and 'ACP' in locustag_domain_dict[locustag]:
                 count -= 1
-                print "check_PKS_Docking_Cterm:", count
                 module_number = locustag + '_M' + str(count)
                 module_info_list = locustag_module_domain_dict[module_number]
                 module_info_list.append('PKS_Docking_Cterm')
@@ -268,11 +269,11 @@ def get_cluster_module(locustag_domain_dict):
                 module_info_trunc_list = []
                 count += 1
 
+            #Check final domain of a module: final point of the carbon scaffold
             #'ACP' was inserted, otherwise it causes an error
             #by having a locus_tag with unspecified monomer
             elif domain_name == 'Thioesterase' and 'ACP' in locustag_domain_dict[locustag]:
                 count -= 1
-                print "check_Thioesterase:", count
                 module_number = get_locustag_module_number(locustag, count)
                 module_info_list = locustag_module_domain_dict[module_number]
                 module_info_list.append(str(each_domain))
@@ -304,13 +305,11 @@ def get_cluster_module(locustag_domain_dict):
 
 
 def get_locustag_module_number(locustag, count):
-    print "check_count", count
     if float(count) < 10:
         module_number = locustag + '_M0' + str(count)
     else:
         module_number = locustag + '_M' + str(count)
 
-    print "check3", module_number
     return module_number
 
 
