@@ -234,16 +234,20 @@ def get_cluster_module(locustag_domain_dict):
             number_of_list -= 1
 
             if domain_name == 'PCP' or domain_name == 'ACP':
-                module_number = get_loucstag_module_number(locustag, count)
+                module_number = get_locustag_module_number(locustag, count)
                 locustag_module_domain_dict[module_number] = module_info_list
+                print "check_module_info_list:", module_info_list
 
                 module_info_list = []
                 module_info_trunc_list = []
                 count += 1
 
             elif domain_name == 'Epimerization':
-                count -= 1
-                module_number = get_loucstag_module_number(locustag, count)
+                if count != 0:
+                    count -= 1
+                print "check_Epimerization:", count
+                module_number = get_locustag_module_number(locustag, count)
+                print "check_Epimerization2:", locustag_module_domain_dict
                 module_info_list = locustag_module_domain_dict[module_number]
                 module_info_list.append(str(each_domain))
                 locustag_module_domain_dict[module_number] = module_info_list
@@ -254,6 +258,7 @@ def get_cluster_module(locustag_domain_dict):
 
             elif domain_name == 'PKS_Docking_Cterm' and 'ACP' in locustag_domain_dict[locustag]:
                 count -= 1
+                print "check_PKS_Docking_Cterm:", count
                 module_number = locustag + '_M' + str(count)
                 module_info_list = locustag_module_domain_dict[module_number]
                 module_info_list.append('PKS_Docking_Cterm')
@@ -267,13 +272,14 @@ def get_cluster_module(locustag_domain_dict):
             #by having a locus_tag with unspecified monomer
             elif domain_name == 'Thioesterase' and 'ACP' in locustag_domain_dict[locustag]:
                 count -= 1
-                module_number = get_loucstag_module_number(locustag, count)
+                print "check_Thioesterase:", count
+                module_number = get_locustag_module_number(locustag, count)
                 module_info_list = locustag_module_domain_dict[module_number]
                 module_info_list.append(str(each_domain))
                 locustag_module_domain_dict[module_number] = module_info_list
 
             elif module_info_list.count('PKS_KS') == 2 or module_info_list.count('Condensation') == 2 or module_info_list.count('Condensation_DCL') == 2 or module_info_list.count('Condensation_LCL') == 2 or module_info_list.count('Condensation_LCL') + module_info_list.count('Condensation_DCL') == 2 or module_info_list.count('Condensation_Dual') == 2 or module_info_list.count('Cglyc') == 2 or module_info_list.count('CXglyc') == 2 or module_info_list.count('Heterocyclization') == 2:
-                module_number = get_loucstag_module_number(locustag, count)
+                module_number = get_locustag_module_number(locustag, count)
                 poped_domain = module_info_list.pop()
                 abbr_poped_domain = module_info_trunc_list.pop()
                 locustag_module_domain_dict[module_number] = module_info_list
@@ -285,7 +291,7 @@ def get_cluster_module(locustag_domain_dict):
                 count += 1
 
             elif float(number_of_list) == 0:
-                module_number = get_loucstag_module_number(locustag, count)
+                module_number = get_locustag_module_number(locustag, count)
                 locustag_module_domain_dict[module_number] = module_info_list
 
                 module_info_list = []
@@ -297,13 +303,14 @@ def get_cluster_module(locustag_domain_dict):
     return locustag_module_domain_dict
 
 
-def get_loucstag_module_number(locustag, count):
-    
+def get_locustag_module_number(locustag, count):
+    print "check_count", count
     if float(count) < 10:
         module_number = locustag + '_M0' + str(count)
     else:
         module_number = locustag + '_M' + str(count)
 
+    print "check3", module_number
     return module_number
 
 
