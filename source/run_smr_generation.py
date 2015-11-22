@@ -116,7 +116,6 @@ mnxr_bigg_target_model_dict = get_mnxr_bigg_in_target_model(target_model, bigg_m
 
 mnxr_unique_to_universal_model_list = get_mnxr_unique_to_universal_model(mnxr_bigg_target_model_dict, universal_model)
 
-mnxr_rxn_all_dict = pickle.load(open("./input2/mnxr_rxn_all_dict.p","rb"))
 
 print "Merging target_model and universal_model.."
 print "\n"
