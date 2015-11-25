@@ -35,7 +35,11 @@ def get_targetGenomeInfo(dirname, gbkFile, FileType):
     targetGenome_locusTag_prod_dict = {}
 
     #Reads GenBank file
-    record = SeqIO.read(dirname+'/'+gbkFile, FileType)
+    try:
+        record = SeqIO.read(dirname+'/'+gbkFile, FileType)
+    except ValueError:
+        record = SeqIO.parse(dirname+'/'+gbkFile, FileType).next()
+
     for feature in record.features:
         if feature.type == 'CDS':
 
