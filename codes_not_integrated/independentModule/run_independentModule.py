@@ -59,7 +59,7 @@ import subprocess
 #cobra_model = pickle.load(open('./input2/template_model_pruned_GPRCorrected.p', 'rb'))
 #templateModel_bigg_mnxr_dict = pickle_templateModel_bigg_mnxr(cobra_model, allDB_mnxr_dict)
 
-pickle_template_exchange_rxnid_flux_dict()
+#pickle_template_exchange_rxnid_flux_dict()
 
 #pickle_universal_model_for_gapfill()
 ################################################################################
