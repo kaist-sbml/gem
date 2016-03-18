@@ -73,7 +73,7 @@ mnxm_kegg_compound_dict = pickle.load( open('./input2/mnxm_kegg_compound_dict.p'
 
 mnxm_compoundInfo_dict = pickle.load(open('./input2/mnxm_compoundInfo_dict.p','rb'))
 
-template_exrxnid_flux_dict = pickle.load(open('%s/template_exrxnid_flux_dict.p' %(root),'rb'))
+template_exrxnid_flux_dict = pickle.load(open('%s/tempModel_exrxnid_flux_dict.p' %(root),'rb'))
 ###################################################################
                            
 print "\n", "pruning phase starting..", "\n"
