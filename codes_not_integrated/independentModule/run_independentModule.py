@@ -13,10 +13,10 @@ from independentModule import *
 import pickle
 import subprocess
 
-root, tempGenome, tempModel = get_tempInfo(orgName='sco')
-print root
-print tempGenome
-print tempModel
+#root, tempGenome, tempModel = get_tempInfo(orgName='sco')
+#print root
+#print tempGenome
+#print tempModel
 
 ################################################################################
 #Loading and parsing of the template model

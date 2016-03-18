@@ -403,7 +403,7 @@ def pickle_templateModel_bigg_mnxr(cobra_model, allDB_mnxr_dict):
 
 #Reaction IDs and their flux values for major Exchange reactions
 def pickle_template_exchange_rxnid_flux_dict():
-    fp1 = open('./input2/template_exrxnid_flux_dict.txt',"r")
+    fp1 = open('./input1/eco/tempModel_exrxnid_flux_dict.txt',"r")
     template_exrxnid_flux_dict = {}
     text = fp1.readline()
 
@@ -417,12 +417,12 @@ def pickle_template_exchange_rxnid_flux_dict():
 	text = fp1.readline()
 
     print template_exrxnid_flux_dict
-    pickle.dump(template_exrxnid_flux_dict, open('./input2/template_exrxnid_flux_dict.p','wb'))
+    pickle.dump(template_exrxnid_flux_dict, open('./input1/eco/tempModel_exrxnid_flux_dict.p','wb'))
     fp1.close()
 
 
 def pickle_universal_model_for_gapfill():
-    universal_model = create_cobra_model_from_sbml_file('./input2/updated_universal_model4.xml')
+    universal_model = create_cobra_model_from_sbml_file('./input2/updated_universal_model6.xml')
     pickle.dump(universal_model, open('./input2/universal_model.p','wb'))
 
 
