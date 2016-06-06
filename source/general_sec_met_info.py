@@ -837,6 +837,10 @@ def get_biggid_from_aSid(each_substrate):
     elif each_substrate == 'benz':
         met_name = 'MNXM240'
 
+    #No bigg ID
+    elif each_substrate == 'capreomycidine':
+        met_name = 'MNXM18891' 
+
     return met_name
 
 
@@ -914,6 +918,7 @@ def get_metab_coeff_dict():
     metab_coeff_dict['MNXM10927'] = 0 #'chloroethylmalonyl-CoA','N/A', 'MNXM10927'
     metab_coeff_dict['MNXM4797'] = 0 #'Quinaldinic acid','C06325', 'MNXM4797'
     metab_coeff_dict['MNXM240'] = 0 #'Benzoyl-CoA','C00512', 'MNXM240'
+    metab_coeff_dict['MNXM18891'] = 0 #'L-Capreomycidine', 'C18472', 'MNXM18891'
     return metab_coeff_dict
 
 
@@ -990,5 +995,8 @@ def add_sec_met_mnxm_having_no_biggid_to_model(metab, metab_compt, mnxm_compound
 
     elif metab == 'MNXM240':
         metab_compt = Metabolite(metab_compt, formula = mnxm_compoundInfo_dict['MNXM240'][1], name = mnxm_compoundInfo_dict['MNXM240'][0], compartment='c')
+
+    elif metab == 'MNXM18891':
+        metab_compt = Metabolite(metab_compt, formula = mnxm_compoundInfo_dict['MNXM18891'][1], name = mnxm_compoundInfo_dict['MNXM18891'][0], compartment='c')
 
     return metab_compt
