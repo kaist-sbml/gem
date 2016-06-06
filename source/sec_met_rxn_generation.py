@@ -398,6 +398,7 @@ def get_all_metab_coeff(locustag_monomer_dict, metab_coeff_dict, product):
                 elif aSid_met2 == 'hydrophobic-aliphatic' or aSid_met2 == 'hydrophilic' or aSid_met2 == 'hydrophobic-aromatic' or aSid_met2 == 'N/A' or ',' in aSid_met2:
                     #If NRPSPredictor2 SVM has invalid monomer, then Minowa is considered
                     aSid_met4 = locustag_monomer_dict[each_module][2]
+                    print "check: aSid_met4:", aSid_met4
                     if aSid_met4 != 'hydrophobic-aliphatic' and aSid_met4 != 'hydrophilic' and aSid_met4 != 'hydrophobic-aromatic' and aSid_met4 != 'N/A':
                         biggid_met4 = get_biggid_from_aSid(aSid_met4)
                         metab_coeff_dict[biggid_met4] -= 1
