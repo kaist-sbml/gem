@@ -431,7 +431,6 @@ def get_all_metab_coeff(locustag_monomer_dict, metab_coeff_dict, product):
                 #From PKS signature
                 #In case of non-consensus, PKS signature is considered
                 aSid_met6 = locustag_monomer_dict[each_module][0]
-                print "check: aSid_met6", aSid_met6
                 if aSid_met6 != 'N/A' and aSid_met6 != 'mal_or_prop':
                     biggid_met6 = get_biggid_from_aSid(aSid_met6)
                     #print "aSid_met6", aSid_met6, biggid_met6
