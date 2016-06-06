@@ -38,6 +38,9 @@ start = time.time()
 
 dirname = sys.argv[1]
 
+if '/' in dirname:
+    dirname = dirname[:-1]
+
 #Create output folders
 folders = ['1_blastp_results', '2_primary_metabolic_model', '3_temp_models', '4_complete_model']
 
