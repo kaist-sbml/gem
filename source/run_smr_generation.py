@@ -40,9 +40,13 @@ orgname = sys.argv[1]
 
 bigg_mnxm_compound_dict = pickle.load(open('./input2/bigg_mnxm_compound_dict.p','rb'))
 mnxm_compoundInfo_dict = pickle.load(open('./input2/mnxm_compoundInfo_dict.p','rb'))
-template_exrxnid_flux_dict = pickle.load(open('./input1/%s/template_exrxnid_flux_dict.p' %'sco','rb'))
+template_exrxnid_flux_dict = pickle.load(open('./input1/%s/tempModel_exrxnid_flux_dict.p' %'sco','rb'))
+
+if '/' in orgname:
+    orgname = orgname[:-1]
 
 dirname = './%s/' %orgname
+    
 cluster_files = []
 for f in os.listdir(dirname):
     if f.endswith('.gbk') and 'cluster' in f:
