@@ -1,5 +1,7 @@
 '''
 2015 Hyun Uk Kim
+
+Objective: To handle non-standard .gbk files by inserting "translation" from NCBI
 '''
 
 import sys
