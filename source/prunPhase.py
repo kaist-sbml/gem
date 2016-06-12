@@ -38,6 +38,7 @@ def get_targetGenomeInfo(dirname, gbkFile, FileType):
     try:
         record = SeqIO.read(dirname+'/'+gbkFile, FileType)
     except ValueError:
+        print "\n", "Warning: ValueError occurred in SeqIo.read", "\n"
         record = SeqIO.parse(dirname+'/'+gbkFile, FileType).next()
 
     for feature in record.features:
