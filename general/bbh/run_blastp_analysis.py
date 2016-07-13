@@ -5,6 +5,7 @@ Hyun Uk Kim
 
 from genome_blastp_analysis import (
     pickle_template_genes_list,
+    get_new_old_locustag_from_gbk,
     get_template_genomeInfo,
     get_genome_info_from_gbk,
     get_fasta,
@@ -39,11 +40,17 @@ if not os.path.isdir(folder):
 #pickle_template_genes_list(dirname1)
 #locusTag_list = pickle.load(open('./%s/locusTag_list.p' %dirname1,'rb'))
 ###################################################################
+
+###################################################################
+#print "Extract individual information from gbk files"
+#get_new_old_locustag_from_gbk(dirname2, "genbank")
+###################################################################
+
                            
 ###################################################################
 #print "\n", "Reading genbank file of the template genome.."
 #tempGenome_locusTag_ec_dict = get_template_genomeInfo(dirname1, "genbank", locusTag_list)
-targetGenome_locusTag_ec_dict = get_genome_info_from_gbk(dirname1, "genbank")
+#targetGenome_locusTag_ec_dict = get_genome_info_from_gbk(dirname1, "genbank")
 
 print "\n", "Looking for a fasta file of a template genome.."
 template_fasta = get_fasta(dirname1)

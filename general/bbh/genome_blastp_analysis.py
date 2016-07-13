@@ -28,6 +28,43 @@ def pickle_template_genes_list(dirname):
     fp1.close()
 
 
+def get_new_old_locustag_from_gbk(dirname, filetype):
+    fp = open('./%s/cty_product_names.txt' %dirname,'w')
+
+    gbk_files = glob.glob("./%s/*.gb" %dirname)
+    
+    if not gbk_files:
+        gbk_files = glob.glob("./%s/*.gbk" %dirname)
+
+    print "gbk files identified:"
+    print gbk_files
+
+    #reads genbank file
+    for gbk_file in gbk_files:
+        record = SeqIO.read(gbk_file, filetype)
+        for feature in record.features:
+            if feature.type == 'CDS':
+
+                #retrieving "locus_tag (i.e., orf name)" for each cds
+                locustag = feature.qualifiers['locus_tag'][0]
+
+                #some locus_tag's have multiple same qualifiers (e.g., ec_number)
+	        for item in feature.qualifiers:
+
+                    if item == 'old_locus_tag':
+
+                        #retrieving "old_locus_tag (i.e., amino acid sequences)" for each cds
+                        old_locustag = feature.qualifiers.get('old_locus_tag')[0]
+                        print >>fp, '%s\t%s' % (str(locustag), str(old_locustag))
+
+	            if item == 'product':
+		        product = feature.qualifiers.get('product')[0]
+                        print >>fp, '%s\t%s' % (str(locustag), str(product))
+
+    fp.close()
+    return 
+
+
 def get_template_genomeInfo(dirname, FileType, locusTag_list):
     fp = open('./%s/genome_locusTag_aaSeq.fa' %dirname,'w')
     genome_locusTag_aaSeq_dict = {}
@@ -35,6 +72,10 @@ def get_template_genomeInfo(dirname, FileType, locusTag_list):
     genome_locusTag_prod_dict = {}
 
     gbk_files = glob.glob("./%s/*.gb" %dirname)
+
+    if not gbk_files:
+        gbk_files = glob.glob("./%s/*.gbk" %dirname)
+
     print "gbk files identified:"
     print gbk_files
 
@@ -86,60 +127,67 @@ def get_template_genomeInfo(dirname, FileType, locusTag_list):
     return genome_locusTag_ec_dict
 
  
-def get_genome_info_from_gbk(dirname, FileType):
+def get_genome_info_from_gbk(dirname, filetype):
     fp = open('./%s/genome_locusTag_aaSeq.fa' %dirname,'w')
-    genome_locusTag_aaSeq_dict = {}
-    genome_locusTag_ec_dict = {}
-    genome_locusTag_prod_dict = {}
+    genome_locustag_aaseq_dict = {}
+    genome_locustag_ec_dict = {}
+    genome_locustag_prod_dict = {}
 
     gbk_files = glob.glob("./%s/*.gb" %dirname)
+
+    if not gbk_files:
+        gbk_files = glob.glob("./%s/*.gbk" %dirname)
+
     print "gbk files identified:"
     print gbk_files
 
-    #Reads GenBank file
+    #reads genbank file
     for gbk_file in gbk_files:
-        record = SeqIO.read(gbk_file, FileType)
+        record = SeqIO.read(gbk_file, filetype)
         for feature in record.features:
             if feature.type == 'CDS':
 
-                #Retrieving "locus_tag (i.e., ORF name)" for each CDS
-                locusTag = feature.qualifiers['locus_tag'][0]
+                #retrieving "locus_tag (i.e., orf name)" for each cds
+                try:
+                    locustag = feature.qualifiers['locus_tag'][0]
+                except:
+                    locustag = feature.qualifiers['gene'][0]
 
-                #Some locus_tag's have multiple same qualifiers (e.g., EC_number)
+                #some locus_tag's have multiple same qualifiers (e.g., ec_number)
 	        for item in feature.qualifiers:
 
-                    #Note that the numbers of CDS and "translation" do not match.
-                    #There are occasions that CDS does not have "translation".
+                    #note that the numbers of cds and "translation" do not match.
+                    #there are occasions that cds does not have "translation".
                     if item == 'translation':
 
-                        #Retrieving "translation (i.e., amino acid sequences)" for each CDS
+                        #retrieving "translation (i.e., amino acid sequences)" for each cds
                         translation = feature.qualifiers.get('translation')
-                        genome_locusTag_aaSeq_dict[locusTag] = translation[0]
-                        print >>fp, '>%s\n%s' % (str(locusTag), str(translation[0]))
+                        genome_locustag_aaseq_dict[locustag] = translation[0]
+                        print >>fp, '>%s\n%s' % (str(locustag), str(translation[0]))
 
-                    #Used to find "and" relationship in the GPR association
+                    #used to find "and" relationship in the gpr association
 	            if item == 'product':
 		        product = feature.qualifiers.get('product')[0]
-		        genome_locusTag_prod_dict[locusTag] = product
+		        genome_locustag_prod_dict[locustag] = product
 
-                    #Watch multiple EC_number's
+                    #watch multiple ec_number's
 	     	    if item == 'EC_number':
 	                ecnum = feature.qualifiers.get('EC_number')
-		        genome_locusTag_ec_dict[locusTag] = ecnum
+		        genome_locustag_ec_dict[locustag] = ecnum
 
-    #Check if the gbk file has EC_number
-    #Additional conditions should be given upon setup of in-house EC_number assigner
-    print "\n", "len(genome_locusTag_ec_dict.keys):"
-    print len(genome_locusTag_ec_dict)
-    print "len(genome_locusTag_prod_dict.keys):"
-    print len(genome_locusTag_prod_dict)
+    #check if the gbk file has ec_number
+    #additional conditions should be given upon setup of in-house ec_number assigner
+    print "\n", "len(genome_locustag_ec_dict.keys):"
+    print len(genome_locustag_ec_dict)
+    print "len(genome_locustag_prod_dict.keys):"
+    print len(genome_locustag_prod_dict)
 
-    if len(genome_locusTag_ec_dict) == 0:
-	print "Error: no EC_number in the submitted gbk file"
-        #FIXME: Don't use sys.exit
-	sys.exit(1)
+    #if len(genome_locustag_ec_dict) == 0:
+    #    print "error: no ec_number in the submitted gbk file"
+        #fixme: don't use sys.exit
+	#sys.exit(1)
     fp.close()
-    return genome_locusTag_ec_dict 
+    return genome_locustag_ec_dict 
 
 
 #Looks for .fa and .gbk  files in the pre-defined folder
@@ -168,9 +216,9 @@ def make_blastDB(dirname, query_fasta):
 
 #Output: b0002,ASPK|b0002,0.0,100.00,820
 #"1e-30" is set as a threshold for bidirectional best hits
-def run_blastp(target_fasta = '', blastp_result = '', db_dir = '', evalue = 1e-30):
+def run_blastp(target_fasta = '', blastp_result = '', db_dir = '', evalue = ''):
     BLASTPprogramName = './blastpfiles/blastp.exe'  
-    subprocess.call([BLASTPprogramName,'-query',target_fasta,'-out',blastp_result,'-db',db_dir,'-evalue', str(evalue),'-outfmt',"10 qseqid sseqid evalue score length pident"])
+    subprocess.call([BLASTPprogramName,'-query',target_fasta,'-out',blastp_result,'-db',db_dir,'-evalue', str(evalue), '-outfmt',"10 qseqid sseqid evalue score length pident"])
 
 
 #Input: Results file from "run_blastp"
