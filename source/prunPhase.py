@@ -11,6 +11,7 @@ import os
 import pickle
 import subprocess
 import sys
+from eficaz import getECs
 
 #Looks for .xml and .gb(k) files in the pre-defined folder
 def get_temp_fasta(orgName):
@@ -28,7 +29,7 @@ def get_target_gbk(dirname):
             return target_gbk
 
 
-def get_targetGenomeInfo(dirname, gbkFile, FileType):
+def get_targetGenomeInfo(dirname, gbkFile, FileType, options):
     fp = open('./%s/1_blastp_results/targetGenome_locusTag_aaSeq.fa' %dirname,'w')
     targetGenome_locusTag_aaSeq_dict = {}
     targetGenome_locusTag_ec_dict = {}
@@ -41,6 +42,10 @@ def get_targetGenomeInfo(dirname, gbkFile, FileType):
         print "\n", "Warning: ValueError occurred in SeqIo.read", "\n"
         record = SeqIO.parse(dirname+'/'+gbkFile, FileType).next()
 
+
+    if options.eficaz:
+        getECs(record, options)
+        
     for feature in record.features:
         if feature.type == 'CDS':
 

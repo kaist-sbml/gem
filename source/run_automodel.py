@@ -29,10 +29,13 @@ from augPhase import (
     add_nonBBH_rxn
 )
 from cobra.io.sbml import write_cobra_model_to_sbml_file, create_cobra_model_from_sbml_file
+from argparse import Namespace
 import os
 import pickle
 import sys
 import time
+
+
 
 start = time.time()
 
@@ -41,13 +44,20 @@ dirname = sys.argv[1]
 if '/' in dirname:
     dirname = dirname[:-1]
 
+
 #Create output folders
 folders = ['1_blastp_results', '2_primary_metabolic_model', '3_temp_models', '4_complete_model']
 
 for folder in folders:
-   if not os.path.isdir('./%s/'%dirname+folder):
-       os.makedirs('./%s/'%dirname+folder)
+    if not os.path.isdir('./%s/'%dirname+folder):
+        os.makedirs('./%s/'%dirname+folder)
 
+
+# Change this to run EFICAz and define EFICAz properties
+options = Namespace()
+options.eficaz = False
+options.outputfolder = './%s/' % dirname + '0_EFICAz_results'
+options.cpus = 1
 
 #List of input (static) files as pickles
 ###################################################################
@@ -85,7 +95,7 @@ print "looking for a gbk file of a target genome.."
 target_gbk = get_target_gbk(dirname)
 
 print "reading genbank file of the target genome.."    
-targetGenome_locusTag_ec_dict, targetGenome_locusTag_prod_dict = get_targetGenomeInfo(dirname, target_gbk, "genbank")
+targetGenome_locusTag_ec_dict, targetGenome_locusTag_prod_dict = get_targetGenomeInfo(dirname, target_gbk, "genbank", options)
 
 print "\n", "looking for a fasta file of a target genome..", "\n"
 target_fasta = get_target_fasta(dirname)
