@@ -14,33 +14,18 @@
 import logging
 import os
 import sys
-import shutil
 from os import path
 import subprocess
-import string
 try:
     from cStringIO import StringIO
 except ImportError:
     from StringIO import StringIO
-from argparse import Namespace
 import warnings
 # Don't display the SearchIO experimental warning, we know this.
 with warnings.catch_warnings():
     warnings.simplefilter("ignore")
     from Bio import SearchIO
-from Bio.Alphabet import generic_protein
-from antismash.config import get_config
-from helperlibs.wrappers.io import TemporaryDirectory
-
-from zipfile import ZipFile, ZIP_DEFLATED, LargeZipFile
-from Bio.Seq import Seq
 import re
-try:
-    from antismash.db import biosql
-    USE_BIOSQL = True
-except ImportError:
-    USE_BIOSQL = False
-import argparse
 
 class Storage(dict):
     """Simple storage class"""
@@ -63,95 +48,6 @@ class Storage(dict):
             dict.__setattr__(self, attr, value)
         else:
             self.__setitem__(attr, value)
-
-
-def getArgParser():
-    class AntiSmashParser(argparse.ArgumentParser):
-        """Custom argument parser for antiSMASH
-        """
-        _showAll = False
-        _displayGroup = {}
-
-        def __init__(self, *args):
-            """Initialisation method for the parser class"""
-            kwargs = {}
-            kwargs["add_help"] = False
-            super(AntiSmashParser, self).__init__(*args, **kwargs)
-
-        def add_argument_group(self, *args, **kwargs):
-            if not args[0] in self._displayGroup:
-                self._displayGroup[args[0]] = []
-            if "basic" in kwargs:
-                if kwargs["basic"]:
-                    self._displayGroup[args[0]].extend(["basic"])
-                del kwargs["basic"]
-            if "param" in kwargs:
-                self._displayGroup[args[0]].extend(kwargs["param"])
-                del kwargs["param"]
-            group = super(AntiSmashParser, self).add_argument_group(*args, **kwargs)
-            return group
-
-        def print_help(self, file=None, showAll=False):
-            self._showAll = showAll
-            super(AntiSmashParser, self).print_help(file)
-
-        def format_help(self):
-            """Custom help format"""
-            help_text = """
-########### antiSMASH ver. {version} #############
-
-{usage}
-
-{args}
---------
-Options
---------
-{opts}
-""".format(version=get_version(), usage=self.format_usage(), args=self._get_args_text(), opts=self._get_opts_text())
-            return help_text
-
-        def format_usage(self):
-            if self._showAll:
-                formatter = self._get_formatter()
-                formatter.add_usage(self.usage, self._actions, self._mutually_exclusive_groups)
-                return formatter.format_help()
-            return "usage: {prog} [-h] [options ..] [sequence [sequence ..]]".format(prog=self.prog) + "\n"
-
-        def _get_args_text(self):
-            # fetch arg lists using formatter
-            formatter = self._get_formatter()
-            for action_group in self._action_groups:
-                if action_group.title == "positional arguments":
-                    formatter.start_section("arguments")
-                    formatter.add_arguments(action_group._group_actions)
-                    formatter.end_section()
-                    break
-            return formatter.format_help()
-
-        def _get_opts_text(self):
-            # fetch opt lists using formatter
-            formatter = self._get_formatter()
-            for action_group in self._action_groups:
-                if action_group.title in ["optional arguments"]:
-                    formatter.add_arguments(action_group._group_actions)
-            for action_group in self._action_groups:
-                if action_group.title not in ["optional arguments", "positional arguments"]:
-                    show_opt = self._showAll
-                    if (not show_opt):
-                        if "basic" in self._displayGroup[action_group.title]:
-                            show_opt = True
-                        elif len(list(set(sys.argv) & set(self._displayGroup[action_group.title]))) > 0:
-                            show_opt = True
-                    if show_opt:
-                        formatter.start_section(action_group.title)
-                        if action_group.description is None:
-                            action_group.description = ''
-                        formatter.add_text(action_group.description)
-                        formatter.add_arguments(action_group._group_actions)
-                        formatter.end_section()
-            return formatter.format_help()
-
-    return AntiSmashParser()
 
 
 def get_all_features_of_type(seq_record, types):
@@ -336,17 +232,6 @@ def get_smcog_annotations(seq_record):
                     smcogdescriptions[smcogid] = smcog_descr
     return smcogdict, smcogdescriptions
 
-def get_pfam_features(seq_record):
-    "Return all CDS_motif features containing a 'PFAM-Id: ' note for a seq_record"
-    pfam_features = []
-    for feature in get_all_features_of_type(seq_record, "PFAM_domain"):
-        if 'db_xref' not in feature.qualifiers:
-            continue
-        for xref in feature.qualifiers['db_xref']:
-            if xref.startswith("PFAM: "):
-                pfam_features.append(feature)
-                break
-    return pfam_features
 
 def get_cluster_features(seq_record):
     "Return all cluster features for a seq_record"
@@ -362,15 +247,6 @@ def get_sorted_cluster_features(seq_record):
         numberdict[get_cluster_number(cluster)] = cluster
     return [numberdict[clusternr] for clusternr in numberdict.keys()]
 
-def get_structure_pred(cluster):
-    "Return all structure prediction for a cluster feature"
-    if 'note' in cluster.qualifiers:
-        for note in cluster.qualifiers['note']:
-            if "Monomers prediction: " in note:
-                return note.partition("Monomers prediction: ")[2]
-    if get_cluster_type(cluster) == 'ectoine':
-        return 'ectoine'
-    return "N/A"
 
 def get_cluster_number(cluster):
     "Get the integer representation of the Cluster number qualifier"
@@ -448,87 +324,6 @@ def execute(commands, input=None):
         raise
 # pylint: enable=redefined-builtin
 
-def run_hmmsearch(query_hmmfile, target_sequence):
-    "Run hmmsearch"
-    config = get_config()
-    command = ["hmmsearch", "--cpu", str(config.cpus),
-               query_hmmfile, '-']
-    try:
-        out, err, retcode = execute(command, input=target_sequence)
-    except OSError:
-        return []
-    if retcode != 0:
-        logging.debug('hmmsearch returned %d: %r while searching %r', retcode,
-                        err, query_hmmfile)
-        return []
-    res_stream = StringIO(out)
-    results = list(SearchIO.parse(res_stream, 'hmmer3-text'))
-    return results
-
-
-def run_hmmscan(target_hmmfile, query_sequence, opts=None):
-    "Run hmmscan"
-    config = get_config()
-    command = ["hmmscan", "--cpu", str(config.cpus), "--nobias"]
-    if opts is not None:
-        command.extend(opts)
-    command.extend([target_hmmfile, '-'])
-    try:
-        out, err, retcode = execute(command, input=query_sequence)
-    except OSError:
-        return []
-    if retcode != 0:
-        logging.debug('hmmscan returned %d: %r while scanning %r' , retcode,
-                        err, query_sequence)
-        return []
-    res_stream = StringIO(out)
-    results = list(SearchIO.parse(res_stream, 'hmmer3-text'))
-    return results
-
-
-def run_hmmpfam2(query_hmmfile, target_sequence):
-    "Run hmmpfam2"
-    config = get_config()
-    command = ["hmmpfam2", "--cpu", str(config.cpus),
-               query_hmmfile, '-']
-    try:
-        out, err, retcode = execute(command, input=target_sequence)
-    except OSError:
-        return []
-    if retcode != 0:
-        logging.debug('hmmpfam2 returned %d: %r while searching %r', retcode,
-                        err, query_hmmfile)
-        return []
-    res_stream = StringIO(out)
-    results = list(SearchIO.parse(res_stream, 'hmmer2-text'))
-    return results
-
-
-def run_hmmpress(hmmfile):
-    "Run hmmpress"
-    command = ['hmmpress', hmmfile]
-    try:
-        out, err, retcode = execute(command)
-    except OSError as e:
-        retcode = 1
-        err = str(e)
-    return out, err,  retcode
-
-
-def hmmlengths(hmmfile):
-    hmmlengthsdict = {}
-    openedhmmfile = open(hmmfile,"r")
-    filetext = openedhmmfile.read()
-    filetext = filetext.replace("\r","\n")
-    hmms = filetext.split("//")[:-1]
-    for i in hmms:
-        namepart = i.split("NAME  ")[1]
-        name = namepart.split("\n")[0]
-        lengthpart = i.split("LENG  ")[1]
-        length = lengthpart.split("\n")[0]
-        hmmlengthsdict[name] = int(length)
-    return hmmlengthsdict
-
 def cmp_feature_location(a, b):
     "Compare two features by their start/end locations"
     ret = cmp(a.location.start, b.location.start)
@@ -593,72 +388,6 @@ def _shorten_ids(idstring, options):
     return "c{ctg:05d}_{origid}..".format(ctg=contig_no, origid=idstring[:7])
 
 
-def fix_record_name_id(seq_record, options):
-    "Fix a seq record's name and id to be <= 16 characters, the GenBank limit; if record name is too long, add c000X prefix"
-
-    if seq_record.id == "unknown.1":
-        seq_record.id = "unk_seq_{ctg:05d}".format(ctg=options.orig_record_idx)
-        logging.warn('Invalid sequence id "unknown.1", replaced by %s', seq_record.id)
-
-    if seq_record.name == "unknown":
-        seq_record.name = "unk_seq_{ctg:05d}".format(ctg=options.orig_record_idx)
-        logging.warn('Invalid sequence name "unknown", replaced by %s', seq_record.name)
-
-    if len(seq_record.id.partition(".")[0]) > 16:
-        oldid = seq_record.id
-
-        #Check if it is a RefSeq accession number like NZ_AMZN01000079.1 that is just too long because of the version number behind the dot
-        if (seq_record.id[-2] == "." and
-                seq_record.id.count(".") == 1 and
-                len(seq_record.id.partition(".")[0]) <= 16 and
-                seq_record.id.partition(".")[0] not in options.all_record_ids):
-            seq_record.id = seq_record.id.partition(".")[0]
-            options.all_record_ids.append(seq_record.id)
-        else: #Check if the ID suggested by _shorten_ids is unique
-            if _shorten_ids(oldid, options) not in options.all_record_ids:
-                seq_record.id = _shorten_ids(oldid, options)
-                options.all_record_ids.append(seq_record.id)
-            else:
-                x = 0
-                while "%s_%i" % (seq_record.id[:16][:-4], x) in options.all_record_ids:
-                    x += 1
-                seq_record.id = "%s_%i" % (seq_record.id[:16][:-4], x)
-                options.all_record_ids.append(seq_record.id)
-
-        logging.warn('Fasta header too long: renamed "%s" to "%s"', oldid, seq_record.id)
-        if seq_record.id not in options.extrarecord:
-            options.extrarecord[seq_record.id] = Namespace()
-        if "extradata" not in options.extrarecord[seq_record.id]:
-            options.extrarecord[seq_record.id].extradata = {}
-        if "orig_id" not in options.extrarecord[seq_record.id].extradata:
-            options.extrarecord[seq_record.id].extradata["orig_id"] = oldid
-        #seq_record.id = "%s...%s" % (seq_record.id[:12], seq_record.id[-1])
-
-
-    if len(seq_record.name) > 16:
-
-        seq_record.name = _shorten_ids(seq_record.name, options)
-
-        #seq_record.name = "%s...%s" % (seq_record.name[:12], seq_record.name[-1])
-
-    if 'accession' in seq_record.annotations and \
-       len(seq_record.annotations['accession']) > 16:
-        acc = seq_record.annotations['accession']
-
-        seq_record.annotations['accession'] = _shorten_ids(acc, options)
-        # seq_record.annotations['accession'] = "%s...%s" % (acc[:12], acc[-1])
-
-    # Remove illegal characters from name: otherwise, file cannot be written
-    illegal_chars  = '''!"#$%&()*+,:;=>?@[]^`'{|}/ '''
-    for char in seq_record.id:
-        if char in illegal_chars:
-            seq_record.id = seq_record.id.replace(char,"")
-    for char in seq_record.name:
-        if char in illegal_chars:
-            seq_record.id = seq_record.name.replace(char,"")
-
-def ascii_string(inputstring):
-    return "".join([char for char in inputstring if char in (string.ascii_letters + string.digits + string.punctuation + string.whitespace)])
 
 def get_gene_acc(feature):
     "Get the gene accesion number; if not defined, use content of locus_tag or gene qualifier instead"
@@ -768,53 +497,7 @@ def get_feature_dict_protein_id(seq_record):
             feature_by_id[gene_id] = feature
     return feature_by_id
 
-def get_multifasta(seq_record):
-    """Extract multi-protein FASTA from all CDS features in sequence record"""
-    features = get_cds_features(seq_record)
-    all_fastas = []
-    for feature in features:
-        gene_id = get_gene_id(feature)
-        fasta_seq = feature.qualifiers['translation'][0]
-        if "-" in str(fasta_seq):
-            fasta_seq = Seq(str(fasta_seq).replace("-",""), generic_protein)
 
-        # Never write empty fasta entries
-        if len(fasta_seq) == 0:
-            logging.debug("No translation for %s, skipping", gene_id)
-            continue
-
-        all_fastas.append(">%s\n%s" % (gene_id, fasta_seq))
-    full_fasta = "\n".join(all_fastas)
-    return full_fasta
-
-def get_specific_multifasta(features):
-    """Extract multi-protein FASTA from provided features"""
-    all_fastas = []
-    for feature in features:
-        gene_id = get_gene_id(feature)
-        fasta_seq = feature.qualifiers['translation'][0]
-
-        # Never write empty fasta entries
-        if len(fasta_seq) == 0:
-            logging.debug("No translation for %s, skipping", gene_id)
-            continue
-
-        all_fastas.append(">%s\n%s" % (gene_id, fasta_seq))
-    full_fasta = "\n".join(all_fastas)
-    return full_fasta
-
-def get_aa_translation(seq_record, feature):
-    """Obtain content for translation qualifier for specific CDS feature in sequence record"""
-    fasta_seq = feature.extract(seq_record.seq).ungap('-').translate(to_stop=True)
-    if len(fasta_seq) == 0:
-        logging.debug("Retranslating %s with stop codons", feature.id)
-        fasta_seq = feature.extract(seq_record.seq).ungap('-').translate()
-    if "*" in str(fasta_seq):
-        fasta_seq = Seq(str(fasta_seq).replace("*","X"), generic_protein)
-    if "-" in str(fasta_seq):
-        fasta_seq = Seq(str(fasta_seq).replace("-",""), generic_protein)
-
-    return fasta_seq
 
 def get_aa_sequence(feature, to_stop=False):
     """Extract sequence from specific CDS feature in sequence record"""
@@ -873,36 +556,6 @@ def zip_dir(dir_path, archive, prefix_to_remove=""):
             arcname = entry.replace(prefix_to_remove + os.sep, "", 1)
             archive.write(entry, arcname)
 
-def zip_path(dir_path, name):
-    """Create a zip file for a given path"""
-    with TemporaryDirectory(change=True):
-        try:
-            archive = ZipFile(name, 'w', ZIP_DEFLATED)
-            if path.isdir(dir_path):
-                zip_dir(dir_path, archive, path.dirname(dir_path))
-            else:
-                archive.write(dir_path)
-            archive.close()
-        except LargeZipFile:
-            archive = ZipFile(name, 'w', ZIP_DEFLATED, True)
-            if path.isdir(dir_path):
-                zip_dir(dir_path, archive, path.dirname(dir_path))
-            else:
-                archive.write(dir_path)
-            archive.close()
-
-        # small hack to make development testing easier
-        if path.exists(path.join(dir_path, name)):
-            os.remove(path.join(dir_path, name))
-        shutil.move(name, dir_path)
-
-def log_status(status, level='running'):
-    """Write status to the status file"""
-    options = get_config()
-    if 'statusfile' not in options:
-        return
-    with open(options.statusfile, 'w') as statusfile:
-        statusfile.write("%s: %s\n" % (level, status))
 
 
 def get_git_version():
@@ -916,40 +569,3 @@ def get_git_version():
 
     return ""
 
-
-def get_version():
-    """Get the current version string"""
-    import antismash
-    version = antismash.__version__
-    git_version = get_git_version()
-    if git_version != '':
-        version += "-%s" % git_version
-
-    return version
-
-if USE_BIOSQL:
-    def check_if_dbrecord_exists(name, options):
-        """Open database connection; check if record acc exists; close db connection"""
-
-        if "BioSQLconfig" not in options:
-            logging.warning("Parameters for database access not defined in default.cfg. Skipping database operations")
-
-        # Set up database object
-        myDB = biosql.aSDB(options)
-
-        # connect to namespace for full genomes (dbgenomesnamespace)
-        try:
-            myDB.connect(namespace=options.BioSQLconfig.dbgenomenamespace)
-        except Exception, e:
-            logging.exception("Could not connect to database %s, namespace %s : %s",
-                              options.BioSQLconfig.dbdb, options.BioSQLconfig.dbgenomenamespace, e)
-            return False
-
-        entryid = myDB.fetch_entryid_by_name(name=name)
-        myDB.close()
-
-        if entryid:
-            logging.debug('check_if_dbrecord_exists: found record id %s for query %s', entryid, name)
-            return True
-        else:
-            return False
