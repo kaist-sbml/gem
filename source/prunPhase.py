@@ -25,7 +25,7 @@ def get_temp_fasta(orgName):
 #Look for a target .gbk file from antiSMASH
 def get_target_gbk(dirname):
     for target_gbk in os.listdir(dirname):
-        if target_gbk.endswith('.gbk') and 'final' in target_gbk:
+        if target_gbk.endswith('.gb') or target_gbk.endswith('.gbk'):
             return target_gbk
 
 
@@ -35,6 +35,8 @@ def get_targetGenomeInfo(dirname, gbkFile, FileType, options):
     targetGenome_locusTag_ec_dict = {}
     targetGenome_locusTag_prod_dict = {}
 
+    print "dirname:", dirname
+    print "gbkfileL", gbkFile
     #Reads GenBank file
     try:
         record = SeqIO.read(dirname+'/'+gbkFile, FileType)
