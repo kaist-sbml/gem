@@ -23,7 +23,7 @@ import time
 import shutil
 from urllib2 import URLError
 import tempfile
-from source import utils
+import utils
 
 from Bio.Alphabet import generic_protein
 from Bio.Seq import Seq
