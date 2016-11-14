@@ -89,12 +89,14 @@ class EFICAzECPrediction:
         allFastaList = []
         for feature in features:
             gene_id = utils.get_gene_id(feature)
-            fasta_seq = feature.qualifiers['translation'][0]
-            if "-" in str(fasta_seq):
-                fasta_seq = Seq(str(fasta_seq).replace("-",""), generic_protein)
-    
+
+            if 'translation' in feature.qualifiers.keys():
+                fasta_seq = feature.qualifiers['translation'][0]
+                if "-" in str(fasta_seq):
+                    fasta_seq = Seq(str(fasta_seq).replace("-",""), generic_protein)
+
             # Never write empty fasta entries
-            if len(fasta_seq) == 0:
+            elif len(fasta_seq) == 0:
                 logging.debug("No translation for %s, skipping" % gene_id)
                 continue
     
