@@ -55,8 +55,9 @@ for folder in folders:
 
 # Change this to run EFICAz and define EFICAz properties
 options = Namespace()
-options.eficaz = False
-options.outputfolder = './%s/' % dirname + '0_EFICAz_results'
+#This can be turned off as 'False'
+options.eficaz = 'eficaz'
+options.outputfoldername = './%s/' % dirname + '0_EFICAz_results'
 options.cpus = 1
 
 #List of input (static) files as pickles

@@ -72,7 +72,7 @@ class EFICAzECPrediction:
         
         self.basedirName = os.path.abspath(os.path.join(options.outputfoldername, "EFICAz"))
         try:
-            os.mkdir(self.basedirName)
+            os.makedirs(self.basedirName)
         except OSError:
             if os.path.exists(self.basedirName):
                 # We are nearly safe
@@ -409,7 +409,7 @@ class EFICAzECPrediction:
 
 def getECs(seq_record, options):
     logging.debug("Predicting EC numbers with EFICAz")
-    if not name in options.ecpred:
+    if not name in options.eficaz:
         logging.debug("ECprediction %s not selected, returning..." % name)
         return
     

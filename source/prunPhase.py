@@ -11,7 +11,7 @@ import os
 import pickle
 import subprocess
 import sys
-from eficaz import getECs
+from eficaz.__init__ import getECs
 
 #Looks for .xml and .gb(k) files in the pre-defined folder
 def get_temp_fasta(orgName):
