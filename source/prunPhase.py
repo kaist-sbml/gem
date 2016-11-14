@@ -35,8 +35,6 @@ def get_targetGenomeInfo(dirname, gbkFile, FileType, options):
     targetGenome_locusTag_ec_dict = {}
     targetGenome_locusTag_prod_dict = {}
 
-    print "dirname:", dirname
-    print "gbkfileL", gbkFile
     #Reads GenBank file
     try:
         record = SeqIO.read(dirname+'/'+gbkFile, FileType)
