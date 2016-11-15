@@ -61,7 +61,7 @@ if options.debug:
 folders = ['0_EFICAz_results', '1_blastp_results', '2_primary_metabolic_model', '3_temp_models', '4_complete_model']
 
 for folder in folders:
-    if not os.path.isdir(options.output+folder):
+    if not os.path.isdir(options.output+'/'+folder):
         os.makedirs(options.output+'/'+folder)
 
 options.outputfoldername = options.output+'/'+folders[0]
