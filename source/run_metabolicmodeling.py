@@ -62,7 +62,7 @@ folders = ['0_EFICAz_results', '1_blastp_results', '2_primary_metabolic_model', 
 
 for folder in folders:
     if not os.path.isdir(options.output+folder):
-        os.makedirs(options.output+folder)
+        os.makedirs(options.output+'/'+folder)
 
 options.outputfoldername = options.output+'/'+folders[0]
 print options.outputfoldername
