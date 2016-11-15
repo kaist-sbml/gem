@@ -4,6 +4,16 @@ Hyun Uk Kim, Tilmann Weber, Kyu-Sang Hwang and Jae Yong Ryu
 '''
 
 #Wildcard imports should never be used in production code.
+import argparse
+import logging
+import os
+import pickle
+import sys
+import time
+
+from cobra.io.sbml import write_cobra_model_to_sbml_file, create_cobra_model_from_sbml_file
+from argparse import Namespace
+
 from prunPhase import (
     get_temp_fasta,
     get_target_gbk,
@@ -28,37 +38,35 @@ from augPhase import (
     extract_rxn_mnxm_coeff,
     add_nonBBH_rxn
 )
-from cobra.io.sbml import write_cobra_model_to_sbml_file, create_cobra_model_from_sbml_file
-from argparse import Namespace
-import logging
-import os
-import pickle
-import sys
-import time
-
 
 
 start = time.time()
 
-dirname = sys.argv[1]
+#dirname = sys.argv[1]
 
-if '/' in dirname:
-    dirname = dirname[:-1]
+#if '/' in dirname:
+#    dirname = dirname[:-1]
 
 
 #Create output folders
 folders = ['1_blastp_results', '2_primary_metabolic_model', '3_temp_models', '4_complete_model']
 
-for folder in folders:
-    if not os.path.isdir('./%s/'%dirname+folder):
-        os.makedirs('./%s/'%dirname+folder)
+#for folder in folders:
+#    if not os.path.isdir('./%s/'%dirname+folder):
+#        os.makedirs('./%s/'%dirname+folder)
 
+parser = argparse.ArgumentParser()
+#parser.add_argument('--model', dest='orgName', default = 'sco', choices['eco','sco'])
+parser.add_argument('--model', default = 'sco', dest='orgName')
+parser.add_argument('--cpu', default = 1, dest='cpus')
+
+options = parser.parse_args()
+print options.orgName, options.cpus
 
 # Change this to run EFICAz and define EFICAz properties
-options = Namespace()
 #This can be turned off as 'False'
 options.eficaz = 'eficaz'
-options.outputfoldername = './%s/' % dirname + '0_EFICAz_results'
+#options.outputfoldername = './%s/' % dirname + '0_EFICAz_results'
 options.cpus = 1
 
 logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
@@ -66,9 +74,7 @@ logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
 #List of input (static) files as pickles
 ###################################################################
 #For model pruning phase
-#Choose "eco" or "sco"
-orgName = 'sco'
-root, temp_fasta = get_temp_fasta(orgName)
+root, temp_fasta = get_temp_fasta(options.orgName)
 print root
 print temp_fasta
 
