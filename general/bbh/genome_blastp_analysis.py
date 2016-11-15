@@ -197,7 +197,7 @@ def get_genome_info_from_gbk(dirname, filetype):
 def get_fasta(dirname):
     for root, _, files in os.walk('./%s' %dirname):
         for f in files:
-            if f.endswith('.fa'):
+            if f.endswith('.fa') or f.endswith('.fasta'):
                 fasta = os.path.join(root, f)
 	        return fasta
 	else:
