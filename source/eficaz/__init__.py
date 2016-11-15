@@ -411,9 +411,6 @@ class EFICAzECPrediction:
 
 def getECs(seq_record, options):
     logging.debug("Predicting EC numbers with EFICAz")
-    if not name in options.eficaz:
-        logging.debug("ECprediction %s not selected, returning..." % name)
-        return
     
     if not 'cpus' in options:
             options.cpus = 1
