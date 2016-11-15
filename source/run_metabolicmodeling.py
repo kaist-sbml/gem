@@ -6,6 +6,7 @@ Hyun Uk Kim, Tilmann Weber, Kyu-Sang Hwang and Jae Yong Ryu
 #Wildcard imports should never be used in production code.
 import argparse
 import logging
+import multiprocessing
 import os
 import pickle
 import sys
@@ -39,37 +40,32 @@ from augPhase import (
     add_nonBBH_rxn
 )
 
-
 start = time.time()
 
-#dirname = sys.argv[1]
-
-#if '/' in dirname:
-#    dirname = dirname[:-1]
-
-
-#Create output folders
-folders = ['1_blastp_results', '2_primary_metabolic_model', '3_temp_models', '4_complete_model']
-
-#for folder in folders:
-#    if not os.path.isdir('./%s/'%dirname+folder):
-#        os.makedirs('./%s/'%dirname+folder)
-
 parser = argparse.ArgumentParser()
-#parser.add_argument('--model', dest='orgName', default = 'sco', choices['eco','sco'])
-parser.add_argument('--model', default = 'sco', dest='orgName')
-parser.add_argument('--cpu', default = 1, dest='cpus')
+
+parser.add_argument('-m', '--model', dest='orgName', default='sco', choices=['eco','sco'], help="Specify a template model for the target modeling")
+parser.add_argument('-s', '--smr', dest='smr_generation', default=False, choices=[True,False], help="Specify whether to run secondary metabolic modeling")
+parser.add_argument('-o', '--output', dest='output', default='output', help="Specify output directory")
+parser.add_argument('-e', '--ec', dest='eficaz', default=False, choices=['eficaz'], help="Run EC number prediction using EFICAz")
+parser.add_argument('-c', '--cpu', dest='cpus', default=multiprocessing.cpu_count(), type=int, help="How many CPUs to use in parallel. (default: %(default)s)")
+parser.add_argument('-d', '--debug', dest='debug', action='store_true', default=False, help="Print debugging information to stderr")
 
 options = parser.parse_args()
-print options.orgName, options.cpus
 
-# Change this to run EFICAz and define EFICAz properties
-#This can be turned off as 'False'
-options.eficaz = 'eficaz'
-#options.outputfoldername = './%s/' % dirname + '0_EFICAz_results'
-options.cpus = 1
 
-logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
+if options.debug:
+    logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
+
+#Create output folders
+folders = ['0_EFICAz_results', '1_blastp_results', '2_primary_metabolic_model', '3_temp_models', '4_complete_model']
+
+for folder in folders:
+    if not os.path.isdir(options.output+folder):
+        os.makedirs(options.output+folder)
+
+options.outputfoldername = options.output+'/'+folders[0]
+print options.outputfoldername
 
 #List of input (static) files as pickles
 ###################################################################
@@ -102,34 +98,34 @@ template_exrxnid_flux_dict = pickle.load(open('%s/tempModel_exrxnid_flux_dict.p'
 print "\n", "pruning phase starting..", "\n"
 ###################################################################
 print "looking for a gbk file of a target genome.."
-target_gbk = get_target_gbk(dirname)
+target_gbk = get_target_gbk(options.output)
 
 print "reading genbank file of the target genome.."    
-targetGenome_locusTag_ec_dict, targetGenome_locusTag_prod_dict = get_targetGenomeInfo(dirname, target_gbk, "genbank", options)
+targetGenome_locusTag_ec_dict, targetGenome_locusTag_prod_dict = get_targetGenomeInfo(options.output, target_gbk, "genbank", options)
 
 print "\n", "looking for a fasta file of a target genome..", "\n"
-target_fasta = get_target_fasta(dirname)
+target_fasta = get_target_fasta(options.output)
 
 print "generating a DB for the genes from the target genome.."
-make_blastDB(dirname, query_fasta=target_fasta)
+make_blastDB(options.output, query_fasta=target_fasta)
 
 print "\n", "running BLASTP #1: genes in the target genome against genes in the template model.."
-run_blastp(target_fasta='./%s/1_blastp_results/targetGenome_locusTag_aaSeq.fa' %dirname, blastp_result='./%s/1_blastp_results/blastp_targetGenome_against_tempGenome.txt' %dirname, db_dir = '%s/tempBlastDB' %(root), evalue=1e-30)
+run_blastp(target_fasta='./%s/1_blastp_results/targetGenome_locusTag_aaSeq.fa' %options.output, blastp_result='./%s/1_blastp_results/blastp_targetGenome_against_tempGenome.txt' %options.output, db_dir = '%s/tempBlastDB' %(root), evalue=1e-30)
 
 print "\n", "running BLASTP #2: genes in the template model against genes in the target genome.."
-run_blastp(target_fasta='%s/tempModel_locusTag_aaSeq.fa' %(root), blastp_result='./%s/1_blastp_results/blastp_tempGenome_against_targetGenome.txt' %dirname, db_dir = './%s/1_blastp_results/targetBlastDB' %dirname, evalue=1e-30)
+run_blastp(target_fasta='%s/tempModel_locusTag_aaSeq.fa' %(root), blastp_result='./%s/1_blastp_results/blastp_tempGenome_against_targetGenome.txt' %options.output, db_dir = './%s/1_blastp_results/targetBlastDB' %options.output, evalue=1e-30)
 
 print "parsing the results of BLASTP #1.."
-blastpResults_dict1 = parseBlaspResults('./%s/1_blastp_results/blastp_targetGenome_against_tempGenome.txt' %dirname, './%s/1_blastp_results/blastp_targetGenome_against_tempGenome_parsed.txt' %dirname)
+blastpResults_dict1 = parseBlaspResults('./%s/1_blastp_results/blastp_targetGenome_against_tempGenome.txt' %options.output, './%s/1_blastp_results/blastp_targetGenome_against_tempGenome_parsed.txt' %options.output)
  
 print "parsing the results of BLASTP #2.."
-blastpResults_dict2 = parseBlaspResults('./%s/1_blastp_results/blastp_tempGenome_against_targetGenome.txt' %dirname, './%s/1_blastp_results/blastp_tempGenome_against_targetGenome_parsed.txt' %dirname)
+blastpResults_dict2 = parseBlaspResults('./%s/1_blastp_results/blastp_tempGenome_against_targetGenome.txt' %options.output, './%s/1_blastp_results/blastp_tempGenome_against_targetGenome_parsed.txt' %options.output)
 
 print "selecting the best hits for BLASTP #1.."
-bestHits_dict1 = makeBestHits_dict('./%s/1_blastp_results/blastp_targetGenome_against_tempGenome_parsed.txt' %dirname)
+bestHits_dict1 = makeBestHits_dict('./%s/1_blastp_results/blastp_targetGenome_against_tempGenome_parsed.txt' %options.output)
 
 print "selecting the best hits for BLASTP #2.."
-bestHits_dict2 = makeBestHits_dict('./%s/1_blastp_results/blastp_tempGenome_against_targetGenome_parsed.txt' %dirname)
+bestHits_dict2 = makeBestHits_dict('./%s/1_blastp_results/blastp_tempGenome_against_targetGenome_parsed.txt' %options.output)
 
 print "selecting the bidirectional best hits.."
 targetBBH_list, temp_target_BBH_dict = getBBH(bestHits_dict1, bestHits_dict2)
@@ -180,7 +176,7 @@ mnxr_to_add_list = get_mnxr_using_kegg(rxnid_to_add_list, kegg_mnxr_dict)
 
 rxnid_mnxm_coeff_dict = extract_rxn_mnxm_coeff(mnxr_to_add_list, mnxr_rxn_dict, mnxm_bigg_compound_dict, mnxm_kegg_compound_dict, mnxr_kegg_dict)
 
-target_model = add_nonBBH_rxn(modelPrunedGPR, rxnid_info_dict, rxnid_mnxm_coeff_dict, rxnid_locusTag_dict, bigg_mnxm_compound_dict, kegg_mnxm_compound_dict, mnxm_compoundInfo_dict, targetGenome_locusTag_prod_dict, template_exrxnid_flux_dict, dirname)
+target_model = add_nonBBH_rxn(modelPrunedGPR, rxnid_info_dict, rxnid_mnxm_coeff_dict, rxnid_locusTag_dict, bigg_mnxm_compound_dict, kegg_mnxm_compound_dict, mnxm_compoundInfo_dict, targetGenome_locusTag_prod_dict, template_exrxnid_flux_dict, options.output)
 ###################################################################
 
 #Output files
@@ -188,9 +184,9 @@ target_model = add_nonBBH_rxn(modelPrunedGPR, rxnid_info_dict, rxnid_mnxm_coeff_
 #e.g., metabolite IDs with correct compartment suffices & accurate model stats
 #This can also mask the effects of model error (e.g., undeclared metabolite ID)
 #Cobrapy IO module seems to have an error for adding new reactions
-write_cobra_model_to_sbml_file(target_model, './%s/2_primary_metabolic_model/%s_target_model_%s.xml' %(dirname, dirname, orgName))
-target_model = create_cobra_model_from_sbml_file('./%s/2_primary_metabolic_model/%s_target_model_%s.xml' %(dirname, dirname, orgName))
-write_cobra_model_to_sbml_file(target_model, './%s/2_primary_metabolic_model/%s_target_model_%s.xml' %(dirname, dirname, orgName))
+write_cobra_model_to_sbml_file(target_model, './%s/2_primary_metabolic_model/%s_target_model_%s.xml' %(options.output, options.output, options.orgName))
+target_model = create_cobra_model_from_sbml_file('./%s/2_primary_metabolic_model/%s_target_model_%s.xml' %(options.output, options.output, options.orgName))
+write_cobra_model_to_sbml_file(target_model, './%s/2_primary_metabolic_model/%s_target_model_%s.xml' %(options.output, options.output, options.orgName))
 
 #Output on screen
 model = pickle.load(open('%s/model.p' %(root),'rb'))
@@ -198,8 +194,8 @@ print "Number of genes:", len(model.genes), "/", len(modelPruned.genes), "/", le
 print "Number of reactions:", len(model.reactions), "/", len(modelPruned.reactions), "/", len(target_model.reactions)
 print "Number of metabolites:",  len(model.metabolites), "/", len(modelPruned.metabolites), "/", len(target_model.metabolites)
 
-fp1 = open('./%s/2_primary_metabolic_model/%s_target_model_reactions.txt' %(dirname, dirname), "w")
-fp2 = open('./%s/2_primary_metabolic_model/%s_target_model_metabolites.txt' %(dirname, dirname), "w")
+fp1 = open('./%s/2_primary_metabolic_model/%s_target_model_reactions.txt' %(options.output, options.output), "w")
+fp2 = open('./%s/2_primary_metabolic_model/%s_target_model_metabolites.txt' %(options.output, options.output), "w")
 fp1.write("Reaction ID"+"\t"+"Reaction name"+"\t"+"Lower bound"+"\t"+"Reaction equation"+"\t"+"GPR"+"\t"+"Pathway"+"\n")
 fp2.write("Metabolite ID"+"\t"+"Metabolite name"+"\t"+"Formula"+"\t"+"Compartment"+"\n")
 
@@ -218,6 +214,7 @@ fp2.close()
 
 ###################################################################
 #Secondary metabolic modeling
-import run_smr_generation
+if options.smr_generation:
+    import run_smr_generation
 
 print "Elapsed time:", time.strftime("%H:%M:%S", time.gmtime(time.time() - start))
