@@ -31,7 +31,7 @@ def pickle_template_genes_list(dirname):
 def get_new_old_locustag_from_gbk(dirname, filetype):
     fp = open('./%s/cty_product_names.txt' %dirname,'w')
 
-    gbk_files = glob.glob("./%s/*.gb" %dirname)
+    gbk_files = glob.glob("./%s/*.gbf" %dirname)
     
     if not gbk_files:
         gbk_files = glob.glob("./%s/*.gbk" %dirname)
@@ -133,10 +133,13 @@ def get_genome_info_from_gbk(dirname, filetype):
     genome_locustag_ec_dict = {}
     genome_locustag_prod_dict = {}
 
-    gbk_files = glob.glob("./%s/*.gb" %dirname)
+    gbk_files = glob.glob("./%s/*.gbk" %dirname)
 
-    if not gbk_files:
-        gbk_files = glob.glob("./%s/*.gbk" %dirname)
+#    if not gbk_files:
+#        gbk_files = glob.glob("./%s/*.gbk" %dirname)
+
+#    if not gbk_files:
+#        gbk_files = glob.glob("./%s/*.gbf" %dirname)
 
     print "gbk files identified:"
     print gbk_files
