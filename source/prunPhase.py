@@ -3,44 +3,46 @@
 Hyun Uk Kim, Tilmann Weber, Jae Yong Ryu and Kyu-Sang Hwang
 '''
 
-from Bio import SeqIO
-from cobra.flux_analysis import single_deletion
-from cobra.manipulation.delete import prune_unused_metabolites
 import copy
+import logging
 import os
 import pickle
 import subprocess
 import sys
+from Bio import SeqIO
+from cobra.flux_analysis import single_deletion
+from cobra.manipulation.delete import prune_unused_metabolites
 from eficaz.__init__ import getECs
 
-#Looks for .xml and .gb(k) files in the pre-defined folder
-def get_temp_fasta(orgName):
-    for root, _, files in os.walk('./input1/%s/' %(orgName)):
+#Look for .xml and .gb(k) files in the pre-defined folder
+def get_temp_fasta(options):
+    for root, _, files in os.walk('./input1/%s/' %(options.orgName)):
         for f in files:
             if f.endswith('.fa'):
                 tempFasta = os.path.join(root, f)
-            	return root, tempFasta
+                options.input1 = root
+                options.temp_fasta = tempFasta
 
 
 #Look for a target .gbk file from antiSMASH
-def get_target_gbk(dirname):
-    for target_gbk in os.listdir(dirname):
+def get_target_gbk(options):
+    for target_gbk in os.listdir(options.output):
         if target_gbk.endswith('.gb') or target_gbk.endswith('.gbk'):
-            return target_gbk
+            options.input_gbk = target_gbk
 
 
-def get_targetGenomeInfo(dirname, gbkFile, FileType, options):
-    fp = open('./%s/1_blastp_results/targetGenome_locusTag_aaSeq.fa' %dirname,'w')
+def get_targetGenomeInfo(options, file_type):
+    fp = open('./%s/1_blastp_results/targetGenome_locusTag_aaSeq.fa' %options.output,'w')
     targetGenome_locusTag_aaSeq_dict = {}
     targetGenome_locusTag_ec_dict = {}
     targetGenome_locusTag_prod_dict = {}
 
     #Read GenBank file
     try:
-        record = SeqIO.read(dirname+'/'+gbkFile, FileType)
+        record = SeqIO.read(options.output+'/'+options.input_gbk, file_type)
     except ValueError:
         print "\n", "Warning: ValueError occurred in SeqIo.read", "\n"
-        record = SeqIO.parse(dirname+'/'+gbkFile, FileType).next()
+        record = SeqIO.parse(options.output+'/'+options.input_gbk, file_type).next()
 
 
     if options.eficaz:
@@ -76,38 +78,36 @@ def get_targetGenomeInfo(dirname, gbkFile, FileType, options):
 
     #Check if the gbk file has EC_number
     #Additional conditions should be given upon setup of in-house EC_number assigner
-    print "len(targetGenome_locusTag_ec_dict.keys):"
-    print len(targetGenome_locusTag_ec_dict)
-    print "len(targetGenome_locusTag_prod_dict.keys):"
-    print len(targetGenome_locusTag_prod_dict)
+    logging.debug("len(targetGenome_locusTag_ec_dict.keys):")
+    logging.debug(len(targetGenome_locusTag_ec_dict))
+    logging.debug("len(targetGenome_locusTag_prod_dict.keys):")
+    logging.debug(len(targetGenome_locusTag_prod_dict))
 
-    if len(targetGenome_locusTag_ec_dict) == 0:
-	print "Error: no EC_number in the submitted gbk file"
-        #FIXME: Don't use sys.exit
-	sys.exit(1)
+    options.targetGenome_locusTag_ec_dict = targetGenome_locusTag_ec_dict
+    options.targetGenome_locusTag_prod_dict = targetGenome_locusTag_prod_dict
+
     fp.close()
-    return targetGenome_locusTag_ec_dict, targetGenome_locusTag_prod_dict 
 
 
-#Looks for .fa and .gbk  files in the pre-defined folder
-def get_target_fasta(dirname):
-    for root, _, files in os.walk('./%s/1_blastp_results' %dirname):
+#Look for .fa and .gbk  files in the pre-defined folder
+def get_target_fasta(options):
+    for root, _, files in os.walk('./%s/1_blastp_results' %options.output):
         for f in files:
             if f.endswith('.fa'):
                 target_fasta = os.path.join(root, f)
-	        return target_fasta
+                options.target_fasta = target_fasta
 	else:
-            #FIXME: Don't use sys.exit
-	    sys.exit(1)
+            logging.debug("FASTA file %s for bidirectional blastp hits not found.")
+
 
 #making database files using fasta files
-def make_blastDB(dirname, query_fasta):
-    db_dir = './%s/1_blastp_results/targetBlastDB' %dirname
+def make_blastDB(options):
+    db_dir = './%s/1_blastp_results/targetBlastDB' %options.output
     DBprogramName = './blastpfiles/makeblastdb.exe'
-    subprocess.call([DBprogramName,'-in',query_fasta,'-out',db_dir,'-dbtype','prot'])  
+    subprocess.call([DBprogramName,'-in',options.target_fasta,'-out',db_dir,'-dbtype','prot'])  
 
     #Checks if DB is properly created; otherwise shutdown
-    if os.path.isfile('./%s/1_blastp_results/targetBlastDB.psq' %dirname) == False:
+    if os.path.isfile('./%s/1_blastp_results/targetBlastDB.psq' %options.output) == False:
 	print "error in make_blastDB: blast DB not created"
         #FIXME: Don't use sys.exit
 	sys.exit(1)
@@ -173,7 +173,7 @@ def makeBestHits_dict(inputFile):
 
 #Finding bidirectional best hits
 #Input: two dict data from "selectBestHits" (e.g.,bestHits_dict) 
-def getBBH(dic1,dic2):
+def getBBH(dic1, dic2, options):
     targetBBH_list = []
     temp_target_BBH_dict = {}
 
@@ -192,20 +192,23 @@ def getBBH(dic1,dic2):
 			    temp_target_BBH_dict[temp_locusTag] = ([target_locusTag])
 			else:
 			    temp_target_BBH_dict[temp_locusTag].append((target_locusTag))
-    return targetBBH_list, temp_target_BBH_dict
+
+    options.targetBBH_list = targetBBH_list
+    options.temp_target_BBH_dict = temp_target_BBH_dict
 
 
 #A set of locusTag not included in BBH_list were considered nonBBH_list.
 #Their respective reactions, if available, are added to the model in augPhase.
-def get_nonBBH(targetGenome_locusTag_ec_dict, targetBBH_list):
+#def get_nonBBH(targetGenome_locusTag_ec_dict, targetBBH_list):
+def get_nonBBH(options):
     nonBBH_list = []
 
-    for locusTag in targetGenome_locusTag_ec_dict.keys():
-	if locusTag not in targetBBH_list:
+    for locusTag in options.targetGenome_locusTag_ec_dict.keys():
+	if locusTag not in options.targetBBH_list:
 	    nonBBH_list.append(locusTag)
 
     nonBBH_list = sorted(set(nonBBH_list))
-    return nonBBH_list
+    options.nonBBH_list = nonBBH_list
 
 
 def calcBoolean(booleanList):
@@ -311,28 +314,28 @@ def makeBooleanFormat(temp_target_BBH_dict, tempModel_biggRxnid_locusTag_dict):
     return valueList2
 
 
-def labelRxnToRemove(model, temp_target_BBH_dict, tempModel_biggRxnid_locusTag_dict):
+def labelRxnToRemove(model, options):
     rxnToRemove_dict = {}
 
-    for biggRxnid in tempModel_biggRxnid_locusTag_dict.keys():
+    for biggRxnid in options.tempModel_biggRxnid_locusTag_dict.keys():
 	rxn = model.reactions.get_by_id(biggRxnid)
         #Prevent removal of transport reactions from the template model
 	if 'Transport' not in rxn.name and 'transport' not in rxn.name and 'Exchange' not in rxn.name and 'exchange' not in rxn.name:
-            booleanList = makeBooleanFormat(temp_target_BBH_dict, tempModel_biggRxnid_locusTag_dict[biggRxnid])
+            booleanList = makeBooleanFormat(options.temp_target_BBH_dict, options.tempModel_biggRxnid_locusTag_dict[biggRxnid])
             rxnToRemove_dict[biggRxnid] = calcBoolean(booleanList)
 
-    return rxnToRemove_dict
+    options.rxnToRemove_dict = rxnToRemove_dict
 
 
-def pruneModel(model, rxnToRemove_dict, solver_arg):
+def pruneModel(model, options, solver_arg):
     rxnToRemoveEssn_dict = {}
     rxnRemoved_dict = {}
     rxnRetained_dict = {}
     
-    for rxnid in rxnToRemove_dict.keys():
+    for rxnid in options.rxnToRemove_dict.keys():
 
         #Single reaction deletion is performed only for reactions labelled as "False"
-        if rxnToRemove_dict[rxnid] == False: 
+        if options.rxnToRemove_dict[rxnid] == False: 
             growth_rate_dict, solution_status_dict, problem_dict = single_deletion(model, list([rxnid]), element_type='reaction', solver=solver_arg) 
 
             #Checks optimality first.
@@ -380,7 +383,7 @@ def get_gpr_fromString_toList(line):
       
     return calcNewList
 
-def swap_locusTag_tempModel(modelPruned, temp_target_BBH_dict):
+def swap_locusTag_tempModel(modelPruned, options):
 
     #Retrieves reactions associated with each homologous gene in template model
     for BBHrxn in modelPruned.reactions:
@@ -396,9 +399,9 @@ def swap_locusTag_tempModel(modelPruned, temp_target_BBH_dict):
             #If the element is not List, then gene in template model is
             #directly replaced with genes in target genome
 	    if type(tempLocusTag) != list:
-		if tempLocusTag in temp_target_BBH_dict:
+		if tempLocusTag in options.temp_target_BBH_dict:
 		    booleanList.pop(booleanList.index(tempLocusTag))
-		    for targetLocusTag in temp_target_BBH_dict[tempLocusTag]:
+		    for targetLocusTag in options.temp_target_BBH_dict[tempLocusTag]:
                         modified_booleanList.append(targetLocusTag)
                 else:
                     modified_booleanList.append( tempLocusTag )
@@ -407,8 +410,8 @@ def swap_locusTag_tempModel(modelPruned, temp_target_BBH_dict):
 	    else:
                 temp_gpr_list = []
 		for eachLocusTag in tempLocusTag:
-		    if eachLocusTag in temp_target_BBH_dict:
-			for targetLocusTag in temp_target_BBH_dict[eachLocusTag]:
+		    if eachLocusTag in options.temp_target_BBH_dict:
+			for targetLocusTag in options.temp_target_BBH_dict[eachLocusTag]:
 			    temp_gpr_list.append(targetLocusTag)
                     else:
                         temp_gpr_list.append(eachLocusTag)
