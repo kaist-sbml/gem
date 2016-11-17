@@ -99,6 +99,7 @@ print "\n", "pruning phase starting..", "\n"
 ###################################################################
 print "looking for a gbk file of a target genome.."
 target_gbk = get_target_gbk(options.output)
+options.input_gbk = target_gbk
 
 print "reading genbank file of the target genome.."    
 targetGenome_locusTag_ec_dict, targetGenome_locusTag_prod_dict = get_targetGenomeInfo(options.output, target_gbk, "genbank", options)

@@ -25,6 +25,7 @@ from urllib2 import URLError
 import tempfile
 import utils
 
+from Bio import SeqIO
 from Bio.Alphabet import generic_protein
 from Bio.Seq import Seq
 
@@ -445,3 +446,7 @@ def getECs(seq_record, options):
              
         feature.qualifiers['note'] = notes
     logging.debug("Finished EC number prediction with EFICAz")
+
+    #Write output gbk file
+    output_gbk = os.path.splitext(options.input_gbk)[0]+'_ec.gbk'
+    SeqIO.write(seq_record, os.path.join(options.outputfoldername, output_gbk), 'genbank')
