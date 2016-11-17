@@ -278,7 +278,7 @@ def extract_rxn_mnxm_coeff(options):
     options.rxnid_mnxm_coeff_dict = rxnid_mnxm_coeff_dict
 
 
-def add_nonBBH_rxn(modelPrunedGPR, template_exrxnid_flux_dict, options):
+def add_nonBBH_rxn(modelPrunedGPR, options):
 
     for rxnid in options.rxnid_mnxm_coeff_dict.keys():
 	logging.debug(rxnid)
