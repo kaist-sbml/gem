@@ -100,7 +100,7 @@ def get_targetGenome_locusTag_ec_nonBBH_dict(options):
 
     for locusTag in options.nonBBH_list:
 	if locusTag in options.targetGenome_locusTag_ec_dict.keys():
-	    targetGenome_locusTag_ec_nonBBH_dict[locusTag] = targetGenome_locusTag_ec_dict[locusTag] 
+	    targetGenome_locusTag_ec_nonBBH_dict[locusTag] = options.targetGenome_locusTag_ec_dict[locusTag] 
     options.targetGenome_locusTag_ec_nonBBH_dict = targetGenome_locusTag_ec_nonBBH_dict
 
 

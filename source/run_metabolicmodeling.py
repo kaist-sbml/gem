@@ -136,6 +136,7 @@ def get_homolgs(options):
 #For model pruning phase
 #Data from pickles are not saved in Namespace
 def get_pickles_prunPhase(options):
+    logging.debug("Loading pickle files of the parsed template model and its relevant genbank data..")
     model = pickle.load(open('%s/model.p' %(options.input1),'rb'))
     tempModel_biggRxnid_locusTag_dict = pickle.load(open('%s/tempModel_biggRxnid_locusTag_dict.p' %(options.input1),'rb'))
     options.tempModel_biggRxnid_locusTag_dict = tempModel_biggRxnid_locusTag_dict
@@ -160,7 +161,7 @@ def run_prunPhase(model, options):
 #For model augmentation  phase
 #Data from pickles are not saved in Namespace
 def get_pickles_augPhase(options):
-    logging.debug("loading pickle files of the parsed template model and its relevant genbank data..")
+    logging.debug("Loading pickle files necessary for the model augmentation phase..")
     bigg_mnxr_dict = pickle.load(open('./input2/bigg_mnxr_dict.p','rb'))
     kegg_mnxr_dict = pickle.load(open('./input2/kegg_mnxr_dict.p','rb'))
     mnxr_kegg_dict = pickle.load(open('./input2/mnxr_kegg_dict.p','rb'))
@@ -179,7 +180,7 @@ def get_pickles_augPhase(options):
 
 def run_augPhase(modelPrunedGPR, options):
     logging.debug("Augmentation phase starting..")
-    logging.debug("creating various dictionary files for the nonBBH gene-associted reactions...")
+    logging.debug("Creating various dictionary files for the nonBBH gene-associted reactions...")
 
     get_targetGenome_locusTag_ec_nonBBH_dict(options)
 
