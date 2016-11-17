@@ -345,11 +345,11 @@ def pruneModel(model, options, solver_arg):
                     model.remove_reactions(rxnid)
                     #List of reactions removed from the template model
                     rxnRemoved_dict[rxnid] = float(growth_rate_dict.values()[0])
-                    logging.debug("Removed reaction: %s; %s; %s" %(rxnid, growth_rate_dict.values()[0], len(model.reactions), len(model.metabolites)))
+                    logging.debug("Removed reaction: %s; %s; %s; %s" %(rxnid, growth_rate_dict.values()[0], len(model.reactions), len(model.metabolites)))
                 else:
                     #List of reactions retained in the template model
                     rxnRetained_dict[rxnid] = float(growth_rate_dict.values()[0])
-                    logging.debug("Retained reaction: %s; %s; %s" %(rxnid, growth_rate_dict.values()[0], len(model.reactions), len(model.metabolites)))
+                    logging.debug("Retained reaction: %s; %s; %s; %s" %(rxnid, growth_rate_dict.values()[0], len(model.reactions), len(model.metabolites)))
 
     #Removing metabolites that are not used in the reduced model
     prune_unused_metabolites(model)               
