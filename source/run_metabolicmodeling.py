@@ -78,15 +78,15 @@ def main():
 
     if options.targetGenome_locusTag_ec_dict:
         get_pickles_augPhase(options)
-        run_augPhase(modelPrunedGPR, options)
+        target_model = run_augPhase(modelPrunedGPR, options)
     else:
         logging.debug("No EC_number found in the submitted gbk file")
+
+    generate_outputs(target_model, options)
 
     #Secondary metabolic modeling
     if options.smr_generation:
         run_smr_generation
-
-    generate_outputs
 
     logging.debug(time.strftime("Elapsed time %H:%M:%S", time.gmtime(time.time() - start)))
 
@@ -213,8 +213,10 @@ def run_augPhase(modelPrunedGPR, options):
 
     target_model = add_nonBBH_rxn(modelPrunedGPR, options)
 
+    return target_model
 
-def generate_outputs():
+
+def generate_outputs(target_model, options):
     #Output files
     #Model reloading and overwrtting are necessary for model consistency:
     #e.g., metabolite IDs with correct compartment suffices & accurate model stats
@@ -226,16 +228,15 @@ def generate_outputs():
 
     #Output on screen
     model = pickle.load(open('%s/model.p' %(options.input1),'rb'))
-    print "Number of genes:", len(model.genes), "/", len(modelPruned.genes), "/", len(target_model.genes)
-    print "Number of reactions:", len(model.reactions), "/", len(modelPruned.reactions), "/", len(target_model.reactions)
-    print "Number of metabolites:",  len(model.metabolites), "/", len(modelPruned.metabolites), "/", len(target_model.metabolites)
+    logging.debug("Number of genes: %s; %s; %s" %(len(model.genes), len(modelPruned.genes), len(target_model.genes)))
+    logging.debug("Number of reactions: %s; %s; %s" %(len(model.reactions), len(modelPruned.reactions), len(target_model.reactions)))
+    logging.debug("Number of metabolites: %s; %s; %s" %(len(model.metabolites), len(modelPruned.metabolites), len(target_model.metabolites)))
 
     fp1 = open('./%s/2_primary_metabolic_model/%s_target_model_reactions.txt' %(options.output, options.output), "w")
     fp2 = open('./%s/2_primary_metabolic_model/%s_target_model_metabolites.txt' %(options.output, options.output), "w")
     fp1.write("Reaction ID"+"\t"+"Reaction name"+"\t"+"Lower bound"+"\t"+"Reaction equation"+"\t"+"GPR"+"\t"+"Pathway"+"\n")
     fp2.write("Metabolite ID"+"\t"+"Metabolite name"+"\t"+"Formula"+"\t"+"Compartment"+"\n")
 
-    print "\n"
     for j in range(len(target_model.reactions)):
         rxn = target_model.reactions[j]
         print >>fp1, '%s\t%s\t%s\t%s\t%s\t%s' %(rxn.id, rxn.name, rxn.lower_bound, rxn.reaction, rxn.gene_reaction_rule, rxn.subsystem)
