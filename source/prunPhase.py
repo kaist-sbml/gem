@@ -357,7 +357,7 @@ def pruneModel(model, options, solver_arg):
 
     #rxnToRemoveEssn_dict, rxnRemoved_dict and rxnRetained_dict:
     #Not used in the downstream of this pipeline
-    return modelPruned, 
+    return modelPruned
 
 
 def get_gpr_fromString_toList(line):
