@@ -181,13 +181,6 @@ def run_augPhase(modelPrunedGPR, options):
     logging.debug("Augmentation phase starting..")
     logging.debug("creating various dictionary files for the nonBBH gene-associted reactions...")
 
-#NOT USED AT THE MOMENT
-#Four nested functions
-#def get_species_locusTag(ncbi_geneid):
-#def get_ECNumberList_from_locusTag(species_locusTag):
-#def get_rxnid_from_ECNumber(enzymeEC):
-#def get_rxnInfo_from_rxnid(rxnid):
-
     get_targetGenome_locusTag_ec_nonBBH_dict(options)
 
     #Two nested functions
