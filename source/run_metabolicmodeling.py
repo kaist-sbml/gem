@@ -68,8 +68,11 @@ def main():
     options.outputfoldername = options.output+'/'+folders[0]
 
     get_genome_files(options)
+
     get_homolgs(options)
+
     model = get_pickles_prunPhase(options)
+
     modelPrunedGPR = run_prunPhase(model, options)
 
     if options.targetGenome_locusTag_ec_dict:
@@ -134,7 +137,7 @@ def get_homolgs(options):
 
 
 #For model pruning phase
-#Data from pickles are not saved in Namespace
+#Only model file is not saved in Namespace
 def get_pickles_prunPhase(options):
     logging.debug("Loading pickle files of the parsed template model and its relevant genbank data..")
     model = pickle.load(open('%s/model.p' %(options.input1),'rb'))
@@ -159,23 +162,32 @@ def run_prunPhase(model, options):
 
 
 #For model augmentation  phase
-#Data from pickles are not saved in Namespace
 def get_pickles_augPhase(options):
     logging.debug("Loading pickle files necessary for the model augmentation phase..")
-    bigg_mnxr_dict = pickle.load(open('./input2/bigg_mnxr_dict.p','rb'))
-    kegg_mnxr_dict = pickle.load(open('./input2/kegg_mnxr_dict.p','rb'))
-    mnxr_kegg_dict = pickle.load(open('./input2/mnxr_kegg_dict.p','rb'))
 
+    bigg_mnxr_dict = pickle.load(open('./input2/bigg_mnxr_dict.p','rb'))
+    options.bigg_mnxr_dict = bigg_mnxr_dict
+    kegg_mnxr_dict = pickle.load(open('./input2/kegg_mnxr_dict.p','rb'))
+    options.kegg_mnxr_dict = kegg_mnxr_dict
+    mnxr_kegg_dict = pickle.load(open('./input2/mnxr_kegg_dict.p','rb'))
+    options.mnxr_kegg_dict = mnxr_kegg_dict
     mnxr_rxn_dict = pickle.load(open('./input2/mnxr_rxn_dict.p','rb'))
+    options.mnxr_rxn_dict = mnxr_rxn_dict
 
     bigg_mnxm_compound_dict = pickle.load(open('./input2/bigg_mnxm_compound_dict.p','rb'))
+    options.bigg_mnxm_compound_dict = bigg_mnxm_compound_dict
     mnxm_bigg_compound_dict = pickle.load(open('./input2/mnxm_bigg_compound_dict.p','rb'))
+    options.mnxm_bigg_compound_dict = mnxm_bigg_compound_dict
     kegg_mnxm_compound_dict = pickle.load(open('./input2/kegg_mnxm_compound_dict.p','rb'))
+    options.kegg_mnxm_compound_dict = kegg_mnxm_compound_dict
     mnxm_kegg_compound_dict = pickle.load( open('./input2/mnxm_kegg_compound_dict.p','rb'))
+    options.mnxm_kegg_compound_dict = mnxm_kegg_compound_dict
 
     mnxm_compoundInfo_dict = pickle.load(open('./input2/mnxm_compoundInfo_dict.p','rb'))
+    options.mnxm_compoundInfo_dict = mnxm_compoundInfo_dict
 
     template_exrxnid_flux_dict = pickle.load(open('%s/tempModel_exrxnid_flux_dict.p' %(options.input1),'rb'))
+    options.template_exrxnid_flux_dict = template_exrxnid_flux_dict
 
 
 def run_augPhase(modelPrunedGPR, options):
@@ -189,16 +201,16 @@ def run_augPhase(modelPrunedGPR, options):
     #def get_rxnInfo_from_rxnid(rxnid):
     make_all_rxnInfo_fromRefSeq(options)
 
-    get_mnxr_list_from_modelPrunedGPR(modelPrunedGPR, bigg_mnxr_dict) 
+    get_mnxr_list_from_modelPrunedGPR(modelPrunedGPR, options) 
 
     logging.debug("Adding the nonBBH gene-associated reactions...")
-    check_existing_rxns(kegg_mnxr_dict, modelPrunedGPR_mnxr_list, options)
+    check_existing_rxns(options)
 
-    get_mnxr_using_kegg(rxnid_to_add_list, kegg_mnxr_dict)
+    get_mnxr_using_kegg(options)
 
-    extract_rxn_mnxm_coeff(mnxr_to_add_list, mnxr_rxn_dict, mnxm_bigg_compound_dict, mnxm_kegg_compound_dict, mnxr_kegg_dict)
+    extract_rxn_mnxm_coeff(options)
 
-    target_model = add_nonBBH_rxn(modelPrunedGPR, bigg_mnxm_compound_dict, kegg_mnxm_compound_dict, mnxm_compoundInfo_dict, template_exrxnid_flux_dict, options)
+    target_model = add_nonBBH_rxn(modelPrunedGPR, options)
 
 
 def generate_outputs():

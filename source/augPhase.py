@@ -133,7 +133,7 @@ def make_all_rxnInfo_fromRefSeq(options):
 
 
 #Output: a list of MNXRs available in the modelPrunedGPR
-def get_mnxr_list_from_modelPrunedGPR(modelPrunedGPR, bigg_mnxr_dict):
+def get_mnxr_list_from_modelPrunedGPR(modelPrunedGPR, options):
     modelPrunedGPR_mnxr_list = []
 
     index_last = len(modelPrunedGPR.reactions)
@@ -143,22 +143,22 @@ def get_mnxr_list_from_modelPrunedGPR(modelPrunedGPR, bigg_mnxr_dict):
     while index <= index_last:
         rxn = modelPrunedGPR.reactions[index].id
         if rxn in bigg_mnxr_dict.keys():
-            modelPrunedGPR_mnxr_list.append(bigg_mnxr_dict[rxn])
+            modelPrunedGPR_mnxr_list.append(options.bigg_mnxr_dict[rxn])
         index+=1
 
     options.modelPrunedGPR_mnxr_list = modelPrunedGPR_mnxr_list
 
 
-def check_existing_rxns(kegg_mnxr_dict, modelPrunedGPR_mnxr_list, options):
+def check_existing_rxns(options):
     rxnid_to_add_list =[]
 
     for rxnid in options.rxnid_info_dict.keys():
         #Consider only reactions mapped in pathways
-	if rxnid in kegg_mnxr_dict.keys():
-            kegg_mnxr = kegg_mnxr_dict[rxnid]
+	if rxnid in options.kegg_mnxr_dict.keys():
+            kegg_mnxr = options.kegg_mnxr_dict[rxnid]
 
             #Check with reactions in the template model through MNXref
-            if kegg_mnxr not in modelPrunedGPR_mnxr_list and rxnid not in rxnid_to_add_list:
+            if kegg_mnxr not in options.modelPrunedGPR_mnxr_list and rxnid not in rxnid_to_add_list:
                 rxnid_to_add_list.append(rxnid)
 
     rxnid_to_add_list = list(sorted(set(rxnid_to_add_list)))
@@ -166,11 +166,11 @@ def check_existing_rxns(kegg_mnxr_dict, modelPrunedGPR_mnxr_list, options):
 
 
 #Output: MNXR for the reactions to add, converted from KEGG rxnid
-def get_mnxr_using_kegg(options, kegg_mnxr_dict):
+def get_mnxr_using_kegg(options):
     mnxr_to_add_list = []
     for rxnid in options.rxnid_to_add_list:
-	if rxnid in kegg_mnxr_dict.keys():
-	    mnxr_to_add_list.append(kegg_mnxr_dict[rxnid])
+	if rxnid in options.kegg_mnxr_dict.keys():
+	    mnxr_to_add_list.append(options.kegg_mnxr_dict[rxnid])
 
     options.mnxr_to_add_list = mnxr_to_add_list
 
@@ -206,12 +206,12 @@ def check_overlap_subs_prod(mnxm_subs_list, mnxm_prod_list):
 
 #Creating: e.g., {'R03232': {'f1p': -1.0, 'C04261': 1.0, 'fru': 1.0, 'C00615': -1.0}}
 #Metabolites are presented primarily with bigg, otherwise with KEGG
-def extract_rxn_mnxm_coeff(options, mnxr_rxn_dict, mnxm_bigg_compound_dict, mnxm_kegg_compound_dict, mnxr_kegg_dict):
+def extract_rxn_mnxm_coeff(options):
     rxnid_mnxm_coeff_dict = {}
     mnxm_coeff_dict = {}
 
     for mnxr in options.mnxr_to_add_list:
-	unparsed_equation = mnxr_rxn_dict[mnxr]
+	unparsed_equation = options.mnxr_rxn_dict[mnxr]
 	logging.debug(unparsed_equation)
 
         #"substrates" and "products" contain stoichiometric coeff of each compound
@@ -234,13 +234,13 @@ def extract_rxn_mnxm_coeff(options, mnxr_rxn_dict, mnxm_bigg_compound_dict, mnxm
                 metab_type = 'substrate'
 	        substrate = substrate.split()
 
-	        if substrate[1] in mnxm_bigg_compound_dict.keys():
-                    mnxm_coeff_dict = get_correct_metab_coeff(mnxm_bigg_compound_dict[substrate[1]], substrate[0], metab_type, mnxm_coeff_dict, mnxm_subs_list)
-                    mnxm_subs_list.append(mnxm_bigg_compound_dict[substrate[1]])
+	        if substrate[1] in options.mnxm_bigg_compound_dict.keys():
+                    mnxm_coeff_dict = get_correct_metab_coeff(options.mnxm_bigg_compound_dict[substrate[1]], substrate[0], metab_type, mnxm_coeff_dict, mnxm_subs_list)
+                    mnxm_subs_list.append(options.mnxm_bigg_compound_dict[substrate[1]])
 
-	        elif substrate[1] in mnxm_kegg_compound_dict.keys():
-                    mnxm_coeff_dict = get_correct_metab_coeff(mnxm_kegg_compound_dict[substrate[1]], substrate[0], metab_type, mnxm_coeff_dict, mnxm_subs_list)
-                    mnxm_subs_list.append(mnxm_kegg_compound_dict[substrate[1]])
+	        elif substrate[1] in options.mnxm_kegg_compound_dict.keys():
+                    mnxm_coeff_dict = get_correct_metab_coeff(options.mnxm_kegg_compound_dict[substrate[1]], substrate[0], metab_type, mnxm_coeff_dict, mnxm_subs_list)
+                    mnxm_subs_list.append(options.mnxm_kegg_compound_dict[substrate[1]])
 
 	        else:
                     mnxm_coeff_dict = get_correct_metab_coeff(substrate[1], substrate[0], metab_type, mnxm_coeff_dict, mnxm_subs_list)
@@ -253,13 +253,13 @@ def extract_rxn_mnxm_coeff(options, mnxr_rxn_dict, mnxm_bigg_compound_dict, mnxm
                 metab_type = 'product'
 	        product = product.split()
 
-	        if product[1] in mnxm_bigg_compound_dict.keys():
-                    mnxm_coeff_dict = get_correct_metab_coeff(mnxm_bigg_compound_dict[product[1]], product[0], metab_type, mnxm_coeff_dict, mnxm_prod_list)
-                    mnxm_prod_list.append(mnxm_bigg_compound_dict[product[1]])
+	        if product[1] in options.mnxm_bigg_compound_dict.keys():
+                    mnxm_coeff_dict = get_correct_metab_coeff(options.mnxm_bigg_compound_dict[product[1]], product[0], metab_type, mnxm_coeff_dict, mnxm_prod_list)
+                    mnxm_prod_list.append(options.mnxm_bigg_compound_dict[product[1]])
 
-	        elif product[1] in mnxm_kegg_compound_dict.keys():
-                    mnxm_coeff_dict = get_correct_metab_coeff(mnxm_kegg_compound_dict[product[1]], product[0], metab_type, mnxm_coeff_dict, mnxm_prod_list)
-                    mnxm_prod_list.append(mnxm_kegg_compound_dict[product[1]])
+	        elif product[1] in options.mnxm_kegg_compound_dict.keys():
+                    mnxm_coeff_dict = get_correct_metab_coeff(options.mnxm_kegg_compound_dict[product[1]], product[0], metab_type, mnxm_coeff_dict, mnxm_prod_list)
+                    mnxm_prod_list.append(options.mnxm_kegg_compound_dict[product[1]])
 
 	        else:
                     mnxm_coeff_dict = get_correct_metab_coeff(product[1], product[0], metab_type, mnxm_coeff_dict, mnxm_prod_list)
@@ -273,12 +273,12 @@ def extract_rxn_mnxm_coeff(options, mnxr_rxn_dict, mnxm_bigg_compound_dict, mnxm
             else:
                 #Creating: 
                 #e.g., {'R03232': {'f1p': -1.0, 'C04261': 1.0, 'fru': 1.0, 'C00615': -1.0}}
-	        rxnid_mnxm_coeff_dict[mnxr_kegg_dict[mnxr]] = mnxm_coeff_dict
+	        rxnid_mnxm_coeff_dict[options.mnxr_kegg_dict[mnxr]] = mnxm_coeff_dict
 
     options.rxnid_mnxm_coeff_dict = rxnid_mnxm_coeff_dict
 
 
-def add_nonBBH_rxn(modelPrunedGPR, bigg_mnxm_compound_dict, kegg_mnxm_compound_dict, mnxm_compoundInfo_dict, template_exrxnid_flux_dict, options):
+def add_nonBBH_rxn(modelPrunedGPR, template_exrxnid_flux_dict, options):
 
     for rxnid in options.rxnid_mnxm_coeff_dict.keys():
 	logging.debug(rxnid)
@@ -305,15 +305,15 @@ def add_nonBBH_rxn(modelPrunedGPR, bigg_mnxm_compound_dict, kegg_mnxm_compound_d
 		    rxn.add_metabolites({modelPrunedGPR.metabolites.get_by_id(metab_compt):options.rxnid_mnxm_coeff_dict[rxnid][metab]})
 
                 #Adding metabolites with bigg compoundID, but not in the model
-	        elif metab in bigg_mnxm_compound_dict.keys():
-		    mnxm = bigg_mnxm_compound_dict[metab]
-		    metab_compt = Metabolite(metab, formula = mnxm_compoundInfo_dict[mnxm][1], name = mnxm_compoundInfo_dict[mnxm][0], compartment='c')
+	        elif metab in options.bigg_mnxm_compound_dict.keys():
+		    mnxm = options.bigg_mnxm_compound_dict[metab]
+		    metab_compt = Metabolite(metab, formula = options.mnxm_compoundInfo_dict[mnxm][1], name = options.mnxm_compoundInfo_dict[mnxm][0], compartment='c')
 		    rxn.add_metabolites({metab_compt:options.rxnid_mnxm_coeff_dict[rxnid][metab]})
 
                 #Adding metabolites with MNXM and not in the model
 	        else:
-		    mnxm = kegg_mnxm_compound_dict[metab]
-		    metab_compt = Metabolite(mnxm, formula = mnxm_compoundInfo_dict[mnxm][1], name = mnxm_compoundInfo_dict[mnxm][0], compartment='c')
+		    mnxm = options.kegg_mnxm_compound_dict[metab]
+		    metab_compt = Metabolite(mnxm, formula = options.mnxm_compoundInfo_dict[mnxm][1], name = options.mnxm_compoundInfo_dict[mnxm][0], compartment='c')
 		    rxn.add_metabolites({metab_compt:options.rxnid_mnxm_coeff_dict[rxnid][metab]})
 
             #GPR association
@@ -349,8 +349,8 @@ def add_nonBBH_rxn(modelPrunedGPR, bigg_mnxm_compound_dict, kegg_mnxm_compound_d
             write_cobra_model_to_sbml_file(modelPrunedGPR, "./%s/3_temp_models/modelPrunedGPR.xml" %options.output)
             modelPrunedGPR = create_cobra_model_from_sbml_file("./%s/3_temp_models/modelPrunedGPR.xml" %options.output)
 
-            target_exrxnid_flux_dict = get_exrxnid_flux(modelPrunedGPR, template_exrxnid_flux_dict)
-            exrxn_flux_change_list = check_exrxn_flux_direction(template_exrxnid_flux_dict, target_exrxnid_flux_dict)
+            target_exrxnid_flux_dict = get_exrxnid_flux(modelPrunedGPR, options.template_exrxnid_flux_dict)
+            exrxn_flux_change_list = check_exrxn_flux_direction(options.template_exrxnid_flux_dict, target_exrxnid_flux_dict)
 
             if 'F' in exrxn_flux_change_list:
 	        modelPrunedGPR.remove_reactions(rxn)
