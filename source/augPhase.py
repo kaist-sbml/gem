@@ -4,6 +4,7 @@ Hyun Uk Kim, Tilmann Weber, Jae Yong Ryu and Kyu-Sang Hwang
 '''
 
 import copy
+import logging
 import os
 import pickle
 import re
