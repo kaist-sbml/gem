@@ -142,7 +142,7 @@ def get_mnxr_list_from_modelPrunedGPR(modelPrunedGPR, options):
 
     while index <= index_last:
         rxn = modelPrunedGPR.reactions[index].id
-        if rxn in bigg_mnxr_dict.keys():
+        if rxn in options.bigg_mnxr_dict.keys():
             modelPrunedGPR_mnxr_list.append(options.bigg_mnxr_dict[rxn])
         index+=1
 

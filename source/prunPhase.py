@@ -41,7 +41,7 @@ def get_targetGenomeInfo(options, file_type):
     try:
         record = SeqIO.read(options.output+'/'+options.input_gbk, file_type)
     except ValueError:
-        print "\n", "Warning: ValueError occurred in SeqIo.read", "\n"
+        logging.debug("Warning: ValueError occurred in SeqIo.read")
         record = SeqIO.parse(options.output+'/'+options.input_gbk, file_type).next()
 
 
@@ -78,10 +78,8 @@ def get_targetGenomeInfo(options, file_type):
 
     #Check if the gbk file has EC_number
     #Additional conditions should be given upon setup of in-house EC_number assigner
-    logging.debug("len(targetGenome_locusTag_ec_dict.keys):")
-    logging.debug(len(targetGenome_locusTag_ec_dict))
-    logging.debug("len(targetGenome_locusTag_prod_dict.keys):")
-    logging.debug(len(targetGenome_locusTag_prod_dict))
+    logging.debug("len(targetGenome_locusTag_ec_dict.keys): %s" %len(targetGenome_locusTag_ec_dict))
+    logging.debug("len(targetGenome_locusTag_prod_dict.keys):%s" %len(targetGenome_locusTag_prod_dict))
 
     options.targetGenome_locusTag_ec_dict = targetGenome_locusTag_ec_dict
     options.targetGenome_locusTag_prod_dict = targetGenome_locusTag_prod_dict
@@ -108,9 +106,7 @@ def make_blastDB(options):
 
     #Checks if DB is properly created; otherwise shutdown
     if os.path.isfile('./%s/1_blastp_results/targetBlastDB.psq' %options.output) == False:
-	print "error in make_blastDB: blast DB not created"
-        #FIXME: Don't use sys.exit
-	sys.exit(1)
+	logging.debug("Error in make_blastDB: blast DB not created")
 
 
 #Output: b0002,ASPK|b0002,0.0,100.00,820
@@ -349,11 +345,11 @@ def pruneModel(model, options, solver_arg):
                     model.remove_reactions(rxnid)
                     #List of reactions removed from the template model
                     rxnRemoved_dict[rxnid] = float(growth_rate_dict.values()[0])
-                    print "Removed reaction:", rxnid, growth_rate_dict.values()[0], len(model.reactions), len(model.metabolites)
+                    logging.debug("Removed reaction: %s; %s; %s" %(rxnid, growth_rate_dict.values()[0], len(model.reactions), len(model.metabolites)))
                 else:
                     #List of reactions retained in the template model
                     rxnRetained_dict[rxnid] = float(growth_rate_dict.values()[0])
-                    print "Retained reaction:", rxnid, growth_rate_dict.values()[0], len(model.reactions), len(model.metabolites)
+                    logging.debug("Retained reaction: %s; %s; %s" %(rxnid, growth_rate_dict.values()[0], len(model.reactions), len(model.metabolites)))
 
     #Removing metabolites that are not used in the reduced model
     prune_unused_metabolites(model)               
@@ -382,6 +378,7 @@ def get_gpr_fromString_toList(line):
                 calcNewList.append(geneid)  
       
     return calcNewList
+
 
 def swap_locusTag_tempModel(modelPruned, options):
 
@@ -417,7 +414,7 @@ def swap_locusTag_tempModel(modelPruned, options):
                         temp_gpr_list.append(eachLocusTag)
                 #This case was not generated, but just in case
                 if len(temp_gpr_list)==1:
-		    print temp_gpr_list
+		    logging.debug(temp_gpr_list)
                     modified_booleanList.append(temp_gpr_list[0])
                 elif len(temp_gpr_list) > 1:
                     modified_booleanList.append( temp_gpr_list )
