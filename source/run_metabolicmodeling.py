@@ -48,6 +48,7 @@ def main():
 
     parser.add_argument('-m', '--model', dest='orgName', default='sco', choices=['eco','sco'], help="Specify a template model for the target modeling")
     parser.add_argument('-s', '--smr', dest='smr_generation', default=False, choices=[True,False], help="Specify whether to run secondary metabolic modeling")
+    parser.add_argument('-i', '--input', dest='input', default='input', help="Specify input directory")
     parser.add_argument('-o', '--output', dest='output', default='output', help="Specify output directory")
     parser.add_argument('-e', '--ec', dest='eficaz', action='store_true', default=False, help="Run EC number prediction using EFICAz")
     parser.add_argument('-c', '--cpu', dest='cpus', default=multiprocessing.cpu_count(), type=int, help="How many CPUs to use in parallel. (default: %(default)s)")
