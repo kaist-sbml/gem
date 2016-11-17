@@ -133,6 +133,8 @@ def get_homolgs(options):
     get_nonBBH(options)
 
 
+#For model pruning phase
+#Data from pickles are not saved in Namespace
 def get_pickles_prunPhase(options):
     model = pickle.load(open('%s/model.p' %(options.input1),'rb'))
     tempModel_biggRxnid_locusTag_dict = pickle.load(open('%s/tempModel_biggRxnid_locusTag_dict.p' %(options.input1),'rb'))
@@ -156,6 +158,7 @@ def run_prunPhase(model, options):
 
 
 #For model augmentation  phase
+#Data from pickles are not saved in Namespace
 def get_pickles_augPhase(options):
     logging.debug("loading pickle files of the parsed template model and its relevant genbank data..")
     bigg_mnxr_dict = pickle.load(open('./input2/bigg_mnxr_dict.p','rb'))
@@ -190,18 +193,18 @@ def run_augPhase(modelPrunedGPR, options):
     #Two nested functions
     #def get_rxnid_from_ECNumber(enzymeEC):
     #def get_rxnInfo_from_rxnid(rxnid):
-    rxnid_info_dict, rxnid_locusTag_dict = make_all_rxnInfo_fromRefSeq(targetGenome_locusTag_ec_nonBBH_dict)
+    make_all_rxnInfo_fromRefSeq(options)
 
-    modelPrunedGPR_mnxr_list = get_mnxr_list_from_modelPrunedGPR(modelPrunedGPR, bigg_mnxr_dict) 
+    get_mnxr_list_from_modelPrunedGPR(modelPrunedGPR, bigg_mnxr_dict) 
 
-    print "adding the nonBBH gene-associated reactions..."
-    rxnid_to_add_list = check_existing_rxns(kegg_mnxr_dict, modelPrunedGPR_mnxr_list, rxnid_info_dict)
+    logging.debug("Adding the nonBBH gene-associated reactions...")
+    check_existing_rxns(kegg_mnxr_dict, modelPrunedGPR_mnxr_list, options)
 
-    mnxr_to_add_list = get_mnxr_using_kegg(rxnid_to_add_list, kegg_mnxr_dict)
+    get_mnxr_using_kegg(rxnid_to_add_list, kegg_mnxr_dict)
 
-    rxnid_mnxm_coeff_dict = extract_rxn_mnxm_coeff(mnxr_to_add_list, mnxr_rxn_dict, mnxm_bigg_compound_dict, mnxm_kegg_compound_dict, mnxr_kegg_dict)
+    extract_rxn_mnxm_coeff(mnxr_to_add_list, mnxr_rxn_dict, mnxm_bigg_compound_dict, mnxm_kegg_compound_dict, mnxr_kegg_dict)
 
-    target_model = add_nonBBH_rxn(modelPrunedGPR, rxnid_info_dict, rxnid_mnxm_coeff_dict, rxnid_locusTag_dict, bigg_mnxm_compound_dict, kegg_mnxm_compound_dict, mnxm_compoundInfo_dict, targetGenome_locusTag_prod_dict, template_exrxnid_flux_dict, options.output)
+    target_model = add_nonBBH_rxn(modelPrunedGPR, bigg_mnxm_compound_dict, kegg_mnxm_compound_dict, mnxm_compoundInfo_dict, template_exrxnid_flux_dict, options)
 
 
 def generate_outputs():
