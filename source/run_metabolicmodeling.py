@@ -82,7 +82,7 @@ def main():
     else:
         logging.debug("No EC_number found in the submitted gbk file")
 
-    generate_outputs(target_model, options)
+    generate_outputs(model, modelPrunedGPR, target_model, options)
 
     #Secondary metabolic modeling
     if options.smr_generation:
@@ -151,10 +151,10 @@ def get_pickles_prunPhase(options):
 def run_prunPhase(model, options):
     logging.debug("Pruning phase starting..")
     logging.debug("Labeling reactions with nonhomologous genes to remove from the template model..")
-    rxnToRemove_dict = labelRxnToRemove(model, options)
+    labelRxnToRemove(model, options)
 
     logging.debug("Removing reactions with nonhomologous genes from the template model..")
-    modelPruned, rxnToRemoveEssn_dict, rxnRemoved_dict, rxnRetained_dict = pruneModel(model, options, 'gurobi')
+    modelPruned = pruneModel(model, options, 'gurobi')
 
     logging.debug("Correcting GPR associations in the template model..")
     modelPrunedGPR = swap_locusTag_tempModel(modelPruned, options)
@@ -216,7 +216,7 @@ def run_augPhase(modelPrunedGPR, options):
     return target_model
 
 
-def generate_outputs(target_model, options):
+def generate_outputs(model, modelPrunedGPR, target_model, options):
     #Output files
     #Model reloading and overwrtting are necessary for model consistency:
     #e.g., metabolite IDs with correct compartment suffices & accurate model stats
@@ -228,9 +228,9 @@ def generate_outputs(target_model, options):
 
     #Output on screen
     model = pickle.load(open('%s/model.p' %(options.input1),'rb'))
-    logging.debug("Number of genes: %s; %s; %s" %(len(model.genes), len(modelPruned.genes), len(target_model.genes)))
-    logging.debug("Number of reactions: %s; %s; %s" %(len(model.reactions), len(modelPruned.reactions), len(target_model.reactions)))
-    logging.debug("Number of metabolites: %s; %s; %s" %(len(model.metabolites), len(modelPruned.metabolites), len(target_model.metabolites)))
+    logging.debug("Number of genes: %s; %s; %s" %(len(model.genes), len(modelPrunedGPR.genes), len(target_model.genes)))
+    logging.debug("Number of reactions: %s; %s; %s" %(len(model.reactions), len(modelPrunedGPR.reactions), len(target_model.reactions)))
+    logging.debug("Number of metabolites: %s; %s; %s" %(len(model.metabolites), len(modelPrunedGPR.metabolites), len(target_model.metabolites)))
 
     fp1 = open('./%s/2_primary_metabolic_model/%s_target_model_reactions.txt' %(options.output, options.output), "w")
     fp2 = open('./%s/2_primary_metabolic_model/%s_target_model_metabolites.txt' %(options.output, options.output), "w")

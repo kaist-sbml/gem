@@ -353,9 +353,11 @@ def pruneModel(model, options, solver_arg):
 
     #Removing metabolites that are not used in the reduced model
     prune_unused_metabolites(model)               
-    modelPruned = copy.deepcopy(model) 
- 
-    return modelPruned, rxnToRemoveEssn_dict, rxnRemoved_dict, rxnRetained_dict
+    modelPruned = copy.deepcopy(model)
+
+    #rxnToRemoveEssn_dict, rxnRemoved_dict and rxnRetained_dict:
+    #Not used in the downstream of this pipeline
+    return modelPruned, 
 
 
 def get_gpr_fromString_toList(line):
