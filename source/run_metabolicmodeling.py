@@ -47,6 +47,7 @@ def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument('-m', '--model', dest='orgName', default='sco', choices=['eco','sco'], help="Specify a template model for the target modeling")
+    parser.add_argument('--disable-modeling', dest='pmr_generation', default=True, action='store_false', help='Disable primary metabolic modeling')
     parser.add_argument('-s', '--smr', dest='smr_generation', default=False, choices=[True,False], help="Specify whether to run secondary metabolic modeling")
     parser.add_argument('-i', '--input', dest='input', default='input', help="Specify input directory")
     parser.add_argument('-o', '--output', dest='output', default='output', help="Specify output directory")
@@ -55,7 +56,7 @@ def main():
     parser.add_argument('-d', '--debug', dest='debug', action='store_true', default=False, help="Print debugging information to stderr")
 
     options = parser.parse_args()
-
+    print options.pmr_generation
     if options.debug:
         logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
 
@@ -70,19 +71,20 @@ def main():
 
     get_genome_files(options)
 
-    get_homolgs(options)
+    if options.pmr_generation:
+        get_homolgs(options)
 
-    model = get_pickles_prunPhase(options)
+        model = get_pickles_prunPhase(options)
 
-    modelPrunedGPR = run_prunPhase(model, options)
+        modelPrunedGPR = run_prunPhase(model, options)
 
-    if options.targetGenome_locusTag_ec_dict:
-        get_pickles_augPhase(options)
-        target_model = run_augPhase(modelPrunedGPR, options)
-    else:
-        logging.debug("No EC_number found in the submitted gbk file")
+        if options.targetGenome_locusTag_ec_dict:
+            get_pickles_augPhase(options)
+            target_model = run_augPhase(modelPrunedGPR, options)
+        else:
+            logging.debug("No EC_number found in the submitted gbk file")
 
-    generate_outputs(model, modelPrunedGPR, target_model, options)
+        generate_outputs(model, modelPrunedGPR, target_model, options)
 
     #Secondary metabolic modeling
     if options.smr_generation:
