@@ -3,8 +3,9 @@
 2015 Kyu-Sang Hwang
 '''
 
-import pickle
+import logging
 import os
+import pickle
 import sys
 from cobra import Model, Reaction, Metabolite
 from cobra.io.sbml import create_cobra_model_from_sbml_file, write_cobra_model_to_sbml_file
