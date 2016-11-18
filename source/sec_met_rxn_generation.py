@@ -19,15 +19,15 @@ from general_sec_met_info import (
 )
 
 
-#Exracts all the information associated wiht a particular locus_tag
+#Exract all the information associated wiht a particular locus_tag
 #def get_locustag_info_from_cluster_gbk(gbkFile, FileType, locustag_product_monomer_dict):
 def get_cluster_info_from_cluster_gbk(gbkFile, FileType):
 
     cluster_info_dict = {}
- 
+
     #Read GenBank file
     record = SeqIO.read(gbkFile, FileType)
-    
+
     for feature in record.features:
         sec_met_info_list = []
         if feature.type == 'CDS':
@@ -48,7 +48,7 @@ def get_cluster_info_from_cluster_gbk(gbkFile, FileType):
 #Product: nrps
 #NC021055_Cluster_02_nrps
 def get_product_from_cluster_gbk(record):
- 
+
     for feature in record.features:
 
         #Retrieving "Cluster number"
@@ -77,12 +77,12 @@ def get_product_from_cluster_gbk(record):
 #Output: e.g.,
 #['SAV_938'] = ['PKS_AT', 'ACP', 'PKS_KS', 'PKS_AT', 'PKS_KR', 'ACP', 'PKS_KS']
 def get_cluster_domain(cluster_info_dict):
-    
+
     locustag_domain_dict = {}
     locustag_kr_dict = {}
-    
+
     for each_gene in cluster_info_dict.keys():
-        
+
         sec_met_info_list = cluster_info_dict[each_gene][0]
 
         domain_count = 0
@@ -93,10 +93,10 @@ def get_cluster_domain(cluster_info_dict):
 
             if "NRPS/PKS Domain" in each_sub_set:
                 sptline1 = each_sub_set.split('. ')
-                crude_domain_info = sptline1[0] 
+                crude_domain_info = sptline1[0]
 
                 #Extract the information of KR activity and AT substrate specificity
-                sptline2 = each_sub_set.split('; ')                
+                sptline2 = each_sub_set.split('; ')
 
                 spt_domain_info = crude_domain_info.split(':')
                 whole_domain_info = spt_domain_info[1]
@@ -117,11 +117,11 @@ def get_cluster_domain(cluster_info_dict):
                 domain_count += 1
 
                 #Collects KR activity information
-                if domain_number[:-5] == "PKS_KR":   
+                if domain_number[:-5] == "PKS_KR":
                     kr_info_list = sptline2[1].split(': ')
                     dm_kr_activity = kr_info_list[1]
                     kr_domain_info_dict[domain_number] = dm_kr_activity
- 
+
         locustag_domain_dict[each_gene] = sec_met_domain_list
         locustag_kr_dict[each_gene] = kr_domain_info_dict
 
@@ -165,7 +165,7 @@ def get_cluster_monomers(cluster_info_dict):
 
             if discriminator == "false":
                 continue
- 
+
     #print 'locustag_monomer_dict'
     #print locustag_monomer_dict, '\n'
     return locustag_monomer_dict
@@ -218,7 +218,7 @@ def extract_pk_monomers(each_sub_set):
 
 #Output: e.g., {'SAV_943_M1': ['PKS_KS', 'PKS_AT', 'ACP']}
 def get_cluster_module(locustag_domain_dict):
-    
+
     locustag_module_domain_dict = {}
 
     for locustag in locustag_domain_dict.keys():
@@ -365,7 +365,7 @@ def get_total_currency_metab_coeff(module_currency_metab_dict):
             else:
                 currency_metab_coeff_dict[each_metabolite] += metab_coeff
 
-    #print 'currency_metab_coeff_dict' 
+    #print 'currency_metab_coeff_dict'
     #print currency_metab_coeff_dict, '\n'
     return currency_metab_coeff_dict
 
@@ -393,7 +393,7 @@ def get_all_metab_coeff(locustag_monomer_dict, metab_coeff_dict, product):
                 if aSid_met2 != 'hydrophobic-aliphatic' and aSid_met2 != 'hydrophilic' and aSid_met2 != 'hydrophobic-aromatic' and aSid_met2 != 'N/A' and ',' not in aSid_met2:
                     biggid_met2 = get_biggid_from_aSid(aSid_met2)
 
-                    #In case of non-consensus, NRPSPredictor2 SVM is considered 
+                    #In case of non-consensus, NRPSPredictor2 SVM is considered
                     metab_coeff_dict[biggid_met2] -= 1
 
                 elif aSid_met2 == 'hydrophobic-aliphatic' or aSid_met2 == 'hydrophilic' or aSid_met2 == 'hydrophobic-aromatic' or aSid_met2 == 'N/A' or ',' in aSid_met2:
@@ -471,7 +471,7 @@ def get_all_metab_coeff(locustag_monomer_dict, metab_coeff_dict, product):
 
 
 def add_sec_met_rxn(target_model, metab_coeff_dict, product, bigg_mnxm_compound_dict, mnxm_compoundInfo_dict, cluster_info_dict):
-    
+
     #ID
     rxn = Reaction(product)
 
@@ -509,11 +509,11 @@ def add_sec_met_rxn(target_model, metab_coeff_dict, product, bigg_mnxm_compound_
     gpr_count = 0
     for each_gene in cluster_info_dict.keys():
         if gpr_count == 0:
-            gpr_list = each_gene 
+            gpr_list = each_gene
             gpr_count += 1
         else:
             gpr_list = gpr_list + ' AND ' + each_gene
-     
+
     rxn.add_gene_reaction_rule(gpr_list)
 
     #Adding the new reaction to the model
