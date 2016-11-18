@@ -3,11 +3,12 @@
 2015 Kyu-Sang Hwang
 '''
 
-from cobra.io.sbml import create_cobra_model_from_sbml_file, write_cobra_model_to_sbml_file
-from cobra import Model, Reaction, Metabolite
 import pickle
 import os
 import sys
+from cobra import Model, Reaction, Metabolite
+from cobra.io.sbml import create_cobra_model_from_sbml_file, write_cobra_model_to_sbml_file
+from cobra.manipulation.delete import prune_unused_metabolites
 from sec_met_rxn_generation import (
     get_product_from_cluster_gbk,
     get_cluster_info_from_cluster_gbk,
@@ -31,10 +32,8 @@ from gapfill_network_manipulation import (
     check_gapfill_rxn_biomass_effects,
     add_gapfill_rxn_target_model,
 )
-from cobra.manipulation.delete import prune_unused_metabolites
 
-
-print "\n", "Generating secondary metabolite biosynthesizing reactions.."
+logging.debug("Generating secondary metabolite biosynthesizing reactions..")
 
 orgname = sys.argv[1]
 
@@ -67,7 +66,7 @@ prod_sec_met_dict = {}
 nonprod_sec_met_dict = {}
 
 for cluster_f in cluster_files:
-    print '\n', cluster_f
+    logging.debug(cluster_f)
 
     cluster_info_dict, record = get_cluster_info_from_cluster_gbk(dirname+cluster_f, "genbank")
 
@@ -98,15 +97,14 @@ for cluster_f in cluster_files:
             prod_sec_met_metab_list = get_monomers_prod_sec_met(metab_coeff_dict)
             prod_sec_met_dict[product] = prod_sec_met_metab_list
 
-print "\n", "Producible secondary metabolites:"
-print prod_sec_met_dict, "\n"
+logging.debug("Producible secondary metabolites:")
+logging.debug(prod_sec_met_dict)
 
-print "\n", "Nonproducible secondary metabolites:"
-print nonprod_sec_met_dict, "\n"
+logging.debug("Nonproducible secondary metabolites:")
+logging.debug(nonprod_sec_met_dict)
 
-
-print "Gap-filling for the production of secondary metabolites.."
-print "Step 1: Network manipulation for gap-filling process..", "\n"
+logging.debug("Gap-filling for the production of secondary metabolites..")
+logging.debug("Step 1: Network manipulation for gap-filling process..")
 
 
 universal_model = pickle.load(open("./input2/universal_model.p","rb"))
@@ -115,18 +113,17 @@ universal_model = pickle.load(open("./input2/universal_model.p","rb"))
 bigg_mnxr_dict = pickle.load(open("./input2/bigg_mnxr_dict.p","rb"))
 
 
-print "Retrieving reaction information from target_model and universal_model.."
+logging.debug("Retrieving reaction information from target_model and universal_model..")
 mnxr_bigg_target_model_dict = get_mnxr_bigg_in_target_model(target_model, bigg_mnxr_dict)
 
 mnxr_unique_to_universal_model_list = get_mnxr_unique_to_universal_model(mnxr_bigg_target_model_dict, universal_model)
 
 
-print "Merging target_model and universal_model.."
-print "\n"
+logging.debug("Merging target_model and universal_model..")
 target_model2 = integrate_target_universal_models(mnxr_unique_to_universal_model_list, target_model, universal_model)
 
 
-print "Step 2: Optimization-based gap-filling process..", "\n"
+logging.debug("Step 2: Optimization-based gap-filling process..")
 
 unique_nonprod_monomers_list = get_unique_nonprod_monomers_list(nonprod_sec_met_dict, prod_sec_met_dict)
 
@@ -142,8 +139,7 @@ for nonprod_monomer in unique_nonprod_monomers_list:
     else:
         continue
 
-
-print "Adjusted unique_nonprod_monomers_list", adj_unique_nonprod_monomers_list, "\n"
+logging.debug("Adjusted unique_nonprod_monomers_list: %s" %adj_unique_nonprod_monomers_list)
 
 for nonprod_monomer in adj_unique_nonprod_monomers_list:
 
@@ -161,7 +157,7 @@ for nonprod_monomer in adj_unique_nonprod_monomers_list:
         target_model = add_gapfill_rxn_target_model(target_model, universal_model, added_reaction2)
 
     else:
-        print "Gap-filling not possible: target_model with reactions from universal_model does not produce this monomer", nonprod_monomer, "\n"
+        logging.debug("Gap-filling not possible: target_model with reactions from universal_model does not produce this monomer: %s" %nonprod_monomer)
 
 
 #Cleanup of the final version of the target model

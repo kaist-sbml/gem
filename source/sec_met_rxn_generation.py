@@ -5,6 +5,7 @@
 This file generates metabolic reactions for the genes newly annotated to be present in the secondary metabolite-biosynthetic gene cluster from antiSMASH.
 '''
 
+import logging
 from Bio import SeqIO
 from cobra import Model, Reaction, Metabolite
 from cobra.io.sbml import create_cobra_model_from_sbml_file, write_cobra_model_to_sbml_file
@@ -181,7 +182,7 @@ def extract_nrp_monomers(each_sub_set, discriminator):
             sptSubstrates = predicted_monomers[1]
 
     if ', ' not in sptSubstrates:
-        print "Insufficient substrate_info"
+        logging.debug("Insufficient substrate_info")
         discriminator = "false"
         return pred_monomer_list
 
@@ -518,8 +519,8 @@ def add_sec_met_rxn(target_model, metab_coeff_dict, product, bigg_mnxm_compound_
     #Adding the new reaction to the model
     target_model.add_reaction(rxn)
 
-    print "\n", "Secondary metabolite reaction:", rxn
-    print rxn.reaction
+    logging.debug("Secondary metabolite reaction: %s" %rxn)
+    logging.debug(rxn.reaction)
 
     ##############################
     #Creating a transport reaction
@@ -542,8 +543,8 @@ def add_sec_met_rxn(target_model, metab_coeff_dict, product, bigg_mnxm_compound_
     #Adding the new reaction to the model
     target_model.add_reaction(rxn)
 
-    print "\n", "Transport reaction:", rxn
-    print rxn.reaction
+    logging.debug("Transport reaction: %s" %rxn)
+    logging.debug(rxn.reaction)
 
     ##############################
     #Creating an exchange reaction
@@ -562,8 +563,8 @@ def add_sec_met_rxn(target_model, metab_coeff_dict, product, bigg_mnxm_compound_
     #Adding the new reaction to the model
     target_model.add_reaction(rxn)
 
-    print "\n", "Exchange reaction:", rxn
-    print rxn.reaction
+    logging.debug("Exchange reaction: %s" %rxn)
+    logging.debug(rxn.reaction)
 
     return target_model
 
@@ -581,7 +582,7 @@ def check_producibility_sec_met(target_model, product, dirname):
     target_model = create_cobra_model_from_sbml_file(dirname+'3_temp_models/'+"target_model_%s.xml" %product)
 
     target_model.optimize()
-    print "Flux:", target_model.solution.f
+    logging.debug("Flux: %s" %target_model.solution.f)
 
     target_model.reactions.get_by_id('Biomass_SCO').objective_coefficient = 1 
     target_model.reactions.get_by_id("Ex_"+product).objective_coefficient = 0

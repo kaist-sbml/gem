@@ -5,6 +5,7 @@
 '''
 
 #gurobipy should be imported in this manner
+import logging
 from gurobipy import *
 from cobra import Model, Reaction, Metabolite
 from cobra.io.sbml import create_cobra_model_from_sbml_file
@@ -138,14 +139,14 @@ class gapfilling_precursor():
     def fill_gap(self, target_reaction, balanced_unique_mnxr_list):
         status, ObjVal, added_reaction  =  self.run_GapFill(target_reaction=target_reaction, UniversalReactions=balanced_unique_mnxr_list)
 
-        print "Reactions to add:", added_reaction
+        logging.debug("Reactions to add: %s" %added_reaction)
         return added_reaction
 
     #Based on MILP optimization, this function is followed by the equations as below.
     #Satish_Kumar_et_al,_BMC_Bioinformatics,_2007 -> GapFill algorithm
     def run_GapFill(self, target_reaction, flux_constraints={}, UniversalReactions=[]):
 
-        print "\n", 'Start gap filling..'
+        logging.debug('Start gap filling..')
         added_reactions = []
 
         model_metabolites = self.model_metabolites
@@ -209,9 +210,9 @@ class gapfilling_precursor():
         m.setObjective(quicksum((b_bool[each_reaction]) for each_reaction in UniversalReactions), GRB.MINIMIZE)
         m.optimize()
 
-        print 'Model Status : ', m.status
+        logging.debug('Model Status : %s' %m.status)
         if m.status == 2:
-            print 'Objective value : ', m.ObjVal
+            logging.debug('Objective value : %s' %m.ObjVal)
             ReactionFlux = {}
             for reaction in UniversalReactions:
                 if b_bool[reaction].x == 1.0:

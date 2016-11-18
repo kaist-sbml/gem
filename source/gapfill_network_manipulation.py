@@ -3,11 +3,13 @@
 2015 Hyun Uk Kim
 '''
 
+import copy
+import logging 
+from augPhase import get_exrxnid_flux, check_exrxn_flux_direction
 from cobra import Model, Reaction, Metabolite
 from cobra.io.sbml import create_cobra_model_from_sbml_file, write_cobra_model_to_sbml_file
-import copy
-from augPhase import get_exrxnid_flux, check_exrxn_flux_direction
 from gapfill_core import gapfilling_precursor
+
 
 def get_mnxr_bigg_in_target_model(target_model, bigg_mnxr_dict):
 
@@ -98,8 +100,8 @@ def check_producibility_nonprod_monomer(cobra_model, nonprod_monomer):
     cobra_model.reactions.get_by_id("Ex_"+nonprod_monomer).objective_coefficient = 1
     cobra_model.optimize()
 
-    print "\n", "\n", cobra_model.reactions.get_by_id("Ex_"+nonprod_monomer)
-    print "Flux:", cobra_model.solution.f
+    logging.debug(cobra_model.reactions.get_by_id("Ex_"+nonprod_monomer))
+    logging.debug("Flux: %s" %cobra_model.solution.f)
 
     return cobra_model
 
@@ -119,7 +121,7 @@ def get_unique_nonprod_monomers_list(nonprod_sec_met_dict, prod_sec_met_dict):
             if nonprod_monomer not in unique_nonprod_monomers_list and nonprod_monomer not in unique_prod_monomers_list:
                 unique_nonprod_monomers_list.append(nonprod_monomer)
 
-    print unique_nonprod_monomers_list, "\n"
+    logging.debug(unique_nonprod_monomers_list)
     return unique_nonprod_monomers_list
 
 
@@ -158,7 +160,7 @@ def check_gapfill_rxn_biomass_effects(target_model, universal_model, added_react
             write_cobra_model_to_sbml_file(target_model_gapFilled, "./%s/3_temp_models/target_model_gapFilled.xml" %dirname)
             target_model_gapFilled = create_cobra_model_from_sbml_file("./%s/3_temp_models/target_model_gapFilled.xml" %dirname)
 
-            print "Gap-filling reaction causing wrong fluxes:", gapfill_rxn, "\n"
+            logging.debug("Gap-filling reaction causing wrong fluxes: %s" %gapfill_rxn)
             added_reaction2.remove(gapfill_rxn)
 
     return added_reaction2
@@ -167,5 +169,5 @@ def check_gapfill_rxn_biomass_effects(target_model, universal_model, added_react
 def add_gapfill_rxn_target_model(target_model, universal_model, added_reaction):
     for gapfill_rxn in added_reaction:
         target_model.add_reaction(universal_model.reactions.get_by_id(gapfill_rxn))
-        print "Reaction added to the target_model:", gapfill_rxn
+        logging.debug("Reaction added to the target_model: %s" %gapfill_rxn)
     return target_model
