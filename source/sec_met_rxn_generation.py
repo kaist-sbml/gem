@@ -19,71 +19,76 @@ from general_sec_met_info import (
 )
 
 
-#Exract all the information associated wiht a particular locus_tag
+def get_cluster_location(cluster_nr, options):
+
+    for feature in options.seq_record.features:
+
+        if feature.type == 'cluster':
+            cluster_number = 'Cluster number: %s' %cluster_nr
+            options.cluster_number = cluster_number
+
+            if options.cluster_number in feature.qualifiers.get('note'):
+                options.cluster_loc1 = feature.location.start
+                options.cluster_loc2 = feature.location.end
+
+#Exract all the information associated with a particular locus_tag for the selected cluster
 #def get_locustag_info_from_cluster_gbk(gbkFile, FileType, locustag_product_monomer_dict):
-def get_cluster_info_from_cluster_gbk(gbkFile, FileType):
+def get_cluster_info_from_seq_record(options):
 
     cluster_info_dict = {}
 
-    #Read GenBank file
-    record = SeqIO.read(gbkFile, FileType)
-
-    for feature in record.features:
+    for feature in options.seq_record.features:
         sec_met_info_list = []
         if feature.type == 'CDS':
-            qualifier_locus_tag = feature.qualifiers.get('locus_tag')[0]
-            if feature.qualifiers.get('sec_met'):
-                qualifier_sec_met = feature.qualifiers.get('sec_met')
-                sec_met_info_list.append(qualifier_sec_met)
+            if feature.location.start >= options.cluster_loc1 and feature.location.end <= options.cluster_loc2:
+                qualifier_locus_tag = feature.qualifiers.get('locus_tag')[0]
+                if feature.qualifiers.get('sec_met'):
+                    qualifier_sec_met = feature.qualifiers.get('sec_met')
+                    sec_met_info_list.append(qualifier_sec_met)
 
-                cluster_info_dict[qualifier_locus_tag] = sec_met_info_list
+                    cluster_info_dict[qualifier_locus_tag] = sec_met_info_list
 
     #print 'cluster_info_dict'
     #print cluster_info_dict, '\n'
-    return cluster_info_dict, record
+    options.cluster_info_dict = cluster_info_dict
 
 
 #Output: e.g.
 #Cluster number: 2
 #Product: nrps
 #NC021055_Cluster_02_nrps
-def get_product_from_cluster_gbk(record):
+def get_cluster_product(cluster_nr, options):
 
-    for feature in record.features:
+    for feature in options.seq_record.features:
 
         #Retrieving "Cluster number"
         if feature.type == 'cluster':
-
             qualifier_cluster = feature.qualifiers.get('note')
-            qualifier_cluster = qualifier_cluster[0].split(':')
-            clusterNo = qualifier_cluster[1].strip()
-
-            #Retrieving "product"
-            product = feature.qualifiers.get('product')
-            product = product[0]
+            if options.cluster_number in qualifier_cluster:
+                product = feature.qualifiers.get('product')[0]
 
     #Handle legacy problem
-    product = product.replace("-","_")
+    product2 = product.replace("-","_")
 
-    if float(clusterNo) < 10:
-        product = "Cluster0"+clusterNo+"_"+product
+    if float(cluster_nr) < 10:
+        product3 = "Cluster0"+str(cluster_nr)+"_"+product2
     else:
-        product = "Cluster"+clusterNo+"_"+product
+        product3 = "Cluster"+str(cluster_nr)+"_"+product2
 
     #print product, "\n"
-    return product
+    options.product = product3
 
 
 #Output: e.g.,
 #['SAV_938'] = ['PKS_AT', 'ACP', 'PKS_KS', 'PKS_AT', 'PKS_KR', 'ACP', 'PKS_KS']
-def get_cluster_domain(cluster_info_dict):
+def get_cluster_domain(options):
 
     locustag_domain_dict = {}
     locustag_kr_dict = {}
 
-    for each_gene in cluster_info_dict.keys():
+    for each_gene in options.cluster_info_dict.keys():
 
-        sec_met_info_list = cluster_info_dict[each_gene][0]
+        sec_met_info_list = options.cluster_info_dict[each_gene][0]
 
         domain_count = 0
         sec_met_domain_list = []
@@ -127,18 +132,18 @@ def get_cluster_domain(cluster_info_dict):
 
     #print 'locustag_domain_dict'
     #print locustag_domain_dict, '\n'
-
-    return locustag_domain_dict, locustag_kr_dict
+    options.locustag_domain_dict = locustag_domain_dict
+    options.locustag_kr_dict = locustag_kr_dict
 
 
 #Two nested functions: extract_nrp_monomers, extract_pk_monomers
 #Output: e.g., {'SAV_943_M1':['mmal', 'Ethyl_mal', 'pk']}
-def get_cluster_monomers(cluster_info_dict):
+def get_cluster_monomers(options):
 
     locustag_monomer_dict = {}
-    for each_gene in cluster_info_dict.keys():
+    for each_gene in options.cluster_info_dict.keys():
         module_count = 0
-        sec_met_info_list =  cluster_info_dict[each_gene][0]
+        sec_met_info_list =  options.cluster_info_dict[each_gene][0]
 
         for each_sub_set in sec_met_info_list:
             discriminator = "true"
@@ -168,7 +173,7 @@ def get_cluster_monomers(cluster_info_dict):
 
     #print 'locustag_monomer_dict'
     #print locustag_monomer_dict, '\n'
-    return locustag_monomer_dict
+    options.locustag_monomer_dict = locustag_monomer_dict
 
 
 def extract_nrp_monomers(each_sub_set, discriminator):
@@ -217,18 +222,18 @@ def extract_pk_monomers(each_sub_set):
 
 
 #Output: e.g., {'SAV_943_M1': ['PKS_KS', 'PKS_AT', 'ACP']}
-def get_cluster_module(locustag_domain_dict):
+def get_cluster_module(options):
 
     locustag_module_domain_dict = {}
 
-    for locustag in locustag_domain_dict.keys():
+    for locustag in options.locustag_domain_dict.keys():
 
         count = 0
         module_info_list = []
         module_info_trunc_list = []
-        number_of_list = len(locustag_domain_dict[locustag])
+        number_of_list = len(options.locustag_domain_dict[locustag])
 
-        for each_domain in locustag_domain_dict[locustag]:
+        for each_domain in options.locustag_domain_dict[locustag]:
             domain_name = each_domain[:-5]
             module_info_list.append(each_domain)
             module_info_trunc_list.append(domain_name)
@@ -259,7 +264,7 @@ def get_cluster_module(locustag_domain_dict):
                 count += 1
 
             #Check final domain of a module: linker domain
-            elif domain_name == 'PKS_Docking_Cterm' and 'ACP' in locustag_domain_dict[locustag]:
+            elif domain_name == 'PKS_Docking_Cterm' and 'ACP' in options.locustag_domain_dict[locustag]:
                 count -= 1
                 module_number = locustag + '_M' + str(count)
                 module_info_list = locustag_module_domain_dict[module_number]
@@ -273,7 +278,7 @@ def get_cluster_module(locustag_domain_dict):
             #Check final domain of a module: final point of the carbon scaffold
             #'ACP' was inserted, otherwise it causes an error
             #by having a locus_tag with unspecified monomer
-            elif domain_name == 'Thioesterase' and 'ACP' in locustag_domain_dict[locustag]:
+            elif domain_name == 'Thioesterase' and 'ACP' in options.locustag_domain_dict[locustag]:
                 count -= 1
                 module_number = get_locustag_module_number(locustag, count)
                 module_info_list = locustag_module_domain_dict[module_number]
@@ -302,7 +307,7 @@ def get_cluster_module(locustag_domain_dict):
 
     #print 'locustag_module_domain_dict'
     #print locustag_module_domain_dict, '\n'
-    return locustag_module_domain_dict
+    options.locustag_module_domain_dict = locustag_module_domain_dict
 
 
 def get_locustag_module_number(locustag, count):
@@ -315,13 +320,13 @@ def get_locustag_module_number(locustag, count):
 
 
 #Ouput: e.g., {'SAV_943_M0':{'coa': 1, 'nadph': -1, 'nadp': 1, 'hco3': 1, 'h': -1}
-def get_currency_metabolites(locustag_module_domain_dict, locustag_kr_dict):
+def get_currency_metabolites(options):
 
     module_currency_metab_dict = {}
 
-    for each_module in locustag_module_domain_dict:
+    for each_module in options.locustag_module_domain_dict:
         each_locustag = each_module[:-4]
-        domain_comb = locustag_module_domain_dict[each_module]
+        domain_comb = options.locustag_module_domain_dict[each_module]
 
         each_module_substrates = {}
         domain_trunc_list = []
@@ -331,7 +336,7 @@ def get_currency_metabolites(locustag_module_domain_dict, locustag_kr_dict):
             domain_trunc_list.append(abbr_domain)
 
         discriminant = determine_module(domain_trunc_list)
-        f_discriminant = determine_kr_activity(each_locustag, domain_comb, locustag_kr_dict, discriminant)
+        f_discriminant = determine_kr_activity(each_locustag, domain_comb, options.locustag_kr_dict, discriminant)
 
         if f_discriminant == 'None':
             continue
@@ -347,19 +352,19 @@ def get_currency_metabolites(locustag_module_domain_dict, locustag_kr_dict):
 
     #print "module_currency_metab_dict"
     #print module_currency_metab_dict, '\n'
-    return module_currency_metab_dict
+    options.module_currency_metab_dict = module_currency_metab_dict
 
 
 #Output: {'nadph': 0, 'fmnh2': 0, 'h': 0, 'ppi': 1, 'ahcys': 0}
-def get_total_currency_metab_coeff(module_currency_metab_dict):
+def get_total_currency_metab_coeff(options):
 
     currency_metab_coeff_dict = get_metab_coeff_dict()
 
-    for each_module in module_currency_metab_dict.keys():
-        for each_metabolite in module_currency_metab_dict[each_module]:
-            metab_coeff = module_currency_metab_dict[each_module][each_metabolite]
+    for each_module in options.module_currency_metab_dict.keys():
+        for each_metabolite in options.module_currency_metab_dict[each_module]:
+            metab_coeff = options.module_currency_metab_dict[each_module][each_metabolite]
 
-            if module_currency_metab_dict[each_module][each_metabolite] > 0:
+            if options.module_currency_metab_dict[each_module][each_metabolite] > 0:
                 currency_metab_coeff_dict[each_metabolite] += metab_coeff
 
             else:
@@ -367,29 +372,33 @@ def get_total_currency_metab_coeff(module_currency_metab_dict):
 
     #print 'currency_metab_coeff_dict'
     #print currency_metab_coeff_dict, '\n'
-    return currency_metab_coeff_dict
+    options.currency_metab_coeff_dict = currency_metab_coeff_dict
 
 
 #Coeff data of major monomers are added in the same dict file used for currency metabolites
 #Output: e.g.,
 #{'coa': 13, 'mmalcoa': -4, 'h': -10, 'malcoa': -7,     'hco3': 13, 'nadph': -10, 'h2o': 5, 'nadp': 10}
-def get_all_metab_coeff(locustag_monomer_dict, metab_coeff_dict, product):
-    for each_module in locustag_monomer_dict.keys():
+def get_all_metab_coeff(options):
+
+    metab_coeff_dict = {}
+    metab_coeff_dict = options.currency_metab_coeff_dict
+
+    for each_module in options.locustag_monomer_dict.keys():
         #locustag_monomer_dict[each_module] for nrps
         #Position [0]: NRPSPredictor2 SVM
         #Position [1]: Stachelhaus code
         #Position [2]: Minowa
         #Position [3]: consensus
-        if len(locustag_monomer_dict[each_module]) == 4:
+        if len(options.locustag_monomer_dict[each_module]) == 4:
 
-            sptlist1 = locustag_monomer_dict[each_module][0].split(',')
+            sptlist1 = options.locustag_monomer_dict[each_module][0].split(',')
 
             #In case "consensus" is not reached:
-            if locustag_monomer_dict[each_module][3] == 'nrp':
+            if options.locustag_monomer_dict[each_module][3] == 'nrp':
                 #From NRPSPredictor2 SVM
                 #Not considered: e.g., NRPSPredictor2 SVM: val,leu,ile,abu,iva
                 #Checked by ',' in aSid_met2
-                aSid_met2 = locustag_monomer_dict[each_module][0]
+                aSid_met2 = options.locustag_monomer_dict[each_module][0]
                 if aSid_met2 != 'hydrophobic-aliphatic' and aSid_met2 != 'hydrophilic' and aSid_met2 != 'hydrophobic-aromatic' and aSid_met2 != 'N/A' and ',' not in aSid_met2:
                     biggid_met2 = get_biggid_from_aSid(aSid_met2)
 
@@ -398,20 +407,20 @@ def get_all_metab_coeff(locustag_monomer_dict, metab_coeff_dict, product):
 
                 elif aSid_met2 == 'hydrophobic-aliphatic' or aSid_met2 == 'hydrophilic' or aSid_met2 == 'hydrophobic-aromatic' or aSid_met2 == 'N/A' or ',' in aSid_met2:
                     #If NRPSPredictor2 SVM has invalid monomer, then Minowa is considered
-                    aSid_met4 = locustag_monomer_dict[each_module][2]
+                    aSid_met4 = options.locustag_monomer_dict[each_module][2]
                     if aSid_met4 != 'hydrophobic-aliphatic' and aSid_met4 != 'hydrophilic' and aSid_met4 != 'hydrophobic-aromatic' and aSid_met4 != 'N/A':
                         biggid_met4 = get_biggid_from_aSid(aSid_met4)
                         metab_coeff_dict[biggid_met4] -= 1
 
                     #If Minowa has invalid monomer, then Stachelhaus code is considered
                     elif aSid_met4 == 'hydrophobic-aliphatic' or aSid_met4 == 'hydrophilic' or aSid_met4 == 'hydrophobic-aromatic' or aSid_met4 == 'N/A':
-                        aSid_met3 = locustag_monomer_dict[each_module][1]
+                        aSid_met3 = options.locustag_monomer_dict[each_module][1]
                         biggid_met3 = get_biggid_from_aSid(aSid_met3)
                         metab_coeff_dict[biggid_met3] -= 1
 
             #In case "consensus" is reached:
-            elif locustag_monomer_dict[each_module][3] != 'nrp':
-                aSid_met5 = locustag_monomer_dict[each_module][3]
+            elif options.locustag_monomer_dict[each_module][3] != 'nrp':
+                aSid_met5 = options.locustag_monomer_dict[each_module][3]
                 biggid_met5 = get_biggid_from_aSid(aSid_met5)
                 #print "aSid_met5", aSid_met5, biggid_met5
                 metab_coeff_dict[biggid_met5] -= 1
@@ -420,17 +429,17 @@ def get_all_metab_coeff(locustag_monomer_dict, metab_coeff_dict, product):
         #Position [0]: PKS signature
         #Position [1]: Minowa
         #Position [2]: consensus
-        elif len(locustag_monomer_dict[each_module]) == 3:
+        elif len(options.locustag_monomer_dict[each_module]) == 3:
 
-            if len(locustag_monomer_dict[each_module]) < 3:
+            if len(options.locustag_monomer_dict[each_module]) < 3:
                 continue
 
             #In case "consensus" is not reached:
-            if locustag_monomer_dict[each_module][2] == 'pk':
+            if options.locustag_monomer_dict[each_module][2] == 'pk':
 
                 #From PKS signature
                 #In case of non-consensus, PKS signature is considered
-                aSid_met6 = locustag_monomer_dict[each_module][0]
+                aSid_met6 = options.locustag_monomer_dict[each_module][0]
                 if aSid_met6 != 'N/A' and aSid_met6 != 'mal_or_prop':
                     biggid_met6 = get_biggid_from_aSid(aSid_met6)
                     #print "aSid_met6", aSid_met6, biggid_met6
@@ -439,14 +448,14 @@ def get_all_metab_coeff(locustag_monomer_dict, metab_coeff_dict, product):
 
                 #If PKS signature has invalid monomer, then Minowa is considered
                 else:
-                    aSid_met7 = locustag_monomer_dict[each_module][1]
+                    aSid_met7 = options.locustag_monomer_dict[each_module][1]
                     if aSid_met7 != 'inactive':
                         biggid_met7 = get_biggid_from_aSid(aSid_met7)
                         metab_coeff_dict[biggid_met7] -= 1
 
             #In case "consensus" is reached:
-            elif locustag_monomer_dict[each_module][2] != 'pk':
-                aSid_met8 = locustag_monomer_dict[each_module][2]
+            elif options.locustag_monomer_dict[each_module][2] != 'pk':
+                aSid_met8 = options.locustag_monomer_dict[each_module][2]
 
                 #Original monomers are considered for those reduced by KR, DH and/or ER
                 if aSid_met8 == 'ohmal' or aSid_met8 == 'ccmal' or aSid_met8 == 'redmal':
@@ -463,51 +472,51 @@ def get_all_metab_coeff(locustag_monomer_dict, metab_coeff_dict, product):
                 metab_coeff_dict[biggid_met8] -= 1
 
     #Add secondary metabolite product to the reaction
-    metab_coeff_dict[product] = 1
+    metab_coeff_dict[options.product] = 1
 
     #print 'metab_coeff_dict'
     #print metab_coeff_dict, '\n'
-    return metab_coeff_dict
+    options.metab_coeff_dict = metab_coeff_dict
 
 
-def add_sec_met_rxn(target_model, metab_coeff_dict, product, bigg_mnxm_compound_dict, mnxm_compoundInfo_dict, cluster_info_dict):
+def add_sec_met_rxn(target_model, options):
 
     #ID
-    rxn = Reaction(product)
+    rxn = Reaction(options.product)
 
     #Reversibility / Lower and upper bounds
     rxn.lower_bound = 0
     rxn.upper_bound = 1000
 
     #Metabolites and their stoichiometric coeff's
-    for metab in metab_coeff_dict.keys():
+    for metab in options.metab_coeff_dict.keys():
 
         #Consider only metabolites consumed or produced
-        if metab_coeff_dict[metab] != 0:
+        if options.metab_coeff_dict[metab] != 0:
             metab_compt = '_'.join([metab,'c'])
 
             #Adding metabolites already in the model
             if metab_compt in target_model.metabolites:
-                rxn.add_metabolites({target_model.metabolites.get_by_id(metab_compt):metab_coeff_dict[metab]})
+                rxn.add_metabolites({target_model.metabolites.get_by_id(metab_compt):options.metab_coeff_dict[metab]})
 
             #Adding metabolites with bigg compoundID, but not in the model
-            elif metab in bigg_mnxm_compound_dict.keys():
-                mnxm = bigg_mnxm_compound_dict[metab]
-                metab_compt = Metabolite(metab_compt, formula = mnxm_compoundInfo_dict[mnxm][1], name = mnxm_compoundInfo_dict[mnxm][0], compartment='c')
-                rxn.add_metabolites({metab_compt:metab_coeff_dict[metab]})
+            elif metab in options.bigg_mnxm_compound_dict.keys():
+                mnxm = options.bigg_mnxm_compound_dict[metab]
+                metab_compt = Metabolite(metab_compt, formula = options.mnxm_compoundInfo_dict[mnxm][1], name = options.mnxm_compoundInfo_dict[mnxm][0], compartment='c')
+                rxn.add_metabolites({metab_compt:options.metab_coeff_dict[metab]})
 
             elif 'Cluster' in metab:
                 metab_compt = Metabolite(metab_compt, compartment='c')
-                rxn.add_metabolites({metab_compt:metab_coeff_dict[metab]})
+                rxn.add_metabolites({metab_compt:options.metab_coeff_dict[metab]})
 
             #Add metabolite MNXM having no bigg ID to the model
             else:
-                metab_compt = add_sec_met_mnxm_having_no_biggid_to_model(metab, metab_compt, mnxm_compoundInfo_dict)
-                rxn.add_metabolites({metab_compt:metab_coeff_dict[metab]})
+                metab_compt = add_sec_met_mnxm_having_no_biggid_to_model(metab, metab_compt, options.mnxm_compoundInfo_dict)
+                rxn.add_metabolites({metab_compt:options.metab_coeff_dict[metab]})
 
     #GPR association
     gpr_count = 0
-    for each_gene in cluster_info_dict.keys():
+    for each_gene in options.cluster_info_dict.keys():
         if gpr_count == 0:
             gpr_list = each_gene
             gpr_count += 1
@@ -525,7 +534,7 @@ def add_sec_met_rxn(target_model, metab_coeff_dict, product, bigg_mnxm_compound_
     ##############################
     #Creating a transport reaction
     #Creating reaction ID
-    rxn = Reaction("Transport_" + product)
+    rxn = Reaction("Transport_" + options.product)
 
     #Reversibility / Lower and upper bounds
     rxn.reversibility = 0 # 1: reversible
@@ -534,10 +543,10 @@ def add_sec_met_rxn(target_model, metab_coeff_dict, product, bigg_mnxm_compound_
 
     #Adding a substrate metabolite
     #print cobra_model.metabolites.get_by_id(str(product_c))
-    rxn.add_metabolites({target_model.metabolites.get_by_id(str(product+'_c')):-1})
+    rxn.add_metabolites({target_model.metabolites.get_by_id(str(options.product+'_c')):-1})
 
     #Adding product metabolite(s)
-    product_e = Metabolite(product+"_e", name='', compartment='e')
+    product_e = Metabolite(options.product+"_e", name='', compartment='e')
     rxn.add_metabolites({product_e:1})
 
     #Adding the new reaction to the model
@@ -549,7 +558,7 @@ def add_sec_met_rxn(target_model, metab_coeff_dict, product, bigg_mnxm_compound_
     ##############################
     #Creating an exchange reaction
     #Creating reaction ID
-    rxn = Reaction("Ex_"+product)
+    rxn = Reaction("Ex_"+options.product)
 
     #Reversibility / Lower and upper bounds
     rxn.reversibility = 0 # 1: reversible 0: irreversible
@@ -569,47 +578,47 @@ def add_sec_met_rxn(target_model, metab_coeff_dict, product, bigg_mnxm_compound_
     return target_model
 
 
-def check_producibility_sec_met(target_model, product, dirname):
+def check_producibility_sec_met(target_model, options):
     for rxn in target_model.reactions:
         rxn.objective_coefficient = 0
 
     #target_model.reactions.get_by_id('Biomass_SCO').objective_coefficient = 0
-    target_model.reactions.get_by_id("Ex_"+product).objective_coefficient = 1
+    target_model.reactions.get_by_id("Ex_"+options.product).objective_coefficient = 1
 
     #Model reloading and overwrtting are necessary for model stability
     #Without these, model does not produce an accurate prediction
-    write_cobra_model_to_sbml_file(target_model, dirname+'3_temp_models/'+"target_model_%s.xml" %product)
-    target_model = create_cobra_model_from_sbml_file(dirname+'3_temp_models/'+"target_model_%s.xml" %product)
+    write_cobra_model_to_sbml_file(target_model, options.output+'/'+'3_temp_models/'+"target_model_%s.xml" %options.product)
+    target_model = create_cobra_model_from_sbml_file(options.output+'/'+'3_temp_models/'+"target_model_%s.xml" %options.product)
 
     target_model.optimize()
     logging.debug("Flux: %s" %target_model.solution.f)
 
-    target_model.reactions.get_by_id('Biomass_SCO').objective_coefficient = 1 
-    target_model.reactions.get_by_id("Ex_"+product).objective_coefficient = 0
+    target_model.reactions.get_by_id('Biomass_SCO').objective_coefficient = 1
+    target_model.reactions.get_by_id("Ex_"+options.product).objective_coefficient = 0
 
     #return target_model.solution.f, product
-    return target_model, product
+    return target_model
 
 
-def get_monomers_nonprod_sec_met(metab_coeff_dict):
+def get_monomers_nonprod_sec_met(options):
 
     nonprod_sec_met_metab_list = []
 
-    for metab in metab_coeff_dict.keys():
+    for metab in options.metab_coeff_dict.keys():
         #Exclude currency metabolites
-        if metab_coeff_dict[metab] <0 and metab != 'atp' and metab != 'amp' and metab != 'ppi' and metab != 'amet' and metab != 'ahcys' and metab != 'fmn' and metab != 'fmnh2' and metab != 'nadp' and metab != 'nadph' and metab != 'h' and metab != 'h2o' and metab != 'hco3' and metab != 'coa':
+        if options.metab_coeff_dict[metab] <0 and metab != 'atp' and metab != 'amp' and metab != 'ppi' and metab != 'amet' and metab != 'ahcys' and metab != 'fmn' and metab != 'fmnh2' and metab != 'nadp' and metab != 'nadph' and metab != 'h' and metab != 'h2o' and metab != 'hco3' and metab != 'coa':
             nonprod_sec_met_metab_list.append(metab)
 
     return nonprod_sec_met_metab_list
 
 
-def get_monomers_prod_sec_met(metab_coeff_dict):
+def get_monomers_prod_sec_met(options):
 
     prod_sec_met_metab_list = []
 
-    for metab in metab_coeff_dict.keys():
+    for metab in options.metab_coeff_dict.keys():
         #Exclude currency metabolites
-        if metab_coeff_dict[metab] <0 and metab != 'atp' and metab != 'amp' and metab != 'ppi' and metab != 'amet' and metab != 'ahcys' and metab != 'fmn' and metab != 'fmnh2' and metab != 'nadp' and metab != 'nadph' and metab != 'h' and metab != 'h2o' and metab != 'hco3' and metab != 'coa':
+        if options.metab_coeff_dict[metab] <0 and metab != 'atp' and metab != 'amp' and metab != 'ppi' and metab != 'amet' and metab != 'ahcys' and metab != 'fmn' and metab != 'fmnh2' and metab != 'nadp' and metab != 'nadph' and metab != 'h' and metab != 'h2o' and metab != 'hco3' and metab != 'coa':
             prod_sec_met_metab_list.append(metab)
 
     return prod_sec_met_metab_list

@@ -14,7 +14,6 @@ import time
 
 from cobra.io.sbml import write_cobra_model_to_sbml_file, create_cobra_model_from_sbml_file
 from argparse import Namespace
-
 from prunPhase import (
     get_temp_fasta,
     get_target_gbk,
@@ -39,7 +38,21 @@ from augPhase import (
     extract_rxn_mnxm_coeff,
     add_nonBBH_rxn
 )
-
+from sec_met_rxn_generation import (
+    get_cluster_location,
+    get_cluster_info_from_seq_record,
+    get_cluster_product,
+    get_cluster_domain,
+    get_cluster_monomers,
+    get_cluster_module,
+    get_currency_metabolites,
+    get_total_currency_metab_coeff,
+    get_all_metab_coeff,
+    add_sec_met_rxn,
+    check_producibility_sec_met,
+    get_monomers_nonprod_sec_met,
+    get_monomers_prod_sec_met
+)
 
 def main():
     start = time.time()
@@ -56,6 +69,7 @@ def main():
     parser.add_argument('-d', '--debug', dest='debug', action='store_true', default=False, help="Print debugging information to stderr")
 
     options = parser.parse_args()
+
     print options.pmr_generation
     if options.debug:
         logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
@@ -71,6 +85,8 @@ def main():
 
     get_genome_files(options)
 
+    get_pickles_add_rxn(options)
+
     if options.pmr_generation:
         get_homolgs(options)
 
@@ -79,7 +95,7 @@ def main():
         modelPrunedGPR = run_prunPhase(model, options)
 
         if options.targetGenome_locusTag_ec_dict:
-            get_pickles_augPhase(options)
+
             target_model = run_augPhase(modelPrunedGPR, options)
         else:
             logging.debug("No EC_number found in the submitted gbk file")
@@ -88,7 +104,19 @@ def main():
 
     #Secondary metabolic modeling
     if options.smr_generation:
-        import run_smr_generation
+        for model_file in os.listdir(options.output+'/'+'2_primary_metabolic_model'):
+            if model_file.endswith('.xml'):
+                target_model = create_cobra_model_from_sbml_file(options.output+'/'+'2_primary_metabolic_model/'+model_file)
+
+                logging.debug("Generating secondary metabolite biosynthesizing reactions..")
+                cluster_nr = 1
+                logging.debug("Total number of clusters: %s" %options.total_cluster)
+                while cluster_nr <= options.total_cluster:
+                    logging.debug("Cluster number: %s" %cluster_nr)
+                    sec_met_rxn_generation(cluster_nr, target_model, options)
+                    cluster_nr += 1
+        if not model_file:
+            logging.debug("COBRA-compliant SBML file needed")
 
     logging.debug(time.strftime("Elapsed time %H:%M:%S", time.gmtime(time.time() - start)))
 
@@ -109,6 +137,35 @@ def get_genome_files(options):
     get_target_fasta(options)
 
 
+#For model augmentation phase in both primary and secondary modeling
+def get_pickles_add_rxn(options):
+    logging.debug("Loading pickle files necessary for the model augmentation phase..")
+
+    bigg_mnxr_dict = pickle.load(open('./input2/bigg_mnxr_dict.p','rb'))
+    options.bigg_mnxr_dict = bigg_mnxr_dict
+    kegg_mnxr_dict = pickle.load(open('./input2/kegg_mnxr_dict.p','rb'))
+    options.kegg_mnxr_dict = kegg_mnxr_dict
+    mnxr_kegg_dict = pickle.load(open('./input2/mnxr_kegg_dict.p','rb'))
+    options.mnxr_kegg_dict = mnxr_kegg_dict
+    mnxr_rxn_dict = pickle.load(open('./input2/mnxr_rxn_dict.p','rb'))
+    options.mnxr_rxn_dict = mnxr_rxn_dict
+
+    bigg_mnxm_compound_dict = pickle.load(open('./input2/bigg_mnxm_compound_dict.p','rb'))
+    options.bigg_mnxm_compound_dict = bigg_mnxm_compound_dict
+    mnxm_bigg_compound_dict = pickle.load(open('./input2/mnxm_bigg_compound_dict.p','rb'))
+    options.mnxm_bigg_compound_dict = mnxm_bigg_compound_dict
+    kegg_mnxm_compound_dict = pickle.load(open('./input2/kegg_mnxm_compound_dict.p','rb'))
+    options.kegg_mnxm_compound_dict = kegg_mnxm_compound_dict
+    mnxm_kegg_compound_dict = pickle.load( open('./input2/mnxm_kegg_compound_dict.p','rb'))
+    options.mnxm_kegg_compound_dict = mnxm_kegg_compound_dict
+
+    mnxm_compoundInfo_dict = pickle.load(open('./input2/mnxm_compoundInfo_dict.p','rb'))
+    options.mnxm_compoundInfo_dict = mnxm_compoundInfo_dict
+
+    template_exrxnid_flux_dict = pickle.load(open('%s/tempModel_exrxnid_flux_dict.p' %(options.input1),'rb'))
+    options.template_exrxnid_flux_dict = template_exrxnid_flux_dict
+
+
 def get_homolgs(options):
     logging.debug("Searching bidirectional homolgs..")
     logging.debug("Generating a DB for the genes from the target genome..")
@@ -122,7 +179,7 @@ def get_homolgs(options):
 
     logging.debug("Parsing the results of BLASTP #1..")
     blastpResults_dict1 = parseBlaspResults('./%s/1_blastp_results/blastp_targetGenome_against_tempGenome.txt' %options.output, './%s/1_blastp_results/blastp_targetGenome_against_tempGenome_parsed.txt' %options.output)
- 
+
     logging.debug("Parsing the results of BLASTP #2..")
     blastpResults_dict2 = parseBlaspResults('./%s/1_blastp_results/blastp_tempGenome_against_targetGenome.txt' %options.output, './%s/1_blastp_results/blastp_tempGenome_against_targetGenome_parsed.txt' %options.output)
 
@@ -162,35 +219,6 @@ def run_prunPhase(model, options):
     modelPrunedGPR = swap_locusTag_tempModel(modelPruned, options)
 
     return modelPrunedGPR
-
-
-#For model augmentation  phase
-def get_pickles_augPhase(options):
-    logging.debug("Loading pickle files necessary for the model augmentation phase..")
-
-    bigg_mnxr_dict = pickle.load(open('./input2/bigg_mnxr_dict.p','rb'))
-    options.bigg_mnxr_dict = bigg_mnxr_dict
-    kegg_mnxr_dict = pickle.load(open('./input2/kegg_mnxr_dict.p','rb'))
-    options.kegg_mnxr_dict = kegg_mnxr_dict
-    mnxr_kegg_dict = pickle.load(open('./input2/mnxr_kegg_dict.p','rb'))
-    options.mnxr_kegg_dict = mnxr_kegg_dict
-    mnxr_rxn_dict = pickle.load(open('./input2/mnxr_rxn_dict.p','rb'))
-    options.mnxr_rxn_dict = mnxr_rxn_dict
-
-    bigg_mnxm_compound_dict = pickle.load(open('./input2/bigg_mnxm_compound_dict.p','rb'))
-    options.bigg_mnxm_compound_dict = bigg_mnxm_compound_dict
-    mnxm_bigg_compound_dict = pickle.load(open('./input2/mnxm_bigg_compound_dict.p','rb'))
-    options.mnxm_bigg_compound_dict = mnxm_bigg_compound_dict
-    kegg_mnxm_compound_dict = pickle.load(open('./input2/kegg_mnxm_compound_dict.p','rb'))
-    options.kegg_mnxm_compound_dict = kegg_mnxm_compound_dict
-    mnxm_kegg_compound_dict = pickle.load( open('./input2/mnxm_kegg_compound_dict.p','rb'))
-    options.mnxm_kegg_compound_dict = mnxm_kegg_compound_dict
-
-    mnxm_compoundInfo_dict = pickle.load(open('./input2/mnxm_compoundInfo_dict.p','rb'))
-    options.mnxm_compoundInfo_dict = mnxm_compoundInfo_dict
-
-    template_exrxnid_flux_dict = pickle.load(open('%s/tempModel_exrxnid_flux_dict.p' %(options.input1),'rb'))
-    options.template_exrxnid_flux_dict = template_exrxnid_flux_dict
 
 
 def run_augPhase(modelPrunedGPR, options):
@@ -250,6 +278,44 @@ def generate_outputs(model, modelPrunedGPR, target_model, options):
     fp1.close()
     fp2.close()
 
+
+def sec_met_rxn_generation(cluster_nr, target_model, options):
+
+    prod_sec_met_dict = {}
+    nonprod_sec_met_dict = {}
+
+    get_cluster_location(cluster_nr, options)
+
+    get_cluster_info_from_seq_record(options)
+
+    get_cluster_product(cluster_nr, options)
+
+    if 't1pks' in options.product or 'nrps' in options.product:
+        get_cluster_domain(options)
+
+        get_cluster_monomers(options)
+
+        get_cluster_module(options)
+
+        get_currency_metabolites(options)
+
+        get_total_currency_metab_coeff(options)
+
+        get_all_metab_coeff(options)
+
+        target_model = add_sec_met_rxn(target_model, options)
+
+        target_model = check_producibility_sec_met(target_model, options)
+
+        if target_model.solution.f < 0.0001:
+            nonprod_sec_met_metab_list = get_monomers_nonprod_sec_met(options)
+            nonprod_sec_met_dict[options.product] = nonprod_sec_met_metab_list
+        else:
+            prod_sec_met_metab_list = get_monomers_prod_sec_met(options)
+            prod_sec_met_dict[options.product] = prod_sec_met_metab_list
+
+    else:
+        logging.debug("Not type I polyketide synthase ('t1pks'), nonribosomal synthetase ('nrps') or their hybird")
 
 if __name__ == '__main__':
     main()

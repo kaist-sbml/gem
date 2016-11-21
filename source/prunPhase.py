@@ -32,33 +32,38 @@ def get_target_gbk(options):
 
 
 def get_targetGenomeInfo(options, file_type):
+
     fp = open('./%s/1_blastp_results/targetGenome_locusTag_aaSeq.fa' %options.output,'w')
+
     targetGenome_locusTag_aaSeq_dict = {}
     targetGenome_locusTag_ec_dict = {}
     targetGenome_locusTag_prod_dict = {}
 
     #Read GenBank file
     try:
-        record = SeqIO.read(options.output+'/'+options.input_gbk, file_type)
+        seq_record = SeqIO.read(options.output+'/'+options.input_gbk, file_type)
     except ValueError:
         logging.debug("Warning: ValueError occurred in SeqIo.read")
-        record = SeqIO.parse(options.output+'/'+options.input_gbk, file_type).next()
-
+        seq_record = SeqIO.parse(options.output+'/'+options.input_gbk, file_type).next()
 
     if options.eficaz:
-        getECs(record, options)
-        
-    for feature in record.features:
+        getECs(seq_record, options)
+
+    total_cluster = 0
+
+    for feature in seq_record.features:
         if feature.type == 'CDS':
 
             #Retrieving "locus_tag (i.e., ORF name)" for each CDS
             locusTag = feature.qualifiers['locus_tag'][0]
 
             #Some locus_tag's have multiple same qualifiers (e.g., EC_number)
-	    for item in feature.qualifiers:
+            for item in feature.qualifiers:
 
                 #Note that the numbers of CDS and "translation" do not match.
                 #There are occasions that CDS does not have "translation".
+
+#These if statements may be removed:e.g., sec_met_rxn_generation.py
                 if item == 'translation':
 
                     #Retrieving "translation (i.e., amino acid sequences)" for each CDS
@@ -67,14 +72,24 @@ def get_targetGenomeInfo(options, file_type):
                     print >>fp, '>%s\n%s' % (str(locusTag), str(translation[0]))
 
                 #Used to find "and" relationship in the GPR association
-	        if item == 'product':
-		    product = feature.qualifiers.get('product')[0]
-		    targetGenome_locusTag_prod_dict[locusTag] = product
+                if item == 'product':
+                    product = feature.qualifiers.get('product')[0]
+                    targetGenome_locusTag_prod_dict[locusTag] = product
 
                 #Watch multiple EC_number's
 		if item == 'EC_number':
-	            ecnum = feature.qualifiers.get('EC_number')
-		    targetGenome_locusTag_ec_dict[locusTag] = ecnum
+                    ecnum = feature.qualifiers.get('EC_number')
+                    targetGenome_locusTag_ec_dict[locusTag] = ecnum
+
+        if feature.type == 'cluster':
+            total_cluster += 1
+
+#            print feature.qualifiers.get('note')
+#            print feature.qualifiers.get('product')
+#            for item in feature.qualifiers:
+#                print feature.qualifiers.get('note')
+#                if item == 'note':
+#                    print item
 
     #Check if the gbk file has EC_number
     #Additional conditions should be given upon setup of in-house EC_number assigner
@@ -83,6 +98,8 @@ def get_targetGenomeInfo(options, file_type):
 
     options.targetGenome_locusTag_ec_dict = targetGenome_locusTag_ec_dict
     options.targetGenome_locusTag_prod_dict = targetGenome_locusTag_prod_dict
+    options.total_cluster = total_cluster
+    options.seq_record = seq_record
 
     fp.close()
 
@@ -102,7 +119,7 @@ def get_target_fasta(options):
 def make_blastDB(options):
     db_dir = './%s/1_blastp_results/targetBlastDB' %options.output
     DBprogramName = './blastpfiles/makeblastdb.exe'
-    subprocess.call([DBprogramName,'-in',options.target_fasta,'-out',db_dir,'-dbtype','prot'])  
+    subprocess.call([DBprogramName,'-in',options.target_fasta,'-out',db_dir,'-dbtype','prot'])
 
     #Checks if DB is properly created; otherwise shutdown
     if os.path.isfile('./%s/1_blastp_results/targetBlastDB.psq' %options.output) == False:
