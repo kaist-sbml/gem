@@ -166,7 +166,7 @@ def check_gapfill_rxn_biomass_effects(target_model, universal_model, added_react
     return added_reaction2
 
 
-def add_gapfill_rxn_target_model(target_model, universal_model, added_reaction2):
+def add_gapfill_rxn_target_model(target_model, universal_model, added_reaction2, options):
 
     for gapfill_rxn in added_reaction2:
         target_model.add_reaction(universal_model.reactions.get_by_id(gapfill_rxn))

@@ -82,7 +82,7 @@ def main():
 
                 while cluster_nr <= options.total_cluster:
                     logging.debug("Cluster number: %s" %cluster_nr)
-                    run_sec_met_rxn_generation(cluster_nr, target_model, prod_sec_met_dict, nonprod_sec_met_dict, options)
+                    target_model = run_sec_met_rxn_generation(cluster_nr, target_model, prod_sec_met_dict, nonprod_sec_met_dict, options)
                     cluster_nr += 1
 
                 target_model2, universal_model = prep_network_for_gapfilling(target_model, options)
@@ -91,7 +91,7 @@ def main():
 
                 target_model_complete = run_gapfilling(target_model, target_model2, adj_unique_nonprod_monomers_list, universal_model, options)
 
-                generate_outputs_secondary_model(target_model, target_model_complete, options)
+                generate_outputs_secondary_model(target_model_complete, options)
 
             elif not model_file:
                 logging.debug("COBRA-compliant SBML file needed")
@@ -299,6 +299,8 @@ def run_sec_met_rxn_generation(cluster_nr, target_model, prod_sec_met_dict, nonp
         options.prod_sec_met_dict = prod_sec_met_dict
         options.nonprod_sec_met_dict = nonprod_sec_met_dict
 
+    return target_model
+
 
 def prep_network_for_gapfilling(target_model, options):
 
@@ -351,7 +353,7 @@ def run_gapfilling(target_model, target_model2, adj_unique_nonprod_monomers_list
         if target_model_temp.solution.f > 0:
             added_reaction = gapfill_network_manipulation.execute_gapfill(target_model_temp, nonprod_monomer, options)
             added_reaction2  = gapfill_network_manipulation.check_gapfill_rxn_biomass_effects(target_model, universal_model, added_reaction, options)
-            target_model_complete = gapfill_network_manipulation.add_gapfill_rxn_target_model(target_model, universal_model, added_reaction2)
+            target_model_complete = gapfill_network_manipulation.add_gapfill_rxn_target_model(target_model, universal_model, added_reaction2, options)
         else:
             logging.debug("Gap-filling not possible: target_model with reactions from universal_model does not produce this monomer: %s" %nonprod_monomer)
 
@@ -361,19 +363,19 @@ def run_gapfilling(target_model, target_model2, adj_unique_nonprod_monomers_list
     return target_model_complete
 
 
-def generate_outputs_secondary_model(target_model, target_model_complete, options):
+def generate_outputs_secondary_model(target_model_complete, options):
     #Output files
     #Model reloading and overwrtting are necessary for model consistency:
     #e.g., metabolite IDs with correct compartment suffices & accurate model stats
     #This can also mask the effects of model error (e.g., undeclared metabolite ID)
     #Cobrapy IO module seems to have an error for adding new reactions
-    write_cobra_model_to_sbml_file(target_model_complete, '%s/4_complete_model/target_model_complete.xml' %options.output)
+    write_cobra_model_to_sbml_file(target_model_complete, './%s/4_complete_model/target_model_complete.xml' %options.output)
 
     #Output on screen
     model = pickle.load(open('%s/model.p' %(options.input1),'rb'))
-    logging.debug("Number of genes: %s; %s" %(len(target_model.genes), len(target_model_complete.genes)))
-    logging.debug("Number of reactions: %s; %s" %(len(target_model.reactions), len(target_model_complete.reactions)))
-    logging.debug("Number of metabolites: %s; %s" %(len(target_model.metabolites), len(target_model_complete.metabolites)))
+    logging.debug("Number of genes: %s" %len(target_model_complete.genes))
+    logging.debug("Number of reactions: %s" %len(target_model_complete.reactions))
+    logging.debug("Number of metabolites: %s" %len(target_model_complete.metabolites))
 
     fp1 = open('./%s/4_complete_model/target_model_complete_reactions.txt' %options.output, "w")
     fp2 = open('./%s/4_complete_model/target_model_complete_metabolites.txt' %options.output, "w")
