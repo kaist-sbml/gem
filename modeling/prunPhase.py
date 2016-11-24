@@ -26,10 +26,8 @@ def get_temp_fasta(options):
 
 #Look for a target .gbk file from antiSMASH
 def get_target_gbk(options):
-    print "check", options.output_path
-    for target_gbk in os.listdir(options.output_path+'/'):
+    for target_gbk in os.listdir(options.input+'/'):
         if target_gbk.endswith('.gb') or target_gbk.endswith('.gbk'):
-            print "check", target_gbk
             options.input_gbk = target_gbk
 
 
