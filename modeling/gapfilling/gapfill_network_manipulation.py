@@ -7,6 +7,7 @@ import copy
 import logging
 from cobra import Model, Reaction, Metabolite
 from cobra.io.sbml import create_cobra_model_from_sbml_file, write_cobra_model_to_sbml_file
+from cobra.manipulation.delete import prune_unused_metabolites
 from gapfill_core import gapfilling_precursor
 from modeling import augPhase
 
@@ -170,11 +171,12 @@ def add_gapfill_rxn_target_model(target_model, universal_model, added_reaction2,
 
     for gapfill_rxn in added_reaction2:
         target_model.add_reaction(universal_model.reactions.get_by_id(gapfill_rxn))
-        write_cobra_model_to_sbml_file(target_model, "./%s/3_temp_models/target_model_gapFilled2.xml" %options.output)
-        target_model = create_cobra_model_from_sbml_file("./%s/3_temp_models/target_model_gapFilled2.xml" %options.output)
 
         logging.debug("Reaction added to the target_model: %s" %gapfill_rxn)
 
+    #Cleanup of the final version of the target model
+    #This function causes an error if executed after 'copy.deepcopy'ing the model
+    prune_unused_metabolites(target_model)
     target_model_complete = copy.deepcopy(target_model)
 
     return target_model_complete

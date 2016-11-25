@@ -13,7 +13,6 @@ import sys
 import time
 
 from cobra.io.sbml import write_cobra_model_to_sbml_file, create_cobra_model_from_sbml_file
-from cobra.manipulation.delete import prune_unused_metabolites
 from argparse import Namespace
 from modeling import prunPhase
 from modeling import augPhase
@@ -357,9 +356,6 @@ def run_gapfilling(target_model, target_model2, adj_unique_nonprod_monomers_list
         else:
             logging.debug("Gap-filling not possible: target_model with reactions from universal_model does not produce this monomer: %s" %nonprod_monomer)
 
-    #Cleanup of the final version of the target model
-    prune_unused_metabolites(target_model_complete)
-
     return target_model_complete
 
 
@@ -383,11 +379,11 @@ def generate_outputs_secondary_model(target_model_complete, options):
     fp2.write("Metabolite ID"+"\t"+"Metabolite name"+"\t"+"Formula"+"\t"+"Compartment"+"\n")
 
     for j in range(len(target_model_complete.reactions)):
-        rxn = target_model.reactions[j]
+        rxn = target_model_complete.reactions[j]
         print >>fp1, '%s\t%s\t%s\t%s\t%s\t%s' %(rxn.id, rxn.name, rxn.lower_bound, rxn.reaction, rxn.gene_reaction_rule, rxn.subsystem)
 
     for i in range(len(target_model_complete.metabolites)):
-        metab = target_model.metabolites[i]
+        metab = target_model_complete.metabolites[i]
         print >>fp2, '%s\t%s\t%s\t%s' %(metab.id, metab.name, metab.formula, metab.compartment)
 
     fp1.close()
