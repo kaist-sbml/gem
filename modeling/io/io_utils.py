@@ -18,13 +18,6 @@ def get_temp_fasta(options):
                 options.temp_fasta = tempFasta
 
 
-#Look for a target .gbk file from antiSMASH
-def get_target_gbk(options):
-    for target_gbk in os.listdir(options.input):
-        if target_gbk.endswith('.gb') or target_gbk.endswith('.gbk'):
-            options.input_gbk = target_gbk
-
-
 def get_targetGenomeInfo(options, file_type):
 
     fp = open('./%s/1_blastp_results/targetGenome_locusTag_aaSeq.fa'
@@ -36,10 +29,10 @@ def get_targetGenomeInfo(options, file_type):
 
     #Read GenBank file
     try:
-        seq_record = SeqIO.read(options.outputfolder+'/'+options.input_gbk, file_type)
+        seq_record = SeqIO.read(options.outputfolder+'/'+options.input, file_type)
     except ValueError:
         logging.debug("Warning: ValueError occurred in SeqIo.read")
-        seq_record = SeqIO.parse(options.outputfolder+'/'+options.input_gbk,
+        seq_record = SeqIO.parse(options.outputfolder+'/'+options.input,
                      file_type).next()
 
     if options.eficaz:

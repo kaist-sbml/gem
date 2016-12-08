@@ -6,7 +6,6 @@ import logging
 import pickle
 from io_utils import (
     get_temp_fasta,
-    get_target_gbk,
     get_targetGenomeInfo,
     get_target_fasta
 )
@@ -17,9 +16,6 @@ def get_genome_files(options):
 
     logging.info("Looking for a gbk file of a template model genome..")
     get_temp_fasta(options)
-
-    logging.info("Looking for a gbk file of a target genome..")
-    get_target_gbk(options)
 
     logging.info("Reading genbank file of the target genome..")
     get_targetGenomeInfo(options, 'genbank')

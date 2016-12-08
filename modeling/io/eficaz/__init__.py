@@ -18,15 +18,14 @@ import logging
 import multiprocessing
 import os
 import re
-import tempfile
-import time
 import shutil
 import sys
+import tempfile
+import time
+import utils
 from Bio import SeqIO
 from Bio.Alphabet import generic_protein
 from Bio.Seq import Seq
-#from modeling.io import utils
-import utils
 from urllib2 import URLError
 
 
@@ -53,23 +52,23 @@ def check_prereqs():
     return failure_messages
 
 class EFICAzECPrediction:
-    
+
     def __init__(self, seq_record, options):
-        
+
         # Assign variables
         self.seq_record = seq_record
         self.options = options
-        
+
         # Variables to store EC prediction
         self.EC4Dict = {}
         self.EC3Dict = {}
         self.EC4InfoDict = {}
         self.EC3InfoDict = {}
-        
+
         # Dictionary to store the fasta file per Chunkdir
         # self.ChunkFilenames['/path/to/Chunk1'] = '/path/to/fastafile'
         self.ChunkFilenames = {}
-        
+
         self.basedirName = os.path.abspath(os.path.join(options.outputfoldername, "EFICAz"))
         try:
             os.makedirs(self.basedirName)
@@ -80,10 +79,10 @@ class EFICAzECPrediction:
             else:
                 logging.exception("Cannot create EFICAz output directory %s" % self.basedirName)
                 sys.exit(1)
-                
+
         tempdir = tempfile.mkdtemp(prefix='antiSMASH_ECpred')
         self.tempdirname = tempdir
-        
+
     def _getMultiFastaList(self):
         features = utils.get_cds_features(self.seq_record)
         allFastaList = []
@@ -99,45 +98,43 @@ class EFICAzECPrediction:
             elif len(fasta_seq) == 0:
                 logging.debug("No translation for %s, skipping" % gene_id)
                 continue
-    
+
             allFastaList.append(">%s\n%s\n" % (gene_id, fasta_seq))
-            
+
         return allFastaList
-       
-    
+
+
     def _prepareInput(self):
         """Generate $options.cpus chunks of multi-Fasta-files; each in it's own subdirectory named "Chunk0000x";
         returns: list of directorynames"""
-        
+
         logging.debug("Preparing input files for EFICAz")
         InputDirList = []
         allFastaList = self._getMultiFastaList()
-        
-        
+
         maxChunks = self.options.cpus
-        
-        
+
+
         if len(allFastaList) < maxChunks:
             maxChunks = len(allFastaList)
-        
+
         if maxChunks == 0:
             logging.warn('No input files for %s', self.seq_record.id)
             return []
         equalpartsizes = int(len(allFastaList) / maxChunks)
-        
-        
+
         # Generate directory structure and write chunks;
         # for debug purposes use outputfolder; later on we should move to a temporary directory
-        
+
         for i in range(maxChunks):
             if i == 0:
                 fastaChunk = allFastaList[:equalpartsizes]
             elif i == (self.options.cpus-1):
                 fastaChunk = allFastaList[(i*equalpartsizes):]
             else:
-                fastaChunk = allFastaList[(i*equalpartsizes):((i+1)*equalpartsizes)]   
-                
-                
+                fastaChunk = allFastaList[(i*equalpartsizes):((i+1)*equalpartsizes)]
+
+
             # setup separate directories for EFICAz
             chunkDirName = "{basedir}{sep}Chunk{chunk_no:05d}".format(basedir=self.tempdirname, sep=os.sep,chunk_no=i+1)
             # logging.debug("Trying to create folder: %s" % chunkDirName)
@@ -151,7 +148,7 @@ class EFICAzECPrediction:
                     logging.exception("Cannot create directory %s." % chunkDirName)
                     sys.exit(1)
             InputDirList.append(chunkDirName)
-            
+
             chunkFileName = "{dirname}{sep}input_{seqid}_{chunk_no:05d}.fasta".format(dirname=chunkDirName, \
                                                                                       sep=os.sep, \
                                                                                       seqid=self.seq_record.id, \
@@ -161,15 +158,14 @@ class EFICAzECPrediction:
             except OSError:
                 logging.exception("Cannot create fasta file %s" % chunkFileName)
                 sys.exit(1)
-                
-                
+
             self.ChunkFilenames[chunkDirName] = os.path.abspath(chunkFileName)
             for seq in fastaChunk:
                 f.write(seq)
             f.close()
         self.InputDirList = InputDirList
         return InputDirList
-    
+
     def _runEFICAz(self, chunkDir):
         cwd = os.getcwd()
         try:
@@ -187,7 +183,7 @@ class EFICAzECPrediction:
                 logging.exception("EFICAz executable not found, bailing out, analysis not posible")
                 sys.exit(1)
             cmdline = [EFICAzExecutable, fastafile]
-            
+
             logging.debug("executing %s in directory %s" % (" ".join(cmdline), chunkDir))
             try:
                 utils.execute(cmdline)
@@ -205,18 +201,17 @@ class EFICAzECPrediction:
                                  os.path.isfile(os.path.abspath(self.basedirName, ecpredfile)), \
                                  self.ChunkFilenames[chunkDir]+".ecpred" )
                 sys.exit(1)
-                
+
         os.chdir(cwd)
-        
-        
-            
+
+
     def _execute_EFICAz_processes(self, directorynames):
-        
+
         processList = []
-        
+
         for directoryname in directorynames:
             processList.append(multiprocessing.Process(target=self._runEFICAz, args = (directoryname, )))
-        
+
         for process in processList:
             process.start()
         time.sleep(10)
@@ -231,14 +226,14 @@ class EFICAzECPrediction:
                 break
         for process in processList:
             process.join()
-            
-    
+
+
         logging.debug("After joining the processes EC4Dict has %s entries" % len(self.EC4Dict.keys()))
-        
+
     def _parseEFICAzResults(self, chunkDirs):
-        
+
         for chunkDir in chunkDirs:
-            
+
             # logging.debug("ChunkFilenames[%s]=%s", chunkDir, self.ChunkFilenames[chunkDir])
             ecpredfile = self.ChunkFilenames[chunkDir]+".ecpred"
             try:
@@ -253,7 +248,7 @@ class EFICAzECPrediction:
             EC4Info = {}
             EC3Pred = {}
             EC3Info = {}
-            
+
             for line in f.read().splitlines():
                 # First get antiSMASH-ID
                 (antiSMASH_ID, eficazResultString) = line.split(',', 1)
@@ -261,7 +256,7 @@ class EFICAzECPrediction:
                 if eficazResultString == 'No EFICAz EC assignment':
                     #logging.debug("No EC assignment found for %s" % antiSMASH_ID)
                     continue
-                
+
                 if eficazResultString.strip().startswith("3EC"):
                     #logging.debug("3EC: %s" % eficazResultString)
                     r = re.match('3EC: (\d+\.\d+\.\d+), (.*)', eficazResultString)
@@ -274,7 +269,7 @@ class EFICAzECPrediction:
                         EC3Pred[antiSMASH_ID].append(EC)
                         EC3Info[antiSMASH_ID].append(ECDesc)
                         continue
-                    
+
                 if eficazResultString.strip().startswith("4EC"):
                     r = re.match('4EC: (\d+\.\d+\.\d+\.\d+), (.*)', eficazResultString)
                     if r:
@@ -286,20 +281,20 @@ class EFICAzECPrediction:
                         EC4Pred[antiSMASH_ID].append(EC)
                         EC4Info[antiSMASH_ID].append(ECDesc)
                         continue
-                
+
                 logging.warn("Could not parse line %s:" % line)
             f.close()
-            
+
             self.EC4Dict.update(EC4Pred)
             self.EC4InfoDict.update(EC4Info)
             self.EC3Dict.update(EC3Pred)
             self.EC3InfoDict.update(EC3Info)
-            
+
             logging.debug("EC4Pred has %s entries for chunk" % len(self.EC4Dict.keys()))
-        
+
     def _copyFiles(self, chunkDirs):
         "Copy the input and output files into outputfolder"
-        
+
         logging.debug("Copying the eficaz input/result files from tempdir %s to outputfolder %s", \
                       self.tempdirname, self.basedirName)
         for chunkDir in chunkDirs:
@@ -309,7 +304,7 @@ class EFICAzECPrediction:
             except:
                 logging.error("Could not copy eficaz input file %s to destination %s", \
                               self.ChunkFilenames[chunkDir], self.basedirName)
-            
+
             try:
                 # logging.debug("Copying results file from %s to outputfolder", chunkDir)
                 shutil.copy(self.ChunkFilenames[chunkDir]+".ecpred", self.basedirName)
@@ -319,8 +314,8 @@ class EFICAzECPrediction:
         # And finally remove temporary directory
         logging.debug("removing temp dir %s", self.tempdirname)
         shutil.rmtree(self.tempdirname)
-        
-         
+
+
     def runECpred(self):
         "Runs the EFICAz EC number predictions"
         chunkDirs = self._prepareInput()
@@ -331,10 +326,10 @@ class EFICAzECPrediction:
             self._copyFiles(chunkDirs)
         else:
             logging.warn("ECpredictor: No protein coding sequences found for in record: %s" % self.seq_record.id)
-        
+
     def getEC3(self, antiSMASH_ID):
         """Return list of EC3 numbers for antiSMASH_ID"""
-        
+
         if self.EC3Dict.has_key(antiSMASH_ID):
             return self.EC3Dict[antiSMASH_ID]
         else:
@@ -342,67 +337,67 @@ class EFICAzECPrediction:
 
     def getEC3Info(self, antiSMASH_ID):
         """Return list of infos for EC3 number prediction for antiSMASH_ID"""
-        
+
         if self.EC3InfoDict.has_key(antiSMASH_ID):
             return self.EC3InfoDict[antiSMASH_ID]
         else:
             return None
-        
+
     def getEC4(self, antiSMASH_ID):
         """Return list of EC4 numbers for antiSMASH_ID"""
-        
+
         if self.EC4Dict.has_key(antiSMASH_ID):
             return self.EC4Dict[antiSMASH_ID]
         else:
             return None
-        
+
     def getEC4Info(self, antiSMASH_ID):
         """Return list of infos for EC4 number prediction for antiSMASH_ID"""
-        
+
         if self.EC4InfoDict.has_key(antiSMASH_ID):
             return self.EC4InfoDict[antiSMASH_ID]
         else:
             return None
-        
+
     def getEC4Dict(self):
         """Return dictionary of list for 4-digit EC numbers
-        
+
         Example:
         a = EFICAzObject.getEC4Dict
         will result in:
         a[antiSMASH_ID] = ['1.2.3.4', '5.6.7.8']"""
-        
+
         return self.EC4Dict
-    
+
     def getEC3Dict(self):
         """Return dictionary of 3-digit EC numbers
-        
+
         Example:
         a = EFICAzObject.getEC3Dict
         will result in:
         a[antiSMASH_ID] = ['1.2.3.x', '5.6.7.x']"""
-        
+
         return self.EC3Dict
-    
-    
+
+
     def getEC4InfoDict(self):
         """Return dictionary of description for 4-digit EC assignment
-        
-        Example: 
+
+        Example:
         a = EFICAzObject.getEC4ToolDict
         will result in:
         a[antiSMASH_ID] = 'EFICAz_components: CHIEFc_SVM; PFAM_SVM, MTTSI_bin: 6, Precision (mean; SD): 0.991; 0.094' """
-        
+
         return self.EC4InfoDict
-    
+
     def getEC3InfoDict(self):
         """Return dictionary of description for 3-digit EC assignment
-        
+
         Example:
         a = EFICAzObject.getEC3ToolDict
         will result in:
         a[antiSMASH_ID] = 'EFICAz_components: CHIEFc_SVM; PFAM_SVM, MTTSI_bin: 6, Precision (mean; SD): 0.991; 0.094' """
-        
+
         return self.EC3InfoDict
 
 
@@ -415,15 +410,15 @@ def getECs(seq_record, options):
     EFICAzECs = EFICAzECPrediction(seq_record, options)
     EFICAzECs.runECpred()
     logging.debug("Found %s predictions for EC4" % len(EFICAzECs.getEC4Dict().keys()))
-    
+
     for feature in utils.get_cds_features(seq_record):
         featureID = utils.get_gene_id(feature)
-        
+
         notes = []
-        
+
         if feature.qualifiers.has_key("note"):
             notes = feature.qualifiers['note']
-            
+
         if EFICAzECs.getEC4(featureID):
             logging.debug("Annotating %s" % featureID)
             if feature.qualifiers.has_key('EC_number'):
@@ -437,15 +432,15 @@ def getECs(seq_record, options):
                 if not re.search("\d+\.\d+\.\d+\.\d+", " ".join(feature.qualifiers['EC_number'])):
                     logging.warn('ECpredictor[eficaz]: Overwriting existing EC annotation: %s  with %s' %(", ".join(feature.qualifiers['EC_number']), ", ".join(EFICAzECs.getEC3(featureID))))
                     feature.qualifiers['EC_number'] = EFICAzECs.getEC3(featureID)
-            
+
         if EFICAzECs.getEC3Info(featureID):
             notes.append("EFICAz EC number prediction: EC3: {0}; {1}".format(", ".join(EFICAzECs.getEC3(featureID)), "; ".join(EFICAzECs.getEC3Info(featureID))))
             if not feature.qualifiers.has_key('EC_number'):
                 feature.qualifiers['EC_number'] = EFICAzECs.getEC3(featureID)
-             
+
         feature.qualifiers['note'] = notes
     logging.debug("Finished EC number prediction with EFICAz")
 
     #Write output gbk file
-    output_gbk = os.path.splitext(options.input_gbk)[0]+'_ec.gbk'
+    output_gbk = os.path.splitext(options.input)[0]+'_ec.gbk'
     SeqIO.write(seq_record, os.path.join(options.outputfoldername, output_gbk), 'genbank')
