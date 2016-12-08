@@ -1,7 +1,6 @@
-'''
-2015 Kyu-Sang Hwang
-2014-2015 Hyun Uk Kim
-'''
+
+#Copyright 2014-2016 BioInformatics Research Center, KAIST
+#Copyright 2014-2016 Novo Nordisk Foundation Center for Biosustainability, DTU
 
 from cobra import Metabolite
 
@@ -780,14 +779,14 @@ def get_biggid_from_aSid(each_substrate):
     #No bigg ID
     elif each_substrate == 'trans-1,2-CPDA':
         met_name = '23cpda'
-        
+
     #No bigg ID
     elif each_substrate == 'bmt':
         met_name = 'MNXM31446'
 
     elif each_substrate == 'sal':
         met_name = 'salc'
-        
+
     #No bigg ID
     elif each_substrate == 'alaninol':
         met_name = 'MNXM8817'
@@ -839,7 +838,7 @@ def get_biggid_from_aSid(each_substrate):
 
     #No bigg ID
     elif each_substrate == 'capreomycidine':
-        met_name = 'MNXM18891' 
+        met_name = 'MNXM18891'
 
     return met_name
 
@@ -958,23 +957,23 @@ def add_sec_met_mnxm_having_no_biggid_to_model(metab, metab_compt, mnxm_compound
         metab_compt = Metabolite(metab_compt, formula = mnxm_compoundInfo_dict['MNXM37380'][1], name = mnxm_compoundInfo_dict['MNXM37380'][0], compartment='c')
         #rxn.add_metabolites({metab_compt:metab_coeff_dict[metab]})
 
-    #No MNXM, KEGG ID and bigg ID for "bht"    
+    #No MNXM, KEGG ID and bigg ID for "bht"
     elif metab == 'tcl':
         metab_compt = Metabolite(metab_compt, compartment='c')
-        
+
     elif metab == 'MNXM80505': #'qa'
         metab_compt = Metabolite(metab_compt, formula = mnxm_compoundInfo_dict['MNXM80505'][1], name = mnxm_compoundInfo_dict['MNXM80505'][0], compartment='c')
         #rxn.add_metabolites({metab_compt:metab_coeff_dict[metab]})
 
     elif metab == '23cpda':
         metab_compt = Metabolite(metab_compt, compartment='c')
-        
+
     elif metab == 'MNXM31446':
         metab_compt = Metabolite(metab_compt, formula = mnxm_compoundInfo_dict['MNXM31446'][1], name = mnxm_compoundInfo_dict['MNXM31446'][0], compartment='c')
 
     elif metab == 'MNXM8817':
         metab_compt = Metabolite(metab_compt, formula = mnxm_compoundInfo_dict['MNXM8817'][1], name = mnxm_compoundInfo_dict['MNXM8817'][0], compartment='c')
-      
+
     elif metab == 'emcoa_DASH_S':
         metab_compt = Metabolite(metab_compt, formula = mnxm_compoundInfo_dict['MNXM2043'][1], name = mnxm_compoundInfo_dict['MNXM2043'][0], compartment='c')
         #rxn.add_metabolites({metab_compt:metab_coeff_dict[metab]})

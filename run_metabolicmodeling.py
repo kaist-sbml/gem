@@ -18,14 +18,14 @@ from modeling.io.input_file_manager import (
     get_pickles_add_rxn,
     get_pickles_prunPhase
 )
-from modeling.io.input_file_manager import (
+from modeling.io.output_file_manager import (
     generate_outputs_primary_model,
     generate_outputs_secondary_model
 )
-from modeling.homology import get_homologs
-from modeling.primary_model import run_prunPhase
-from modeling.primary_model import run_augPhase
-from modeling.run_sec_met_rxn_generation import (
+from modeling.homology.bidirect_blastp_analysis import get_homologs
+from modeling.primary_model.run_prunPhase import run_prunPhase
+from modeling.primary_model.run_augPhase import run_augPhase
+from modeling.secondary_model.run_sec_met_rxn_generation import (
     run_sec_met_rxn_generation,
     prep_network_for_gapfilling,
     get_target_nonprod_monomers_for_gapfilling,

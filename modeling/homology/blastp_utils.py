@@ -1,117 +1,16 @@
-'''
-2014
-Hyun Uk Kim, Tilmann Weber, Jae Yong Ryu and Kyu-Sang Hwang
-'''
 
-import copy
+#Copyright 2014-2016 BioInformatics Research Center, KAIST
+#Copyright 2014-2016 Novo Nordisk Foundation Center for Biosustainability, DTU
+
 import logging
 import os
-import pickle
 import subprocess
-import sys
-from Bio import SeqIO
-from cobra.flux_analysis import single_deletion
-from cobra.manipulation.delete import prune_unused_metabolites
-from eficaz.__init__ import getECs
-
-#Look for .xml and .gb(k) files in the pre-defined folder
-def get_temp_fasta(options):
-    for root, _, files in os.walk('./modeling/data/input1/%s/' %(options.orgName)):
-        for f in files:
-            if f.endswith('.fa'):
-                tempFasta = os.path.join(root, f)
-                options.input1 = root
-                options.temp_fasta = tempFasta
 
 
-#Look for a target .gbk file from antiSMASH
-def get_target_gbk(options):
-    for target_gbk in os.listdir(options.input+'/'):
-        if target_gbk.endswith('.gb') or target_gbk.endswith('.gbk'):
-            options.input_gbk = target_gbk
-
-
-def get_targetGenomeInfo(options, file_type):
-
-    fp = open('./%s/1_blastp_results/targetGenome_locusTag_aaSeq.fa' %options.output,'w')
-
-    targetGenome_locusTag_aaSeq_dict = {}
-    targetGenome_locusTag_ec_dict = {}
-    targetGenome_locusTag_prod_dict = {}
-
-    #Read GenBank file
-    try:
-        seq_record = SeqIO.read(options.output+'/'+options.input_gbk, file_type)
-    except ValueError:
-        logging.debug("Warning: ValueError occurred in SeqIo.read")
-        seq_record = SeqIO.parse(options.output+'/'+options.input_gbk, file_type).next()
-
-    if options.eficaz:
-        getECs(seq_record, options)
-
-    total_cluster = 0
-
-    for feature in seq_record.features:
-        if feature.type == 'CDS':
-
-            #Retrieving "locus_tag (i.e., ORF name)" for each CDS
-            locusTag = feature.qualifiers['locus_tag'][0]
-
-            #Some locus_tag's have multiple same qualifiers (e.g., EC_number)
-            for item in feature.qualifiers:
-
-                #Note that the numbers of CDS and "translation" do not match.
-                #There are occasions that CDS does not have "translation".
-
-#These if statements may be removed:e.g., sec_met_rxn_generation.py
-                if item == 'translation':
-
-                    #Retrieving "translation (i.e., amino acid sequences)" for each CDS
-                    translation = feature.qualifiers.get('translation')
-                    targetGenome_locusTag_aaSeq_dict[locusTag] = translation[0]
-                    print >>fp, '>%s\n%s' % (str(locusTag), str(translation[0]))
-
-                #Used to find "and" relationship in the GPR association
-                if item == 'product':
-                    product = feature.qualifiers.get('product')[0]
-                    targetGenome_locusTag_prod_dict[locusTag] = product
-
-                #Watch multiple EC_number's
-		if item == 'EC_number':
-                    ecnum = feature.qualifiers.get('EC_number')
-                    targetGenome_locusTag_ec_dict[locusTag] = ecnum
-
-        if feature.type == 'cluster':
-            total_cluster += 1
-
-    #Check if the gbk file has EC_number
-    #Additional conditions should be given upon setup of in-house EC_number assigner
-    logging.debug("len(targetGenome_locusTag_ec_dict.keys): %s" %len(targetGenome_locusTag_ec_dict))
-    logging.debug("len(targetGenome_locusTag_prod_dict.keys):%s" %len(targetGenome_locusTag_prod_dict))
-
-    options.targetGenome_locusTag_ec_dict = targetGenome_locusTag_ec_dict
-    options.targetGenome_locusTag_prod_dict = targetGenome_locusTag_prod_dict
-    options.total_cluster = total_cluster
-    options.seq_record = seq_record
-
-    fp.close()
-
-
-#Look for .fa and .gbk  files in the pre-defined folder
-def get_target_fasta(options):
-    for root, _, files in os.walk('./%s/1_blastp_results' %options.output):
-        for f in files:
-            if f.endswith('.fa'):
-                target_fasta = os.path.join(root, f)
-                options.target_fasta = target_fasta
-	else:
-            logging.debug("FASTA file %s for bidirectional blastp hits not found.")
-
-
-#making database files using fasta files
+#Make database files using fasta files
 def make_blastDB(options):
     db_dir = './%s/1_blastp_results/targetBlastDB' %options.output
-    DBprogramName = './modeling/blastpfiles/makeblastdb.exe'
+    DBprogramName = './modeling/homology/blastpfiles/makeblastdb.exe'
     subprocess.call([DBprogramName,'-in',options.target_fasta,'-out',db_dir,'-dbtype','prot'])
 
     #Checks if DB is properly created; otherwise shutdown
@@ -122,7 +21,7 @@ def make_blastDB(options):
 #Output: b0002,ASPK|b0002,0.0,100.00,820
 #"1e-30" is set as a threshold for bidirectional best hits
 def run_blastp(target_fasta = '', blastp_result = '', db_dir = '', evalue = 1e-30):
-    BLASTPprogramName = './modeling/blastpfiles/blastp.exe'
+    BLASTPprogramName = './modeling/homology/blastpfiles/blastp.exe'
     subprocess.call([BLASTPprogramName,'-query',target_fasta,'-out',blastp_result,'-db',db_dir,'-evalue', str(evalue),'-outfmt',"10 qseqid sseqid evalue score length pident"])
 
 
@@ -187,16 +86,18 @@ def getBBH(dic1, dic2, options):
         for temp_locusTag in dic1[target_locusTag]:
             if temp_locusTag in dic2.keys():
                 for target_locusTag2 in dic2[temp_locusTag]:
+
                     #The BBH case
                     if target_locusTag == target_locusTag2:
-			if target_locusTag not in targetBBH_list:
-                           targetBBH_list.append(target_locusTag)
+                        if target_locusTag not in targetBBH_list:
+                            targetBBH_list.append(target_locusTag)
 
-                        #Some genes in template model have more than one homologous gene
+                        #Some genes in template model have more than one homologous
                         #in a target genome
                         if temp_locusTag not in temp_target_BBH_dict.keys():
-                            temp_target_BBH_dict[temp_locusTag] = ([target_locusTag])
-			else:
+                            temp_target_BBH_dict[temp_locusTag] = \
+                            ([target_locusTag])
+                        else:
                             temp_target_BBH_dict[temp_locusTag].append((target_locusTag))
 
     options.targetBBH_list = targetBBH_list
@@ -215,241 +116,4 @@ def get_nonBBH(options):
 
     nonBBH_list = sorted(set(nonBBH_list))
     options.nonBBH_list = nonBBH_list
-
-
-def calcBoolean(booleanList):
-    booleanList2 = copy.deepcopy(booleanList)
-    finalList = []
-    threshold = 1
-
-    if len(booleanList) == 0:
-        return False
-
-    for i in range(len(booleanList)):
-        if type(booleanList[i])==list:
-            for j in range(len(booleanList[i])):
-
-                #Threshold created to differentiate BBH and nonBBH genes.
-                if float(booleanList[i][j]) >= threshold:
-                    booleanList[i][j] = 0
-                if float(booleanList[i][j]) <= threshold:
-                    booleanList2[i][j] = 1
-            value=1
-            for j in range(len(booleanList[i])):
-                value = value * booleanList2[i][j]
-            finalList.append(value)
-        else:
-            #Threshold created to differentiate BBH and nonBBH genes.
-            if float(booleanList[i]) >= threshold:
-                booleanList[i] = 0
-            if float(booleanList[i]) <= threshold:
-                booleanList2[i] = 1
-            finalList.append(booleanList2[i])
-
-    value=0
-    for i in range(len(finalList)):
-        value = value + finalList[i]
-
-    if value == 0:
-        return False
-    else:
-        return True
-
-
-#Output: e.g., [[2, '0'], ['0', 2]]
-#Now considers nonBBH genes without removing them in the Boolean list.
-#For ( A and B), if one of them is nonBBH, its rxn should be False (subject to removal).
-def makeBooleanFormat(temp_target_BBH_dict, tempModel_biggRxnid_locusTag_dict):
-    booleanList = tempModel_biggRxnid_locusTag_dict
-    valueList = copy.deepcopy(booleanList)
-
-    for i in range(len(booleanList)):
-        if type(booleanList[i])==list:
-            for j in range(len(booleanList[i])):
-                geneid = booleanList[i][j]
-                if geneid in temp_target_BBH_dict.keys():
-                    value = 0
-                #Now considers nonBBH genes without removing them in the Boolean list
-                else:
-                    value = 2 #For nonBBH genes
-                    booleanList[i][j]='nonBBH'
-                valueList[i][j] = value
-        else:
-            geneid = booleanList[i]
-            if geneid in temp_target_BBH_dict.keys():
-		value = 0
-            else:
-                value = 'na'
-                booleanList[i]='na'
-            valueList[i] = value
-
-    while 'na' in booleanList or [] in booleanList:
-        if 'na' in booleanList:
-            booleanList.pop( booleanList.index('na') )
-        if [] in booleanList:
-            booleanList.pop( booleanList.index([]) )
-
-    newbooleanList = []
-    for i in range(len(booleanList)):
-        if type(booleanList[i]) != list:
-            newbooleanList.append(booleanList[i])
-    newbooleanList = list(set(newbooleanList))
-
-    for i in range(len(booleanList)):
-        if type(booleanList[i]) == list:
-            tmpList = booleanList[i]
-            tmpList = list(set(tmpList))
-            newbooleanList.append(tmpList)
-
-    booleanList = newbooleanList
-    valueList2 = copy.deepcopy(booleanList)
-
-    for i in range(len(booleanList)):
-        if type(booleanList[i])==list:
-            for j in range(len(booleanList[i])):
-                geneid = booleanList[i][j]
-		if 'nonBBH' not in geneid:
-                    value = 0
-		else:
-                    value = 2
-                valueList2[i][j] = value
-        else:
-            geneid = booleanList[i]
-            value = 0
-            valueList2[i] = value
-    return valueList2
-
-
-def labelRxnToRemove(model, options):
-    rxnToRemove_dict = {}
-
-    for biggRxnid in options.tempModel_biggRxnid_locusTag_dict.keys():
-	rxn = model.reactions.get_by_id(biggRxnid)
-        #Prevent removal of transport reactions from the template model
-	if 'Transport' not in rxn.name and 'transport' not in rxn.name and 'Exchange' not in rxn.name and 'exchange' not in rxn.name:
-            booleanList = makeBooleanFormat(options.temp_target_BBH_dict, options.tempModel_biggRxnid_locusTag_dict[biggRxnid])
-            rxnToRemove_dict[biggRxnid] = calcBoolean(booleanList)
-
-    options.rxnToRemove_dict = rxnToRemove_dict
-
-
-def pruneModel(model, options, solver_arg):
-    rxnToRemoveEssn_dict = {}
-    rxnRemoved_dict = {}
-    rxnRetained_dict = {}
-
-    for rxnid in options.rxnToRemove_dict.keys():
-
-        #Single reaction deletion is performed only for reactions labelled as "False"
-        if options.rxnToRemove_dict[rxnid] == False:
-            growth_rate_dict, solution_status_dict, problem_dict = single_deletion(model, list([rxnid]), element_type='reaction', solver=solver_arg)
-
-            #Checks optimality first.
-            if str(solution_status_dict.values()[0]) == 'optimal':
-
-                #Full list of reactions and predicted growth rates upon their deletions
-                rxnToRemoveEssn_dict[rxnid] = float(growth_rate_dict.values()[0])
-
-                #Checks growth rate upon reaction deletion
-                if float(growth_rate_dict.values()[0]) >= 0.01:
-                    model.remove_reactions(rxnid)
-                    #List of reactions removed from the template model
-                    rxnRemoved_dict[rxnid] = float(growth_rate_dict.values()[0])
-                    logging.debug("Removed reaction: %s; %s; %s; %s" %(rxnid, growth_rate_dict.values()[0], len(model.reactions), len(model.metabolites)))
-                else:
-                    #List of reactions retained in the template model
-                    rxnRetained_dict[rxnid] = float(growth_rate_dict.values()[0])
-                    logging.debug("Retained reaction: %s; %s; %s; %s" %(rxnid, growth_rate_dict.values()[0], len(model.reactions), len(model.metabolites)))
-
-    #Removing metabolites that are not used in the reduced model
-    prune_unused_metabolites(model)
-    modelPruned = copy.deepcopy(model)
-
-    #rxnToRemoveEssn_dict, rxnRemoved_dict and rxnRetained_dict:
-    #Not used in the downstream of this pipeline
-    return modelPruned
-
-
-def get_gpr_fromString_toList(line):
-    calcNewList = []
-    line = line.strip()
-    calcList = line.split('or')
-    for c in calcList:
-        c = c.replace('(','')
-        c = c.replace(')','')
-        c = c.replace(' ','')
-        c = c.strip()
-        if 'and' in c:
-            newlist = c.split('and')
-            newlist = list(set(newlist))
-            newlist.sort()
-            calcNewList.append(newlist)
-        else:
-            geneid=c.strip()
-            if geneid not in calcNewList:
-                calcNewList.append(geneid)
-
-    return calcNewList
-
-
-def swap_locusTag_tempModel(modelPruned, options):
-
-    #Retrieves reactions associated with each homologous gene in template model
-    for BBHrxn in modelPruned.reactions:
-	booleanList = []
-        #Retrieves all the genes associated with a reaction having the homologous gene
-        #and transforms String to List
-	booleanList = get_gpr_fromString_toList(BBHrxn.gene_reaction_rule)
-
-        modified_booleanList = []
-	for tempLocusTag in booleanList:
-
-            #Checks if the element itself is List.
-            #If the element is not List, then gene in template model is
-            #directly replaced with genes in target genome
-            if type(tempLocusTag) != list:
-		if tempLocusTag in options.temp_target_BBH_dict:
-                    booleanList.pop(booleanList.index(tempLocusTag))
-                    for targetLocusTag in options.temp_target_BBH_dict[tempLocusTag]:
-                        modified_booleanList.append(targetLocusTag)
-                else:
-                    modified_booleanList.append( tempLocusTag )
-
-            #This is the case the element is List
-            else:
-                temp_gpr_list = []
-		for eachLocusTag in tempLocusTag:
-                    if eachLocusTag in options.temp_target_BBH_dict:
-			for targetLocusTag in options.temp_target_BBH_dict[eachLocusTag]:
-                            temp_gpr_list.append(targetLocusTag)
-                    else:
-                        temp_gpr_list.append(eachLocusTag)
-                #This case was not generated, but just in case
-                if len(temp_gpr_list)==1:
-                    logging.debug(temp_gpr_list)
-                    modified_booleanList.append(temp_gpr_list[0])
-                elif len(temp_gpr_list) > 1:
-                    modified_booleanList.append( temp_gpr_list )
-
-
-        #Converts GPR in List to String:
-        booleanList = copy.deepcopy( modified_booleanList )
-	stringlist = []
-	for i in range(len(booleanList)):
-            booleanstring = ''
-            if type(booleanList[i])==list:
-		booleanstring=' and '.join(booleanList[i])
-		booleanstring='('+booleanstring+')'
-		stringlist.append(booleanstring)
-            else:
-		booleanstring=booleanList[i]
-		stringlist.append(booleanstring)
-
-	booleanstring2 = ''
-	if len(stringlist) > 0:
-            booleanstring2 = '('+' or '.join(stringlist)+')'
-	BBHrxn.add_gene_reaction_rule(booleanstring2)
-
-    modelPrunedGPR = copy.deepcopy(modelPruned)
-    return modelPrunedGPR
 

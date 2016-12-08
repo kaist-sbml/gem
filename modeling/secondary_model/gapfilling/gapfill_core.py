@@ -1,8 +1,6 @@
-'''
-2015 Jae-Yong Ryu
-2015 Kyu-Sang Hwang
-2015 Hyun Uk Kim
-'''
+
+#Copyright 2014-2016 BioInformatics Research Center, KAIST
+#Copyright 2014-2016 Novo Nordisk Foundation Center for Biosustainability, DTU
 
 #gurobipy should be imported in this manner
 import logging

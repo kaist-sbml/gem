@@ -1,7 +1,6 @@
-'''
-2015 Kyu-Sang Hwang
-2015 Hyun Uk Kim
-'''
+
+#Copyright 2014-2016 BioInformatics Research Center, KAIST
+#Copyright 2014-2016 Novo Nordisk Foundation Center for Biosustainability, DTU
 
 import copy
 import logging
@@ -9,7 +8,7 @@ from cobra import Model, Reaction, Metabolite
 from cobra.io.sbml import create_cobra_model_from_sbml_file, write_cobra_model_to_sbml_file
 from cobra.manipulation.delete import prune_unused_metabolites
 from gapfill_core import gapfilling_precursor
-from ..primary_model.augPhase_utils import(
+from ...primary_model.augPhase_utils import(
     get_exrxnid_flux,
     check_exrxn_flux_direction
 )
@@ -154,8 +153,8 @@ def check_gapfill_rxn_biomass_effects(target_model, universal_model, added_react
         write_cobra_model_to_sbml_file(target_model_gapFilled, "./%s/3_temp_models/target_model_gapFilled.xml" %options.output)
         target_model_gapFilled = create_cobra_model_from_sbml_file("./%s/3_temp_models/target_model_gapFilled.xml" %options.output)
 
-        target_exrxnid_flux_dict = augPhase.get_exrxnid_flux(target_model_gapFilled, options.template_exrxnid_flux_dict)
-        exrxn_flux_change_list = augPhase.check_exrxn_flux_direction(options.template_exrxnid_flux_dict, target_exrxnid_flux_dict)
+        target_exrxnid_flux_dict = get_exrxnid_flux(target_model_gapFilled, options.template_exrxnid_flux_dict)
+        exrxn_flux_change_list = check_exrxn_flux_direction(options.template_exrxnid_flux_dict, target_exrxnid_flux_dict)
 
         #Remove gap-filling reactions if they cause wrong flux values for nutrients transport
         #Removal of such reactions does not affect producibility of corresponding secondary metabolites, and even generates more realistic flux values

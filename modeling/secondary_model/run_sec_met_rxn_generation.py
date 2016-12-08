@@ -1,22 +1,10 @@
-'''
-2014-2015
-Hyun Uk Kim, Tilmann Weber, Kyu-Sang Hwang and Jae Yong Ryu
-'''
 
-#Wildcard imports should never be used in production code.
-#import argparse
+#Copyright 2014-2016 BioInformatics Research Center, KAIST
+#Copyright 2014-2016 Novo Nordisk Foundation Center for Biosustainability, DTU
+
 import logging
-#import multiprocessing
-#import os
 import pickle
-#import sys
-#import time
-
-#from cobra.io.sbml import write_cobra_model_to_sbml_file, create_cobra_model_from_sbml_file
-#from argparse import Namespace
-#from modeling import prunPhase
-#from modeling import augPhase
-from sec_met_rxn_generation import(
+rom sec_met_rxn_generation import(
     get_cluster_location,
     get_cluster_info_from_seq_record,
     get_cluster_product,
@@ -31,7 +19,6 @@ from sec_met_rxn_generation import(
     get_monomers_nonprod_sec_met,
     get_monomers_prod_sec_met
 )
-
 from gapfilling.gapfill_network_manipulation import(
     get_mnxr_bigg_in_target_model,
     get_mnxr_unique_to_universal_model,
@@ -45,7 +32,8 @@ from gapfilling.gapfill_network_manipulation import(
 )
 
 
-def run_sec_met_rxn_generation(cluster_nr, target_model, prod_sec_met_dict, nonprod_sec_met_dict, options):
+def run_sec_met_rxn_generation(cluster_nr, target_model, prod_sec_met_dict,
+                                nonprod_sec_met_dict, options):
 
     get_cluster_location(cluster_nr, options)
 
@@ -92,15 +80,16 @@ def prep_network_for_gapfilling(target_model, options):
     logging.info("Gap-filling for the production of secondary metabolites..")
     logging.debug("Step 1: Network manipulation for gap-filling process..")
 
-    universal_model = pickle.load(open("./modeling/data/input2/universal_model.p","rb"))
+    universal_model = pickle.load(open("./modeling/io/data/input2/universal_model.p","rb"))
 
-    logging.debug("Retrieving reaction information from target_model and universal_model..")
-    gapfill_network_manipulation.get_mnxr_bigg_in_target_model(target_model, options)
+    logging.debug("Retrieving reaction information from target_model an universal_model..")
+    get_mnxr_bigg_in_target_model(target_model, options)
 
-    gapfill_network_manipulation.get_mnxr_unique_to_universal_model(universal_model, options)
+    get_mnxr_unique_to_universal_model(universal_model, options)
 
     logging.debug("Merging target_model and universal_model..")
-    target_model2 = gapfill_network_manipulation.integrate_target_universal_models(target_model, universal_model, options)
+    target_model2 = integrate_target_universal_models(target_model,
+                    universal_model, options)
 
     return target_model2, universal_model
 
@@ -108,15 +97,17 @@ def prep_network_for_gapfilling(target_model, options):
 def get_target_nonprod_monomers_for_gapfilling(target_model, options):
     logging.debug("Step 2: Optimization-based gap-filling process..")
 
-    unique_nonprod_monomers_list = gapfill_network_manipulation.get_unique_nonprod_monomers_list(options)
+    unique_nonprod_monomers_list = get_unique_nonprod_monomers_list(options)
 
     #Some monomers used for nonproducible secondary metabolites can be produced from an initial target_model
     #They need to be excluded from the list for gap-filling targets
     adj_unique_nonprod_monomers_list = []
 
     for nonprod_monomer in unique_nonprod_monomers_list:
-        target_model_monomer = gapfill_network_manipulation.add_transport_exchange_rxn_nonprod_monomer(target_model, nonprod_monomer, options)
-        target_model_monomer = gapfill_network_manipulation.check_producibility_nonprod_monomer(target_model_monomer, nonprod_monomer)
+        target_model_monomer = add_transport_exchange_rxn_nonprod_monomer(target_model,
+                               nonprod_monomer, options)
+        target_model_monomer = check_producibility_nonprod_monomer(target_model_monomer,
+                               nonprod_monomer)
         if target_model_monomer.solution.f < 0.0001:
             adj_unique_nonprod_monomers_list.append(nonprod_monomer)
         else:
@@ -130,15 +121,19 @@ def get_target_nonprod_monomers_for_gapfilling(target_model, options):
 def run_gapfilling(target_model, target_model2, adj_unique_nonprod_monomers_list, universal_model, options):
 
     for nonprod_monomer in adj_unique_nonprod_monomers_list:
-        target_model_temp = gapfill_network_manipulation.add_transport_exchange_rxn_nonprod_monomer(target_model2, nonprod_monomer, options)
-        target_model_temp = gapfill_network_manipulation.check_producibility_nonprod_monomer(target_model_temp, nonprod_monomer)
+        target_model_temp = add_transport_exchange_rxn_nonprod_monomer(target_model2,
+                            nonprod_monomer, options)
+        target_model_temp = check_producibility_nonprod_monomer(target_model_temp,
+                            nonprod_monomer)
         target_model_temp.optimize()
 
         #Run gap-filling procedure only for monomers producible from target_model with reactions from universal_model
         if target_model_temp.solution.f > 0:
-            added_reaction = gapfill_network_manipulation.execute_gapfill(target_model_temp, nonprod_monomer, options)
-            added_reaction2  = gapfill_network_manipulation.check_gapfill_rxn_biomass_effects(target_model, universal_model, added_reaction, options)
-            target_model_complete = gapfill_network_manipulation.add_gapfill_rxn_target_model(target_model, universal_model, added_reaction2, options)
+            added_reaction = execute_gapfill(target_model_temp, nonprod_monomer, options)
+            added_reaction2 = check_gapfill_rxn_biomass_effects(target_model,
+                              universal_model, added_reaction, options)
+            target_model_complete = add_gapfill_rxn_target_model(target_model,
+                                    universal_model, added_reaction2, options)
         else:
             logging.warning("Gap-filling not possible: target_model with reactions from universal_model does not produce this monomer: %s" %nonprod_monomer)
 

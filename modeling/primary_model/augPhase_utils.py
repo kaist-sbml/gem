@@ -1,7 +1,6 @@
-'''
-2014-2015
-Hyun Uk Kim, Tilmann Weber, Jae Yong Ryu and Kyu-Sang Hwang
-'''
+
+#Copyright 2014-2016 BioInformatics Research Center, KAIST
+#Copyright 2014-2016 Novo Nordisk Foundation Center for Biosustainability, DTU
 
 import copy
 import logging

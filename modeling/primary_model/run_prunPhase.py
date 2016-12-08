@@ -1,23 +1,8 @@
-'''
-2014-2015
-Hyun Uk Kim, Tilmann Weber, Kyu-Sang Hwang and Jae Yong Ryu
-'''
 
-#Wildcard imports should never be used in production code.
-#import argparse
+#Copyright 2014-2016 BioInformatics Research Center, KAIST
+#Copyright 2014-2016 Novo Nordisk Foundation Center for Biosustainability, DTU
+
 import logging
-#import multiprocessing
-#import os
-#import pickle
-#import sys
-#import time
-
-#from cobra.io.sbml import write_cobra_model_to_sbml_file, create_cobra_model_from_sbml_file
-#from argparse import Namespace
-#from modeling import prunPhase
-#from modeling import augPhase
-#from modeling import sec_met_rxn_generation
-#from modeling.gapfilling import gapfill_network_manipulation
 from prunPhase_utils import (
     labelRxnToRemove,
     pruneModel,

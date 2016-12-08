@@ -1,9 +1,8 @@
-'''
-2015 Kyu-Sang Hwang
-2014-2015 Hyun Uk Kim
 
-This file generates metabolic reactions for the genes newly annotated to be present in the secondary metabolite-biosynthetic gene cluster from antiSMASH.
-'''
+#Copyright 2014-2016 BioInformatics Research Center, KAIST
+#Copyright 2014-2016 Novo Nordisk Foundation Center for Biosustainability, DTU
+
+#This file generates metabolic reactions for the genes newly annotated to be present in the secondary metabolite-biosynthetic gene cluster from antiSMASH.
 
 import logging
 from Bio import SeqIO

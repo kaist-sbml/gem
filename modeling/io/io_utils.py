@@ -1,14 +1,9 @@
-'''
-2014
-Hyun Uk Kim, Tilmann Weber, Jae Yong Ryu and Kyu-Sang Hwang
-'''
 
-#import copy
+#Copyright 2014-2016 BioInformatics Research Center, KAIST
+#Copyright 2014-2016 Novo Nordisk Foundation Center for Biosustainability, DTU
+
 import logging
 import os
-#import pickle
-#import subprocess
-#import sys
 from Bio import SeqIO
 from eficaz.__init__ import getECs
 
@@ -25,7 +20,7 @@ def get_temp_fasta(options):
 
 #Look for a target .gbk file from antiSMASH
 def get_target_gbk(options):
-    for target_gbk in os.listdir(options.input+'/'):
+    for target_gbk in os.listdir(options.input):
         if target_gbk.endswith('.gb') or target_gbk.endswith('.gbk'):
             options.input_gbk = target_gbk
 
