@@ -29,7 +29,7 @@ def get_targetGenomeInfo(options, file_type):
 
     #Read GenBank file
     try:
-        seq_record = SeqIO.read(options.outputfolder+'/'+options.input, file_type)
+        seq_record = SeqIO.read(options.input, file_type)
     except ValueError:
         logging.debug("Warning: ValueError occurred in SeqIo.read")
         seq_record = SeqIO.parse(options.outputfolder+'/'+options.input,
