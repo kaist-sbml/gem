@@ -13,7 +13,7 @@ from io_utils import (
 
 
 def get_genome_files(options):
-    logging.info("Reading input genome files..")
+    logging.info("Reading input genome file..")
 
     logging.info("Looking for a gbk file of a template model genome..")
     get_temp_fasta(options)

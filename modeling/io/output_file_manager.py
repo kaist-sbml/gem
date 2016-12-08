@@ -19,9 +19,10 @@ def generate_outputs_primary_model(model, modelPrunedGPR, target_model, options)
 
     #Output on screen
     model = pickle.load(open('%s/model.p' %(options.input1),'rb'))
-    logging.debug("Number of genes: %s; %s; %s" %(len(model.genes), len(modelPrunedGPR.genes), len(target_model.genes)))
-    logging.debug("Number of reactions: %s; %s; %s" %(len(model.reactions), len(modelPrunedGPR.reactions), len(target_model.reactions)))
-    logging.debug("Number of metabolites: %s; %s; %s" %(len(model.metabolites), len(modelPrunedGPR.metabolites), len(target_model.metabolites)))
+    logging.info("Stats of 'primary' metabolic model")
+    logging.info("Number of genes: %s; %s; %s" %(len(model.genes), len(modelPrunedGPR.genes), len(target_model.genes)))
+    logging.info("Number of reactions: %s; %s; %s" %(len(model.reactions), len(modelPrunedGPR.reactions), len(target_model.reactions)))
+    logging.info("Number of metabolites: %s; %s; %s" %(len(model.metabolites), len(modelPrunedGPR.metabolites), len(target_model.metabolites)))
 
     fp1 = open('./%s/2_primary_metabolic_model/target_model_reactions.txt' %options.output, "w")
     fp2 = open('./%s/2_primary_metabolic_model/target_model_metabolites.txt' %options.output, "w")
@@ -50,9 +51,10 @@ def generate_outputs_secondary_model(target_model_complete, options):
 
     #Output on screen
     model = pickle.load(open('%s/model.p' %(options.input1),'rb'))
-    logging.debug("Number of genes: %s" %len(target_model_complete.genes))
-    logging.debug("Number of reactions: %s" %len(target_model_complete.reactions))
-    logging.debug("Number of metabolites: %s" %len(target_model_complete.metabolites))
+    logging.info("Stats of 'secondary' metabolic model")
+    logging.info("Number of genes: %s" %len(target_model_complete.genes))
+    logging.info("Number of reactions: %s" %len(target_model_complete.reactions))
+    logging.info("Number of metabolites: %s" %len(target_model_complete.metabolites))
 
     fp1 = open('./%s/4_complete_model/target_model_complete_reactions.txt' %options.output, "w")
     fp2 = open('./%s/4_complete_model/target_model_complete_metabolites.txt' %options.output, "w")

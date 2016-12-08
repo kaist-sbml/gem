@@ -83,8 +83,14 @@ def main():
 
     options = parser.parse_args()
 
-    if options.debug:
-        logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
+    if options.verbose:
+        log_level = logging.INFO
+    elif options.debug:
+        log_level = logging.DEBUG
+    else:
+        log_level = logging.WARNING
+
+    logging.basicConfig(format='%(levelname)s: %(message)s', level=log_level)
 
     #Create output folders
     folders = ['0_EFICAz_results', '1_blastp_results', '2_primary_metabolic_model', '3_temp_models', '4_complete_model']
@@ -128,7 +134,7 @@ def main():
                 nonprod_sec_met_dict = {}
 
                 while cluster_nr <= options.total_cluster:
-                    logging.debug("Cluster number: %s" %cluster_nr)
+                    logging.info("Reactions generating for Cluster %s ..." %cluster_nr)
                     target_model = run_sec_met_rxn_generation(cluster_nr, target_model, prod_sec_met_dict, nonprod_sec_met_dict, options)
                     cluster_nr += 1
 

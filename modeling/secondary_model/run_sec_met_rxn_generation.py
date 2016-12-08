@@ -4,7 +4,7 @@
 
 import logging
 import pickle
-rom sec_met_rxn_generation import(
+from sec_met_rxn_generation import(
     get_cluster_location,
     get_cluster_info_from_seq_record,
     get_cluster_product,
@@ -66,7 +66,7 @@ def run_sec_met_rxn_generation(cluster_nr, target_model, prod_sec_met_dict,
             prod_sec_met_dict[options.product] = prod_sec_met_metab_list
 
     else:
-        logging.warning("Not type I polyketide synthase ('t1pks'), nonribosomal synthetase ('nrps') or their hybird")
+        logging.debug("Not type I polyketide synthase ('t1pks'), nonribosomal synthetase ('nrps') or their hybird")
 
     if cluster_nr == options.total_cluster:
         options.prod_sec_met_dict = prod_sec_met_dict

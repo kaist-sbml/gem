@@ -98,6 +98,7 @@ def get_target_fasta(options):
             if f.endswith('.fa'):
                 target_fasta = os.path.join(root, f)
                 options.target_fasta = target_fasta
-	else:
-            logging.debug("FASTA file %s for bidirectional blastp hits not found.")
+
+    if not options.target_fasta:
+        logging.warning("FASTA file %s for bidirectional blastp hits not found.")
 
