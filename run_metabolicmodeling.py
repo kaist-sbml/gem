@@ -55,9 +55,9 @@ def main():
     parser.add_argument('-i', '--input',
                         dest='input',
                         default='input',
-                        help="Specify input directory")
-    parser.add_argument('-o', '--output',
-                        dest='output',
+                        help="Specify input file")
+    parser.add_argument('-o', '--outputfolder',
+                        dest='outputfolder',
                         default='output',
                         help="Specify output directory")
     parser.add_argument('-e', '--ec',
@@ -96,10 +96,10 @@ def main():
     folders = ['0_EFICAz_results', '1_blastp_results', '2_primary_metabolic_model', '3_temp_models', '4_complete_model']
 
     for folder in folders:
-        if not os.path.isdir(options.output+'/'+folder):
-            os.makedirs(options.output+'/'+folder)
+        if not os.path.isdir(options.outputfolder+'/'+folder):
+            os.makedirs(options.outputfolder+'/'+folder)
 
-    options.outputfoldername = options.output+'/'+folders[0]
+    options.outputfoldername = options.outputfolder+'/'+folders[0]
 
     get_genome_files(options)
 
@@ -122,9 +122,10 @@ def main():
 
     #Secondary metabolic modeling
     if options.smr_generation:
-        for model_file in os.listdir(options.output+'/'+'2_primary_metabolic_model'):
+        for model_file in os.listdir(options.outputfolder+'/'+'2_primary_metabolic_model'):
             if model_file.endswith('.xml'):
-                target_model = create_cobra_model_from_sbml_file(options.output+'/'+'2_primary_metabolic_model/'+model_file)
+                target_model = create_cobra_model_from_sbml_file(
+                        options.outputfolder+'/'+'2_primary_metabolic_model/'+model_file)
 
                 logging.info("Generating secondary metabolite biosynthesizing reactions..")
                 cluster_nr = 1

@@ -19,22 +19,41 @@ def get_homologs(options):
     make_blastDB(options)
 
     logging.info("Running BLASTP #1: genes in the target genome against genes in the template model..")
-    run_blastp(target_fasta='./%s/1_blastp_results/targetGenome_locusTag_aaSeq.fa' %options.output, blastp_result='./%s/1_blastp_results/blastp_targetGenome_against_tempGenome.txt' %options.output, db_dir = '%s/tempBlastDB' %(options.input1), evalue=1e-30)
+    run_blastp(target_fasta='./%s/1_blastp_results/targetGenome_locusTag_aaSeq.fa'
+            %options.outputfolder, blastp_result=
+            './%s/1_blastp_results/blastp_targetGenome_against_tempGenome.txt'
+            %options.output, db_dir = '%s/tempBlastDB' %(options.input1), evalue=1e-30)
 
     logging.info("Running BLASTP #2: genes in the template model against genes in the target genome..")
-    run_blastp(target_fasta=options.temp_fasta, blastp_result='./%s/1_blastp_results/blastp_tempGenome_against_targetGenome.txt' %options.output, db_dir = './%s/1_blastp_results/targetBlastDB' %options.output, evalue=1e-30)
+    run_blastp(target_fasta=options.temp_fasta,
+            blastp_result='./%s/1_blastp_results/blastp_tempGenome_against_targetGenome.txt'
+            %options.outputfolder,
+            db_dir = './%s/1_blastp_results/targetBlastDB'
+            %options.outputfolder, evalue=1e-30)
 
     logging.debug("Parsing the results of BLASTP #1..")
-    blastpResults_dict1 = parseBlaspResults('./%s/1_blastp_results/blastp_targetGenome_against_tempGenome.txt' %options.output, './%s/1_blastp_results/blastp_targetGenome_against_tempGenome_parsed.txt' %options.output)
+    blastpResults_dict1 = parseBlaspResults(
+            './%s/1_blastp_results/blastp_targetGenome_against_tempGenome.txt'
+            %options.outputfolder,
+            './%s/1_blastp_results/blastp_targetGenome_against_tempGenome_parsed.txt'
+            %options.outputfolder)
 
     logging.debug("Parsing the results of BLASTP #2..")
-    blastpResults_dict2 = parseBlaspResults('./%s/1_blastp_results/blastp_tempGenome_against_targetGenome.txt' %options.output, './%s/1_blastp_results/blastp_tempGenome_against_targetGenome_parsed.txt' %options.output)
+    blastpResults_dict2 = parseBlaspResults(
+            './%s/1_blastp_results/blastp_tempGenome_against_targetGenome.txt'
+            %options.outputfolder,
+            './%s/1_blastp_results/blastp_tempGenome_against_targetGenome_parsed.txt'
+            %options.outputfolder)
 
     logging.debug("Selecting the best hits for BLASTP #1..")
-    bestHits_dict1 = makeBestHits_dict('./%s/1_blastp_results/blastp_targetGenome_against_tempGenome_parsed.txt' %options.output)
+    bestHits_dict1 = makeBestHits_dict(
+            './%s/1_blastp_results/blastp_targetGenome_against_tempGenome_parsed.txt'
+            %options.outputfolder)
 
     logging.debug("Selecting the best hits for BLASTP #2..")
-    bestHits_dict2 = makeBestHits_dict('./%s/1_blastp_results/blastp_tempGenome_against_targetGenome_parsed.txt' %options.output)
+    bestHits_dict2 = makeBestHits_dict(
+            './%s/1_blastp_results/blastp_tempGenome_against_targetGenome_parsed.txt'
+            %options.outputfolder)
 
     logging.debug("Selecting the bidirectional best hits..")
     getBBH(bestHits_dict1, bestHits_dict2, options)

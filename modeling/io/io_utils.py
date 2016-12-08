@@ -27,7 +27,8 @@ def get_target_gbk(options):
 
 def get_targetGenomeInfo(options, file_type):
 
-    fp = open('./%s/1_blastp_results/targetGenome_locusTag_aaSeq.fa' %options.output,'w')
+    fp = open('./%s/1_blastp_results/targetGenome_locusTag_aaSeq.fa'
+            %options.outputfolder,'w')
 
     targetGenome_locusTag_aaSeq_dict = {}
     targetGenome_locusTag_ec_dict = {}
@@ -35,10 +36,11 @@ def get_targetGenomeInfo(options, file_type):
 
     #Read GenBank file
     try:
-        seq_record = SeqIO.read(options.output+'/'+options.input_gbk, file_type)
+        seq_record = SeqIO.read(options.outputfolder+'/'+options.input_gbk, file_type)
     except ValueError:
         logging.debug("Warning: ValueError occurred in SeqIo.read")
-        seq_record = SeqIO.parse(options.output+'/'+options.input_gbk, file_type).next()
+        seq_record = SeqIO.parse(options.outputfolder+'/'+options.input_gbk,
+                     file_type).next()
 
     if options.eficaz:
         getECs(seq_record, options)
@@ -93,7 +95,7 @@ def get_targetGenomeInfo(options, file_type):
 
 #Look for .fa and .gbk  files in the pre-defined folder
 def get_target_fasta(options):
-    for root, _, files in os.walk('./%s/1_blastp_results' %options.output):
+    for root, _, files in os.walk('./%s/1_blastp_results' %options.outputfolder):
         for f in files:
             if f.endswith('.fa'):
                 target_fasta = os.path.join(root, f)

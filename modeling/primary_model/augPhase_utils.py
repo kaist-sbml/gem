@@ -306,14 +306,22 @@ def add_nonBBH_rxn(modelPrunedGPR, options):
                 #Adding metabolites with bigg compoundID, but not in the model
                 elif metab in options.bigg_mnxm_compound_dict.keys():
                     mnxm = options.bigg_mnxm_compound_dict[metab]
-                    metab_compt = Metabolite(metab, formula = options.mnxm_compoundInfo_dict[mnxm][1], name = options.mnxm_compoundInfo_dict[mnxm][0], compartment='c')
-                    rxn.add_metabolites({metab_compt:options.rxnid_mnxm_coeff_dict[rxnid][metab]})
+                    metab_compt = Metabolite(metab, formula =
+                            options.mnxm_compoundInfo_dict[mnxm][1], name =
+                            options.mnxm_compoundInfo_dict[mnxm][0],
+                            compartment='c')
+                    rxn.add_metabolites(
+                            {metab_compt:options.rxnid_mnxm_coeff_dict[rxnid][metab]})
 
                 #Adding metabolites with MNXM and not in the model
                 else:
                     mnxm = options.kegg_mnxm_compound_dict[metab]
-                    metab_compt = Metabolite(mnxm, formula = options.mnxm_compoundInfo_dict[mnxm][1], name = options.mnxm_compoundInfo_dict[mnxm][0], compartment='c')
-                    rxn.add_metabolites({metab_compt:options.rxnid_mnxm_coeff_dict[rxnid][metab]})
+                    metab_compt = Metabolite(mnxm, formula =
+                            options.mnxm_compoundInfo_dict[mnxm][1], name =
+                            options.mnxm_compoundInfo_dict[mnxm][0],
+                            compartment='c')
+                    rxn.add_metabolites(
+                            {metab_compt:options.rxnid_mnxm_coeff_dict[rxnid][metab]})
 
             #GPR association
             if len(options.rxnid_locusTag_dict[rxnid]) == 1:
@@ -345,17 +353,28 @@ def add_nonBBH_rxn(modelPrunedGPR, options):
             #Add a reaction to the model if it does not affect Exchange reaction flux direction
             modelPrunedGPR.add_reaction(rxn)
 
-            write_cobra_model_to_sbml_file(modelPrunedGPR, "./%s/3_temp_models/modelPrunedGPR.xml" %options.output)
-            modelPrunedGPR = create_cobra_model_from_sbml_file("./%s/3_temp_models/modelPrunedGPR.xml" %options.output)
+            write_cobra_model_to_sbml_file(modelPrunedGPR,
+                    "./%s/3_temp_models/modelPrunedGPR.xml"
+                    %options.outputfolder)
+            modelPrunedGPR = create_cobra_model_from_sbml_file(
+                    "./%s/3_temp_models/modelPrunedGPR.xml"
+                    %options.outputfolder)
 
-            target_exrxnid_flux_dict = get_exrxnid_flux(modelPrunedGPR, options.template_exrxnid_flux_dict)
-            exrxn_flux_change_list = check_exrxn_flux_direction(options.template_exrxnid_flux_dict, target_exrxnid_flux_dict)
+            target_exrxnid_flux_dict = get_exrxnid_flux(modelPrunedGPR,
+                    options.template_exrxnid_flux_dict)
+            exrxn_flux_change_list = check_exrxn_flux_direction(
+                    options.template_exrxnid_flux_dict,
+                    target_exrxnid_flux_dict)
 
             if 'F' in exrxn_flux_change_list:
                 modelPrunedGPR.remove_reactions(rxn)
 
-                write_cobra_model_to_sbml_file(modelPrunedGPR, "./%s/3_temp_models/modelPrunedGPR.xml" %options.output)
-                modelPrunedGPR = create_cobra_model_from_sbml_file("./%s/3_temp_models/modelPrunedGPR.xml" %options.output)
+                write_cobra_model_to_sbml_file(modelPrunedGPR,
+                        "./%s/3_temp_models/modelPrunedGPR.xml"
+                        %options.outputfolder)
+                modelPrunedGPR = create_cobra_model_from_sbml_file(
+                        "./%s/3_temp_models/modelPrunedGPR.xml"
+                        %options.outputfolder)
 
     prune_unused_metabolites(modelPrunedGPR)
     target_model = copy.deepcopy(modelPrunedGPR)
@@ -388,7 +407,8 @@ def check_exrxn_flux_direction(template_exrxnid_flux_dict, target_exrxnid_flux_d
             ratio_exrxn_flux = float(target_exrxn_flux)/float(template_exrxn_flux)
 
             #Similar species are allowed to uptake nutrients within a decent range
-            if float(target_exrxn_flux)*float(template_exrxn_flux) > 0.0 and 0.2 < ratio_exrxn_flux and ratio_exrxn_flux < 2.0:
+            if float(target_exrxn_flux)*float(template_exrxn_flux) > 0.0 and \
+                0.2 < ratio_exrxn_flux and ratio_exrxn_flux < 2.0:
                 exrxn_flux_change_list.append('T')
 
             #Causing drastic changes in Exchange reaction fluxes (direction and/or magnitude)
