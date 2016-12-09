@@ -42,8 +42,8 @@ def generate_outputs_primary_model(model, modelPrunedGPR, target_model, options)
 
     for j in range(len(target_model.reactions)):
         rxn = target_model.reactions[j]
-        print >>fp1, '%s\t%s\t%s\t%s\t%s\t%s' %(rxn.id, rxn.name,
-                rxn.reaction, rxn.gene_reaction_rule, rxn.subsystem)
+        print >>fp1, '%s\t%s\t%s\t%s\t%s' %(rxn.id, rxn.name, rxn.reaction,
+                                            rxn.gene_reaction_rule, rxn.subsystem)
 
     for i in range(len(target_model.metabolites)):
         metab = target_model.metabolites[i]
@@ -80,8 +80,8 @@ def generate_outputs_secondary_model(target_model_complete, options):
 
     for j in range(len(target_model_complete.reactions)):
         rxn = target_model_complete.reactions[j]
-        print >>fp1, '%s\t%s\t%s\t%s\t%s\t%s' %(rxn.id, rxn.name,
-                rxn.reaction, rxn.gene_reaction_rule, rxn.subsystem)
+        print >>fp1, '%s\t%s\t%s\t%s\t%s' %(rxn.id, rxn.name, rxn.reaction,
+                                            rxn.gene_reaction_rule, rxn.subsystem)
 
     for i in range(len(target_model_complete.metabolites)):
         metab = target_model_complete.metabolites[i]
