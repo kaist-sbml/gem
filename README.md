@@ -2,7 +2,7 @@
 This source automatically generates secondary metabolite biosynthetic reactions in a genome-scale metabolic model (GEM) using antiSMASH output .gbk file. The source also enables overall high-throughput metabolic modeling.
 
 #Development
-This project was initiated as a research collaboration between [Metabolic & Biomolecular Eng. Nat’l Research Laboratory (MBEL) & BioInformatics Research Center](http://mbel.kaist.ac.kr/) at KAIST and [Novo Nordisk Foundation Center for Biosustainability](http://www.biosustain.dtu.dk/english), DTU.
+This project was initiated as a research collaboration between [Metabolic & Biomolecular Eng. Nat’l Research Laboratory (MBEL) & BioInformatics Research Center](http://mbel.kaist.ac.kr/) at KAIST and [Novo Nordisk Foundation Center for Biosustainability](http://www.biosustain.dtu.dk/english) at DTU.
 
 #Current features
 * Homology analysis (bidirectional blastp hits)
@@ -17,12 +17,12 @@ TBD
 TBD
 
 #Installation
-##Run following in a terminal
+###Run following in a terminal
 ```
 git clone https://ehukim@bitbucket.org/ehukim/genome_analysis.git
 ```
 
-##External tools
+###External tools
 All the dependencies will be available in `requirements.txt`.
 
 * [biopython](http://biopython.org/): for genome data handling
