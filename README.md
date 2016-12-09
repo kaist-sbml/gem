@@ -23,7 +23,8 @@ git clone https://ehukim@bitbucket.org/ehukim/genome_analysis.git
 ```
 
 ##External tools
-All the dependencies will be available in `requirements.txt`:
+All the dependencies will be available in `requirements.txt`.
+
 * [biopython](http://biopython.org/): for genome data handling
 * [cobrapy](https://github.com/opencobra/cobrapy): for loading, editing and writing GEMs
 * `blastp.exe` and `makeblastdb.exe` from [NCBI FTP](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.28/): for homology analysis
