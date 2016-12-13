@@ -8,7 +8,7 @@ from Bio import SeqIO
 from eficaz.__init__ import getECs
 
 
-#Look for .xml and .gb(k) files in the pre-defined folder
+#Look for pre-stored fasta file of the template model
 def get_temp_fasta(options):
     for root, _, files in os.walk('./modeling/io/data/input1/%s/' %(options.orgName)):
         for f in files:
