@@ -4,6 +4,7 @@
 #Copyright 2014-2016 Novo Nordisk Foundation Center for Biosustainability, DTU
 
 import argparse
+import glob
 import logging
 import multiprocessing
 import os
@@ -122,35 +123,43 @@ def main():
 
     #Secondary metabolic modeling
     if options.smr_generation:
-        for model_file in os.listdir(options.outputfolder+'/'+'2_primary_metabolic_model'):
-            if model_file.endswith('.xml'):
-                target_model = create_cobra_model_from_sbml_file(
+        model_file = []
+        files = glob.glob(options.outputfolder+'/'+'2_primary_metabolic_model/*.xml')
+        model_file = [each_file for each_file in files if '.xml' in each_file]
+
+        if len(model_file) > 0 and '.xml' in model_file[0]:
+            model_file = os.path.basename(model_file[0])
+            target_model = create_cobra_model_from_sbml_file(
                         options.outputfolder+'/'+'2_primary_metabolic_model/'+model_file)
 
-                logging.info("Generating secondary metabolite biosynthesizing reactions..")
-                cluster_nr = 1
-                logging.debug("Total number of clusters: %s" %options.total_cluster)
+            logging.info("Generating secondary metabolite biosynthesizing reactions..")
+            cluster_nr = 1
+            logging.debug("Total number of clusters: %s" %options.total_cluster)
 
-                prod_sec_met_dict = {}
-                nonprod_sec_met_dict = {}
+            prod_sec_met_dict = {}
+            nonprod_sec_met_dict = {}
 
-                while cluster_nr <= options.total_cluster:
-                    logging.info("Reactions generating for Cluster %s ..." %cluster_nr)
-                    target_model = run_sec_met_rxn_generation(cluster_nr, target_model, prod_sec_met_dict, nonprod_sec_met_dict, options)
-                    cluster_nr += 1
+            while cluster_nr <= options.total_cluster:
+                logging.info("Reactions generating for Cluster %s ..." %cluster_nr)
+                target_model = run_sec_met_rxn_generation(cluster_nr,
+                        target_model, prod_sec_met_dict, nonprod_sec_met_dict, options)
+                cluster_nr += 1
 
-                target_model2, universal_model = prep_network_for_gapfilling(target_model, options)
+            target_model2, universal_model = prep_network_for_gapfilling(
+                    target_model, options)
 
-                adj_unique_nonprod_monomers_list = get_target_nonprod_monomers_for_gapfilling(target_model, options)
+            adj_unique_nonprod_monomers_list = get_target_nonprod_monomers_for_gapfilling(
+                    target_model, options)
 
-                target_model_complete = run_gapfilling(target_model, target_model2, adj_unique_nonprod_monomers_list, universal_model, options)
+            target_model_complete = run_gapfilling(target_model, target_model2,
+                    adj_unique_nonprod_monomers_list, universal_model, options)
 
-                runtime2 = time.strftime("Elapsed time %H:%M:%S",
+            runtime2 = time.strftime("Elapsed time %H:%M:%S",
                         time.gmtime(time.time() - start))
-                generate_outputs(folder4, target_model_complete, runtime2, options)
+            generate_outputs(folder4, target_model_complete, runtime2, options)
 
-            elif not model_file:
-                logging.warning("COBRA-compliant SBML file needed")
+        else:
+            logging.warning("COBRA-compliant SBML file needed")
 
     if not options.pmr_generation and not options.smr_generation:
         logging.warning("Either primary or secondary metabolic modeling should be performed")
