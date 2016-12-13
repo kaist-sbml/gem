@@ -18,10 +18,7 @@ from modeling.io.input_file_manager import (
     get_pickles_add_rxn,
     get_pickles_prunPhase
 )
-from modeling.io.output_file_manager import (
-    generate_outputs_primary_model,
-    generate_outputs_secondary_model
-)
+from modeling.io.output_file_manager import generate_outputs
 from modeling.homology.bidirect_blastp_analysis import get_homologs
 from modeling.primary_model.run_prunPhase import run_prunPhase
 from modeling.primary_model.run_augPhase import run_augPhase
@@ -90,10 +87,13 @@ def main():
     else:
         log_level = logging.WARNING
 
-    logging.basicConfig(format='%(levelname)s: %(message)s', level=log_level)
+    options.log_level = log_level
+    logging.basicConfig(format='%(levelname)s: %(message)s', level=options.log_level)
 
     #Create output folders
     folders = ['0_EFICAz_results', '1_blastp_results', '2_primary_metabolic_model', '3_temp_models', '4_complete_model']
+    folder2 = '2_primary_metabolic_model'
+    folder4 = '4_complete_model'
 
     for folder in folders:
         if not os.path.isdir(options.outputfolder+'/'+folder):
@@ -113,12 +113,12 @@ def main():
         modelPrunedGPR = run_prunPhase(model, options)
 
         if options.targetGenome_locusTag_ec_dict:
-
             target_model = run_augPhase(modelPrunedGPR, options)
         else:
             logging.warning("No EC_number found in the submitted gbk file")
 
-        generate_outputs_primary_model(model, modelPrunedGPR, target_model, options)
+        runtime1 = time.strftime("Elapsed time %H:%M:%S", time.gmtime(time.time() - start))
+        generate_outputs(folder2, target_model, runtime1, options)
 
     #Secondary metabolic modeling
     if options.smr_generation:
@@ -145,7 +145,9 @@ def main():
 
                 target_model_complete = run_gapfilling(target_model, target_model2, adj_unique_nonprod_monomers_list, universal_model, options)
 
-                generate_outputs_secondary_model(target_model_complete, options)
+                runtime2 = time.strftime("Elapsed time %H:%M:%S",
+                        time.gmtime(time.time() - start))
+                generate_outputs(folder4, target_model_complete, runtime2, options)
 
             elif not model_file:
                 logging.warning("COBRA-compliant SBML file needed")

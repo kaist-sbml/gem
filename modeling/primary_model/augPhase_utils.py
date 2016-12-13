@@ -111,7 +111,6 @@ def make_all_rxnInfo_fromRefSeq(options):
 
     for locusTag in options.targetGenome_locusTag_ec_nonBBH_dict.keys():
 	for enzymeEC in options.targetGenome_locusTag_ec_nonBBH_dict[locusTag]:
-            logging.debug("EC_number for locusTag: %s, %s" %(locusTag, enzymeEC))
 
             #KEGG REST does not accept unspecific EC_number: e.g., 3.2.2.-
             if '-' not in enzymeEC:
@@ -126,6 +125,8 @@ def make_all_rxnInfo_fromRefSeq(options):
                     elif rxnid in rxnid_locusTag_dict.keys():
                         rxnid_locusTag_dict[rxnid].append((locusTag))
                     #print locusTag, rxnid, rxnid_info_dict[rxnid], "\n"
+
+            logging.debug("EC_number info fetched from KEGG: %s, %s" %(locusTag, enzymeEC))
 
     options.rxnid_info_dict = rxnid_info_dict
     options.rxnid_locusTag_dict = rxnid_locusTag_dict
@@ -211,7 +212,7 @@ def extract_rxn_mnxm_coeff(options):
 
     for mnxr in options.mnxr_to_add_list:
 	unparsed_equation = options.mnxr_rxn_dict[mnxr]
-	logging.debug(unparsed_equation)
+        logging.debug("Reaction to add: %s" %unparsed_equation)
 
         #"substrates" and "products" contain stoichiometric coeff of each compound
 	sptReaction = unparsed_equation.split('=')
@@ -280,7 +281,6 @@ def extract_rxn_mnxm_coeff(options):
 def add_nonBBH_rxn(modelPrunedGPR, options):
 
     for rxnid in options.rxnid_mnxm_coeff_dict.keys():
-	logging.debug(rxnid)
 
         if options.rxnid_info_dict[rxnid] != None:
 
@@ -375,6 +375,8 @@ def add_nonBBH_rxn(modelPrunedGPR, options):
                 modelPrunedGPR = create_cobra_model_from_sbml_file(
                         "./%s/3_temp_models/modelPrunedGPR.xml"
                         %options.outputfolder)
+
+        logging.debug("Reaction added to the model: %s" %rxnid)
 
     prune_unused_metabolites(modelPrunedGPR)
     target_model = copy.deepcopy(modelPrunedGPR)
