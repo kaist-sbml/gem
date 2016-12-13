@@ -13,20 +13,6 @@ from cobra import Model, Reaction, Metabolite
 from cobra.io.sbml import write_cobra_model_to_sbml_file, create_cobra_model_from_sbml_file
 from cobra.manipulation.delete import prune_unused_metabolites
 
-#Retrieves EC numbers relevant to their  species_locusTag from KEGG
-#Input: Species_locusTag in KEGG database (e.g., sma:SAV_7535)
-#Output: A set of EC numbers in list form (e.g., ['4.1.3.6 ', '4.1.3.34]'])
-def get_ECNumberList_from_locusTag(species_locusTag):
-    url = "http://rest.kegg.jp/get/%s"%(species_locusTag)
-    gene_info_text = urllib2.urlopen(url).read()
-    split_text = gene_info_text.strip().split('\n')
-    for line in split_text:
-        sptlist = line.split()
-        if sptlist[0] == 'ORTHOLOGY':
-            ECNumbers = re.findall(r'[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+[\s\]]', line)
-            return ECNumbers
-    return []
-
 
 #Retrieves a list of reaction IDs using their EC numbers from KEGG
 #Input: E.C number in string form (e.g., 4.1.3.6)
