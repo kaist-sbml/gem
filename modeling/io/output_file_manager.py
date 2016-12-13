@@ -2,6 +2,7 @@
 #Copyright 2014-2016 BioInformatics Research Center, KAIST
 #Copyright 2014-2016 Novo Nordisk Foundation Center for Biosustainability, DTU
 
+import collections
 import logging
 import re
 from cobra.io.sbml import write_cobra_model_to_sbml_file, create_cobra_model_from_sbml_file
@@ -25,8 +26,8 @@ def generate_outputs(folder, cobra_model, runtime, options):
     get_model_metabolites(folder, cobra_model, options)
     template_model_gene_list = get_model_genes(folder, cobra_model, options)
     get_summary_report(folder, cobra_model, runtime,
-                       num_essen_rxn, num_kegg_rxn, template_model_gene_list,
-                       num_cluster_rxn, options)
+                       num_essen_rxn, num_kegg_rxn, num_cluster_rxn,
+                       template_model_gene_list, options)
 
     if folder == '2_primary_metabolic_model':
         logging.info("'Primary' metabolic model completed")
@@ -121,12 +122,17 @@ def get_model_genes(folder, cobra_model, options):
     return template_model_gene_list
 
 
-def get_summary_report(folder, cobra_model, runtime, num_essen_rxn,
-                       num_kegg_rxn, template_model_gene_list,
-                       num_cluster_rxn, options):
+def get_summary_report(folder, cobra_model, runtime,
+                       num_essen_rxn, num_kegg_rxn, num_cluster_rxn,
+                       template_model_gene_list, options):
     fp1 = open('./%s/%s/summary_report.txt' %(options.outputfolder, folder), "w")
 
     fp1.write(''+'\t'+'primary_metabolic_model'+'\n')
+
+    if options.verbose:
+        log_level = 'verbose'
+    elif options.debug:
+        log_level = 'debug'
 
     model_summary_dict = {}
     model_summary_dict['template_model_organism']= options.orgName
@@ -148,8 +154,10 @@ def get_summary_report(folder, cobra_model, runtime, num_essen_rxn,
         =len(template_model_gene_list)
     model_summary_dict['number_clusters_for_reactions']=num_cluster_rxn
 
+    model_summary_dict2 = collections.OrderedDict(sorted(model_summary_dict.items()))
+
     for key in model_summary_dict.keys():
-        print >>fp1, '%s\t%s\t' %(key, model_summary_dict[key])
+        print >>fp1, '%s\t%s\t' %(key, model_summary_dict2[key])
 
     fp1.close()
 
