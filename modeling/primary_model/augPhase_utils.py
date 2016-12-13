@@ -13,20 +13,6 @@ from cobra import Model, Reaction, Metabolite
 from cobra.io.sbml import write_cobra_model_to_sbml_file, create_cobra_model_from_sbml_file
 from cobra.manipulation.delete import prune_unused_metabolites
 
-#Converts ncbi_geneid(e.g. 944762) to species_geneid (e.g. b0031) in KEGG database by using KEGGAPI
-#Input: ncbi_gene_id (string) (e.g., 1217641)
-#Return: Locus_tag ID in KEGG database (e.g., sma:SAV_7535)
-def get_species_locusTag(ncbi_geneid):
-    url = "http://rest.kegg.jp/conv/genes/ncbi-gi:%s"%(ncbi_geneid)
-    #Open and read data for the results of query in url address
-    data = urllib2.urlopen(url).read()
-    sptlist = data.strip().split()
-    logging.debug("sptlist: %s" %sptlist)
-    species_locusTag = sptlist[1]
-    #print "species_locusTag:", species_locusTag
-    return species_locusTag
-
-
 #Retrieves EC numbers relevant to their  species_locusTag from KEGG
 #Input: Species_locusTag in KEGG database (e.g., sma:SAV_7535)
 #Output: A set of EC numbers in list form (e.g., ['4.1.3.6 ', '4.1.3.34]'])
