@@ -71,7 +71,7 @@ def get_model_reactions(folder, cobra_model, options):
                                             rxn.gene_reaction_rule, rxn.subsystem)
 
         #Secondary metabolite biosynthetic reactions
-        if re.search('Cluster]', rxn.id):
+        if re.search('Cluster', rxn.id):
             num_cluster_rxn+=1
 
     fp1.close()
@@ -137,7 +137,7 @@ def get_summary_report(folder, cobra_model, runtime,
     model_summary_dict = {}
     model_summary_dict['template_model_organism']= options.orgName
     model_summary_dict['input_file']=options.input
-    model_summary_dict['designated_outputfolder]']=options.outputfolder
+    model_summary_dict['outputfolder']=options.outputfolder
     model_summary_dict['eficaz']=options.eficaz
     model_summary_dict['number_cpu_use']=options.cpus
     model_summary_dict['log_level']=options.log_level
