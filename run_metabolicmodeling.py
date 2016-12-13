@@ -80,9 +80,6 @@ def main():
 
     options = parser.parse_args()
 
-    print 'check', options
-    print 'check', options.verbose
-
     if options.verbose:
         log_level = logging.INFO
     elif options.debug:
@@ -91,7 +88,6 @@ def main():
         log_level = logging.WARNING
 
     options.log_level = log_level
-    print 'check', options.log_level
     logging.basicConfig(format='%(levelname)s: %(message)s', level=options.log_level)
 
     #Create output folders
