@@ -63,6 +63,9 @@ def get_model_reactions(folder, cobra_model, options):
                     num_essen_rxn+=1
                     print >>fp2, '%s\t%s\t%s\t%s\t%s' %(rxn.id, rxn.name, rxn.reaction,
                                             rxn.gene_reaction_rule, rxn.subsystem)
+        else:
+            print >>fp2, 'Primary metabolic modeling not performed'
+            num_essen_rxn = 'Primary metabolic modeling not performed'
 
         #Reactions added from KEGG
         if re.search('R[0-9]+[0-9]+[0-9]+[0-9]+[0-9]', rxn.id):
@@ -71,7 +74,7 @@ def get_model_reactions(folder, cobra_model, options):
                                             rxn.gene_reaction_rule, rxn.subsystem)
 
         #Secondary metabolite biosynthetic reactions
-        if re.search('Cluster', rxn.id):
+        if re.search('Ex_Cluster', rxn.id):
             num_cluster_rxn+=1
 
     fp1.close()
@@ -83,16 +86,34 @@ def get_model_reactions(folder, cobra_model, options):
 
 def get_model_metabolites(folder, cobra_model, options):
 
-    fp1 = open('./%s/%s/model_metabolites.txt' %(options.outputfolder, folder), "w")
+    fp1 = open('./%s/%s/model_metabolites.txt'
+            %(options.outputfolder, folder), "w")
+    fp2 = open('./%s/%s/metabolites_gapfilling_needed.txt'
+            %(options.outputfolder, folder), "w")
 
     fp1.write('metabolite_ID'+'\t'+'metabolite_name'+'\t'+'formula'+'\t'+'compartment'+'\n')
+    fp2.write('metabolite_ID'+'\t'+'reaction_ID'+'\t'+'reaction_name'+'\t'+'reaction_equation'+'\t'+'GPR'+'\t'+'pathway'+'\n')
 
     for i in range(len(cobra_model.metabolites)):
         metab = cobra_model.metabolites[i]
         print >>fp1, '%s\t%s\t%s\t%s' %(metab.id, metab.name, metab.formula,
                 metab.compartment)
 
+        #Remove compartment suffix (e.g., '_c') from 'metab.id'
+        if metab.id[:-2] in options.adj_unique_nonprod_monomers_list:
+            logging.debug("Metabolite for gap-filling: %s" %metab.id)
+
+            for j in range(len(cobra_model.reactions)):
+                rxn = cobra_model.reactions[j]
+
+                if metab.id in rxn.reaction:
+                    logging.debug("Gap-filling reaction: %s" %rxn.id)
+                    print >>fp2, '%s\t%s\t%s\t%s\t%s\t%s' %(metab.id,
+                        rxn.id, rxn.name, rxn.reaction,
+                        rxn.gene_reaction_rule, rxn.subsystem)
+
     fp1.close()
+    fp2.close()
 
 
 def get_model_genes(folder, cobra_model, options):
@@ -127,12 +148,14 @@ def get_summary_report(folder, cobra_model, runtime,
                        template_model_gene_list, options):
     fp1 = open('./%s/%s/summary_report.txt' %(options.outputfolder, folder), "w")
 
-    fp1.write(''+'\t'+'primary_metabolic_model'+'\n')
-
+    #log_level
     if options.verbose:
         log_level = 'verbose'
     elif options.debug:
         log_level = 'debug'
+
+    #runtime
+    runtime2 = runtime.split()[2]
 
     model_summary_dict = {}
     model_summary_dict['template_model_organism']= options.orgName
@@ -140,10 +163,10 @@ def get_summary_report(folder, cobra_model, runtime,
     model_summary_dict['outputfolder']=options.outputfolder
     model_summary_dict['eficaz']=options.eficaz
     model_summary_dict['number_cpu_use']=options.cpus
-    model_summary_dict['log_level']=options.log_level
+    model_summary_dict['log_level']=log_level
     model_summary_dict['primary_metabolic_modeling']=options.pmr_generation
     model_summary_dict['secondary_metabolic_modeling']=options.smr_generation
-    model_summary_dict['runtime']=runtime
+    model_summary_dict['runtime']=runtime2
     model_summary_dict['number_genes']=len(cobra_model.genes)
     model_summary_dict['number_reactions']=len(cobra_model.reactions)
     model_summary_dict['number_metabolites']=len(cobra_model.metabolites)
@@ -153,11 +176,14 @@ def get_summary_report(folder, cobra_model, runtime,
     model_summary_dict['number_remaining_genes_from_template_model'] \
         =len(template_model_gene_list)
     model_summary_dict['number_clusters_for_reactions']=num_cluster_rxn
+    model_summary_dict['number_metabolites_for_gapfilling'] \
+        =len(options.adj_unique_nonprod_monomers_list)
 
+    #Sort data by keys
     model_summary_dict2 = collections.OrderedDict(sorted(model_summary_dict.items()))
 
-    for key in model_summary_dict.keys():
-        print >>fp1, '%s\t%s\t' %(key, model_summary_dict2[key])
+    for key in model_summary_dict2.keys():
+        print >>fp1, '%s\t%s' %(key, model_summary_dict2[key])
 
     fp1.close()
 

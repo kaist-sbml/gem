@@ -88,8 +88,7 @@ def main():
     else:
         log_level = logging.WARNING
 
-    options.log_level = log_level
-    logging.basicConfig(format='%(levelname)s: %(message)s', level=options.log_level)
+    logging.basicConfig(format='%(levelname)s: %(message)s', level=log_level)
 
     #Create output folders
     folders = ['0_EFICAz_results', '1_blastp_results', '2_primary_metabolic_model', '3_temp_models', '4_complete_model']
@@ -148,11 +147,10 @@ def main():
             target_model2, universal_model = prep_network_for_gapfilling(
                     target_model, options)
 
-            adj_unique_nonprod_monomers_list = get_target_nonprod_monomers_for_gapfilling(
-                    target_model, options)
+            get_target_nonprod_monomers_for_gapfilling(target_model, options)
 
             target_model_complete = run_gapfilling(target_model, target_model2,
-                    adj_unique_nonprod_monomers_list, universal_model, options)
+                                                   universal_model, options)
 
             runtime2 = time.strftime("Elapsed time %H:%M:%S",
                         time.gmtime(time.time() - start))

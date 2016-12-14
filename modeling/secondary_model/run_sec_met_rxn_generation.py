@@ -115,12 +115,12 @@ def get_target_nonprod_monomers_for_gapfilling(target_model, options):
 
     logging.debug("Adjusted unique_nonprod_monomers_list: %s" %adj_unique_nonprod_monomers_list)
 
-    return adj_unique_nonprod_monomers_list
+    options.adj_unique_nonprod_monomers_list = adj_unique_nonprod_monomers_list
 
 
-def run_gapfilling(target_model, target_model2, adj_unique_nonprod_monomers_list, universal_model, options):
+def run_gapfilling(target_model, target_model2, universal_model, options):
 
-    for nonprod_monomer in adj_unique_nonprod_monomers_list:
+    for nonprod_monomer in options.adj_unique_nonprod_monomers_list:
         target_model_temp = add_transport_exchange_rxn_nonprod_monomer(target_model2,
                             nonprod_monomer, options)
         target_model_temp = check_producibility_nonprod_monomer(target_model_temp,
