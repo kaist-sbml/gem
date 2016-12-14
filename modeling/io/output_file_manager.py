@@ -99,18 +99,19 @@ def get_model_metabolites(folder, cobra_model, options):
         print >>fp1, '%s\t%s\t%s\t%s' %(metab.id, metab.name, metab.formula,
                 metab.compartment)
 
-        #Remove compartment suffix (e.g., '_c') from 'metab.id'
-        if metab.id[:-2] in options.adj_unique_nonprod_monomers_list:
-            logging.debug("Metabolite for gap-filling: %s" %metab.id)
+        if folder == '4_complete_model':
+            #Remove compartment suffix (e.g., '_c') from 'metab.id'
+            if metab.id[:-2] in options.adj_unique_nonprod_monomers_list:
+                logging.debug("Metabolite for gap-filling: %s" %metab.id)
 
-            for j in range(len(cobra_model.reactions)):
-                rxn = cobra_model.reactions[j]
+                for j in range(len(cobra_model.reactions)):
+                    rxn = cobra_model.reactions[j]
 
-                if metab.id in rxn.reaction:
-                    logging.debug("Gap-filling reaction: %s" %rxn.id)
-                    print >>fp2, '%s\t%s\t%s\t%s\t%s\t%s' %(metab.id,
-                        rxn.id, rxn.name, rxn.reaction,
-                        rxn.gene_reaction_rule, rxn.subsystem)
+                    if metab.id in rxn.reaction:
+                        logging.debug("Gap-filling reaction: %s" %rxn.id)
+                        print >>fp2, '%s\t%s\t%s\t%s\t%s\t%s' %(metab.id,
+                            rxn.id, rxn.name, rxn.reaction,
+                            rxn.gene_reaction_rule, rxn.subsystem)
 
     fp1.close()
     fp2.close()
@@ -173,11 +174,15 @@ def get_summary_report(folder, cobra_model, runtime,
     model_summary_dict['number_remaining_essential_reactions_from_template_model'] \
         =num_essen_rxn
     model_summary_dict['number_reactions_added_from_kegg']=num_kegg_rxn
+    model_summary_dict['number_clusters_for_reactions']=num_cluster_rxn
     model_summary_dict['number_remaining_genes_from_template_model'] \
         =len(template_model_gene_list)
-    model_summary_dict['number_clusters_for_reactions']=num_cluster_rxn
-    model_summary_dict['number_metabolites_for_gapfilling'] \
-        =len(options.adj_unique_nonprod_monomers_list)
+
+    if folder == '4_complete_model':
+        model_summary_dict['number_metabolites_for_gapfilling'] \
+            =len(options.adj_unique_nonprod_monomers_list)
+    else:
+        model_summary_dict['number_metabolites_for_gapfilling']=0
 
     #Sort data by keys
     model_summary_dict2 = collections.OrderedDict(sorted(model_summary_dict.items()))
