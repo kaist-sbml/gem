@@ -17,6 +17,7 @@ from cobra.io.sbml import (
     create_cobra_model_from_sbml_file
 )
 from argparse import Namespace
+from modeling.__init__ import check_prereqs
 from modeling.io.input_file_manager import (
     get_genome_files,
     get_pickles_add_rxn,
@@ -92,6 +93,9 @@ def main():
         log_level = logging.WARNING
 
     logging.basicConfig(format='%(levelname)s: %(message)s', level=log_level)
+
+    #Check prerequisites of executables and libraries
+    check_prereqs()
 
     #Create output folders
     folders = ['0_EFICAz_results', '1_blastp_results', '2_primary_metabolic_model', '3_temp_models', '4_complete_model']

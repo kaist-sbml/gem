@@ -31,25 +31,8 @@ from urllib2 import URLError
 
 name = "eficaz"
 short_description = name.capitalize()
-priority = 10000
 
 EFICAzBinary = "eficaz2.5"
-
-def check_prereqs():
-    "Check if all required files and applications are around"
-
-    # Tuple is ( binary_name, optional)
-    _required_binaries = [
-        ('eficaz2.5', False)
-    ]
-
-    failure_messages = []
-
-    for binary_name, optional in _required_binaries:
-        if utils.locate_executable(binary_name) is None and not optional:
-            failure_messages.append("Failed to locate executable: %r" % binary_name)
-
-    return failure_messages
 
 class EFICAzECPrediction:
 
