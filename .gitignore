@@ -1,3 +1,7 @@
 *.log
 *.pyc
 *.swp
+venv/
+.cache/
+input/
+output/
