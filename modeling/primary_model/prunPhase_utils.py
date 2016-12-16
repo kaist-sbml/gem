@@ -4,7 +4,7 @@
 
 import copy
 import logging
-from cobra.flux_analysis import single_deletion
+from cobra.flux_analysis import single_reaction_deletion
 from cobra.manipulation.delete import prune_unused_metabolites
 
 
@@ -124,7 +124,7 @@ def labelRxnToRemove(model, options):
     options.rxnToRemove_dict = rxnToRemove_dict
 
 
-def pruneModel(model, options, solver_arg):
+def pruneModel(model, options):
     rxnToRemoveEssn_dict = {}
     rxnRemoved_dict = {}
     rxnRetained_dict = {}
@@ -133,7 +133,9 @@ def pruneModel(model, options, solver_arg):
 
         #Single reaction deletion is performed only for reactions labelled as "False"
         if options.rxnToRemove_dict[rxnid] == False:
-            growth_rate_dict, solution_status_dict, problem_dict = single_deletion(model, list([rxnid]), element_type='reaction', solver=solver_arg)
+            #Solver argument causes an error
+            growth_rate_dict, solution_status_dict = single_reaction_deletion(
+                    model, reaction_list=list([rxnid]), method='fba')
 
             #Checks optimality first.
             if str(solution_status_dict.values()[0]) == 'optimal':

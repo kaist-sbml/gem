@@ -15,7 +15,7 @@ def run_prunPhase(model, options):
     labelRxnToRemove(model, options)
 
     logging.info("Removing reactions with nonhomologous genes from the template model..")
-    modelPruned = pruneModel(model, options, 'gurobi')
+    modelPruned = pruneModel(model, options)
 
     logging.info("Correcting GPR associations in the template model..")
     modelPrunedGPR = swap_locusTag_tempModel(modelPruned, options)
