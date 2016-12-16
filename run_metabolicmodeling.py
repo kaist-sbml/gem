@@ -12,7 +12,10 @@ import pickle
 import sys
 import time
 
-from cobra.io.sbml import write_cobra_model_to_sbml_file, create_cobra_model_from_sbml_file
+from cobra.io.sbml import (
+    write_cobra_model_to_sbml_file,
+    create_cobra_model_from_sbml_file
+)
 from argparse import Namespace
 from modeling.io.input_file_manager import (
     get_genome_files,
