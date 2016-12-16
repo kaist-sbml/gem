@@ -17,7 +17,7 @@ from cobra.io.sbml import (
     create_cobra_model_from_sbml_file
 )
 from argparse import Namespace
-from modeling.__init__ import check_prereqs
+from modeling import check_prereqs
 from modeling.io.input_file_manager import (
     get_genome_files,
     get_pickles_add_rxn,
