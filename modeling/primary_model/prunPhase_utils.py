@@ -241,7 +241,7 @@ def swap_locusTag_tempModel(modelPruned, options):
 	booleanstring2 = ''
 	if len(stringlist) > 0:
             booleanstring2 = '('+' or '.join(stringlist)+')'
-	BBHrxn.add_gene_reaction_rule(booleanstring2)
+	BBHrxn.gene_reaction_rule = booleanstring2
 
     modelPrunedGPR = copy.deepcopy(modelPruned)
     return modelPrunedGPR
