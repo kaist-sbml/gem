@@ -64,7 +64,8 @@ def get_rxnInfo_from_rxnid(rxnid):
         #Otherwise reactions have unspecified molecules having R groups
         if sptlist[0].strip() == 'PATHWAY':
             PATHWAY = ' '.join(sptlist[1:])
-            return {'NAME':NAME, 'DEFINITION':DEFINITION, 'EQUATION':EQUATION, 'ENZYME':ENZYME, 'PATHWAY':PATHWAY}
+            return {'NAME':NAME, 'DEFINITION':DEFINITION,
+                    'EQUATION':EQUATION, 'ENZYME':ENZYME, 'PATHWAY':PATHWAY}
 
 
 def get_targetGenome_locusTag_ec_nonBBH_dict(options):
@@ -72,7 +73,8 @@ def get_targetGenome_locusTag_ec_nonBBH_dict(options):
 
     for locusTag in options.nonBBH_list:
 	if locusTag in options.targetGenome_locusTag_ec_dict.keys():
-            targetGenome_locusTag_ec_nonBBH_dict[locusTag] = options.targetGenome_locusTag_ec_dict[locusTag]
+            targetGenome_locusTag_ec_nonBBH_dict[locusTag] = \
+            options.targetGenome_locusTag_ec_dict[locusTag]
     options.targetGenome_locusTag_ec_nonBBH_dict = targetGenome_locusTag_ec_nonBBH_dict
 
 
@@ -130,7 +132,8 @@ def check_existing_rxns(options):
             kegg_mnxr = options.kegg_mnxr_dict[rxnid]
 
             #Check with reactions in the template model through MNXref
-            if kegg_mnxr not in options.modelPrunedGPR_mnxr_list and rxnid not in rxnid_to_add_list:
+            if kegg_mnxr not in options.modelPrunedGPR_mnxr_list \
+                and rxnid not in rxnid_to_add_list:
                 rxnid_to_add_list.append(rxnid)
 
     rxnid_to_add_list = list(sorted(set(rxnid_to_add_list)))
@@ -147,7 +150,8 @@ def get_mnxr_using_kegg(options):
     options.mnxr_to_add_list = mnxr_to_add_list
 
 
-def get_correct_metab_coeff(converted_metab_id, metab_coeff, metab_type, mnxm_coeff_dict, mnxm_metab_list):
+def get_correct_metab_coeff(converted_metab_id, metab_coeff,
+                            metab_type, mnxm_coeff_dict, mnxm_metab_list):
 
     #If the same metabolite appears multiple times as either substrates or products,
     #their stoichiometric coeff's are all added up
@@ -205,11 +209,16 @@ def extract_rxn_mnxm_coeff(options):
                 substrate = substrate.split()
 
                 if substrate[1] in options.mnxm_bigg_compound_dict.keys():
-                    mnxm_coeff_dict = get_correct_metab_coeff(options.mnxm_bigg_compound_dict[substrate[1]], substrate[0], metab_type, mnxm_coeff_dict, mnxm_subs_list)
+                    mnxm_coeff_dict = get_correct_metab_coeff(
+                            options.mnxm_bigg_compound_dict[substrate[1]],
+                            substrate[0], metab_type,mnxm_coeff_dict,
+                            mnxm_subs_list)
                     mnxm_subs_list.append(options.mnxm_bigg_compound_dict[substrate[1]])
 
                 else:
-                    mnxm_coeff_dict = get_correct_metab_coeff(substrate[1], substrate[0], metab_type, mnxm_coeff_dict, mnxm_subs_list)
+                    mnxm_coeff_dict = get_correct_metab_coeff(
+                            substrate[1], substrate[0],metab_type,
+                            mnxm_coeff_dict, mnxm_subs_list)
                     mnxm_subs_list.append(substrate[1])
 
             #Creating:
@@ -221,11 +230,15 @@ def extract_rxn_mnxm_coeff(options):
                 product = product.split()
 
                 if product[1] in options.mnxm_bigg_compound_dict.keys():
-                    mnxm_coeff_dict = get_correct_metab_coeff(options.mnxm_bigg_compound_dict[product[1]], product[0], metab_type, mnxm_coeff_dict, mnxm_prod_list)
+                    mnxm_coeff_dict = get_correct_metab_coeff(
+                            options.mnxm_bigg_compound_dict[product[1]],
+                            product[0], metab_type, mnxm_coeff_dict, mnxm_prod_list)
                     mnxm_prod_list.append(options.mnxm_bigg_compound_dict[product[1]])
 
                 else:
-                    mnxm_coeff_dict = get_correct_metab_coeff(product[1], product[0], metab_type, mnxm_coeff_dict, mnxm_prod_list)
+                    mnxm_coeff_dict = get_correct_metab_coeff(
+                            product[1], product[0], metab_type,
+                            mnxm_coeff_dict, mnxm_prod_list)
                     mnxm_prod_list.append(product[1])
 
             #Check overlapping metabolites as a substrate and a product
@@ -320,7 +333,8 @@ def add_nonBBH_rxn(modelPrunedGPR, options):
             #Objective coeff: default
             rxn.objective_coefficient = 0
 
-            #Add a reaction to the model if it does not affect Exchange reaction flux direction
+            #Add a reaction to the model
+            #if it does not affect Exchange reaction flux direction
             modelPrunedGPR.add_reaction(rxn)
 
             #'add_reaction' requires writing/reloading of the model
@@ -385,7 +399,8 @@ def check_exrxn_flux_direction(template_exrxnid_flux_dict, target_exrxnid_flux_d
                 0.2 < ratio_exrxn_flux and ratio_exrxn_flux < 2.0:
                 exrxn_flux_change_list.append('T')
 
-            #Causing drastic changes in Exchange reaction fluxes (direction and/or magnitude)
+            #Cause drastic changes in Exchange reaction fluxes
+            #(direction and/or magnitude)
             else:
                 exrxn_flux_change_list.append('F')
 
