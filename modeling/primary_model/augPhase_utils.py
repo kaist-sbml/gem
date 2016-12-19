@@ -176,8 +176,8 @@ def check_overlap_subs_prod(mnxm_subs_list, mnxm_prod_list):
     return overlap_check
 
 
-#Creating: e.g., {'R03232': {'f1p': -1.0, 'C04261': 1.0, 'fru': 1.0, 'C00615': -1.0}}
-#Metabolites are presented primarily with bigg, otherwise with KEGG
+#Metabolites are presented primarily with bigg, otherwise with MNXM
+#Metabolite ID priority: bigg > MNXM > KEGG
 def extract_rxn_mnxm_coeff(options):
     rxnid_mnxm_coeff_dict = {}
     mnxm_coeff_dict = {}
@@ -195,8 +195,6 @@ def extract_rxn_mnxm_coeff(options):
         #e.g., 1 MNXM9 + (n+2) MNXM90033 = 1 MNXM5617 + (n) MNXM90033
 	if '(' not in substrates and '(' not in products:
             #Creating:
-            #e.g., {bigg compoundID:(-1)coeff}, {kegg compoundID:(-1)coeff}
-            #or {mnxm:(-1)coeff}
             substrates = substrates.split(' + ')
             mnxm_coeff_dict = {}
             mnxm_subs_list = []
@@ -210,16 +208,13 @@ def extract_rxn_mnxm_coeff(options):
                     mnxm_coeff_dict = get_correct_metab_coeff(options.mnxm_bigg_compound_dict[substrate[1]], substrate[0], metab_type, mnxm_coeff_dict, mnxm_subs_list)
                     mnxm_subs_list.append(options.mnxm_bigg_compound_dict[substrate[1]])
 
-                elif substrate[1] in options.mnxm_kegg_compound_dict.keys():
-                    mnxm_coeff_dict = get_correct_metab_coeff(options.mnxm_kegg_compound_dict[substrate[1]], substrate[0], metab_type, mnxm_coeff_dict, mnxm_subs_list)
-                    mnxm_subs_list.append(options.mnxm_kegg_compound_dict[substrate[1]])
-
                 else:
                     mnxm_coeff_dict = get_correct_metab_coeff(substrate[1], substrate[0], metab_type, mnxm_coeff_dict, mnxm_subs_list)
                     mnxm_subs_list.append(substrate[1])
 
             #Creating:
-            #e.g., {bigg compoundID:coeff}, {kegg compoundID:coeff} or {mnxm:coeff}
+            #e.g., {bigg compoundID:(-1)coeff}, {mnxm:(-1)coeff}
+            #or {kegg compoundID:(-1)coeff}
             products = products.split(' + ')
             for product in products:
                 metab_type = 'product'
@@ -228,10 +223,6 @@ def extract_rxn_mnxm_coeff(options):
                 if product[1] in options.mnxm_bigg_compound_dict.keys():
                     mnxm_coeff_dict = get_correct_metab_coeff(options.mnxm_bigg_compound_dict[product[1]], product[0], metab_type, mnxm_coeff_dict, mnxm_prod_list)
                     mnxm_prod_list.append(options.mnxm_bigg_compound_dict[product[1]])
-
-                elif product[1] in options.mnxm_kegg_compound_dict.keys():
-                    mnxm_coeff_dict = get_correct_metab_coeff(options.mnxm_kegg_compound_dict[product[1]], product[0], metab_type, mnxm_coeff_dict, mnxm_prod_list)
-                    mnxm_prod_list.append(options.mnxm_kegg_compound_dict[product[1]])
 
                 else:
                     mnxm_coeff_dict = get_correct_metab_coeff(product[1], product[0], metab_type, mnxm_coeff_dict, mnxm_prod_list)
@@ -255,6 +246,9 @@ def add_nonBBH_rxn(modelPrunedGPR, options):
     for rxnid in options.rxnid_mnxm_coeff_dict.keys():
 
         if options.rxnid_info_dict[rxnid] != None:
+            logging.debug("--------------------")
+            logging.debug("Reaction to be added: %s" %rxnid)
+            logging.debug("%s" %options.rxnid_mnxm_coeff_dict[rxnid])
 
             #ID
             rxn = Reaction(rxnid)
@@ -273,24 +267,28 @@ def add_nonBBH_rxn(modelPrunedGPR, options):
 
                 #Adding metabolites already in the model
                 if metab_compt in modelPrunedGPR.metabolites:
-                    rxn.add_metabolites({modelPrunedGPR.metabolites.get_by_id(metab_compt):options.rxnid_mnxm_coeff_dict[rxnid][metab]})
+                    logging.debug("Metabolite %s: Already present in model" %metab_compt)
+                    rxn.add_metabolites({modelPrunedGPR.metabolites.get_by_id(
+                        metab_compt):options.rxnid_mnxm_coeff_dict[rxnid][metab]})
 
                 #Adding metabolites with bigg compoundID, but not in the model
                 elif metab in options.bigg_mnxm_compound_dict.keys():
+                    logging.debug("Metabolite (bigg ID) %s: To be added" %metab)
                     mnxm = options.bigg_mnxm_compound_dict[metab]
-                    metab_compt = Metabolite(metab, formula =
-                            options.mnxm_compoundInfo_dict[mnxm][1], name =
-                            options.mnxm_compoundInfo_dict[mnxm][0],
+                    metab_compt = Metabolite(metab,
+                            formula = options.mnxm_compoundInfo_dict[mnxm][1],
+                            name = options.mnxm_compoundInfo_dict[mnxm][0],
                             compartment='c')
                     rxn.add_metabolites(
                             {metab_compt:options.rxnid_mnxm_coeff_dict[rxnid][metab]})
 
                 #Adding metabolites with MNXM and not in the model
                 else:
-                    mnxm = options.kegg_mnxm_compound_dict[metab]
-                    metab_compt = Metabolite(mnxm, formula =
-                            options.mnxm_compoundInfo_dict[mnxm][1], name =
-                            options.mnxm_compoundInfo_dict[mnxm][0],
+                    logging.debug("Metabolite (MNXM ID) %s: To be added" %metab)
+                    #mnxm = options.kegg_mnxm_compound_dict[metab]
+                    metab_compt = Metabolite(metab,
+                            formula = options.mnxm_compoundInfo_dict[metab][1],
+                            name = options.mnxm_compoundInfo_dict[metab][0],
                             compartment='c')
                     rxn.add_metabolites(
                             {metab_compt:options.rxnid_mnxm_coeff_dict[rxnid][metab]})
@@ -313,7 +311,7 @@ def add_nonBBH_rxn(modelPrunedGPR, options):
                 else:
                     gpr = ' or '.join(options.rxnid_locusTag_dict[rxnid])
                 gpr = '( %s )' %(gpr)
-            rxn.add_gene_reaction_rule(gpr)
+            rxn.gene_reaction_rule = gpr
 
             #Subsystem
             rxn.subsystem = options.rxnid_info_dict[rxnid]['PATHWAY']
@@ -325,13 +323,17 @@ def add_nonBBH_rxn(modelPrunedGPR, options):
             #Add a reaction to the model if it does not affect Exchange reaction flux direction
             modelPrunedGPR.add_reaction(rxn)
 
+            #Stabilize model
+            logging.debug("Number of reactions in model before saving: %s"
+                    %len(modelPrunedGPR.reactions))
             write_cobra_model_to_sbml_file(modelPrunedGPR,
-                    "./%s/3_temp_models/modelPrunedGPR.xml"
-                    %options.outputfolder)
+                    "./%s/3_temp_models/modelPrunedGPR.xml" %options.outputfolder)
             modelPrunedGPR = create_cobra_model_from_sbml_file(
-                    "./%s/3_temp_models/modelPrunedGPR.xml"
-                    %options.outputfolder)
+                    "./%s/3_temp_models/modelPrunedGPR.xml" %options.outputfolder)
+            logging.debug("Number of reactions in model after saving: %s"
+                    %len(modelPrunedGPR.reactions))
 
+            #Check model prediction consistency
             target_exrxnid_flux_dict = get_exrxnid_flux(modelPrunedGPR,
                     options.template_exrxnid_flux_dict)
             exrxn_flux_change_list = check_exrxn_flux_direction(
@@ -342,13 +344,12 @@ def add_nonBBH_rxn(modelPrunedGPR, options):
                 modelPrunedGPR.remove_reactions(rxn)
 
                 write_cobra_model_to_sbml_file(modelPrunedGPR,
-                        "./%s/3_temp_models/modelPrunedGPR.xml"
-                        %options.outputfolder)
+                        "./%s/3_temp_models/modelPrunedGPR.xml" %options.outputfolder)
                 modelPrunedGPR = create_cobra_model_from_sbml_file(
-                        "./%s/3_temp_models/modelPrunedGPR.xml"
-                        %options.outputfolder)
+                        "./%s/3_temp_models/modelPrunedGPR.xml" %options.outputfolder)
 
         logging.debug("Reaction added to the model: %s" %rxnid)
+        logging.debug("--------------------")
 
     prune_unused_metabolites(modelPrunedGPR)
     target_model = copy.deepcopy(modelPrunedGPR)
