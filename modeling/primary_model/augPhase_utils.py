@@ -323,13 +323,15 @@ def add_nonBBH_rxn(modelPrunedGPR, options):
             #Add a reaction to the model if it does not affect Exchange reaction flux direction
             modelPrunedGPR.add_reaction(rxn)
 
-            #Stabilize model
+            #'add_reaction' requires writing/reloading of the model
             logging.debug("Number of reactions in model before saving: %s"
                     %len(modelPrunedGPR.reactions))
             write_cobra_model_to_sbml_file(modelPrunedGPR,
-                    "./%s/3_temp_models/modelPrunedGPR.xml" %options.outputfolder)
+                    "./%s/3_temp_models/modelPrunedGPR_%s.xml"
+                    %(options.outputfolder, rxnid))
             modelPrunedGPR = create_cobra_model_from_sbml_file(
-                    "./%s/3_temp_models/modelPrunedGPR.xml" %options.outputfolder)
+                    "./%s/3_temp_models/modelPrunedGPR_%s.xml"
+                    %(options.outputfolder, rxnid))
             logging.debug("Number of reactions in model after saving: %s"
                     %len(modelPrunedGPR.reactions))
 
@@ -341,12 +343,9 @@ def add_nonBBH_rxn(modelPrunedGPR, options):
                     target_exrxnid_flux_dict)
 
             if 'F' in exrxn_flux_change_list:
+                #'remove_reactions' does not seem to require
+                #writing/reloading of the model
                 modelPrunedGPR.remove_reactions(rxn)
-
-                write_cobra_model_to_sbml_file(modelPrunedGPR,
-                        "./%s/3_temp_models/modelPrunedGPR.xml" %options.outputfolder)
-                modelPrunedGPR = create_cobra_model_from_sbml_file(
-                        "./%s/3_temp_models/modelPrunedGPR.xml" %options.outputfolder)
 
         logging.debug("Reaction added to the model: %s" %rxnid)
         logging.debug("--------------------")
