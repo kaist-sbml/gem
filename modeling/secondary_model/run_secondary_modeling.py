@@ -19,17 +19,17 @@ from sec_met_rxn_generation import(
     get_monomers_nonprod_sec_met,
     get_monomers_prod_sec_met
 )
-from gapfilling.gapfill_network_manipulation import(
-    get_mnxr_bigg_in_target_model,
-    get_mnxr_unique_to_universal_model,
-    integrate_target_universal_models,
-    get_unique_nonprod_monomers_list,
-    add_transport_exchange_rxn_nonprod_monomer,
-    check_producibility_nonprod_monomer,
-    execute_gapfill,
-    check_gapfill_rxn_biomass_effects,
-    add_gapfill_rxn_target_model
-)
+#from gapfilling.gapfill_network_manipulation import(
+#    get_mnxr_bigg_in_target_model,
+#    get_mnxr_unique_to_universal_model,
+#    integrate_target_universal_models,
+#    get_unique_nonprod_monomers_list,
+#    add_transport_exchange_rxn_nonprod_monomer,
+#    check_producibility_nonprod_monomer,
+#    execute_gapfill,
+#    check_gapfill_rxn_biomass_effects,
+#    add_gapfill_rxn_target_model
+#)
 
 
 def run_sec_met_rxn_generation(cluster_nr, target_model, prod_sec_met_dict,

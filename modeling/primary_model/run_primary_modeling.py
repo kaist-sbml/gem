@@ -12,6 +12,24 @@ from augPhase_utils import(
     extract_rxn_mnxm_coeff,
     add_nonBBH_rxn
 )
+from prunPhase_utils import (
+    labelRxnToRemove,
+    pruneModel,
+    swap_locusTag_tempModel
+)
+
+def run_prunPhase(model, options):
+    logging.info("Pruning phase starting..")
+    logging.info("Labeling reactions with nonhomologous genes to remove from the template model..")
+    labelRxnToRemove(model, options)
+
+    logging.info("Removing reactions with nonhomologous genes from the template model..")
+    modelPruned = pruneModel(model, options)
+
+    logging.info("Correcting GPR associations in the template model..")
+    modelPrunedGPR = swap_locusTag_tempModel(modelPruned, options)
+
+    return modelPrunedGPR
 
 
 def run_augPhase(modelPrunedGPR, options):
@@ -37,4 +55,3 @@ def run_augPhase(modelPrunedGPR, options):
     target_model = add_nonBBH_rxn(modelPrunedGPR, options)
 
     return target_model
-
