@@ -11,6 +11,7 @@ import os
 import pickle
 import sys
 import time
+import warnings
 from cobra.io.sbml import (
     write_cobra_model_to_sbml_file,
     create_cobra_model_from_sbml_file
@@ -80,6 +81,11 @@ def main():
                         action='store_true',
                         default=False,
                         help="Print debugging information to stderr")
+    parser.add_argument('-w', '--warning',
+                        dest='warning',
+                        action='store_true',
+                        default=False,
+                        help="Print UserWarning messages from cobrapy")
 
     options = parser.parse_args()
 
@@ -91,6 +97,10 @@ def main():
         log_level = logging.WARNING
 
     logging.basicConfig(format='%(levelname)s: %(message)s', level=log_level)
+
+    #Warning messages from cobrapy turned off by default
+    if not options.warning:
+        warnings.filterwarnings("ignore")
 
     #Check prerequisites of executables and libraries
     check_prereqs()
