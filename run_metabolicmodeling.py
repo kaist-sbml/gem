@@ -11,7 +11,6 @@ import os
 import pickle
 import sys
 import time
-
 from cobra.io.sbml import (
     write_cobra_model_to_sbml_file,
     create_cobra_model_from_sbml_file
@@ -28,8 +27,8 @@ from modeling.homology.bidirect_blastp_analysis import get_homologs
 from modeling.primary_model.run_primary_modeling import run_prunPhase, run_augPhase
 from modeling.secondary_model.run_secondary_modeling import (
     run_sec_met_rxn_generation,
-    prep_network_for_gapfilling,
     get_target_nonprod_monomers_for_gapfilling,
+    get_universal_model,
     run_gapfilling
 )
 
@@ -150,13 +149,11 @@ def main():
                         target_model, prod_sec_met_dict, nonprod_sec_met_dict, options)
                 cluster_nr += 1
 
-            target_model2, universal_model = prep_network_for_gapfilling(
-                    target_model, options)
-
             get_target_nonprod_monomers_for_gapfilling(target_model, options)
 
-            target_model_complete = run_gapfilling(target_model, target_model2,
-                                                   universal_model, options)
+            universal_model = get_universal_model(target_model, options)
+
+            target_model_complete = run_gapfilling(target_model, universal_model, options)
 
             runtime2 = time.strftime("Elapsed time %H:%M:%S",
                         time.gmtime(time.time() - start))

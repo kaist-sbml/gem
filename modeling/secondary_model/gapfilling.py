@@ -5,52 +5,13 @@
 import copy
 import logging
 from cobra import Model, Reaction, Metabolite
-from cobra.io.sbml import create_cobra_model_from_sbml_file, write_cobra_model_to_sbml_file
+from cobra.io.sbml import(
+    create_cobra_model_from_sbml_file,
+    write_cobra_model_to_sbml_file)
 from cobra.manipulation.delete import prune_unused_metabolites
-#from gapfill_core import gapfilling_precursor
 from ..primary_model.augPhase_utils import(
     get_exrxnid_flux,
-    check_exrxn_flux_direction
-)
-
-
-def get_mnxr_bigg_in_target_model(target_model, options):
-
-    mnxr_bigg_target_model_dict = {}
-
-    for each_reaction in options.bigg_mnxr_dict.keys():
-        if each_reaction in target_model.reactions:
-            biggid = each_reaction
-            mnxr = options.bigg_mnxr_dict[each_reaction]
-            mnxr_bigg_target_model_dict[mnxr] = biggid
-
-    options.mnxr_bigg_target_model_dict = mnxr_bigg_target_model_dict
-
-
-def get_mnxr_unique_to_universal_model(universal_model, options):
-
-    mnxr_unique_to_universal_model_list = []
-
-    for mnxr in universal_model.reactions:
-        if mnxr not in options.mnxr_bigg_target_model_dict.keys():
-            mnxr_unique_to_universal_model_list.append(str(mnxr))
-
-    options.mnxr_unique_to_universal_model_list = mnxr_unique_to_universal_model_list
-
-
-def integrate_target_universal_models(target_model, universal_model, options):
-    target_model2 = copy.deepcopy(target_model)
-
-    #Add reactions in universal network to template model
-    for mnxr in options.mnxr_unique_to_universal_model_list:
-        mnxr_from_universal_model = universal_model.reactions.get_by_id(mnxr)
-
-        #cobrapy doc: "When copying a reaction, it is necessary to deepcopy the components so the list references are not carried over"
-        mnxr_from_universal_model = copy.deepcopy(mnxr_from_universal_model)
-        #Integrated model having reactions from both target and universal models
-        target_model2.add_reaction(mnxr_from_universal_model)
-
-    return target_model2
+    check_exrxn_flux_direction)
 
 
 def get_unique_nonprod_monomers_list(options):
@@ -65,7 +26,8 @@ def get_unique_nonprod_monomers_list(options):
 
     for nonprod_monomers_list in options.nonprod_sec_met_dict.keys():
         for nonprod_monomer in options.nonprod_sec_met_dict[nonprod_monomers_list]:
-            if nonprod_monomer not in unique_nonprod_monomers_list and nonprod_monomer not in unique_prod_monomers_list:
+            if nonprod_monomer not in unique_nonprod_monomers_list
+                and nonprod_monomer not in unique_prod_monomers_list:
                 unique_nonprod_monomers_list.append(nonprod_monomer)
 
     logging.debug(unique_nonprod_monomers_list)
@@ -110,7 +72,8 @@ def add_transport_exchange_rxn_nonprod_monomer(target_model, nonprod_monomer, op
 
     #Model reloading and overwrtting are necessary for model stability
     write_cobra_model_to_sbml_file(target_model_temp,
-            '%s/3_temp_models/target_model_temp_%s.xml' %(options.outputfolder, nonprod_monomer))
+            '%s/3_temp_models/target_model_temp_%s.xml'
+            %(options.outputfolder, nonprod_monomer))
     target_model_temp = create_cobra_model_from_sbml_file(
             '%s/3_temp_models/target_model_temp_%s.xml'
             %(options.outputfolder, nonprod_monomer))
@@ -131,32 +94,18 @@ def check_producibility_nonprod_monomer(cobra_model, nonprod_monomer):
     return cobra_model
 
 
-def execute_gapfill(target_model_temp, nonprod_monomer, options):
-
-    #Run gap-filling algorithm based on MILP in gurobipy
-    obj = gapfilling_precursor()
-
-    #Load merged model
-    obj.load_cobra_model(target_model_temp)
-    added_reaction = obj.fill_gap("Ex_"+nonprod_monomer, options.mnxr_unique_to_universal_model_list)
-
-    return added_reaction
-
-
-#Find gap-filling reactions that cause large biomass values and unrealistic fluxes for critial nutrients (e.g., O2, CO2 etc)
+#Find gap-filling reactions that cause large biomass values
+#and unrealistic fluxes for critial nutrients (e.g., O2, CO2 etc)
 #Remove such gap-filling reactions from the list of reactions to be added to the model
-def check_gapfill_rxn_biomass_effects(target_model, universal_model, added_reaction, options):
+def check_gapfill_rxn_biomass_effects(target_model, universal_model,
+                                     gapfill_rxns, options):
 
-    added_reaction2 = copy.deepcopy(added_reaction)
+    gapfill_rxns2 = copy.deepcopy(gapfill_rxns)
     target_model_gapFilled = copy.deepcopy(target_model)
 
-    #'added_reaction' is a list of list:
-    #e.g., [[<Reaction HKSR9 at 0x7f706aa8cad0>,
-    #<Reaction MNXR3151_reverse at 0x7f706a86d7d0>]]
-    #Element in a list of list is Class.
-    for gapfill_rxn in added_reaction:
-        print 'check5', type(gapfill_rxn), gapfill_rxn
-        target_model_gapFilled.add_reaction(universal_model.reactions.get_by_id(gapfill_rxn))
+    for gapfill_rxn in gapfill_rxns:
+        target_model_gapFilled.add_reaction(
+                universal_model.reactions.get_by_id(gapfill_rxn))
 
         write_cobra_model_to_sbml_file(target_model_gapFilled,
                 "./%s/3_temp_models/target_model_gapFilled.xml"
@@ -165,13 +114,19 @@ def check_gapfill_rxn_biomass_effects(target_model, universal_model, added_react
                 "./%s/3_temp_models/target_model_gapFilled.xml"
                 %options.outputfolder)
 
-        target_exrxnid_flux_dict = get_exrxnid_flux(target_model_gapFilled, options.template_exrxnid_flux_dict)
-        exrxn_flux_change_list = check_exrxn_flux_direction(options.template_exrxnid_flux_dict, target_exrxnid_flux_dict)
+        target_exrxnid_flux_dict = get_exrxnid_flux(
+                target_model_gapFilled, options.template_exrxnid_flux_dict)
+        exrxn_flux_change_list = check_exrxn_flux_direction(
+                options.template_exrxnid_flux_dict, target_exrxnid_flux_dict)
 
-        #Remove gap-filling reactions if they cause wrong flux values for nutrients transport
-        #Removal of such reactions does not affect producibility of corresponding secondary metabolites, and even generates more realistic flux values
+        #Remove gap-filling reactions
+        #if they cause wrong flux values for nutrients transport
+        #Removal of such reactions does not affect
+        #producibility of corresponding secondary metabolites,
+        #and even generates more realistic flux values
         if 'F' in exrxn_flux_change_list:
-            target_model_gapFilled.remove_reactions(universal_model.reactions.get_by_id(gapfill_rxn))
+            target_model_gapFilled.remove_reactions(
+                    universal_model.reactions.get_by_id(gapfill_rxn))
             write_cobra_model_to_sbml_file(target_model_gapFilled,
                     "./%s/3_temp_models/target_model_gapFilled.xml"
                     %options.outputfolder)
@@ -179,18 +134,17 @@ def check_gapfill_rxn_biomass_effects(target_model, universal_model, added_react
                     "./%s/3_temp_models/target_model_gapFilled.xml"
                     %options.outputfolder)
 
-            logging.debug("Gap-filling reaction causing wrong fluxes: %s" %str(gapfill_rxn))
-            print 'check6', type(gapfill_rxn), gapfill_rxn
-            print 'check7', type(added_reaction2), added_reaction2
-            #'list' should be used
-            added_reaction2.remove(gapfill_rxn)
+            logging.debug("Gap-filling reaction causing wrong fluxes: %s"
+                            %str(gapfill_rxn))
 
-    return added_reaction2
+            gapfill_rxns2.remove(gapfill_rxn)
+
+    return gapfill_rxns2
 
 
-def add_gapfill_rxn_target_model(target_model, universal_model, added_reaction2, options):
-    print 'check8', added_reaction2
-    for gapfill_rxn in added_reaction2:
+def add_gapfill_rxn_target_model(target_model, universal_model, gapfill_rxns2, options):
+
+    for gapfill_rxn in gapfill_rxns2:
         target_model.add_reaction(universal_model.reactions.get_by_id(gapfill_rxn))
 
         logging.debug("Reaction added to the target_model: %s" %gapfill_rxn)

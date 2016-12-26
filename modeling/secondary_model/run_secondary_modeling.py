@@ -2,6 +2,7 @@
 #Copyright 2014-2016 BioInformatics Research Center, KAIST
 #Copyright 2014-2016 Novo Nordisk Foundation Center for Biosustainability, DTU
 
+import cobra
 import logging
 import pickle
 from sec_met_rxn_generation import(
@@ -19,17 +20,13 @@ from sec_met_rxn_generation import(
     get_monomers_nonprod_sec_met,
     get_monomers_prod_sec_met
 )
-#from gapfilling.gapfill_network_manipulation import(
-#    get_mnxr_bigg_in_target_model,
-#    get_mnxr_unique_to_universal_model,
-#    integrate_target_universal_models,
-#    get_unique_nonprod_monomers_list,
-#    add_transport_exchange_rxn_nonprod_monomer,
-#    check_producibility_nonprod_monomer,
-#    execute_gapfill,
-#    check_gapfill_rxn_biomass_effects,
-#    add_gapfill_rxn_target_model
-#)
+from gapfilling import(
+    get_unique_nonprod_monomers_list,
+    add_transport_exchange_rxn_nonprod_monomer,
+    check_producibility_nonprod_monomer,
+    check_gapfill_rxn_biomass_effects,
+    add_gapfill_rxn_target_model
+)
 
 
 def run_sec_met_rxn_generation(cluster_nr, target_model, prod_sec_met_dict,
@@ -75,27 +72,8 @@ def run_sec_met_rxn_generation(cluster_nr, target_model, prod_sec_met_dict,
     return target_model
 
 
-def prep_network_for_gapfilling(target_model, options):
-
-    logging.info("Gap-filling for the production of secondary metabolites..")
-    logging.debug("Step 1: Network manipulation for gap-filling process..")
-
-    universal_model = pickle.load(open("./modeling/io/data/input2/universal_model.p","rb"))
-
-    logging.debug("Retrieving reaction information from target_model an universal_model..")
-    get_mnxr_bigg_in_target_model(target_model, options)
-
-    get_mnxr_unique_to_universal_model(universal_model, options)
-
-    logging.debug("Merging target_model and universal_model..")
-    target_model2 = integrate_target_universal_models(target_model,
-                    universal_model, options)
-
-    return target_model2, universal_model
-
-
 def get_target_nonprod_monomers_for_gapfilling(target_model, options):
-    logging.debug("Step 2: Optimization-based gap-filling process..")
+    logging.info("Gap-filling for the production of secondary metabolites..")
 
     unique_nonprod_monomers_list = get_unique_nonprod_monomers_list(options)
 
@@ -118,22 +96,41 @@ def get_target_nonprod_monomers_for_gapfilling(target_model, options):
     options.adj_unique_nonprod_monomers_list = adj_unique_nonprod_monomers_list
 
 
-def run_gapfilling(target_model, target_model2, universal_model, options):
+def get_universal_model(target_model, options):
 
-    for nonprod_monomer in options.adj_unique_nonprod_monomers_list:
-        target_model_temp = add_transport_exchange_rxn_nonprod_monomer(target_model2,
-                            nonprod_monomer, options)
-        target_model_temp = check_producibility_nonprod_monomer(target_model_temp,
-                            nonprod_monomer)
-        target_model_temp.optimize()
 
-        #Run gap-filling procedure only for monomers producible from target_model with reactions from universal_model
-        if target_model_temp.solution.f > 0:
-            added_reaction = execute_gapfill(target_model_temp, nonprod_monomer, options)
-            added_reaction2 = check_gapfill_rxn_biomass_effects(target_model,
-                              universal_model, added_reaction, options)
+    universal_model = pickle.load(open("./modeling/io/data/input2/universal_model.p","rb"))
+
+    return universal_model
+
+
+def run_gapfilling(target_model, universal_model, options):
+
+    gapfill_rxns2 = []
+
+    for nonprod_monomer in options.adj_unique_nonprod_monomers_list[0]:
+
+        #Gap-filling via cobrapy
+        gapfill_rxns = cobra.flux_analysis.gapfilling.SMILEY(
+                target_model, '%s_c' %nonprod_monomer, universal_model)
+
+        #'gapfill_rxns' is a list of list:
+        #e.g., [[<Reaction HKSR9 at 0x7f706aa8cad0>,
+        #<Reaction MNXR3151_reverse at 0x7f706a86d7d0>]]
+        #Element in a list of list is Class.
+        if len(gapfill_rxns[0]) > 0:
+            for i in gapfill_rxns[0]:
+                if '_reverse' in str(i):
+                    gapfill_rxns2.append(str(i)[:-8])
+                else:
+                    gapfill_rxns2.append(str(i))
+
+            #Currently this function causes an error;
+            #gap-filling reactions are not added to the model being edited
+            #gap_rxns3 = check_gapfill_rxn_biomass_effects(target_model,
+            #                           universal_model, gapfill_rxns2, options)
             target_model_complete = add_gapfill_rxn_target_model(target_model,
-                                    universal_model, added_reaction2, options)
+                                    universal_model, gapfill_rxns2,options)
         else:
             logging.warning("Gap-filling not possible: target_model with reactions from universal_model does not produce this monomer: %s" %nonprod_monomer)
 
