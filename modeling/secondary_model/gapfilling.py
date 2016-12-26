@@ -26,7 +26,7 @@ def get_unique_nonprod_monomers_list(options):
 
     for nonprod_monomers_list in options.nonprod_sec_met_dict.keys():
         for nonprod_monomer in options.nonprod_sec_met_dict[nonprod_monomers_list]:
-            if nonprod_monomer not in unique_nonprod_monomers_list
+            if nonprod_monomer not in unique_nonprod_monomers_list \
                 and nonprod_monomer not in unique_prod_monomers_list:
                 unique_nonprod_monomers_list.append(nonprod_monomer)
 
