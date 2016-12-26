@@ -106,7 +106,8 @@ def main():
     check_prereqs()
 
     #Create output folders
-    folders = ['0_EFICAz_results', '1_blastp_results', '2_primary_metabolic_model', '3_temp_models', '4_complete_model']
+    folders = ['0_EFICAz_results', '1_blastp_results',
+            '2_primary_metabolic_model', '3_temp_models', '4_complete_model']
     folder2 = '2_primary_metabolic_model'
     folder4 = '4_complete_model'
 
@@ -118,8 +119,6 @@ def main():
 
     get_genome_files(options)
 
-    get_pickles_add_rxn(options)
-
     if options.pmr_generation:
         get_homologs(options)
 
@@ -128,6 +127,7 @@ def main():
         modelPrunedGPR = run_prunPhase(model, options)
 
         if options.targetGenome_locusTag_ec_dict:
+            get_pickles_augPhase(options)
             target_model = run_augPhase(modelPrunedGPR, options)
         else:
             logging.warning("No EC_number found in the submitted gbk file")

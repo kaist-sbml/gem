@@ -24,8 +24,19 @@ def get_genome_files(options):
     get_target_fasta(options)
 
 
+#For model pruning phase
+#Only model file is not saved in Namespace
+def get_pickles_prunPhase(options):
+    logging.info("Loading pickle files of the parsed template model and its relevant genbank data..")
+    model = pickle.load(open('%s/model.p' %(options.input1),'rb'))
+    tempModel_biggRxnid_locusTag_dict = pickle.load(open('%s/tempModel_biggRxnid_locusTag_dict.p' %(options.input1),'rb'))
+    options.tempModel_biggRxnid_locusTag_dict = tempModel_biggRxnid_locusTag_dict
+
+    return model
+
+
 #For model augmentation phase in both primary and secondary modeling
-def get_pickles_add_rxn(options):
+def get_pickles_augPhase(options):
     logging.info("Loading pickle files necessary for the model augmentation phase..")
 
     bigg_mnxr_dict = pickle.load(open('./modeling/io/data/input2/bigg_mnxr_dict.p','rb'))
@@ -51,15 +62,4 @@ def get_pickles_add_rxn(options):
 
     template_exrxnid_flux_dict = pickle.load(open('%s/tempModel_exrxnid_flux_dict.p' %(options.input1),'rb'))
     options.template_exrxnid_flux_dict = template_exrxnid_flux_dict
-
-
-#For model pruning phase
-#Only model file is not saved in Namespace
-def get_pickles_prunPhase(options):
-    logging.info("Loading pickle files of the parsed template model and its relevant genbank data..")
-    model = pickle.load(open('%s/model.p' %(options.input1),'rb'))
-    tempModel_biggRxnid_locusTag_dict = pickle.load(open('%s/tempModel_biggRxnid_locusTag_dict.p' %(options.input1),'rb'))
-    options.tempModel_biggRxnid_locusTag_dict = tempModel_biggRxnid_locusTag_dict
-
-    return model
 
