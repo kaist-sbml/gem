@@ -522,7 +522,7 @@ def add_sec_met_rxn(target_model, options):
         else:
             gpr_list = gpr_list + ' AND ' + each_gene
 
-    rxn.add_gene_reaction_rule(gpr_list)
+    rxn.gene_reaction_rule = gpr_list
 
     #Adding the new reaction to the model
     target_model.add_reaction(rxn)
