@@ -111,8 +111,8 @@ def run_gapfilling(target_model, universal_model, options):
 
     gapfill_rxns2 = []
 
-    for nonprod_monomer in options.adj_unique_nonprod_monomers_list[0]:
-
+    for nonprod_monomer in options.adj_unique_nonprod_monomers_list:
+        print 'check', nonprod_monomer
         #Gap-filling via cobrapy
         gapfill_rxns = cobra.flux_analysis.gapfilling.SMILEY(
                 target_model, '%s_c' %nonprod_monomer, universal_model)
@@ -124,18 +124,23 @@ def run_gapfilling(target_model, universal_model, options):
         if len(gapfill_rxns[0]) > 0:
             for i in gapfill_rxns[0]:
                 if '_reverse' in str(i):
-                    gapfill_rxns2.append(str(i)[:-8])
-                else:
-                    gapfill_rxns2.append(str(i))
+                    #Check next gap-filling rxn already covered
+                    if str(i)[:-8] not in gapfill_rxns2:
+                        gapfill_rxns2.append(str(i)[:-8])
+                elif '_reverse' not in str(i):
+                    #Check next gap-filling rxn already covered
+                    if str(i) not in gapfill_rxns2:
+                        gapfill_rxns2.append(str(i))
 
-            #Currently this function causes an error;
-            #gap-filling reactions are not added to the model being edited
-            #gap_rxns3 = check_gapfill_rxn_biomass_effects(target_model,
-            #                           universal_model, gapfill_rxns2, options)
-            target_model_complete = add_gapfill_rxn_target_model(target_model,
-                                    universal_model, gapfill_rxns2,options)
         else:
             logging.warning("Gap-filling not possible: target_model with reactions from universal_model does not produce this monomer: %s" %nonprod_monomer)
+
+    #Currently this function causes an error;
+    #gap-filling reactions are not added to the model being edited
+    #gap_rxns3 = check_gapfill_rxn_biomass_effects(target_model,
+    #                           universal_model, gapfill_rxns2, options)
+    target_model_complete = add_gapfill_rxn_target_model(target_model,
+                            universal_model, gapfill_rxns2,options)
 
     return target_model_complete
 
