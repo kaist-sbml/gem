@@ -104,23 +104,26 @@ def main():
     if not options.warning:
         warnings.filterwarnings("ignore")
 
-    #Check prerequisites of executables and libraries
-    check_prereqs()
+    #Get genome files only if one of functional options is selected
+    if options.eficaz or options.pmr_generation or options.smr_generation:
+        #Check prerequisites of executables and libraries
+        check_prereqs()
 
-    #Create output folders
-    folders = ['0_EFICAz_results', '1_blastp_results',
-            '2_primary_metabolic_model', '3_temp_models', '4_complete_model']
-    folder2 = '2_primary_metabolic_model'
-    folder4 = '4_complete_model'
+        #Create output folders
+        folders = ['0_EFICAz_results', '1_blastp_results',
+                    '2_primary_metabolic_model', '3_temp_models', '4_complete_model']
+        folder2 = '2_primary_metabolic_model'
+        folder4 = '4_complete_model'
 
-    for folder in folders:
-        if not os.path.isdir(options.outputfolder+'/'+folder):
-            os.makedirs(options.outputfolder+'/'+folder)
+        for folder in folders:
+            if not os.path.isdir(options.outputfolder+'/'+folder):
+                os.makedirs(options.outputfolder+'/'+folder)
 
-    options.outputfoldername = options.outputfolder+'/'+folders[0]
+        options.outputfoldername = options.outputfolder+'/'+folders[0]
 
-    get_genome_files(options)
+        get_genome_files(options)
 
+    #Primary metabolic modeling
     if options.pmr_generation:
         get_homologs(options)
 
@@ -182,8 +185,8 @@ def main():
         else:
             logging.warning("COBRA-compliant SBML file needed")
 
-    if not options.pmr_generation and not options.smr_generation:
-        logging.warning("Either primary or secondary metabolic modeling should be performed")
+    if not options.eficaz and not options.pmr_generation and not options.smr_generation:
+        logging.warning("No functional options selected")
 
     logging.info(time.strftime("Elapsed time %H:%M:%S", time.gmtime(time.time() - start)))
 
