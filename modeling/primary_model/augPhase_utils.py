@@ -11,7 +11,6 @@ import urllib2
 from Bio import SeqIO
 from cobra import Model, Reaction, Metabolite
 from cobra.io.sbml import write_cobra_model_to_sbml_file, create_cobra_model_from_sbml_file
-from cobra.manipulation.delete import prune_unused_metabolites
 
 
 #Retrieves a list of reaction IDs using their EC numbers from KEGG
@@ -363,7 +362,6 @@ def add_nonBBH_rxn(modelPrunedGPR, options):
         logging.debug("Reaction added to the model: %s" %rxnid)
         logging.debug("--------------------")
 
-    prune_unused_metabolites(modelPrunedGPR)
     target_model = copy.deepcopy(modelPrunedGPR)
     return target_model
 

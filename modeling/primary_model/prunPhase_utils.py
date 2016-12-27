@@ -5,7 +5,6 @@
 import copy
 import logging
 from cobra.flux_analysis import single_reaction_deletion
-from cobra.manipulation.delete import prune_unused_metabolites
 
 
 def calcBoolean(booleanList):
@@ -154,8 +153,6 @@ def pruneModel(model, options):
                     rxnRetained_dict[rxnid] = float(growth_rate_dict.values()[0])
                     logging.debug("Retained reaction: %s; %s; %s; %s" %(rxnid, growth_rate_dict.values()[0], len(model.reactions), len(model.metabolites)))
 
-    #Removing metabolites that are not used in the reduced model
-    prune_unused_metabolites(model)
     modelPruned = copy.deepcopy(model)
 
     #rxnToRemoveEssn_dict, rxnRemoved_dict and rxnRetained_dict:

@@ -16,12 +16,14 @@ from cobra.io.sbml import (
     write_cobra_model_to_sbml_file,
     create_cobra_model_from_sbml_file
 )
+from cobra.manipulation.delete import prune_unused_metabolites
 from argparse import Namespace
 from modeling import check_prereqs
 from modeling.io.input_file_manager import (
     get_genome_files,
     get_pickles_prunPhase,
-    get_pickles_augPhase)
+    get_pickles_augPhase
+    )
 from modeling.io.output_file_manager import generate_outputs
 from modeling.homology.bidirect_blastp_analysis import get_homologs
 from modeling.primary_model.run_primary_modeling import run_prunPhase, run_augPhase
@@ -29,7 +31,8 @@ from modeling.secondary_model.run_secondary_modeling import (
     run_sec_met_rxn_generation,
     get_target_nonprod_monomers_for_gapfilling,
     get_universal_model,
-    run_gapfilling)
+    run_gapfilling
+    )
 
 
 def main():
@@ -131,7 +134,11 @@ def main():
         else:
             logging.warning("No EC_number found in the submitted gbk file")
 
+        #Cleanup of the model
+        prune_unused_metabolites(target_model)
+
         runtime1 = time.strftime("Elapsed time %H:%M:%S", time.gmtime(time.time() - start))
+
         generate_outputs(folder2, target_model, runtime1, options)
 
     #Secondary metabolic modeling
@@ -164,8 +171,12 @@ def main():
 
             target_model_complete = run_gapfilling(target_model, universal_model, options)
 
+            #Cleanup of the model
+            prune_unused_metabolites(target_model_complete)
+
             runtime2 = time.strftime("Elapsed time %H:%M:%S",
                         time.gmtime(time.time() - start))
+
             generate_outputs(folder4, target_model_complete, runtime2, options)
 
         else:

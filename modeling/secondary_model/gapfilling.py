@@ -8,7 +8,6 @@ from cobra import Model, Reaction, Metabolite
 from cobra.io.sbml import(
     create_cobra_model_from_sbml_file,
     write_cobra_model_to_sbml_file)
-from cobra.manipulation.delete import prune_unused_metabolites
 from ..primary_model.augPhase_utils import(
     get_exrxnid_flux,
     check_exrxn_flux_direction)
@@ -149,9 +148,6 @@ def add_gapfill_rxn_target_model(target_model, universal_model, gapfill_rxns2, o
 
         logging.debug("Reaction added to the target_model: %s" %gapfill_rxn)
 
-    #Cleanup of the final version of the target model
-    #This function causes an error if executed after 'copy.deepcopy'ing the model
-    prune_unused_metabolites(target_model)
     target_model_complete = copy.deepcopy(target_model)
 
     return target_model_complete
