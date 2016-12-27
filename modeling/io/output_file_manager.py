@@ -15,11 +15,11 @@ def generate_outputs(folder, cobra_model, runtime, options):
     #This can also mask the effects of model error (e.g., undeclared metabolite ID)
     #Cobrapy IO module seems to have an error for adding new reactions
     write_cobra_model_to_sbml_file(cobra_model,
-            './%s/%s/model.xml' %(options.outputfolder, folder))
+            './%s/%s/model.xml' %(options.outputfolder, folder), use_fbc_package=False)
     cobra_model = create_cobra_model_from_sbml_file(
             './%s/%s/model.xml' %(options.outputfolder, folder))
     write_cobra_model_to_sbml_file(cobra_model,
-            './%s/%s/model.xml' %(options.outputfolder, folder))
+            './%s/%s/model.xml' %(options.outputfolder, folder), use_fbc_package=False)
 
     num_essen_rxn, num_kegg_rxn, num_cluster_rxn = get_model_reactions(
                        folder, cobra_model, options)
@@ -43,10 +43,17 @@ def get_model_reactions(folder, cobra_model, options):
             %(options.outputfolder, folder), 'w')
     fp3 = open('./%s/%s/reactions_added_from_kegg.txt'
             %(options.outputfolder, folder), 'w')
+    fp4 = open('./%s/%s/cluster_fluxes.txt'
+            %(options.outputfolder, folder), 'w')
 
-    fp1.write('reaction_ID'+'\t'+'reaction_name'+'\t'+'reaction_equation'+'\t'+'GPR'+'\t'+'pathway'+'\n')
-    fp2.write('reaction_ID'+'\t'+'reaction_name'+'\t'+'reaction_equation'+'\t'+'GPR'+'\t'+'pathway'+'\n')
-    fp3.write('reaction_ID'+'\t'+'reaction_name'+'\t'+'reaction_equation'+'\t'+'GPR'+'\t'+'pathway'+'\n')
+    fp1.write('reaction_ID'+'\t'+'reaction_name'+'\t'+'reaction_equation'+'\t'
+            +'GPR'+'\t'+'pathway'+'\n')
+    fp2.write('reaction_ID'+'\t'+'reaction_name'+'\t'+'reaction_equation'+'\t'
+            +'GPR'+'\t'+'pathway'+'\n')
+    fp3.write('reaction_ID'+'\t'+'reaction_name'+'\t'+'reaction_equation'+'\t'
+            +'GPR'+'\t'+'pathway'+'\n')
+    fp4.write('reaction_ID'+'\t'+'fluxes without gap-filling reactions'+'\t'
+            +'fluxes with gap-filling reactions'+'\n')
 
     num_essen_rxn = 0
     num_kegg_rxn = 0
@@ -77,9 +84,22 @@ def get_model_reactions(folder, cobra_model, options):
         if re.search('Ex_Cluster', rxn.id):
             num_cluster_rxn+=1
 
+            #Calculated flux values are inaccurate without
+            #manual setting of objective_coefficient to zero
+            if 'Biomass_SCO' in cobra_model.reactions:
+                cobra_model.reactions.get_by_id('Biomass_SCO').objective_coefficient = 0
+            elif 'Ec_biomass_iAF1260_core_59p81M' in cobra_model.reactions:
+                cobra_model.reactions.get_by_id('Ec_biomass_iAF1260_core_59p81M').objective_coefficient = 0
+
+            cobra_model.reactions.get_by_id(rxn.id).objective_coefficient = 1
+            cobra_model.optimize()
+            print >>fp4, '%s\t%f' %(rxn.id, cobra_model.solution.f)
+            cobra_model.reactions.get_by_id(rxn.id).objective_coefficient = 0
+
     fp1.close()
     fp2.close()
     fp3.close()
+    fp4.close()
 
     return num_essen_rxn, num_kegg_rxn, num_cluster_rxn
 
@@ -91,8 +111,10 @@ def get_model_metabolites(folder, cobra_model, options):
     fp2 = open('./%s/%s/metabolites_gapfilling_needed.txt'
             %(options.outputfolder, folder), "w")
 
-    fp1.write('metabolite_ID'+'\t'+'metabolite_name'+'\t'+'formula'+'\t'+'compartment'+'\n')
-    fp2.write('metabolite_ID'+'\t'+'reaction_ID'+'\t'+'reaction_name'+'\t'+'reaction_equation'+'\t'+'GPR'+'\t'+'pathway'+'\n')
+    fp1.write('metabolite_ID'+'\t'+'metabolite_name'+'\t'
+            +'formula'+'\t'+'compartment'+'\n')
+    fp2.write('metabolite_ID'+'\t'+'reaction_ID'+'\t'+'reaction_name'+'\t'
+            +'reaction_equation'+'\t'+'GPR'+'\t'+'pathway'+'\n')
 
     for i in range(len(cobra_model.metabolites)):
         metab = cobra_model.metabolites[i]
@@ -108,7 +130,7 @@ def get_model_metabolites(folder, cobra_model, options):
                     rxn = cobra_model.reactions[j]
 
                     if metab.id in rxn.reaction:
-                        logging.debug("Gap-filling reaction: %s" %rxn.id)
+                        logging.debug("Relevant reactions: %s" %rxn.id)
                         print >>fp2, '%s\t%s\t%s\t%s\t%s\t%s' %(metab.id,
                             rxn.id, rxn.name, rxn.reaction,
                             rxn.gene_reaction_rule, rxn.subsystem)
@@ -124,7 +146,8 @@ def get_model_genes(folder, cobra_model, options):
     fp1 = open('./%s/%s/remaining_genes_from_template_model.txt'
                 %(options.outputfolder, folder), "w")
 
-    fp1.write('remaining_gene_from_template_model'+'\t'+'reaction_ID'+'\t'+'reaction_name'+'\t'+'reaction_equation'+'\t'+'GPR'+'\t'+'pathway'+'\n')
+    fp1.write('remaining_gene_from_template_model'+'\t'+'reaction_ID'+'\t'
+            +'reaction_name'+'\t'+'reaction_equation'+'\t'+'GPR'+'\t'+'pathway'+'\n')
 
     for g in range(len(cobra_model.genes)):
         gene = cobra_model.genes[g]

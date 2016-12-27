@@ -340,7 +340,7 @@ def add_nonBBH_rxn(modelPrunedGPR, options):
                     %len(modelPrunedGPR.reactions))
             write_cobra_model_to_sbml_file(modelPrunedGPR,
                     "./%s/3_temp_models/modelPrunedGPR_%s.xml"
-                    %(options.outputfolder, rxnid))
+                    %(options.outputfolder, rxnid), use_fbc_package=False)
             modelPrunedGPR = create_cobra_model_from_sbml_file(
                     "./%s/3_temp_models/modelPrunedGPR_%s.xml"
                     %(options.outputfolder, rxnid))
