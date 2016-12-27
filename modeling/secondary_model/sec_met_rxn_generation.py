@@ -5,6 +5,7 @@
 #This file generates metabolic reactions for the genes newly annotated to be present in the secondary metabolite-biosynthetic gene cluster from antiSMASH.
 
 import logging
+import pickle
 from Bio import SeqIO
 from cobra import Model, Reaction, Metabolite
 from cobra.io.sbml import create_cobra_model_from_sbml_file, write_cobra_model_to_sbml_file
@@ -476,6 +477,19 @@ def get_all_metab_coeff(options):
     #print 'metab_coeff_dict'
     #print metab_coeff_dict, '\n'
     options.metab_coeff_dict = metab_coeff_dict
+
+
+def get_pickles(options):
+
+    if not hasattr(options, 'bigg_mnxm_compound_dict'):
+        bigg_mnxm_compound_dict = pickle.load(
+                open('./modeling/io/data/input2/bigg_mnxm_compound_dict.p','rb'))
+        options.bigg_mnxm_compound_dict = bigg_mnxm_compound_dict
+
+    if not hasattr(options, 'mnxm_compoundInfo_dict'):
+        mnxm_compoundInfo_dict = pickle.load(
+                open('./modeling/io/data/input2/mnxm_compoundInfo_dict.p','rb'))
+        options.mnxm_compoundInfo_dict = mnxm_compoundInfo_dict
 
 
 def add_sec_met_rxn(target_model, options):

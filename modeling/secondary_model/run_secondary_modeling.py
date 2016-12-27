@@ -15,6 +15,7 @@ from sec_met_rxn_generation import(
     get_currency_metabolites,
     get_total_currency_metab_coeff,
     get_all_metab_coeff,
+    get_pickles,
     add_sec_met_rxn,
     check_producibility_sec_met,
     get_monomers_nonprod_sec_met,
@@ -50,6 +51,8 @@ def run_sec_met_rxn_generation(cluster_nr, target_model, prod_sec_met_dict,
         get_total_currency_metab_coeff(options)
 
         get_all_metab_coeff(options)
+
+        get_pickles(options)
 
         target_model = add_sec_met_rxn(target_model, options)
 
