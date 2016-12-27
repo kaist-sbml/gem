@@ -112,7 +112,6 @@ def run_gapfilling(target_model, universal_model, options):
     gapfill_rxns2 = []
 
     for nonprod_monomer in options.adj_unique_nonprod_monomers_list:
-        print 'check', nonprod_monomer
         #Gap-filling via cobrapy
         gapfill_rxns = cobra.flux_analysis.gapfilling.SMILEY(
                 target_model, '%s_c' %nonprod_monomer, universal_model)
