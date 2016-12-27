@@ -534,7 +534,7 @@ def add_sec_met_rxn(target_model, options):
             gpr_list = each_gene
             gpr_count += 1
         else:
-            gpr_list = gpr_list + ' AND ' + each_gene
+            gpr_list = gpr_list + ' and ' + each_gene
 
     rxn.gene_reaction_rule = gpr_list
 
