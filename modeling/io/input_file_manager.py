@@ -52,10 +52,6 @@ def get_pickles_augPhase(options):
     options.bigg_mnxm_compound_dict = bigg_mnxm_compound_dict
     mnxm_bigg_compound_dict = pickle.load(open('./modeling/io/data/input2/mnxm_bigg_compound_dict.p','rb'))
     options.mnxm_bigg_compound_dict = mnxm_bigg_compound_dict
-    kegg_mnxm_compound_dict = pickle.load(open('./modeling/io/data/input2/kegg_mnxm_compound_dict.p','rb'))
-    options.kegg_mnxm_compound_dict = kegg_mnxm_compound_dict
-    mnxm_kegg_compound_dict = pickle.load( open('./modeling/io/data/input2/mnxm_kegg_compound_dict.p','rb'))
-    options.mnxm_kegg_compound_dict = mnxm_kegg_compound_dict
 
     mnxm_compoundInfo_dict = pickle.load(open('./modeling/io/data/input2/mnxm_compoundInfo_dict.p','rb'))
     options.mnxm_compoundInfo_dict = mnxm_compoundInfo_dict

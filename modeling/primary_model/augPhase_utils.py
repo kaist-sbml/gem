@@ -298,7 +298,6 @@ def add_nonBBH_rxn(modelPrunedGPR, options):
                 #Adding metabolites with MNXM and not in the model
                 else:
                     logging.debug("Metabolite (MNXM ID) %s: To be added" %metab)
-                    #mnxm = options.kegg_mnxm_compound_dict[metab]
                     metab_compt = Metabolite(metab,
                             formula = options.mnxm_compoundInfo_dict[metab][1],
                             name = options.mnxm_compoundInfo_dict[metab][0],
