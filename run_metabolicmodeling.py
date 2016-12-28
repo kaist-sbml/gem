@@ -16,6 +16,10 @@ from cobra.io.sbml import (
     write_cobra_model_to_sbml_file,
     create_cobra_model_from_sbml_file
 )
+#cobrapy 0.5.8 appears to have an error in this function.
+#Argument 'cobra_model' should be manually removed from
+#'the_metabolite.remove_from_model(cobra_model)' in
+#'cobra.manipulation.delete.prune_unused_metabolites'.
 from cobra.manipulation.delete import prune_unused_metabolites
 from argparse import Namespace
 from modeling import check_prereqs
