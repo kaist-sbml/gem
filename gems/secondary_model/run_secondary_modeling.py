@@ -115,6 +115,7 @@ def run_gapfilling(target_model, universal_model, options):
         #Gap-filling via cobrapy
         gapfill_rxns = cobra.flux_analysis.gapfilling.SMILEY(
                 target_model, '%s_c' %nonprod_monomer, universal_model)
+        logging.debug('gapfill_rxns: %s' %gapfill_rxns)
 
         #'gapfill_rxns' is a list of list:
         #e.g., [[<Reaction HKSR9 at 0x7f706aa8cad0>,
