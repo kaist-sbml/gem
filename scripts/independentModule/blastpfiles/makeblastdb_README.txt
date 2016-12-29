@@ -1,1 +1,0 @@
-Sequences to be subjected to BLASP are stored in DB by this file: makeblastdb.
