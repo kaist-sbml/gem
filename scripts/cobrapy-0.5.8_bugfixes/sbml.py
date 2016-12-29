@@ -506,7 +506,8 @@ def get_libsbml_document(cobra_model,
         #Checks if GPR and Subsystem annotations are present in the notes section and if they are the same as those in
         #the reaction's gene_reaction_rule/ subsystem attribute
         #If they are not identical, they are set to be identical
-        note_dict = the_reaction.notes.copy()
+        note_dict = {}
+        #note_dict = the_reaction.notes.copy()
         if the_reaction.gene_reaction_rule:
             note_dict['GENE_ASSOCIATION'] = [str(the_reaction.gene_reaction_rule)]
         if the_reaction.subsystem:
