@@ -287,7 +287,9 @@ def add_nonBBH_rxn(modelPrunedGPR, options):
                 elif metab in options.bigg_mnxm_compound_dict.keys():
                     logging.debug("Metabolite (bigg ID) %s: To be added" %metab)
                     mnxm = options.bigg_mnxm_compound_dict[metab]
-                    metab_compt = Metabolite(metab,
+                    #Compartment suffix (e.g., '_c') is used
+                    #when adding a new metabolite in cobrapy document
+                    metab_compt = Metabolite(metab_compt,
                             formula = options.mnxm_compoundInfo_dict[mnxm][1],
                             name = options.mnxm_compoundInfo_dict[mnxm][0],
                             compartment='c')
@@ -297,7 +299,7 @@ def add_nonBBH_rxn(modelPrunedGPR, options):
                 #Adding metabolites with MNXM and not in the model
                 else:
                     logging.debug("Metabolite (MNXM ID) %s: To be added" %metab)
-                    metab_compt = Metabolite(metab,
+                    metab_compt = Metabolite(metab_compt,
                             formula = options.mnxm_compoundInfo_dict[metab][1],
                             name = options.mnxm_compoundInfo_dict[metab][0],
                             compartment='c')
