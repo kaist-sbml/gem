@@ -18,7 +18,7 @@ def prune_unused_metabolites(cobra_model):
     active_metabolites = []
     for the_metabolite in cobra_model.metabolites:
         if len(the_metabolite._reaction) == 0:
-            the_metabolite.remove_from_model(cobra_model)
+            the_metabolite.remove_from_model()
             inactive_metabolites.append(the_metabolite)
         else:
             active_metabolites.append(the_metabolite)
