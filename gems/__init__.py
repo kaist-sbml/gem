@@ -5,6 +5,10 @@
 import logging
 from io.eficaz import utils
 
+
+__version__ = '1.0.0'
+
+
 def check_prereqs():
     "Check if all required files and applications are around"
 
