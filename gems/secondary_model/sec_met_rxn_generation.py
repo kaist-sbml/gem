@@ -517,7 +517,8 @@ def add_sec_met_rxn(target_model, options):
             elif metab in options.bigg_mnxm_compound_dict.keys():
                 logging.debug("Metabolite (bigg ID) %s: To be added" %metab)
                 mnxm = options.bigg_mnxm_compound_dict[metab]
-                #TODO: Check 'metab_compt'
+                #Compartment suffix (e.g., '_c') is used when adding a new metabolite
+                #in cobrapy document
                 metab_compt = Metabolite(metab_compt,
                         formula = options.mnxm_compoundInfo_dict[mnxm][1],
                         name = options.mnxm_compoundInfo_dict[mnxm][0],
@@ -526,12 +527,12 @@ def add_sec_met_rxn(target_model, options):
 
             elif 'Cluster' in metab:
                 logging.debug("Secondary metabolite ('Cluster') %s: To be added" %metab)
-                #TODO: Check 'metab_compt'
                 metab_compt = Metabolite(metab_compt, compartment='c')
                 rxn.add_metabolites({metab_compt:options.metab_coeff_dict[metab]})
 
             #Add metabolite MNXM having no bigg ID to the model
             else:
+                logging.debug("Metabolite (MNXM ID) %s: To be added" %metab)
                 metab_compt = add_sec_met_mnxm_having_no_biggid_to_model(
                         metab, metab_compt, options.mnxm_compoundInfo_dict)
                 rxn.add_metabolites({metab_compt:options.metab_coeff_dict[metab]})
