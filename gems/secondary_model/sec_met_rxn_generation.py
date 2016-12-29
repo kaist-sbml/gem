@@ -510,21 +510,30 @@ def add_sec_met_rxn(target_model, options):
 
             #Adding metabolites already in the model
             if metab_compt in target_model.metabolites:
+                logging.debug("Metabolite %s: Already present in model" %metab_compt)
                 rxn.add_metabolites({target_model.metabolites.get_by_id(metab_compt):options.metab_coeff_dict[metab]})
 
             #Adding metabolites with bigg compoundID, but not in the model
             elif metab in options.bigg_mnxm_compound_dict.keys():
+                logging.debug("Metabolite (bigg ID) %s: To be added" %metab)
                 mnxm = options.bigg_mnxm_compound_dict[metab]
-                metab_compt = Metabolite(metab_compt, formula = options.mnxm_compoundInfo_dict[mnxm][1], name = options.mnxm_compoundInfo_dict[mnxm][0], compartment='c')
+                #TODO: Check 'metab_compt'
+                metab_compt = Metabolite(metab_compt,
+                        formula = options.mnxm_compoundInfo_dict[mnxm][1],
+                        name = options.mnxm_compoundInfo_dict[mnxm][0],
+                        compartment='c')
                 rxn.add_metabolites({metab_compt:options.metab_coeff_dict[metab]})
 
             elif 'Cluster' in metab:
+                logging.debug("Secondary metabolite ('Cluster') %s: To be added" %metab)
+                #TODO: Check 'metab_compt'
                 metab_compt = Metabolite(metab_compt, compartment='c')
                 rxn.add_metabolites({metab_compt:options.metab_coeff_dict[metab]})
 
             #Add metabolite MNXM having no bigg ID to the model
             else:
-                metab_compt = add_sec_met_mnxm_having_no_biggid_to_model(metab, metab_compt, options.mnxm_compoundInfo_dict)
+                metab_compt = add_sec_met_mnxm_having_no_biggid_to_model(
+                        metab, metab_compt, options.mnxm_compoundInfo_dict)
                 rxn.add_metabolites({metab_compt:options.metab_coeff_dict[metab]})
 
     #GPR association
@@ -535,6 +544,8 @@ def add_sec_met_rxn(target_model, options):
             gpr_count += 1
         else:
             gpr_list = gpr_list + ' and ' + each_gene
+
+    gpr_list = '( %s )' %(gpr_list)
 
     rxn.gene_reaction_rule = gpr_list
 
