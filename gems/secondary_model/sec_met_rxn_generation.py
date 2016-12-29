@@ -511,7 +511,8 @@ def add_sec_met_rxn(target_model, options):
             #Adding metabolites already in the model
             if metab_compt in target_model.metabolites:
                 logging.debug("Metabolite %s: Already present in model" %metab_compt)
-                rxn.add_metabolites({target_model.metabolites.get_by_id(metab_compt):options.metab_coeff_dict[metab]})
+                rxn.add_metabolites({target_model.metabolites.get_by_id(
+                    metab_compt):options.metab_coeff_dict[metab]})
 
             #Adding metabolites with bigg compoundID, but not in the model
             elif metab in options.bigg_mnxm_compound_dict.keys():
