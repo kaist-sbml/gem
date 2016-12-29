@@ -102,7 +102,7 @@ def get_target_nonprod_monomers_for_gapfilling(target_model, options):
 def get_universal_model(target_model, options):
 
 
-    universal_model = pickle.load(open("./modeling/io/data/input2/universal_model.p","rb"))
+    universal_model = pickle.load(open("./gems/io/data/input2/universal_model.p","rb"))
 
     return universal_model
 

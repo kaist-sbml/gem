@@ -22,16 +22,16 @@ from cobra.io.sbml import (
 #'cobra.manipulation.delete.prune_unused_metabolites'.
 from cobra.manipulation.delete import prune_unused_metabolites
 from argparse import Namespace
-from modeling import check_prereqs
-from modeling.io.input_file_manager import (
+from gems import check_prereqs
+from gems.io.input_file_manager import (
     get_genome_files,
     get_pickles_prunPhase,
     get_pickles_augPhase
     )
-from modeling.io.output_file_manager import generate_outputs
-from modeling.homology.bidirect_blastp_analysis import get_homologs
-from modeling.primary_model.run_primary_modeling import run_prunPhase, run_augPhase
-from modeling.secondary_model.run_secondary_modeling import (
+from gems.io.output_file_manager import generate_outputs
+from gems.homology.bidirect_blastp_analysis import get_homologs
+from gems.primary_model.run_primary_modeling import run_prunPhase, run_augPhase
+from gems.secondary_model.run_secondary_modeling import (
     run_sec_met_rxn_generation,
     get_target_nonprod_monomers_for_gapfilling,
     get_universal_model,

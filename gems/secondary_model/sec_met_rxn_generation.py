@@ -483,12 +483,12 @@ def get_pickles(options):
 
     if not hasattr(options, 'bigg_mnxm_compound_dict'):
         bigg_mnxm_compound_dict = pickle.load(
-                open('./modeling/io/data/input2/bigg_mnxm_compound_dict.p','rb'))
+                open('./gems/io/data/input2/bigg_mnxm_compound_dict.p','rb'))
         options.bigg_mnxm_compound_dict = bigg_mnxm_compound_dict
 
     if not hasattr(options, 'mnxm_compoundInfo_dict'):
         mnxm_compoundInfo_dict = pickle.load(
-                open('./modeling/io/data/input2/mnxm_compoundInfo_dict.p','rb'))
+                open('./gems/io/data/input2/mnxm_compoundInfo_dict.p','rb'))
         options.mnxm_compoundInfo_dict = mnxm_compoundInfo_dict
 
 
