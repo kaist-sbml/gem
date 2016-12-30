@@ -39,44 +39,63 @@ def get_targetGenomeInfo(options, file_type):
         getECs(seq_record, options)
 
     total_cluster = 0
+    locus_tag_list = []
+    number_product_list = []
+    number_ec_list = []
 
     for feature in seq_record.features:
         if feature.type == 'CDS':
 
             #Retrieving "locus_tag (i.e., ORF name)" for each CDS
             locusTag = feature.qualifiers['locus_tag'][0]
+            locus_tag_list.append(locusTag)
 
-            #Some locus_tag's have multiple same qualifiers (e.g., EC_number)
-            for item in feature.qualifiers:
+            #Note that the numbers of CDS and "translation" do not match.
+            #Some CDSs do not have "translation".
+            if feature.qualifiers.get('translation'):
+                translation = feature.qualifiers.get('translation')[0]
+                targetGenome_locusTag_aaSeq_dict[locusTag] = translation
+                print >>fp, '>%s\n%s' % (str(locusTag), str(translation))
 
-                #Note that the numbers of CDS and "translation" do not match.
-                #There are occasions that CDS does not have "translation".
+            #Used to find "and" relationship in the GPR association
+            if feature.qualifiers.get('product'):
+                #It is confirmed that each locus_tag has a single '/product' annotation.
+                #Thus, it's OK to use '[0]'.
+                product = feature.qualifiers.get('product')[0]
+                targetGenome_locusTag_prod_dict[locusTag] = product
 
-#These if statements may be removed:e.g., sec_met_rxn_generation.py
-                if item == 'translation':
-
-                    #Retrieving "translation (i.e., amino acid sequences)" for each CDS
-                    translation = feature.qualifiers.get('translation')
-                    targetGenome_locusTag_aaSeq_dict[locusTag] = translation[0]
-                    print >>fp, '>%s\n%s' % (str(locusTag), str(translation[0]))
-
-                #Used to find "and" relationship in the GPR association
-                if item == 'product':
-                    product = feature.qualifiers.get('product')[0]
-                    targetGenome_locusTag_prod_dict[locusTag] = product
-
-                #Watch multiple EC_number's
-		if item == 'EC_number':
-                    ecnum = feature.qualifiers.get('EC_number')
-                    targetGenome_locusTag_ec_dict[locusTag] = ecnum
+            #Multiple 'EC_number's may exit for a single CDS.
+            #Nver use '[0]' for the 'qualifiers.get' list.
+            if feature.qualifiers.get('EC_number'):
+                ecnum = feature.qualifiers.get('EC_number')
+                targetGenome_locusTag_ec_dict[locusTag] = ecnum
 
         if feature.type == 'cluster':
             total_cluster += 1
 
-    #Check if the gbk file has EC_number
-    #Additional conditions should be given upon setup of in-house EC_number assigner
-    logging.debug("len(targetGenome_locusTag_ec_dict.keys): %s" %len(targetGenome_locusTag_ec_dict))
-    logging.debug("len(targetGenome_locusTag_prod_dict.keys):%s" %len(targetGenome_locusTag_prod_dict))
+    #Number of 'locus_tag's obtained above may be different from
+    #the number directly obtained from genbank file
+    #because some 'locus_tag's exit in the features 'tRNA' and 'rRNA',
+    #which are not considered herein.
+    logging.debug("Number of 'locus_tag's: %s" %len(locus_tag_list))
+
+    #Same above comment for 'product's
+    for locus_tag in targetGenome_locusTag_prod_dict.keys():
+        number_product_list.append(targetGenome_locusTag_prod_dict[locus_tag])
+    logging.debug("Number of 'product's: %s" %len(number_product_list))
+
+    for locus_tag in targetGenome_locusTag_ec_dict.keys():
+        for ec in targetGenome_locusTag_ec_dict[locus_tag]:
+            number_ec_list.append(ec)
+    logging.debug("Number of 'EC_number's: %s" %len(number_ec_list))
+
+    logging.debug(
+            "len(targetGenome_locusTag_prod_dict.keys):%s"
+            %len(targetGenome_locusTag_prod_dict.keys()))
+
+    logging.debug(
+            "len(targetGenome_locusTag_ec_dict.keys): %s"
+            %len(targetGenome_locusTag_ec_dict.keys()))
 
     options.targetGenome_locusTag_ec_dict = targetGenome_locusTag_ec_dict
     options.targetGenome_locusTag_prod_dict = targetGenome_locusTag_prod_dict
