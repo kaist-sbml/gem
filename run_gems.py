@@ -44,50 +44,59 @@ def main():
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('-m', '--model',
-                        dest='orgName',
-                        default='sco',
-                        choices=['eco','sco'],
-                        help="Specify a template model for the target modeling")
-    parser.add_argument('--disable-modeling',
-                        dest='pmr_generation',
-                        default=True,
-                        action='store_false',
-                        help='Disable primary metabolic modeling')
-    parser.add_argument('-s', '--smr',
-                        dest='smr_generation',
-                        default=False,
-                        action=('store_true'),
-                        help="Specify whether to run secondary metabolic modeling")
-    parser.add_argument('-i', '--input',
-                        dest='input',
-                        default='input',
-                        help="Specify input file")
-    parser.add_argument('-o', '--outputfolder',
-                        dest='outputfolder',
-                        default='output',
-                        help="Specify output directory")
-    parser.add_argument('-e', '--ec',
-                        dest='eficaz',
-                        action='store_true',
-                        default=False,
-                        help="Run EC number prediction using EFICAz")
+    #General options
     parser.add_argument('-c', '--cpu',
                         dest='cpus',
                         default=multiprocessing.cpu_count(),
                         type=int,
                         help="How many CPUs to use in parallel. (default: %(default)s)")
-    parser.add_argument('-v', '--verbose',
+
+    group = parser.add_argument_group('Input and output options')
+    group.add_argument('-i', '--input',
+                        dest='input',
+                        default='input',
+                        help="Specify input file")
+    group.add_argument('-o', '--outputfolder',
+                        dest='outputfolder',
+                        default='output',
+                        help="Specify output directory")
+
+    group = parser.add_argument_group('GEMS options',
+                        "At least one of the three options should be selected:"
+                        " '-e', '-p-' and '-s'")
+    group.add_argument('-m', '--model',
+                        dest='orgName',
+                        default='sco',
+                        choices=['eco','sco'],
+                        help="Specify a template model for the target modeling")
+    group.add_argument('-e', '--ec',
+                        dest='eficaz',
+                        action='store_true',
+                        default=False,
+                        help="Run EC number prediction using EFICAz")
+    group.add_argument('-p', '--primary-modeling',
+                        dest='pmr_generation',
+                        default=False,
+                        action='store_true',
+                        help='Run primary metabolic modeling')
+    group.add_argument('-s', '--secondary-modeling',
+                        dest='smr_generation',
+                        default=False,
+                        action=('store_true'),
+                        help="Run secondary metabolic modeling")
+
+    group = parser.add_argument_group('Debugging and logging options')
+    group.add_argument('-v', '--verbose',
                         dest='verbose',
                         action='store_true',
                         default=False,
                         help="Print verbose status information to stderr")
-    parser.add_argument('-d', '--debug',
+    group.add_argument('-d', '--debug',
                         dest='debug',
                         action='store_true',
                         default=False,
                         help="Print debugging information to stderr")
-    parser.add_argument('-w', '--warning',
+    group.add_argument('-w', '--warning',
                         dest='warning',
                         action='store_true',
                         default=False,
@@ -124,9 +133,7 @@ def main():
                 os.makedirs(options.outputfolder + os.sep + folder)
 
         if '/' in options.outputfolder:
-            print 'check1', options.outputfolder
             options.outputfolder = options.outputfolder[:-1]
-            print 'check2', options.outputfolder
 
         options.outputfolder_eficaz = options.outputfolder + os.sep + folders[0]
 
@@ -162,7 +169,8 @@ def main():
         if len(model_file) > 0 and '.xml' in model_file[0]:
             model_file = os.path.basename(model_file[0])
             target_model = create_cobra_model_from_sbml_file(
-                        options.outputfolder+'/'+'2_primary_metabolic_model/'+model_file)
+                    options.outputfolder + os.sep + '2_primary_metabolic_model'
+                    + os.sep + model_file)
 
             logging.info("Generating secondary metabolite biosynthesizing reactions..")
             cluster_nr = 1
