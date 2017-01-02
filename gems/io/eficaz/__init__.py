@@ -52,7 +52,7 @@ class EFICAzECPrediction:
         # self.ChunkFilenames['/path/to/Chunk1'] = '/path/to/fastafile'
         self.ChunkFilenames = {}
 
-        self.basedirName = os.path.abspath(os.path.join(options.outputfoldername, "EFICAz"))
+        self.basedirName = os.path.abspath(os.path.join(options.outputfolder_eficaz, "EFICAz"))
         try:
             os.makedirs(self.basedirName)
         except OSError:
@@ -405,19 +405,36 @@ def getECs(seq_record, options):
         if EFICAzECs.getEC4(featureID):
             logging.debug("Annotating %s" % featureID)
             if feature.qualifiers.has_key('EC_number'):
-                logging.warn('ECpredictor[eficaz]: Overwriting existing EC annotation: %s with %s' %(", ".join(feature.qualifiers['EC_number']), ", ".join(EFICAzECs.getEC4(featureID))))
+                logging.warn(
+                    'ECpredictor[eficaz]: Overwriting existing EC annotation: %s with %s'
+                    %(", ".join(feature.qualifiers['EC_number']),
+                    ", ".join(EFICAzECs.getEC4(featureID)))
+                    )
+
             feature.qualifiers['EC_number'] = EFICAzECs.getEC4(featureID)
-            notes.append("EFICAz EC number prediction: EC4: {0}; {1}".format(", ".join(EFICAzECs.getEC4(featureID)), "; ".join(EFICAzECs.getEC4Info(featureID))))
+            notes.append(
+                    "EFICAz EC number prediction: EC4: {0}; {1}".format(
+                    ", ".join(EFICAzECs.getEC4(featureID)),
+                    "; ".join(EFICAzECs.getEC4Info(featureID))))
 
         # Only annotate 3 digit EC if no 4 digit EC is available
         if (EFICAzECs.getEC3(featureID) and not EFICAzECs.getEC4(featureID)):
             if feature.qualifiers.has_key('EC_number'):
-                if not re.search("\d+\.\d+\.\d+\.\d+", " ".join(feature.qualifiers['EC_number'])):
-                    logging.warn('ECpredictor[eficaz]: Overwriting existing EC annotation: %s  with %s' %(", ".join(feature.qualifiers['EC_number']), ", ".join(EFICAzECs.getEC3(featureID))))
+                if not re.search(
+                        "\d+\.\d+\.\d+\.\d+", " ".join(feature.qualifiers['EC_number'])):
+                    logging.warn(
+                        'ECpredictor[eficaz]: Overwriting existing EC annotation: %s  with %s'
+                        %(", ".join(feature.qualifiers['EC_number']),
+                        ", ".join(EFICAzECs.getEC3(featureID)))
+                        )
                     feature.qualifiers['EC_number'] = EFICAzECs.getEC3(featureID)
 
         if EFICAzECs.getEC3Info(featureID):
-            notes.append("EFICAz EC number prediction: EC3: {0}; {1}".format(", ".join(EFICAzECs.getEC3(featureID)), "; ".join(EFICAzECs.getEC3Info(featureID))))
+            notes.append(
+                "EFICAz EC number prediction: EC3: {0}; {1}".format(", ".join(
+                EFICAzECs.getEC3(featureID)),
+                "; ".join(EFICAzECs.getEC3Info(featureID)))
+                )
             if not feature.qualifiers.has_key('EC_number'):
                 feature.qualifiers['EC_number'] = EFICAzECs.getEC3(featureID)
 
@@ -425,5 +442,6 @@ def getECs(seq_record, options):
     logging.debug("Finished EC number prediction with EFICAz")
 
     #Write output gbk file
-    output_gbk = os.path.splitext(options.input)[0]+'_ec.gbk'
-    SeqIO.write(seq_record, os.path.join(options.outputfoldername, output_gbk), 'genbank')
+    output_gbk = os.path.basename(options.input)+'_ec.gbk'
+    SeqIO.write(seq_record, os.path.join(
+        options.outputfolder_eficaz, output_gbk), 'genbank')

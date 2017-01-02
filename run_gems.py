@@ -120,10 +120,15 @@ def main():
         folder4 = '4_complete_model'
 
         for folder in folders:
-            if not os.path.isdir(options.outputfolder+'/'+folder):
-                os.makedirs(options.outputfolder+'/'+folder)
+            if not os.path.isdir(options.outputfolder + os.sep + folder):
+                os.makedirs(options.outputfolder + os.sep + folder)
 
-        options.outputfoldername = options.outputfolder+'/'+folders[0]
+        if '/' in options.outputfolder:
+            print 'check1', options.outputfolder
+            options.outputfolder = options.outputfolder[:-1]
+            print 'check2', options.outputfolder
+
+        options.outputfolder_eficaz = options.outputfolder + os.sep + folders[0]
 
         get_genome_files(options)
 
