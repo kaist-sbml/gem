@@ -27,9 +27,11 @@ def get_genome_files(options):
 #For model pruning phase
 #Only model file is not saved in Namespace
 def get_pickles_prunPhase(options):
-    logging.info("Loading pickle files of the parsed template model and its relevant genbank data..")
+    logging.info("Loading pickle files of the parsed template model and")
+    logging.info("its relevant genbank data..")
     model = pickle.load(open('%s/model.p' %(options.input1),'rb'))
-    tempModel_biggRxnid_locusTag_dict = pickle.load(open('%s/tempModel_biggRxnid_locusTag_dict.p' %(options.input1),'rb'))
+    tempModel_biggRxnid_locusTag_dict = pickle.load(open(
+        '%s/tempModel_biggRxnid_locusTag_dict.p' %(options.input1),'rb'))
     options.tempModel_biggRxnid_locusTag_dict = tempModel_biggRxnid_locusTag_dict
 
     return model

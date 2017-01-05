@@ -123,19 +123,26 @@ def main():
         check_prereqs()
 
         #Create output folders
-        folders = ['0_EFICAz_results', '1_blastp_results',
-                    '2_primary_metabolic_model', '3_temp_models', '4_complete_model']
-        folder2 = '2_primary_metabolic_model'
-        folder4 = '4_complete_model'
-
-        for folder in folders:
-            if not os.path.isdir(options.outputfolder + os.sep + folder):
-                os.makedirs(options.outputfolder + os.sep + folder)
+        folders = ['1_EFICAz_results', '2_blastp_results',
+                    '3_primary_metabolic_model', '4_complete_model', 'tmp_files']
 
         if '/' in options.outputfolder:
             options.outputfolder = options.outputfolder[:-1]
 
-        options.outputfolder_eficaz = options.outputfolder + os.sep + folders[0]
+        #'1_EFICAz_results'
+        options.outputfolder1 = options.outputfolder + os.sep + folders[0]
+        #'2_blastp_results'
+        options.outputfolder2 = options.outputfolder + os.sep + folders[1]
+        #'3_primary_metabolic_model'
+        options.outputfolder3 = options.outputfolder + os.sep + folders[2]
+        #'4_complete_model'
+        options.outputfolder4 = options.outputfolder + os.sep + folders[3]
+        #'tmp_files'
+        options.outputfolder5 = options.outputfolder + os.sep + folders[4]
+
+        for folder in folders:
+            if not os.path.isdir(options.outputfolder + os.sep + folder):
+                os.makedirs(options.outputfolder + os.sep + folder)
 
         get_genome_files(options)
 
@@ -158,19 +165,18 @@ def main():
 
         runtime1 = time.strftime("Elapsed time %H:%M:%S", time.gmtime(time.time() - start))
 
-        generate_outputs(folder2, target_model, runtime1, options)
+        generate_outputs(options.outputfolder3, target_model, runtime1, options)
 
     #Secondary metabolic modeling
     if options.smr_generation:
         model_file = []
-        files = glob.glob(options.outputfolder+'/'+'2_primary_metabolic_model/*.xml')
+        files = glob.glob(options.outputfolder3 + os.sep + '*.xml')
         model_file = [each_file for each_file in files if '.xml' in each_file]
 
         if len(model_file) > 0 and '.xml' in model_file[0]:
             model_file = os.path.basename(model_file[0])
             target_model = create_cobra_model_from_sbml_file(
-                    options.outputfolder + os.sep + '2_primary_metabolic_model'
-                    + os.sep + model_file)
+                    options.outputfolder3 + os.sep + model_file)
 
             logging.info("Generating secondary metabolite biosynthesizing reactions..")
             cluster_nr = 1
@@ -197,7 +203,8 @@ def main():
             runtime2 = time.strftime("Elapsed time %H:%M:%S",
                         time.gmtime(time.time() - start))
 
-            generate_outputs(folder4, target_model_complete, runtime2, options)
+            generate_outputs(options.outputfolder4,
+                    target_model_complete, runtime2, options)
 
         else:
             logging.warning("COBRA-compliant SBML file needed")

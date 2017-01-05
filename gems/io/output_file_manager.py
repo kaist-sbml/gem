@@ -15,36 +15,32 @@ def generate_outputs(folder, cobra_model, runtime, options):
     #This can also mask the effects of model error (e.g., undeclared metabolite ID)
     #Cobrapy IO module seems to have an error for adding new reactions
     write_cobra_model_to_sbml_file(cobra_model,
-            './%s/%s/model.xml' %(options.outputfolder, folder), use_fbc_package=False)
+            './%s/model.xml' %folder, use_fbc_package=False)
     cobra_model = create_cobra_model_from_sbml_file(
-            './%s/%s/model.xml' %(options.outputfolder, folder))
+            './%s/model.xml' %folder)
     write_cobra_model_to_sbml_file(cobra_model,
-            './%s/%s/model.xml' %(options.outputfolder, folder), use_fbc_package=False)
+            './%s/model.xml' %folder, use_fbc_package=False)
 
     num_essen_rxn, num_kegg_rxn, num_cluster_rxn = get_model_reactions(
                        folder, cobra_model, options)
     get_model_metabolites(folder, cobra_model, options)
-    template_model_gene_list = get_model_genes(folder, cobra_model, options)
+    template_model_gene_list = get_model_genes(folder, cobra_model)
     get_summary_report(folder, cobra_model, runtime,
                        num_essen_rxn, num_kegg_rxn, num_cluster_rxn,
                        template_model_gene_list, options)
 
-    if folder == '2_primary_metabolic_model':
+    if '2_primary_metabolic_model'in folder:
         logging.info("'Primary' metabolic model completed")
-    elif folder == '4_complete_model':
+    elif '4_complete_model' in folder:
         logging.info("'Secondary' metabolic model completed")
 
 
 def get_model_reactions(folder, cobra_model, options):
 
-    fp1 = open('./%s/%s/model_reactions.txt'
-            %(options.outputfolder, folder), 'w')
-    fp2 = open('./%s/%s/remaining_essential_reactions_from_template_model.txt'
-            %(options.outputfolder, folder), 'w')
-    fp3 = open('./%s/%s/reactions_added_from_kegg.txt'
-            %(options.outputfolder, folder), 'w')
-    fp4 = open('./%s/%s/cluster_fluxes.txt'
-            %(options.outputfolder, folder), 'w')
+    fp1 = open('./%s/model_reactions.txt' %folder, 'w')
+    fp2 = open('./%s/remaining_essential_reactions_from_template_model.txt' %folder, 'w')
+    fp3 = open('./%s/reactions_added_from_kegg.txt' %folder, 'w')
+    fp4 = open('./%s/cluster_fluxes.txt' %folder, 'w')
 
     fp1.write('reaction_ID'+'\t'+'reaction_name'+'\t'+'reaction_equation'+'\t'
             +'GPR'+'\t'+'pathway'+'\n')
@@ -106,10 +102,8 @@ def get_model_reactions(folder, cobra_model, options):
 
 def get_model_metabolites(folder, cobra_model, options):
 
-    fp1 = open('./%s/%s/model_metabolites.txt'
-            %(options.outputfolder, folder), "w")
-    fp2 = open('./%s/%s/metabolites_gapfilling_needed.txt'
-            %(options.outputfolder, folder), "w")
+    fp1 = open('./%s/model_metabolites.txt' %folder, "w")
+    fp2 = open('./%s/metabolites_gapfilling_needed.txt' %folder, "w")
 
     fp1.write('metabolite_ID'+'\t'+'metabolite_name'+'\t'
             +'formula'+'\t'+'compartment'+'\n')
@@ -139,12 +133,11 @@ def get_model_metabolites(folder, cobra_model, options):
     fp2.close()
 
 
-def get_model_genes(folder, cobra_model, options):
+def get_model_genes(folder, cobra_model):
 
     template_model_gene_list = []
 
-    fp1 = open('./%s/%s/remaining_genes_from_template_model.txt'
-                %(options.outputfolder, folder), "w")
+    fp1 = open('./%s/remaining_genes_from_template_model.txt' %folder, "w")
 
     fp1.write('remaining_gene_from_template_model'+'\t'+'reaction_ID'+'\t'
             +'reaction_name'+'\t'+'reaction_equation'+'\t'+'GPR'+'\t'+'pathway'+'\n')
@@ -170,7 +163,7 @@ def get_model_genes(folder, cobra_model, options):
 def get_summary_report(folder, cobra_model, runtime,
                        num_essen_rxn, num_kegg_rxn, num_cluster_rxn,
                        template_model_gene_list, options):
-    fp1 = open('./%s/%s/summary_report.txt' %(options.outputfolder, folder), "w")
+    fp1 = open('./%s/summary_report.txt' %folder, "w")
 
     #log_level
     if options.verbose:

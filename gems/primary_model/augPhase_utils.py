@@ -263,23 +263,22 @@ def add_nonBBH_rxn(modelPrunedGPR, options):
 
     #Debugging purpose
     if options.debug:
-        fp1 = open('./%s/3_temp_models/rxnid_to_add_list.txt' %options.outputfolder,'w')
+        fp1 = open('./%s/rxnid_to_add_list.txt' %options.outputfolder5,'w')
         for rxnid in options.rxnid_to_add_list:
             print >>fp1, '%s' %rxnid
         fp1.close()
 
-        fp2 = open('./%s/3_temp_models/mnxr_to_add_list.txt' %options.outputfolder,'w')
+        fp2 = open('./%s/mnxr_to_add_list.txt' %options.outputfolder5,'w')
         for mnxr in options.mnxr_to_add_list:
             print >>fp2, '%s' %mnxr
         fp2.close()
 
-        fp3 = open('./%s/3_temp_models/rxnid_info_dict.txt' %options.outputfolder,'w')
+        fp3 = open('./%s/rxnid_info_dict.txt' %options.outputfolder5,'w')
         for rxnid in options.rxnid_info_dict.keys():
             print >>fp3, '%s' %rxnid
         fp3.close()
 
-        fp4 = open('./%s/3_temp_models/rxnid_mnxm_coeff_dict.txt'
-                %options.outputfolder,'w')
+        fp4 = open('./%s/rxnid_mnxm_coeff_dict.txt' %options.outputfolder5,'w')
         for rxnid in options.rxnid_mnxm_coeff_dict.keys():
             print >>fp4, '%s' %rxnid
         fp4.close()
@@ -374,11 +373,11 @@ def add_nonBBH_rxn(modelPrunedGPR, options):
             logging.debug("Number of reactions in model before saving: %s"
                     %len(modelPrunedGPR.reactions))
             write_cobra_model_to_sbml_file(modelPrunedGPR,
-                    "./%s/3_temp_models/modelPrunedGPR_%s.xml"
-                    %(options.outputfolder, rxnid), use_fbc_package=False)
+                    "./%s/modelPrunedGPR_%s.xml"
+                    %(options.outputfolder5, rxnid), use_fbc_package=False)
             modelPrunedGPR = create_cobra_model_from_sbml_file(
-                    "./%s/3_temp_models/modelPrunedGPR_%s.xml"
-                    %(options.outputfolder, rxnid))
+                    "./%s/modelPrunedGPR_%s.xml"
+                    %(options.outputfolder5, rxnid))
             logging.debug("Number of reactions in model after saving: %s"
                     %len(modelPrunedGPR.reactions))
 

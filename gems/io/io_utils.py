@@ -20,8 +20,7 @@ def get_temp_fasta(options):
 
 def get_targetGenomeInfo(options, file_type):
 
-    fp = open('./%s/1_blastp_results/targetGenome_locusTag_aaSeq.fa'
-            %options.outputfolder,'w')
+    fp = open('./%s/targetGenome_locusTag_aaSeq.fa' %options.outputfolder2,'w')
 
     targetGenome_locusTag_aaSeq_dict = {}
     targetGenome_locusTag_ec_dict = {}
@@ -107,7 +106,7 @@ def get_targetGenomeInfo(options, file_type):
 
 #Look for .fa and .gbk  files in the pre-defined folder
 def get_target_fasta(options):
-    for root, _, files in os.walk('./%s/1_blastp_results' %options.outputfolder):
+    for root, _, files in os.walk('./%s' %options.outputfolder2):
         for f in files:
             if f.endswith('.fa'):
                 target_fasta = os.path.join(root, f)

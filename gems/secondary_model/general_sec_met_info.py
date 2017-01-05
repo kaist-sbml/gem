@@ -764,7 +764,7 @@ def get_biggid_from_aSid(each_substrate):
 
     elif each_substrate == '2-3-diaminoproprionate':
         met_name = '23dappa'
-        
+
     elif each_substrate == 'thr-4-cl':
         met_name = 'MNXM37380'
 

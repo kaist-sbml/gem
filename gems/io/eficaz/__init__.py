@@ -52,7 +52,7 @@ class EFICAzECPrediction:
         # self.ChunkFilenames['/path/to/Chunk1'] = '/path/to/fastafile'
         self.ChunkFilenames = {}
 
-        self.basedirName = os.path.abspath(os.path.join(options.outputfolder_eficaz, "EFICAz"))
+        self.basedirName = os.path.abspath(os.path.join(options.outputfolder1, "EFICAz"))
         try:
             os.makedirs(self.basedirName)
         except OSError:
@@ -444,4 +444,4 @@ def getECs(seq_record, options):
     #Write output gbk file
     output_gbk = os.path.basename(options.input)+'_ec.gbk'
     SeqIO.write(seq_record, os.path.join(
-        options.outputfolder_eficaz, output_gbk), 'genbank')
+        options.outputfolder1, output_gbk), 'genbank')

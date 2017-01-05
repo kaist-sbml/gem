@@ -9,13 +9,12 @@ import subprocess
 
 #Make database files using fasta files
 def make_blastDB(options):
-    db_dir = './%s/1_blastp_results/targetBlastDB' %options.outputfolder
+    db_dir = './%s/targetBlastDB' %options.outputfolder2
     DBprogramName = './gems/homology/blastpfiles/makeblastdb.exe'
     subprocess.call([DBprogramName,'-in',options.target_fasta,'-out',db_dir,'-dbtype','prot'])
 
     #Checks if DB is properly created; otherwise shutdown
-    if os.path.isfile('./%s/1_blastp_results/targetBlastDB.psq'
-            %options.outputfolder) == False:
+    if os.path.isfile('./%s/targetBlastDB.psq' %options.outputfolder2) == False:
 	logging.debug("Error in make_blastDB: blast DB not created")
 
 
