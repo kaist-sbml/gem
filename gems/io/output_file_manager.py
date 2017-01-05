@@ -29,7 +29,7 @@ def generate_outputs(folder, cobra_model, runtime, options):
                        num_essen_rxn, num_kegg_rxn, num_cluster_rxn,
                        template_model_gene_list, options)
 
-    if '2_primary_metabolic_model'in folder:
+    if '3_primary_metabolic_model'in folder:
         logging.info("'Primary' metabolic model completed")
     elif '4_complete_model' in folder:
         logging.info("'Secondary' metabolic model completed")
@@ -115,7 +115,7 @@ def get_model_metabolites(folder, cobra_model, options):
         print >>fp1, '%s\t%s\t%s\t%s' %(metab.id, metab.name, metab.formula,
                 metab.compartment)
 
-        if folder == '4_complete_model':
+        if '4_complete_model' in folder:
             #Remove compartment suffix (e.g., '_c') from 'metab.id'
             if metab.id[:-2] in options.adj_unique_nonprod_monomers_list:
                 logging.debug("Metabolite for gap-filling: %s" %metab.id)
@@ -194,7 +194,7 @@ def get_summary_report(folder, cobra_model, runtime,
     model_summary_dict['number_remaining_genes_from_template_model'] \
         =len(template_model_gene_list)
 
-    if folder == '4_complete_model':
+    if '4_complete_model' in folder:
         model_summary_dict['number_metabolites_for_gapfilling'] \
             =len(options.adj_unique_nonprod_monomers_list)
     else:
