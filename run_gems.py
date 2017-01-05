@@ -179,32 +179,36 @@ def main():
                     options.outputfolder3 + os.sep + model_file)
 
             logging.info("Generating secondary metabolite biosynthesizing reactions..")
-            cluster_nr = 1
             logging.debug("Total number of clusters: %s" %options.total_cluster)
 
-            prod_sec_met_dict = {}
-            nonprod_sec_met_dict = {}
+            if options.total_cluster > 0:
+                prod_sec_met_dict = {}
+                nonprod_sec_met_dict = {}
 
-            while cluster_nr <= options.total_cluster:
-                logging.info("Reactions generating for Cluster %s ..." %cluster_nr)
-                target_model = run_sec_met_rxn_generation(cluster_nr,
+                cluster_nr = 1
+                while cluster_nr <= options.total_cluster:
+                    logging.info("Reactions generating for Cluster %s ..." %cluster_nr)
+                    target_model = run_sec_met_rxn_generation(cluster_nr,
                         target_model, prod_sec_met_dict, nonprod_sec_met_dict, options)
-                cluster_nr += 1
+                    cluster_nr += 1
 
-            get_target_nonprod_monomers_for_gapfilling(target_model, options)
+                get_target_nonprod_monomers_for_gapfilling(target_model, options)
 
-            universal_model = get_universal_model(target_model, options)
+                universal_model = get_universal_model(target_model, options)
 
-            target_model_complete = run_gapfilling(target_model, universal_model, options)
+                target_model_complete = run_gapfilling(target_model, universal_model, options)
 
-            #Cleanup of the model
-            prune_unused_metabolites(target_model_complete)
+                #Cleanup of the model
+                prune_unused_metabolites(target_model_complete)
 
-            runtime2 = time.strftime("Elapsed time %H:%M:%S",
+                runtime2 = time.strftime("Elapsed time %H:%M:%S",
                         time.gmtime(time.time() - start))
 
-            generate_outputs(options.outputfolder4,
+                generate_outputs(options.outputfolder4,
                     target_model_complete, runtime2, options)
+
+            else:
+                logging.debug("No cluster information available for secondary metabolic modeling")
 
         else:
             logging.warning("COBRA-compliant SBML file needed")
