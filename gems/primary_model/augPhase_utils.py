@@ -78,7 +78,7 @@ def get_targetGenome_locusTag_ec_nonBBH_dict(options):
 
 
 #Two nested function calling four functions above
-def make_all_rxnInfo_fromRefSeq(options):
+def get_rxnid_info_dict_from_kegg(options):
     rxnid_info_dict = {}
     rxnid_locusTag_dict = {}
 
@@ -99,7 +99,11 @@ def make_all_rxnInfo_fromRefSeq(options):
                         rxnid_locusTag_dict[rxnid].append((locusTag))
                     #print locusTag, rxnid, rxnid_info_dict[rxnid], "\n"
 
-            logging.debug("EC_number info fetched from KEGG: %s, %s" %(locusTag, enzymeEC))
+                logging.debug("EC_number info fetched from KEGG: %s, %s"
+                                %(locusTag, enzymeEC))
+            else:
+                logging.debug("EC_number NOT submitted to KEGG: %s, %s"
+                                %(locusTag, enzymeEC))
 
     options.rxnid_info_dict = rxnid_info_dict
     options.rxnid_locusTag_dict = rxnid_locusTag_dict
@@ -122,7 +126,8 @@ def get_mnxr_list_from_modelPrunedGPR(modelPrunedGPR, options):
     options.modelPrunedGPR_mnxr_list = modelPrunedGPR_mnxr_list
 
 
-def check_existing_rxns(options):
+#This function checks already existing reactions in the model
+def get_rxnid_to_add_list(options):
     rxnid_to_add_list =[]
 
     for rxnid in options.rxnid_info_dict.keys():
@@ -140,7 +145,8 @@ def check_existing_rxns(options):
 
 
 #Output: MNXR for the reactions to add, converted from KEGG rxnid
-def get_mnxr_using_kegg(options):
+def get_mnxr_to_add_list(options):
+
     mnxr_to_add_list = []
     for rxnid in options.rxnid_to_add_list:
 	if rxnid in options.kegg_mnxr_dict.keys():
@@ -181,7 +187,7 @@ def check_overlap_subs_prod(mnxm_subs_list, mnxm_prod_list):
 
 #Metabolites are presented primarily with bigg, otherwise with MNXM
 #Metabolite ID priority: bigg > MNXM > KEGG
-def extract_rxn_mnxm_coeff(options):
+def get_rxnid_mnxm_coeff_dict(options):
     rxnid_mnxm_coeff_dict = {}
     mnxm_coeff_dict = {}
 
@@ -255,12 +261,39 @@ def extract_rxn_mnxm_coeff(options):
 
 def add_nonBBH_rxn(modelPrunedGPR, options):
 
+    #Debugging purpose
+    if options.debug:
+        fp1 = open('./%s/3_temp_models/rxnid_to_add_list.txt' %options.outputfolder,'w')
+        for rxnid in options.rxnid_to_add_list:
+            print >>fp1, '%s' %rxnid
+        fp1.close()
+
+        fp2 = open('./%s/3_temp_models/mnxr_to_add_list.txt' %options.outputfolder,'w')
+        for mnxr in options.mnxr_to_add_list:
+            print >>fp2, '%s' %mnxr
+        fp2.close()
+
+        fp3 = open('./%s/3_temp_models/rxnid_info_dict.txt' %options.outputfolder,'w')
+        for rxnid in options.rxnid_info_dict.keys():
+            print >>fp3, '%s' %rxnid
+        fp3.close()
+
+        fp4 = open('./%s/3_temp_models/rxnid_mnxm_coeff_dict.txt'
+                %options.outputfolder,'w')
+        for rxnid in options.rxnid_mnxm_coeff_dict.keys():
+            print >>fp4, '%s' %rxnid
+        fp4.close()
+
     for rxnid in options.rxnid_mnxm_coeff_dict.keys():
 
-        if options.rxnid_info_dict[rxnid] != None:
-            logging.debug("--------------------")
-            logging.debug("Reaction to be added: %s" %rxnid)
-            logging.debug("%s" %options.rxnid_mnxm_coeff_dict[rxnid])
+        logging.debug("--------------------")
+        logging.debug("Reaction to be added: %s" %rxnid)
+        logging.debug("%s" %options.rxnid_mnxm_coeff_dict[rxnid])
+
+        #Some keys of 'rxnid_mnxm_coeff_dict' may be absent in ' rxnid_info_dict'
+        if rxnid in options.rxnid_info_dict and options.rxnid_info_dict[rxnid]:
+
+            logging.debug("%s" %options.rxnid_info_dict[rxnid])
 
             #ID
             rxn = Reaction(rxnid)
@@ -361,8 +394,19 @@ def add_nonBBH_rxn(modelPrunedGPR, options):
                 #writing/reloading of the model
                 modelPrunedGPR.remove_reactions(rxn)
 
-        logging.debug("Reaction added to the model: %s" %rxnid)
-        logging.debug("--------------------")
+            logging.debug("%s added to the model" %rxnid)
+            logging.debug("--------------------")
+
+        #This can happen when converting keys of 'rxnid_info_dict' to 'mnxr_info_dict'
+        #Some MNXR IDS are assigned to multiple KEGG reaction IDs
+        #e.g., MNXR56731:R02075 & MNXR56731:R08836
+        #Although this issue was previously handled by taking only KEGG reaction IDs with
+        #'PATHWAY' information, exceptions still exist.
+        elif rxnid not in options.rxnid_info_dict:
+            logging.debug("%s absent in 'rxnid_info_dict'" %rxnid)
+
+        elif not options.rxnid_info_dict[rxnid]:
+            logging.debug("No values in 'rxnid_info_dict[%s]'" %rxnid)
 
     target_model = copy.deepcopy(modelPrunedGPR)
     return target_model
