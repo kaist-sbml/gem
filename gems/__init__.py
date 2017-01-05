@@ -3,6 +3,7 @@
 #Copyright 2014-2016 Novo Nordisk Foundation Center for Biosustainability, DTU
 
 import logging
+import os
 from io.eficaz import utils
 
 
@@ -27,7 +28,12 @@ def check_prereqs():
 
     try:
         import cobra
-        logging.debug("Found cobra version %s", cobra.__version__)
+        #Cobra reads version from git tag.
+        #'cobra.__version__' gives wrong version in the system
+        cobra_path = os.path.dirname(cobra.__file__) + os.sep + 'VERSION'
+        fp = open(cobra_path, "r")
+        version = str(fp.read().strip())
+        logging.debug("Found cobra version %s", version)
     except (ImportError, ImportWarning) as err:
         failure_messages.append(str(err))
 
