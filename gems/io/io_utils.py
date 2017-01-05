@@ -104,7 +104,6 @@ def get_targetGenomeInfo(options, file_type):
     fp.close()
 
 
-#Look for .fa and .gbk  files in the pre-defined folder
 def get_target_fasta(options):
     for root, _, files in os.walk('./%s' %options.outputfolder2):
         for f in files:

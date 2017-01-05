@@ -14,14 +14,16 @@ from io_utils import (
 def get_genome_files(options):
     logging.info("Reading input genome file..")
 
-    logging.info("Looking for a fasta file of a template model genome..")
-    get_temp_fasta(options)
-
     logging.info("Reading genbank file of the target genome..")
     get_targetGenomeInfo(options, 'genbank')
 
-    logging.info("Looking for a fasta file of a target genome..")
-    get_target_fasta(options)
+    #Following data are needed only for primary metabolic modeling
+    if options.pmr_generation:
+        logging.info("Looking for a fasta file of a target genome..")
+        get_target_fasta(options)
+
+        logging.info("Looking for a fasta file of a template model genome..")
+        get_temp_fasta(options)
 
 
 #For model pruning phase

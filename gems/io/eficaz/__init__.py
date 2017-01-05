@@ -442,6 +442,8 @@ def getECs(seq_record, options):
     logging.debug("Finished EC number prediction with EFICAz")
 
     #Write output gbk file
-    output_gbk = os.path.basename(options.input)+'_ec.gbk'
+    input_gbk = os.path.basename(options.input)
+    input_gbk2 = os.path.splitext(input_gbk)[0]
+    output_gbk = input_gbk2 + '_ec.gbk'
     SeqIO.write(seq_record, os.path.join(
         options.outputfolder1, output_gbk), 'genbank')
