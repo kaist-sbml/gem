@@ -59,7 +59,7 @@ def get_rxnInfo_from_rxnid(rxnid):
             EQUATION = ' '.join(sptlist[1:])
         if sptlist[0].strip() == 'ENZYME':
             ENZYME = ' '.join(sptlist[1:])
-        #Considers only reactions mapped in pathways
+        #Consider only reactions mapped in pathways
         #Otherwise reactions have unspecified molecules having R groups
         if sptlist[0].strip() == 'PATHWAY':
             PATHWAY = ' '.join(sptlist[1:])

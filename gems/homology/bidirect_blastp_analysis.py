@@ -14,11 +14,11 @@ from blastp_utils import (
 )
 
 def get_homologs(options):
-    logging.info("Searching bidirectional homolgs..")
-    logging.info("Generating a DB for the genes from the target genome..")
+    logging.info("Searching bidirectional best hits (BBHs)..")
+    logging.info("Generating a DB for the target genome..")
     make_blastDB(options)
 
-    logging.info("Running BLASTP #1: genes in the target genome against genes in the template model..")
+    logging.info("Running BLASTP #1: target genome --> template model genes..")
     run_blastp(
             target_fasta='./%s/targetGenome_locusTag_aaSeq.fa' %options.outputfolder2,
             blastp_result='./%s/blastp_targetGenome_against_tempGenome.txt'
@@ -26,7 +26,7 @@ def get_homologs(options):
             db_dir = '%s/tempBlastDB' %(options.input1),
             evalue=1e-30)
 
-    logging.info("Running BLASTP #2: genes in the template model against genes in the target genome..")
+    logging.info("Running BLASTP #2: template model genes --> target genome..")
     run_blastp(
             target_fasta=options.temp_fasta,
             blastp_result='./%s/blastp_tempGenome_against_targetGenome.txt'

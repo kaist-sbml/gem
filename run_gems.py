@@ -187,7 +187,7 @@ def main():
 
                 cluster_nr = 1
                 while cluster_nr <= options.total_cluster:
-                    logging.info("Reactions generating for Cluster %s ..." %cluster_nr)
+                    logging.info("Generating reactions for Cluster %s.." %cluster_nr)
                     target_model = run_sec_met_rxn_generation(cluster_nr,
                         target_model, prod_sec_met_dict, nonprod_sec_met_dict, options)
                     cluster_nr += 1

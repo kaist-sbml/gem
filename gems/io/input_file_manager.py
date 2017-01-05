@@ -12,9 +12,9 @@ from io_utils import (
 
 
 def get_genome_files(options):
-    logging.info("Reading input genome file..")
+    logging.info("Reading input genome files..")
 
-    logging.info("Reading genbank file of the target genome..")
+    logging.info("Reading a genbank file of a target genome..")
     get_targetGenomeInfo(options, 'genbank')
 
     #Following data are needed only for primary metabolic modeling
@@ -22,15 +22,14 @@ def get_genome_files(options):
         logging.info("Looking for a fasta file of a target genome..")
         get_target_fasta(options)
 
-        logging.info("Looking for a fasta file of a template model genome..")
+        logging.info("Looking for a fasta file of template model genes..")
         get_temp_fasta(options)
 
 
 #For model pruning phase
 #Only model file is not saved in Namespace
 def get_pickles_prunPhase(options):
-    logging.info("Loading pickle files of the parsed template model and")
-    logging.info("its relevant genbank data..")
+    logging.info("Loading pickle files associated with a template model..")
     model = pickle.load(open('%s/model.p' %(options.input1),'rb'))
     tempModel_biggRxnid_locusTag_dict = pickle.load(open(
         '%s/tempModel_biggRxnid_locusTag_dict.p' %(options.input1),'rb'))

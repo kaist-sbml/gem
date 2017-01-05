@@ -20,10 +20,9 @@ from prunPhase_utils import (
 
 def run_prunPhase(model, options):
     logging.info("Pruning phase starting..")
-    logging.info("Labeling reactions with nonhomologous genes to remove from the template model..")
+    logging.info("Removing reactions with nonhomologous genes from the template model..")
     labelRxnToRemove(model, options)
 
-    logging.info("Removing reactions with nonhomologous genes from the template model..")
     modelPruned = pruneModel(model, options)
 
     logging.info("Correcting GPR associations in the template model..")
@@ -34,7 +33,8 @@ def run_prunPhase(model, options):
 
 def run_augPhase(modelPrunedGPR, options):
     logging.info("Augmentation phase starting..")
-    logging.info("Creating various dictionary files for the nonBBH gene-associted reactions... (time-consuming)")
+    logging.info("Creating various dict data for the nonBBH gene-associted reactions..")
+    logging.info("(time-consuming)")
 
     get_targetGenome_locusTag_ec_nonBBH_dict(options)
 
@@ -45,7 +45,8 @@ def run_augPhase(modelPrunedGPR, options):
 
     get_mnxr_list_from_modelPrunedGPR(modelPrunedGPR, options)
 
-    logging.info("Adding the nonBBH gene-associated reactions... (time-consuming)")
+    logging.info("Adding the nonBBH gene-associated reactions..")
+    logging.info("(time-consuming)")
     get_rxnid_to_add_list(options)
 
     get_mnxr_to_add_list(options)

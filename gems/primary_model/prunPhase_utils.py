@@ -116,8 +116,11 @@ def labelRxnToRemove(model, options):
     for biggRxnid in options.tempModel_biggRxnid_locusTag_dict.keys():
 	rxn = model.reactions.get_by_id(biggRxnid)
         #Prevent removal of transport reactions from the template model
-	if 'Transport' not in rxn.name and 'transport' not in rxn.name and 'Exchange' not in rxn.name and 'exchange' not in rxn.name:
-            booleanList = makeBooleanFormat(options.temp_target_BBH_dict, options.tempModel_biggRxnid_locusTag_dict[biggRxnid])
+	if 'Transport' not in rxn.name and 'transport' not in rxn.name \
+            and 'Exchange' not in rxn.name and 'exchange' not in rxn.name:
+            booleanList = makeBooleanFormat(
+                    options.temp_target_BBH_dict,
+                    options.tempModel_biggRxnid_locusTag_dict[biggRxnid])
             rxnToRemove_dict[biggRxnid] = calcBoolean(booleanList)
 
     options.rxnToRemove_dict = rxnToRemove_dict
@@ -132,26 +135,30 @@ def pruneModel(model, options):
 
         #Single reaction deletion is performed only for reactions labelled as "False"
         if options.rxnToRemove_dict[rxnid] == False:
-            #Solver argument causes an error
+            #Solver argument causes an error in cobrapy 0.5.8
             growth_rate_dict, solution_status_dict = single_reaction_deletion(
                     model, reaction_list=list([rxnid]), method='fba')
 
-            #Checks optimality first.
+            #Check optimality first.
             if str(solution_status_dict.values()[0]) == 'optimal':
 
                 #Full list of reactions and predicted growth rates upon their deletions
                 rxnToRemoveEssn_dict[rxnid] = float(growth_rate_dict.values()[0])
 
-                #Checks growth rate upon reaction deletion
+                #Check growth rate upon reaction deletion
                 if float(growth_rate_dict.values()[0]) >= 0.01:
                     model.remove_reactions(rxnid)
                     #List of reactions removed from the template model
                     rxnRemoved_dict[rxnid] = float(growth_rate_dict.values()[0])
-                    logging.debug("Removed reaction: %s; %s; %s; %s" %(rxnid, growth_rate_dict.values()[0], len(model.reactions), len(model.metabolites)))
+                    logging.debug("Removed reaction: %s; %s; %s; %s"
+                            %(rxnid, growth_rate_dict.values()[0],
+                            len(model.reactions), len(model.metabolites)))
                 else:
                     #List of reactions retained in the template model
                     rxnRetained_dict[rxnid] = float(growth_rate_dict.values()[0])
-                    logging.debug("Retained reaction: %s; %s; %s; %s" %(rxnid, growth_rate_dict.values()[0], len(model.reactions), len(model.metabolites)))
+                    logging.debug("Retained reaction: %s; %s; %s; %s"
+                            %(rxnid, growth_rate_dict.values()[0],
+                            len(model.reactions), len(model.metabolites)))
 
     modelPruned = copy.deepcopy(model)
 
@@ -184,17 +191,17 @@ def get_gpr_fromString_toList(line):
 
 def swap_locusTag_tempModel(modelPruned, options):
 
-    #Retrieves reactions associated with each homologous gene in template model
+    #Retrieve reactions associated with each homologous gene in template model
     for BBHrxn in modelPruned.reactions:
 	booleanList = []
-        #Retrieves all the genes associated with a reaction having the homologous gene
+        #Retrieve all the genes associated with a reaction having the homologous gene
         #and transforms String to List
 	booleanList = get_gpr_fromString_toList(BBHrxn.gene_reaction_rule)
 
         modified_booleanList = []
 	for tempLocusTag in booleanList:
 
-            #Checks if the element itself is List.
+            #Check if the element itself is List.
             #If the element is not List, then gene in template model is
             #directly replaced with genes in target genome
             if type(tempLocusTag) != list:
@@ -222,7 +229,7 @@ def swap_locusTag_tempModel(modelPruned, options):
                     modified_booleanList.append( temp_gpr_list )
 
 
-        #Converts GPR in List to String:
+        #Convert GPR in List to String:
         booleanList = copy.deepcopy( modified_booleanList )
 	stringlist = []
 	for i in range(len(booleanList)):
