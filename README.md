@@ -2,7 +2,7 @@
 This source automatically generates secondary metabolite biosynthetic reactions in a genome-scale metabolic model (GEM) using antiSMASH output .gbk file. The source also enables overall high-throughput metabolic modeling.
 
 #Development
-This project was initiated as a research collaboration between [Metabolic & Biomolecular Eng. Natâ€™l Research Laboratory (MBEL) & BioInformatics Research Center](http://mbel.kaist.ac.kr/) at KAIST and [Novo Nordisk Foundation Center for Biosustainability](http://www.biosustain.dtu.dk/english) at DTU.
+This project was initiated as a research collaboration between [Metabolic & Biomolecular Eng. Nat’l Research Laboratory (MBEL) & BioInformatics Research Center](http://mbel.kaist.ac.kr/) at KAIST and [Novo Nordisk Foundation Center for Biosustainability](http://www.biosustain.dtu.dk/english) at DTU.
 
 #Current features
 * Homology analysis (bidirectional blastp hits)
@@ -18,6 +18,7 @@ This project was initiated as a research collaboration between [Metabolic & Biom
 4. `pip install "cobra[all]"` for [cobrapy](https://github.com/opencobra/cobrapy): for loading, editing and writing GEMs
 5. Place `blastp` and `makeblastdb` from [NCBI FTP](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.28/) preferably in `venv/bin`: for bidirectional blastp hits
 6. Place `eficaz2.5` in a directory and set up `PATH` in `.bashrc`, e.g.:
+
     `export EFICAz25_PATH="/home/edhyunukkim/gems/venv/bin/EFICAz2.5.1/bin/`
 
     `export PATH="${PATH}:${EFICAz25_PATH}"`
