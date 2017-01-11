@@ -18,10 +18,10 @@ This project was initiated as a research collaboration between [Metabolic & Biom
 4. `pip install "cobra[all]"` for [cobrapy](https://github.com/opencobra/cobrapy): for loading, editing and writing GEMs
 5. Place `blastp.exe` and `makeblastdb.exe` from [NCBI FTP](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.28/) preferably in `venv/bin`
 6. Place `eficaz2.5` in a directory and set up `PATH` in `.bashrc`, e.g.,
-```
-export EFICAz25_PATH="/home/edhyunukkim/gems/venv/bin/EFICAz2.5.1/bin/"
-export PATH="${PATH}:${EFICAz25_PATH}"
-```
+    ```
+     export EFICAz25_PATH="/home/edhyunukkim/gems/venv/bin/EFICAz2.5.1/bin/"
+     export PATH="${PATH}:${EFICAz25_PATH}"
+   ```
 7. [gurobi](http://www.gurobi.com/) or [glpk](https://www.gnu.org/software/glpk/): optimization solvers
 
 **Note:** Make sure that user has access to `run_gems.py` (for convenience), `blastp` and `makeblastdb` (mandatory) in Linux system.
