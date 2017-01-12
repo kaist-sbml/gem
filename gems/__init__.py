@@ -24,12 +24,18 @@ def check_prereqs(options):
 
     for binary_name, optional in _required_binaries:
         binary_path = utils.locate_executable(binary_name)
-        if binary_name == 'makeblastdb' and binary_path:
-            options.makeblastdb_path = binary_path
-        elif binary_name == 'blastp' and binary_path:
-            options.blastp_path = binary_path
+
+        if binary_path:
+            if binary_name == 'makeblastdb':
+                options.makeblastdb_path = binary_path
+            elif binary_name == 'blastp':
+                options.blastp_path = binary_path
+            elif binary_name == 'eficaz2.5':
+                options.eficaz_path = binary_path
         elif binary_path is None and not optional:
             failure_messages.append("Failed to locate file: %r" % binary_name)
+            if binary_name == 'eficaz2.5':
+                options.eficaz_path = binary_path
 
     try:
         import cobra

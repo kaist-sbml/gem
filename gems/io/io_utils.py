@@ -34,8 +34,10 @@ def get_targetGenomeInfo(options, file_type):
         seq_record = SeqIO.parse(options.outputfolder+'/'+options.input,
                      file_type).next()
 
-    if options.eficaz:
+    if options.eficaz and options.eficaz_path:
         getECs(seq_record, options)
+    elif options.eficaz and not options.eficaz_path:
+        logging.debug("EFICAz cannot be implemented")
 
     total_cluster = 0
     locus_tag_list = []
