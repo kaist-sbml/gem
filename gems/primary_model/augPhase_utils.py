@@ -280,7 +280,7 @@ def add_nonBBH_rxn(modelPrunedGPR, options):
 
         fp4 = open('./%s/rxnid_mnxm_coeff_dict.txt' %options.outputfolder5,'w')
         for rxnid in options.rxnid_mnxm_coeff_dict.keys():
-            print >>fp4, '%s' %rxnid
+            print >>fp4, '%s\t%s' %(rxnid, options.rxnid_mnxm_coeff_dict[rxnid])
         fp4.close()
 
     for rxnid in options.rxnid_mnxm_coeff_dict.keys():
