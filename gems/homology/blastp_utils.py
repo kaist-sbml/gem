@@ -10,8 +10,12 @@ import subprocess
 #Make database files using fasta files
 def make_blastDB(options):
     db_dir = './%s/targetBlastDB' %options.outputfolder2
-    DBprogramName = './gems/homology/blastpfiles/makeblastdb.exe'
-    subprocess.call([DBprogramName,'-in',options.target_fasta,'-out',db_dir,'-dbtype','prot'])
+    DBprogramName = options.makeblastdb_path
+    subprocess.call(
+            [DBprogramName,'-in',
+            options.target_fasta,'-out',
+            db_dir,'-dbtype',
+            'prot'])
 
     #Checks if DB is properly created; otherwise shutdown
     if os.path.isfile('./%s/targetBlastDB.psq' %options.outputfolder2) == False:
@@ -20,9 +24,13 @@ def make_blastDB(options):
 
 #Output: b0002,ASPK|b0002,0.0,100.00,820
 #"1e-30" is set as a threshold for bidirectional best hits
-def run_blastp(target_fasta = '', blastp_result = '', db_dir = '', evalue = 1e-30):
-    BLASTPprogramName = './gems/homology/blastpfiles/blastp.exe'
-    subprocess.call([BLASTPprogramName,'-query',target_fasta,'-out',blastp_result,'-db',db_dir,'-evalue', str(evalue),'-outfmt',"10 qseqid sseqid evalue score length pident"])
+def run_blastp(blastp_path, target_fasta, blastp_result, db_dir, evalue):
+    BLASTPprogramName = blastp_path
+    subprocess.call(
+            [BLASTPprogramName,'-query',
+            target_fasta,'-out',blastp_result,
+            '-db',db_dir,'-evalue', str(evalue),
+            '-outfmt',"10 qseqid sseqid evalue score length pident"])
 
 
 #Input: Results file from "run_blastp"

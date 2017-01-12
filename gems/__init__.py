@@ -10,7 +10,7 @@ from io.eficaz import utils
 __version__ = '0.1.1'
 
 
-def check_prereqs():
+def check_prereqs(options):
     "Check if all required files and applications are around"
 
     # Tuple is ( binary_name, optional)
@@ -23,7 +23,12 @@ def check_prereqs():
     failure_messages = []
 
     for binary_name, optional in _required_binaries:
-        if utils.locate_executable(binary_name) is None and not optional:
+        binary_path = utils.locate_executable(binary_name)
+        if binary_name == 'makeblastdb' and binary_path:
+            options.makeblastdb_path = binary_path
+        elif binary_name == 'blastp' and binary_path:
+            options.blastp_path = binary_path
+        elif binary_path is None and not optional:
             failure_messages.append("Failed to locate file: %r" % binary_name)
 
     try:

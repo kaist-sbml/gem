@@ -20,6 +20,7 @@ def get_homologs(options):
 
     logging.info("Running BLASTP #1: target genome --> template model genes..")
     run_blastp(
+            options.blastp_path,
             target_fasta='./%s/targetGenome_locusTag_aaSeq.fa' %options.outputfolder2,
             blastp_result='./%s/blastp_targetGenome_against_tempGenome.txt'
             %options.outputfolder2,
@@ -28,6 +29,7 @@ def get_homologs(options):
 
     logging.info("Running BLASTP #2: template model genes --> target genome..")
     run_blastp(
+            options.blastp_path,
             target_fasta=options.temp_fasta,
             blastp_result='./%s/blastp_tempGenome_against_targetGenome.txt'
             %options.outputfolder2,

@@ -120,7 +120,7 @@ def main():
     #Get genome files only if one of functional options is selected
     if options.eficaz or options.pmr_generation or options.smr_generation:
         #Check prerequisites of executables and libraries
-        check_prereqs()
+        check_prereqs(options)
 
         #Create output folders
         folders = ['1_EFICAz_results', '2_blastp_results',
