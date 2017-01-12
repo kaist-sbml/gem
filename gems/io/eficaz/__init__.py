@@ -162,16 +162,13 @@ class EFICAzECPrediction:
         # Only perform calculations if result file does not already exist (from previous run)
         if not os.path.isfile(os.path.join(self.basedirName, ecpredfile)):
             EFICAzExecutable = utils.locate_executable(EFICAzBinary)
-            if not EFICAzExecutable:
-                logging.exception("EFICAz executable not found, bailing out, analysis not posible")
-                sys.exit(1)
             cmdline = [EFICAzExecutable, fastafile]
+            logging.debug("Executing %s in directory %s" % (" ".join(cmdline), chunkDir))
 
-            logging.debug("executing %s in directory %s" % (" ".join(cmdline), chunkDir))
             try:
                 utils.execute(cmdline)
             except:
-                logging.exception('cannot execute EFICAz!')
+                logging.exception('Cannot execute EFICAz!')
                 sys.exit(1)
         else:
             # As this method is executed in an own thread, it does not have the ability to change
