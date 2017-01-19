@@ -1,6 +1,6 @@
 
-#Copyright 2014-2016 BioInformatics Research Center, KAIST
-#Copyright 2014-2016 Novo Nordisk Foundation Center for Biosustainability, DTU
+# Copyright 2017 BioInformatics Research Center, KAIST
+# Copyright 2017 Novo Nordisk Foundation Center for Biosustainability, DTU
 
 import os
 try:
