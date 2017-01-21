@@ -34,6 +34,8 @@ def generate_outputs(folder, cobra_model, runtime, options):
     elif '4_complete_model' in folder:
         logging.info("'Secondary' metabolic model completed")
 
+    if options.debug:
+        write_data_for_debug(options)
 
 def get_model_reactions(folder, cobra_model, options):
 
@@ -208,3 +210,25 @@ def get_summary_report(folder, cobra_model, runtime,
 
     fp1.close()
 
+
+def write_data_for_debug(options):
+
+    fp1 = open('./%s/rxnid_to_add_list.txt' %options.outputfolder5,'w')
+    for rxnid in options.rxnid_to_add_list:
+        print >>fp1, '%s' %rxnid
+    fp1.close()
+
+    fp2 = open('./%s/mnxr_to_add_list.txt' %options.outputfolder5,'w')
+    for mnxr in options.mnxr_to_add_list:
+        print >>fp2, '%s' %mnxr
+    fp2.close()
+
+    fp3 = open('./%s/rxnid_info_dict.txt' %options.outputfolder5,'w')
+    for rxnid in options.rxnid_info_dict.keys():
+        print >>fp3, '%s' %rxnid
+    fp3.close()
+
+    fp4 = open('./%s/rxnid_mnxm_coeff_dict.txt' %options.outputfolder5,'w')
+    for rxnid in options.rxnid_mnxm_coeff_dict.keys():
+        print >>fp4, '%s\t%s' %(rxnid, options.rxnid_mnxm_coeff_dict[rxnid])
+    fp4.close()
