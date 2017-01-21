@@ -13,6 +13,7 @@ except ImportError:
 def test_gems():
     if pytest:
         # Arguement 'gems' is needed to test only the GEMS files
+        #pytest.main(['--pyargs', 'gems', '--basetemp=./' '-v'])
         pytest.main(['--pyargs', 'gems', '-v'])
         #pytest.main()
     else:
