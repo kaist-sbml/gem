@@ -2,8 +2,9 @@
 # Copyright 2017 BioInformatics Research Center, KAIST
 # Copyright 2017 Novo Nordisk Foundation Center for Biosustainability, DTU
 
-from argparse import Namespace
+import pickle
 import pytest
+from argparse import Namespace
 from cobra.io import read_sbml_model, write_sbml_model
 from os.path import join, abspath, dirname
 
@@ -19,6 +20,10 @@ def model():
 @pytest.fixture(scope="function")
 def options():
     options = Namespace()
+
+    template_exrxnid_flux_dict = pickle.load(
+             open(join(data_dir, 'sco_tempModel_exrxnid_flux_dict.p'),'rb'))
+    options.template_exrxnid_flux_dict = template_exrxnid_flux_dict
 
     return options
 

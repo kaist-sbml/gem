@@ -2,13 +2,15 @@
 # Copyright 2017 BioInformatics Research Center, KAIST
 # Copyright 2017 Novo Nordisk Foundation Center for Biosustainability, DTU
 
+from os.path import join
 from gems.primary_model import augPhase_utils
 
 class TestPrimary_model:
     """Test functions in gems.primary_model"""
 
-    def test_add_nonBBH_rxn(self, model, options):
-        # All available in Namespace 'options'
+    # Focus on metabolite addition in this test
+    # New metabolites: 'MNXM38659' and 'fuc_DASH_L'
+    def test_add_nonBBH_rxn_with_focus_on_metabolites(self, model, tmpdir, options):
         rxnid_info_dict = {
             'R08926':{
                 'ENZYME': '1.1.1.122',
@@ -17,17 +19,18 @@ class TestPrimary_model:
                 'NAME': 'L-fucose:NAD+ 1-oxidoreductase',
                 'PATHWAY': 'rn00051 Fructose and mannose metabolism'}
                 }
-        # New metabolites: 'MNXM38659' and 'fuc_DASH_L'
         rxnid_mnxm_coeff_dict = {
             'R08926':{
                 'h': -1.0, 'MNXM38659': -1.0, 'nadh': -1.0,
                 'fuc_DASH_L': 1.0, 'nad': 1.0}}
 
-        bigg_mnxm_compound_dict = {}
-        mnxm_compoundInfo_dict = {}
-        rxnid_locusTag_dict = {}
-        targetGenome_locusTag_prod_dict = {}
-        outputfolder5 = ''
+        bigg_mnxm_compound_dict = {'fuc_DASH_L':'MNXM659'}
+        mnxm_compoundInfo_dict = {
+                'MNXM659':['L-fucose', 'C6H12O5'],
+                'MNXM38659':['6-deoxy-D-glucono-1,5-lactone', 'C6H10O5']}
+        rxnid_locusTag_dict = {'R08926':['STEN_00480']}
+        targetGenome_locusTag_prod_dict = {'STEN_00480':'D-threo-aldose 1-dehydrogenase'}
+        outputfolder5 = './tmp'
 
         options.rxnid_info_dict = rxnid_info_dict
         options.rxnid_mnxm_coeff_dict = rxnid_mnxm_coeff_dict
@@ -44,11 +47,11 @@ class TestPrimary_model:
         assert 'nadh_c' in model.metabolites
         assert 'nad_c' in model.metabolites
 
-        #augPhase_utils.add_nonBBH_rxn(model, options)
+        augPhase_utils.add_nonBBH_rxn(model, options)
 
-#        assert 'R08926' in model.reactions # Should be available in the model
-#        assert 'MNXM38659_c' in model.metabolites # Should be available in the model
-#        assert 'fuc_DASH_L_c' in model.metabolites # Should be available in the model
-#        assert 'h_c' in model.metabolites
-#        assert 'nadh_c' in model.metabolites
-#        assert 'nad_c' in model.metabolites
+        assert 'R08926' in model.reactions # Should be available in the model
+        assert 'MNXM38659_c' in model.metabolites # Should be available in the model
+        assert 'fuc_DASH_L_c' in model.metabolites # Should be available in the model
+        assert 'h_c' in model.metabolites
+        assert 'nadh_c' in model.metabolites
+        assert 'nad_c' in model.metabolites
