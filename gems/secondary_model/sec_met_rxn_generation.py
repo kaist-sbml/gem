@@ -336,7 +336,7 @@ def get_currency_metabolites(options):
             abbr_domain = each_domain[:-5]
             domain_trunc_list.append(abbr_domain)
 
-        discriminant = determine_module(domain_trunc_list)
+        discriminant = determine_module(domain_trunc_list, each_module)
         f_discriminant = determine_kr_activity(each_locustag, domain_comb, options.locustag_kr_dict, discriminant)
 
         if f_discriminant == 'None':

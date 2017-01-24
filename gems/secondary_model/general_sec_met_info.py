@@ -4,7 +4,8 @@
 
 from cobra import Metabolite
 
-def determine_module(domain_comb):
+def determine_module(domain_comb, each_module):
+#TODO: category these lines according to core and optional domains
 ## domain information(nrps) :
 ## Condensation    Condensation domain
 ## Condensation_DCL    Condensation domain that links L-amino acid to peptide ending with D-amino acid
@@ -18,7 +19,7 @@ def determine_module(domain_comb):
 ## AMP-binding    Adenylation domain
 ## A-OX     Adenylation domain with integrated oxidase
 ## PCP     Peptidyl-carrier protein domain
-## ACPS    4'-phosphopantetheinyl transferase
+## ACP    4'-phosphopantetheinyl transferase
 ## NRPS-COM_Nterm    NRPS COM domain Nterminal
 ## NRPS-COM_Cterm    NRPS COM domain Cterminal
 
@@ -32,417 +33,345 @@ def determine_module(domain_comb):
 ## cMT    methyltransferase
 ## TD    thiolesterase domain
 
+    #TODO: Place essential domains first, followed by optional domains
     #Exceptionsal cases
-    if 'Condensation_Starter' not in domain_comb and 'Condensation' not in domain_comb and 'Condensation_DCL' not in domain_comb and 'Condensation_LCL' not in domain_comb and 'Condensation_Dual' not in domain_comb and 'Cglyc' not in domain_comb and 'CXglyc' not in domain_comb and 'Heterocyclization' not in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and 'PCP' not in domain_comb and 'ACP' not in domain_comb:
+    if 'ACP' not in domain_comb \
+            and 'AMP-binding' in domain_comb \
+            and 'A-OX' not in domain_comb \
+            and 'Condensation' not in domain_comb \
+            and 'Condensation_Starter' not in domain_comb \
+            and 'Condensation_DCL' not in domain_comb \
+            and 'Condensation_LCL' not in domain_comb \
+            and 'Condensation_Dual' not in domain_comb \
+            and 'Cglyc' not in domain_comb \
+            and 'CXglyc' not in domain_comb \
+            and 'Epimerization' not in domain_comb \
+            and 'Heterocyclization' not in domain_comb \
+            and 'cMT' not in domain_comb \
+            and 'nMT' not in domain_comb \
+            and 'PCP' not in domain_comb:
         discriminant = 'A'
 
     #Starter unit_AMP-binding+PCP
-    elif 'Condensation_Starter' not in domain_comb and 'Condensation' not in domain_comb and 'Condensation_DCL' not in domain_comb and 'Condensation_LCL' not in domain_comb and 'Condensation_Dual' not in domain_comb and 'Cglyc' not in domain_comb and 'CXglyc' not in domain_comb and 'Heterocyclization' not in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and 'PCP' in domain_comb:
-        discriminant = 'A_PCP'
+    # Following combination applies to all cases
+    elif ('ACP' in domain_comb or 'PCP' in domain_comb) \
+            and 'AMP-binding' in domain_comb \
+            and 'A-OX' not in domain_comb \
+            and 'Condensation' not in domain_comb \
+            and 'Condensation_Starter' not in domain_comb \
+            and 'Condensation_DCL' not in domain_comb \
+            and 'Condensation_LCL' not in domain_comb \
+            and 'Condensation_Dual' not in domain_comb \
+            and 'Cglyc' not in domain_comb \
+            and 'CXglyc' not in domain_comb \
+            and 'Epimerization' not in domain_comb \
+            and 'Heterocyclization' not in domain_comb:
+        if 'cMT' not in domain_comb and 'nMT' not in domain_comb:
+            discriminant = 'A_PCP'
+        elif 'cMT' in domain_comb or 'nMT' in domain_comb:
+            discriminant = 'MT_A_PCP'
 
-    elif 'Condensation_Starter' not in domain_comb and 'Condensation' not in domain_comb and 'Condensation_DCL' not in domain_comb and 'Condensation_LCL' not in domain_comb and 'Condensation_Dual' not in domain_comb and 'Cglyc' not in domain_comb and 'CXglyc' not in domain_comb and 'Heterocyclization' not in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and 'ACP' in domain_comb:
-        discriminant = 'A_PCP'
-
-    elif 'Condensation_Starter' not in domain_comb and 'Condensation' not in domain_comb and 'Condensation_DCL' not in domain_comb and 'Condensation_LCL' not in domain_comb and 'Condensation_Dual' not in domain_comb and 'Cglyc' not in domain_comb and 'CXglyc' not in domain_comb and 'Heterocyclization' not in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' in domain_comb and 'Epimerization' not in domain_comb and 'PCP' in domain_comb:
-        discriminant = 'MT_A_PCP'
-
-    elif 'Condensation_Starter' not in domain_comb and 'Condensation' not in domain_comb and 'Condensation_DCL' not in domain_comb and 'Condensation_LCL' not in domain_comb and 'Condensation_Dual' not in domain_comb and 'Cglyc' not in domain_comb and 'CXglyc' not in domain_comb and 'Heterocyclization' not in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' in domain_comb and 'Epimerization' not in domain_comb and 'ACP' in domain_comb:
-        discriminant = 'MT_A_PCP'
-
-    elif 'Condensation_Starter' not in domain_comb and 'Condensation' not in domain_comb and 'Condensation_DCL' not in domain_comb and 'Condensation_LCL' not in domain_comb and 'Condensation_Dual' not in domain_comb and 'Cglyc' not in domain_comb and 'CXglyc' not in domain_comb and 'Heterocyclization' not in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and 'PCP' in domain_comb:
-        discriminant = 'MT_A_PCP'
-
-    elif 'Condensation_Starter' not in domain_comb and 'Condensation' not in domain_comb and 'Condensation_DCL' not in domain_comb and 'Condensation_LCL' not in domain_comb and 'Condensation_Dual' not in domain_comb and 'Cglyc' not in domain_comb and 'CXglyc' not in domain_comb and 'Heterocyclization' not in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and 'ACP' in domain_comb:
-        discriminant = 'MT_A_PCP'
-
-    #####
     #Condensation starter domain : C-domain
-    elif 'Condensation_Starter' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and 'PCP' in domain_comb:
-        discriminant = 'Cs_A_PCP'
-
-    elif 'Condensation_Starter' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and 'ACP' in domain_comb:
-        discriminant = 'Cs_A_PCP'
-
-    elif 'Condensation_Starter' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and 'PCP' in domain_comb:
-        discriminant = 'Cs_A_MT_PCP'
-
-    elif 'Condensation_Starter' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and 'ACP' in domain_comb:
-        discriminant = 'Cs_A_MT_PCP'
-
-    elif 'Condensation_Starter' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' in domain_comb and 'Epimerization' not in domain_comb and 'PCP' in domain_comb:
-        discriminant = 'Cs_A_MT_PCP'
-
-    elif 'Condensation_Starter' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' in domain_comb and 'Epimerization' not in domain_comb and 'ACP' in domain_comb:
-        discriminant = 'Cs_A_MT_PCP'
-
-    elif 'Condensation_Starter' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' not in domain_comb and 'Epimerization' in domain_comb and 'PCP' in domain_comb:
-        discriminant = 'Cs_A_PCP_E'
-
-    elif 'Condensation_Starter' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' not in domain_comb and 'Epimerization' in domain_comb and 'ACP' in domain_comb:
-        discriminant = 'Cs_A_PCP_E'
-
-    elif 'Condensation_Starter' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' in domain_comb and 'nMT' not in domain_comb and 'Epimerization' in domain_comb and 'PCP' in domain_comb:
-        discriminant = 'Cs_A_MT_E_PCP'
-
-    elif 'Condensation_Starter' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' in domain_comb and 'nMT' not in domain_comb and 'Epimerization' in domain_comb and 'ACP' in domain_comb:
-        discriminant = 'Cs_A_MT_E_PCP'
-
-    elif 'Condensation_Starter' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' in domain_comb and 'Epimerization' in domain_comb and 'PCP' in domain_comb:
-        discriminant = 'Cs_A_MT_E_PCP'
-
-    elif 'Condensation_Starter' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' in domain_comb and 'Epimerization' in domain_comb and 'ACP' in domain_comb:
-        discriminant = 'Cs_A_MT_E_PCP'
+    elif ('ACP' in domain_comb or 'PCP' in domain_comb) \
+            and 'AMP-binding' in domain_comb \
+            and 'A-OX' not in domain_comb \
+            and 'Condensation_Starter' in domain_comb:
+        if 'Epimerization' not in domain_comb:
+            if 'cMT' not in domain_comb and 'nMT' not in domain_comb:
+                discriminant = 'Cs_A_PCP'
+            elif 'cMT' in domain_comb or 'nMT' in domain_comb:
+                discriminant = 'Cs_A_MT_PCP'
+        elif 'Epimerization' in domain_comb:
+            if 'cMT' not in domain_comb and 'nMT' not in domain_comb:
+                discriminant = 'Cs_A_PCP_E'
+            elif 'cMT' in domain_comb or 'nMT' in domain_comb:
+                discriminant = 'Cs_A_MT_E_PCP'
 
     #Condensation domain linking D-amino acid to peptides ending with L-amino acid: C-domain
-    elif 'Condensation' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and 'PCP' in domain_comb:
-        discriminant = 'C_A_PCP'
-
-    elif 'Condensation' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and 'ACP' in domain_comb:
-        discriminant = 'C_A_PCP'
-
-    elif 'Condensation' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and 'PCP' in domain_comb:
-        discriminant = 'C_A_MT_PCP'
-
-    elif 'Condensation' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and 'ACP' in domain_comb:
-        discriminant = 'C_A_MT_PCP'
-
-    elif 'Condensation' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' in domain_comb and 'Epimerization' not in domain_comb and 'PCP' in domain_comb:
-        discriminant = 'C_A_MT_PCP'
-
-    elif 'Condensation' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' in domain_comb and 'Epimerization' not in domain_comb and 'ACP' in domain_comb:
-        discriminant = 'C_A_MT_PCP'
-
-    elif 'Condensation' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' not in domain_comb and 'Epimerization' in domain_comb and 'PCP' in domain_comb:
-        discriminant = 'C_A_PCP_E'
-
-    elif 'Condensation' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' not in domain_comb and 'Epimerization' in domain_comb and 'ACP' in domain_comb:
-        discriminant = 'C_A_PCP_E'
-
-    elif 'Condensation' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' in domain_comb and 'nMT' not in domain_comb and 'Epimerization' in domain_comb and 'PCP' in domain_comb:
-        discriminant = 'C_A_MT_E_PCP'
-
-    elif 'Condensation' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' in domain_comb and 'nMT' not in domain_comb and 'Epimerization' in domain_comb and 'ACP' in domain_comb:
-        discriminant = 'C_A_MT_E_PCP'
-
-    elif 'Condensation' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' in domain_comb and 'Epimerization' in domain_comb and 'PCP' in domain_comb:
-        discriminant = 'C_A_MT_E_PCP'
-
-    elif 'Condensation' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' in domain_comb and 'Epimerization' in domain_comb and 'ACP' in domain_comb:
-        discriminant = 'C_A_MT_E_PCP'
+    elif ('ACP' in domain_comb or 'PCP' in domain_comb) \
+            and 'AMP-binding' in domain_comb \
+            and 'A-OX' not in domain_comb \
+            and 'Condensation' in domain_comb:
+        if 'Epimerization' not in domain_comb:
+            if 'cMT' not in domain_comb and 'nMT' not in domain_comb:
+                discriminant = 'C_A_PCP'
+            elif 'cMT' in domain_comb or 'nMT' in domain_comb:
+                discriminant = 'C_A_MT_PCP'
+        elif 'Epimerization' in domain_comb:
+            if 'cMT' not in domain_comb and 'nMT' not in domain_comb:
+                discriminant = 'C_A_PCP_E'
+            elif 'cMT' in domain_comb or 'nMT' in domain_comb:
+                discriminant = 'C_A_MT_E_PCP'
 
     #Condensation domain linking D-amino acid to peptides ending with L-amino acid: C-domain
-    elif 'Condensation_DCL' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and 'PCP' in domain_comb:
-        discriminant = 'Cdcl_A_PCP'
-
-    elif 'Condensation_DCL' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and 'ACP' in domain_comb:
-        discriminant = 'Cdcl_A_PCP'
-
-    elif 'Condensation_DCL' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and 'PCP' in domain_comb:
-        discriminant = 'Cdcl_A_MT_PCP'
-
-    elif 'Condensation_DCL' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and 'ACP' in domain_comb:
-        discriminant = 'Cdcl_A_MT_PCP'
-
-    elif 'Condensation_DCL' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' in domain_comb and 'Epimerization' not in domain_comb and 'PCP' in domain_comb:
-        discriminant = 'Cdcl_A_MT_PCP'
-
-    elif 'Condensation_DCL' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' in domain_comb and 'Epimerization' not in domain_comb and 'ACP' in domain_comb:
-        discriminant = 'Cdcl_A_MT_PCP'
-
-    elif 'Condensation_DCL' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' not in domain_comb and 'Epimerization' in domain_comb and 'PCP' in domain_comb:
-        discriminant = 'Cdcl_A_PCP_E'
-
-    elif 'Condensation_DCL' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' not in domain_comb and 'Epimerization' in domain_comb and 'ACP' in domain_comb:
-        discriminant = 'Cdcl_A_PCP_E'
-
-    elif 'Condensation_DCL' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' in domain_comb and 'nMT' not in domain_comb and 'Epimerization' in domain_comb and 'PCP' in domain_comb:
-        discriminant = 'Cdcl_A_MT_E_PCP'
-
-    elif 'Condensation_DCL' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' in domain_comb and 'nMT' not in domain_comb and 'Epimerization' in domain_comb and 'ACP' in domain_comb:
-        discriminant = 'Cdcl_A_MT_E_PCP'
-
-    elif 'Condensation_DCL' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' in domain_comb and 'Epimerization' in domain_comb and 'PCP' in domain_comb:
-        discriminant = 'Cdcl_A_MT_E_PCP'
-
-    elif 'Condensation_DCL' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' in domain_comb and 'Epimerization' in domain_comb and 'ACP' in domain_comb:
-        discriminant = 'Cdcl_A_MT_E_PCP'
+    elif ('ACP' in domain_comb or 'PCP' in domain_comb) \
+            and 'AMP-binding' in domain_comb \
+            and 'A-OX' not in domain_comb \
+            and 'Condensation_DCL' in domain_comb:
+        if 'Epimerization' not in domain_comb:
+            if 'cMT' not in domain_comb and 'nMT' not in domain_comb:
+                discriminant = 'Cdcl_A_PCP'
+            elif 'cMT' in domain_comb or 'nMT' in domain_comb:
+                discriminant = 'Cdcl_A_MT_PCP'
+        elif 'Epimerization' in domain_comb:
+            if 'cMT' not in domain_comb and 'nMT' not in domain_comb:
+                discriminant = 'Cdcl_A_PCP_E'
+            elif 'cMT' in domain_comb or 'nMT' in domain_comb:
+                discriminant = 'Cdcl_A_MT_E_PCP'
 
     #Condensation domain that links L-amino acid to peptides ending with L-amino acid: C-domain
-    elif 'Condensation_LCL' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and 'PCP' in domain_comb:
-        discriminant = 'Clcl_A_PCP'
-
-    elif 'Condensation_LCL' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and 'ACP' in domain_comb:
-        discriminant = 'Clcl_A_PCP'
-
-    elif 'Condensation_LCL' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and 'PCP' in domain_comb:
-        discriminant = 'Clcl_A_MT_PCP'
-
-    elif 'Condensation_LCL' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and 'ACP' in domain_comb:
-        discriminant = 'Clcl_A_MT_PCP'
-
-    elif 'Condensation_LCL' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' in domain_comb and 'Epimerization' not in domain_comb and 'PCP' in domain_comb:
-        discriminant = 'Clcl_A_MT_PCP'
-
-    elif 'Condensation_LCL' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' in domain_comb and 'Epimerization' not in domain_comb and 'ACP' in domain_comb:
-        discriminant = 'Clcl_A_MT_PCP'
-
-    elif 'Condensation_LCL' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' not in domain_comb and 'Epimerization' in domain_comb and 'PCP' in domain_comb:
-        discriminant = 'Clcl_A_PCP_E'
-
-    elif 'Condensation_LCL' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' not in domain_comb and 'Epimerization' in domain_comb and 'ACP' in domain_comb:
-        discriminant = 'Clcl_A_PCP_E'
-
-    elif 'Condensation_LCL' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' in domain_comb and 'nMT' not in domain_comb and 'Epimerization' in domain_comb and 'PCP' in domain_comb:
-        discriminant = 'Clcl_A_MT_E_PCP'
-
-    elif 'Condensation_LCL' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' in domain_comb and 'nMT' not in domain_comb and 'Epimerization' in domain_comb and 'ACP' in domain_comb:
-        discriminant = 'Clcl_A_MT_E_PCP'
-
-    elif 'Condensation_LCL' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' in domain_comb and 'Epimerization' in domain_comb and 'PCP' in domain_comb:
-        discriminant = 'Clcl_A_MT_E_PCP'
-
-    elif 'Condensation_LCL' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' in domain_comb and 'Epimerization' in domain_comb and 'ACP' in domain_comb:
-        discriminant = 'Clcl_A_MT_E_PCP'
+    elif ('ACP' in domain_comb or 'PCP' in domain_comb) \
+            and 'AMP-binding' in domain_comb \
+            and 'A-OX' not in domain_comb \
+            and 'Condensation_LCL' in domain_comb:
+        if 'Epimerization' not in domain_comb:
+            if 'cMT' not in domain_comb and 'nMT' not in domain_comb:
+                discriminant = 'Clcl_A_PCP'
+            elif 'cMT' in domain_comb or 'nMT' in domain_comb:
+                discriminant = 'Clcl_A_MT_PCP'
+        elif 'Epimerization' in domain_comb:
+            if 'cMT' not in domain_comb and 'nMT' not in domain_comb:
+                discriminant = 'Clcl_A_PCP_E'
+            elif 'cMT' in domain_comb or 'nMT' in domain_comb:
+                discriminant = 'Clcl_A_MT_E_PCP'
 
     #Condensation_dual: C-domain
-    elif 'Condensation_Dual' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and 'PCP' in domain_comb:
-        discriminant = 'Cd_A_PCP' #### + epimerization
-
-    elif 'Condensation_Dual' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and 'ACP' in domain_comb:
-        discriminant = 'Cd_A_PCP' #### + epimerization
-
-    elif 'Condensation_Dual' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and 'PCP' in domain_com:
-        discriminant = 'Cd_A_MT_PCP'
-
-    elif 'Condensation_Dual' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and 'ACP' in domain_comb:
-        discriminant = 'Cd_A_MT_PCP'
-
-    elif 'Condensation_Dual' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' in domain_comb and 'Epimerization' not in domain_comb and 'PCP' in domain_comb:
-        discriminant = 'Cd_A_MT_PCP'
-
-    elif 'Condensation_Dual' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' in domain_comb and 'Epimerization' not in domain_comb and 'ACP' in domain_comb:
-        discriminant = 'Cd_A_MT_PCP'
+    elif ('ACP' in domain_comb or 'PCP' in domain_comb) \
+            and 'AMP-binding' in domain_comb \
+            and 'A-OX' not in domain_comb \
+            and 'Condensation_Dual' in domain_comb \
+            and 'Epimerization' not in domain_comb:
+        if 'cMT' not in domain_comb and 'nMT' not in domain_comb:
+            discriminant = 'Cd_A_PCP' #### + epimerization
+        elif 'cMT' in domain_comb or 'nMT' in domain_comb:
+            discriminant = 'Cd_A_MT_PCP'
 
     #Glycopeptide condensation domain (O): C-domain
-    elif 'Cglyc' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and 'PCP' in domain_comb:
-        discriminant = 'Cglyc_A_PCP'
-
-    elif 'Cglyc' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and 'ACP' in domain_comb:
-        discriminant = 'Cglyc_A_PCP'
-
-    elif 'Cglyc' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and 'PCP' in domain_comb:
-        discriminant = 'Cglyc_A_MT_PCP'
-
-    elif 'Cglyc' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and 'ACP' in domain_comb:
-        discriminant = 'Cglyc_A_MT_PCP'
-
-    elif 'Cglyc' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' in domain_comb and 'Epimerization' not in domain_comb and 'PCP' in domain_comb:
-        discriminant = 'Cglyc_A_MT_PCP'
-
-    elif 'Cglyc' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' in domain_comb and 'Epimerization' not in domain_comb and 'ACP' in domain_comb:
-        discriminant = 'Cglyc_A_MT_PCP'
-
-    elif 'Cglyc' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' not in domain_comb and 'Epimerization' in domain_comb and 'PCP' in domain_comb:
-        discriminant = 'Cglyc_A_PCP_E'
-
-    elif 'Cglyc' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' not in domain_comb and 'Epimerization' in domain_comb and 'ACP' in domain_comb:
-        discriminant = 'Cglyc_A_PCP_E'
-
-    elif 'Cglyc' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' in domain_comb and 'nMT' in domain_comb and 'Epimerization' in domain_comb and 'PCP' in domain_comb:
-        discriminant = 'Cglyc_A_MT_E_PCP'
-
-    elif 'Cglyc' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' in domain_comb and 'nMT' in domain_comb and 'Epimerization' in domain_comb and 'ACP' in domain_comb:
-        discriminant = 'Cglyc_A_MT_E_PCP'
-
-    elif 'Cglyc' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' in domain_comb and 'Epimerization' in domain_comb and 'PCP' in domain_comb:
-        discriminant = 'Cglyc_A_MT_E_PCP'
- 
-    elif 'Cglyc' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' in domain_comb and 'Epimerization' in domain_comb and 'ACP' in domain_comb:
-        discriminant = 'Cglyc_A_MT_E_PCP'
+    elif ('ACP' in domain_comb or 'PCP' in domain_comb) \
+            and 'AMP-binding' in domain_comb \
+            and 'A-OX' not in domain_comb \
+            and 'Cglyc' in domain_comb:
+        if 'Epimerization' not in domain_comb:
+            if 'cMT' not in domain_comb and 'nMT' not in domain_comb:
+                discriminant = 'Cglyc_A_PCP'
+            elif 'cMT' in domain_comb or 'nMT' in domain_comb:
+                discriminant = 'Cglyc_A_MT_PCP'
+        elif 'Epimerization' in domain_comb:
+            if 'cMT' not in domain_comb and 'nMT' not in domain_comb:
+                discriminant = 'Cglyc_A_PCP_E'
+            elif 'cMT' in domain_comb or 'nMT' in domain_comb:
+                discriminant = 'Cglyc_A_MT_E_PCP'
 
     #Glycopeptide condensation domain (X): C-domain
-    elif 'CXglyc' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and 'PCP' in domain_comb:
-        discriminant = 'CXglyc_A_PCP'
-
-    elif 'CXglyc' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and 'ACP' in domain_comb:
-        discriminant = 'CXglyc_A_PCP'
-
-    elif 'CXglyc' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and 'PCP' in domain_comb:
-        discriminant = 'CXglyc_A_MT_PCP'
-
-    elif 'CXglyc' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and 'ACP' in domain_comb:
-        discriminant = 'CXglyc_A_MT_PCP'
-
-    elif 'CXglyc' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' in domain_comb and 'Epimerization' not in domain_comb and 'PCP' in domain_comb:
-        discriminant = 'CXglyc_A_MT_PCP'
-
-    elif 'CXglyc' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' in domain_comb and 'Epimerization' not in domain_comb and 'ACP' in domain_comb:
-        discriminant = 'CXglyc_A_MT_PCP'
-
-    elif 'CXglyc' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' not in domain_comb and 'Epimerization' in domain_comb and 'PCP' in domain_comb:
-        discriminant = 'CXglyc_A_PCP_E'
-
-    elif 'CXglyc' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' not in domain_comb and 'Epimerization' in domain_comb and 'ACP' in domain_comb:
-        discriminant = 'CXglyc_A_PCP_E'
-
-    elif 'CXglyc' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' in domain_comb and 'nMT' not in domain_comb and 'Epimerization' in domain_comb and 'PCP' in domain_comb:
-        discriminant = 'CXglyc_A_MT_E_PCP'
-
-    elif 'CXglyc' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' in domain_comb and 'nMT' not in domain_comb and 'Epimerization' in domain_comb and 'ACP' in domain_comb:
-        discriminant = 'CXglyc_A_MT_E_PCP'
-
-    elif 'CXglyc' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' in domain_comb and 'Epimerization' in domain_comb and 'PCP' in domain_comb:
-        discriminant = 'CXglyc_A_MT_E_PCP'
-
-    elif 'CXglyc' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' in domain_comb and 'Epimerization' in domain_comb and 'ACP' in domain_comb:
-        discriminant = 'CXglyc_A_MT_E_PCP'
+    elif ('ACP' in domain_comb or 'PCP' in domain_comb) \
+            and 'AMP-binding' in domain_comb \
+            and 'A-OX' not in domain_comb \
+            and 'CXglyc' in domain_comb:
+        if 'Epimerization' not in domain_comb:
+            if 'cMT' not in domain_comb and 'nMT' not in domain_comb:
+                discriminant = 'CXglyc_A_PCP'
+            elif 'cMT' in domain_comb or 'nMT' in domain_comb:
+                discriminant = 'CXglyc_A_MT_PCP'
+        elif 'Epimerization' in domain_comb:
+            if 'cMT' not in domain_comb and 'nMT' not in domain_comb:
+                discriminant = 'CXglyc_A_PCP_E'
+            elif 'cMT' in domain_comb or 'nMT' in domain_comb:
+                discriminant = 'CXglyc_A_MT_E_PCP'
 
     #Heterocyclization: C-domain
-    elif 'Heterocyclization' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and 'PCP' in domain_comb:
-        discriminant = 'HC_A_PCP'
+    elif ('ACP' in domain_comb or 'PCP' in domain_comb) \
+            and 'Heterocyclization' in domain_comb:
+        if 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb:
+            if 'Epimerization' not in domain_comb:
+                if 'cMT' not in domain_comb and 'nMT' not in domain_comb:
+                    discriminant = 'HC_A_PCP'
+                elif 'cMT' in domain_comb or 'nMT' in domain_comb:
+                    discriminant = 'HC_A_MT_PCP'
+            elif 'Epimerization' in domain_comb:
+                discriminant = 'HC_A_MT_E_PCP'
+        elif 'AMP-binding' not in domain_comb and 'A-OX' in domain_comb:
+            if 'Epimerization' not in domain_comb:
+                if 'cMT' not in domain_comb and 'nMT' not in domain_comb:
+                    discriminant = 'HC_Aox_PCP'
+                elif 'cMT' in domain_comb or 'nMT' in domain_comb:
+                    discriminant = 'HC_Aox_MT_PCP'
+            elif 'Epimerization' in domain_comb:
+                discriminant = 'HC_Aox_MT_E_PCP'
 
-    elif 'Heterocyclization' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and 'ACP' in domain_comb:
-        discriminant = 'HC_A_PCP'
-
-    elif 'Heterocyclization' in domain_comb and 'AMP-binding' not in domain_comb and 'A-OX' in domain_comb and 'cMT' not in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and 'PCP' in domain_comb:
-        discriminant = 'HC_Aox_PCP'
-
-    elif 'Heterocyclization' in domain_comb and 'AMP-binding' not in domain_comb and 'A-OX' in domain_comb and 'cMT' not in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and 'ACP' in domain_comb:
-        discriminant = 'HC_Aox_PCP'
-
-    elif 'Heterocyclization' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and 'PCP' in domain_comb:
-        discriminant = 'HC_A_MT_PCP'
-
-    elif 'Heterocyclization' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and 'ACP' in domain_comb:
-        discriminant = 'HC_A_MT_PCP'
-
-    elif 'Heterocyclization' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' in domain_comb and 'Epimerization' not in domain_comb and 'PCP' in domain_comb:
-        discriminant = 'HC_A_MT_PCP'
-
-    elif 'Heterocyclization' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' in domain_comb and 'Epimerization' not in domain_comb and 'ACP' in domain_comb:
-        discriminant = 'HC_A_MT_PCP'
-
-    elif 'Heterocyclization' in domain_comb and 'AMP-binding' not in domain_comb and 'A-OX' in domain_comb and 'cMT' in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and 'PCP' in domain_comb:
-        discriminant = 'HC_Aox_MT_PCP'
-
-    elif 'Heterocyclization' in domain_comb and 'AMP-binding' not in domain_comb and 'A-OX' in domain_comb and 'cMT' in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and 'ACP' in domain_comb:
-        discriminant = 'HC_Aox_MT_PCP'
-
-    elif 'Heterocyclization' in domain_comb and 'AMP-binding' not in domain_comb and 'A-OX' in domain_comb and 'cMT' not in domain_comb and 'nMT' in domain_comb and 'Epimerization' not in domain_comb and 'PCP' in domain_comb:
-        discriminant = 'HC_Aox_MT_PCP'
-
-    elif 'Heterocyclization' in domain_comb and 'AMP-binding' not in domain_comb and 'A-OX' in domain_comb and 'cMT' not in domain_comb and 'nMT' in domain_comb and 'Epimerization' not in domain_comb and 'ACP' in domain_comb:
-        discriminant = 'HC_Aox_MT_PCP'
-
-    elif 'Heterocyclization' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' in domain_comb and 'nMT' not in domain_comb and 'Epimerization' in domain_comb and 'PCP' in domain_comb:
-        discriminant = 'HC_A_MT_E_PCP'
-
-    elif 'Heterocyclization' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' in domain_comb and 'nMT' not in domain_comb and 'Epimerization' in domain_comb and 'ACP' in domain_comb:
-        discriminant = 'HC_A_MT_E_PCP'
-
-    elif 'Heterocyclization' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' in domain_comb and 'Epimerization' in domain_comb and 'PCP' in domain_comb:
-        discriminant = 'HC_A_MT_E_PCP'
-
-    elif 'Heterocyclization' in domain_comb and 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' in domain_comb and 'Epimerization' in domain_comb and 'ACP' in domain_comb:
-        discriminant = 'HC_A_MT_E_PCP'
-
-    elif 'Heterocyclization' in domain_comb and 'AMP-binding' not in domain_comb and 'A-OX' in domain_comb and 'cMT' in domain_comb and 'nMT' not in domain_comb and 'Epimerization' in domain_comb and 'PCP' in domain_comb:
-        discriminant = 'HC_Aox_MT_E_PCP'
-
-    elif 'Heterocyclization' in domain_comb and 'AMP-binding' not in domain_comb and 'A-OX' in domain_comb and 'cMT' in domain_comb and 'nMT' not in domain_comb and 'Epimerization' in domain_comb and 'ACP' in domain_comb:
-        discriminant = 'HC_Aox_MT_E_PCP'
-
-    elif 'Heterocyclization' in domain_comb and 'AMP-binding' not in domain_comb and 'A-OX' in domain_comb and 'cMT' not in domain_comb and 'nMT' in domain_comb and 'Epimerization' in domain_comb and 'PCP' in domain_comb:
-        discriminant = 'HC_Aox_MT_E_PCP'
-
-    elif 'Heterocyclization' in domain_comb and 'AMP-binding' not in domain_comb and 'A-OX' in domain_comb and 'cMT' not in domain_comb and 'nMT' in domain_comb and 'Epimerization' in domain_comb and 'ACP' in domain_comb:
-        discriminant = 'HC_Aox_MT_E_PCP'
-
+    #Terminal reductase domain: terminal domain
+    elif 'ACP' not in domain_comb and 'PCP' not in domain_comb \
+            and 'AMP-binding' not in domain_comb \
+            and 'A-OX' not in domain_comb \
+            and 'Condensation' not in domain_comb \
+            and 'Condensation_Starter' not in domain_comb \
+            and 'Condensation_DCL' not in domain_comb \
+            and 'Condensation_LCL' not in domain_comb \
+            and 'Condensation_Dual' not in domain_comb \
+            and 'Cglyc' not in domain_comb \
+            and 'CXglyc' not in domain_comb \
+            and 'Epimerization' not in domain_comb \
+            and 'Heterocyclization' not in domain_comb \
+            and 'cMT' not in domain_comb \
+            and 'nMT' not in domain_comb \
+            and 'TD' in domain_comb:
+        discriminant = 'TD'
 
     #Starter units
-    elif 'PKS_AT' in domain_comb and 'PKS_KS' not in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb) and 'PKS_KR' not in domain_comb and 'PKS_DH' not in domain_comb and 'PKS_ER' not in domain_comb and 'cMT' not in domain_comb:
-        discriminant = 'AT_ACP'
-
-    elif 'PKS_AT' in domain_comb and 'PKS_KS' not in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb) and 'PKS_KR' in domain_comb and 'PKS_DH' not in domain_comb and 'PKS_ER' not in domain_comb and 'cMT' not in domain_comb:
-        discriminant = 'AT_KR_ACP'
-
-    elif 'PKS_AT' in domain_comb and 'PKS_KS' not in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb) and 'PKS_KR' in domain_comb and 'PKS_DH' in domain_comb and 'PKS_ER' not in domain_comb and 'cMT' not in domain_comb:
-        discriminant = 'AT_DH_KR_ACP'
-
-    elif 'PKS_AT' in domain_comb and 'PKS_KS' not in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb) and 'PKS_KR' in domain_comb and 'PKS_DH' in domain_comb and 'PKS_ER' in domain_comb and 'cMT' not in domain_comb:
-        discriminant = 'AT_DH_ER_KR_ACP'
+    elif ('ACP' in domain_comb or 'PCP' in domain_comb) \
+            and 'PKS_AT' in domain_comb \
+            and 'PKS_KS' not in domain_comb \
+            and 'cMT' not in domain_comb:
+        if 'PKS_KR' not in domain_comb:
+            if 'PKS_DH' not in domain_comb and 'PKS_ER' not in domain_comb:
+                discriminant = 'AT_ACP'
+        elif 'PKS_KR' in domain_comb:
+            if 'PKS_DH' not in domain_comb:
+                if 'PKS_ER' not in domain_comb:
+                    discriminant = 'AT_KR_ACP'
+            elif 'PKS_DH' in domain_comb:
+                if 'PKS_ER' not in domain_comb:
+                    discriminant = 'AT_DH_KR_ACP'
+                if 'PKS_ER' in domain_comb:
+                    discriminant = 'AT_DH_ER_KR_ACP'
 
     #Exceptional cases
-    elif 'PKS_AT' in domain_comb and 'PKS_KS' not in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb) and 'PKS_KR' in domain_comb and 'PKS_DH' not in domain_comb and 'PKS_ER' in domain_comb and 'cMT' not in domain_comb:
-        discriminant = 'AT_ER_KR_ACP'
-
-    elif 'PKS_AT' not in domain_comb and 'PKS_KS' not in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb) and 'PKS_KR' not in domain_comb and 'PKS_DH' not in domain_comb and 'PKS_ER' not in domain_comb and 'cMT' not in domain_comb:
+    # Following cases cannot be further reduced with if statements
+    elif ('ACP' in domain_comb or 'PCP' in domain_comb) \
+            and 'PKS_AT' not in domain_comb \
+            and 'PKS_KS' not in domain_comb \
+            and 'PKS_KR' not in domain_comb \
+            and 'PKS_DH' not in domain_comb \
+            and 'PKS_ER' not in domain_comb \
+            and 'cMT' not in domain_comb:
         discriminant = 'ACP'
 
+    elif ('ACP' in domain_comb or 'PCP' in domain_comb) \
+            and 'PKS_AT' in domain_comb \
+            and 'PKS_KS' not in domain_comb \
+            and 'PKS_KR' in domain_comb \
+            and 'PKS_DH' not in domain_comb \
+            and 'PKS_ER' in domain_comb \
+            and 'cMT' not in domain_comb:
+        discriminant = 'AT_ER_KR_ACP'
+
     #Extension units
-    elif 'PKS_AT' in domain_comb and 'PKS_KS' in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb) and 'PKS_KR' not in domain_comb and 'PKS_DH' not in domain_comb and 'PKS_ER' not in domain_comb and 'cMT' not in domain_comb:
+    # Following cases cannot be further reduced with if statements
+    elif ('ACP' in domain_comb or 'PCP' in domain_comb) \
+            and 'PKS_AT' in domain_comb \
+            and 'PKS_KS' in domain_comb \
+            and  'PKS_KR' not in domain_comb \
+            and 'PKS_DH' not in domain_comb \
+            and 'PKS_ER' not in domain_comb \
+            and 'cMT' not in domain_comb:
         discriminant = 'AT_KS_ACP'
-
-    elif 'PKS_AT' in domain_comb and 'PKS_KS' in domain_comb and 'PCP' not in domain_comb and 'ACP' not in domain_comb and 'PKS_KR' not in domain_comb and 'PKS_DH' not in domain_comb and 'PKS_ER' not in domain_comb and 'cMT' not in domain_comb:
-        discriminant = 'AT_KS'
-
-    elif 'PKS_AT' in domain_comb and 'PKS_KS' in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb) and 'PKS_KR' in domain_comb and 'PKS_DH' not in domain_comb and 'PKS_ER' not in domain_comb and 'cMT' not in domain_comb:
+    elif ('ACP' in domain_comb or 'PCP' in domain_comb) \
+            and 'PKS_AT' in domain_comb \
+            and 'PKS_KS' in domain_comb \
+            and 'PKS_KR' in domain_comb \
+            and 'PKS_DH' not in domain_comb \
+            and 'PKS_ER' not in domain_comb \
+            and 'cMT' not in domain_comb:
         discriminant = 'AT_KS_KR_ACP'
-
-    elif 'PKS_AT' in domain_comb and 'PKS_KS' in domain_comb and 'PCP' not in domain_comb and 'ACP' not in domain_comb and 'PKS_KR' in domain_comb and 'PKS_DH' not in domain_comb and 'PKS_ER' not in domain_comb and 'cMT' not in domain_comb:
-        discriminant = 'AT_KS_KR'
-
-    elif 'PKS_AT' in domain_comb and 'PKS_KS' in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb) and 'PKS_KR' in domain_comb and 'PKS_DH' in domain_comb and 'PKS_ER' not in domain_comb and 'cMT' not in domain_comb:
+    elif ('ACP' in domain_comb or 'PCP' in domain_comb) \
+            and 'PKS_AT' in domain_comb \
+            and 'PKS_KS' in domain_comb \
+            and 'PKS_KR' in domain_comb \
+            and 'PKS_DH' in domain_comb \
+            and 'PKS_ER' not in domain_comb \
+            and 'cMT' not in domain_comb:
         discriminant = 'AT_KS_DH_KR_ACP'
-
-    elif 'PKS_AT' in domain_comb and 'PKS_KS' in domain_comb and 'PCP' not in domain_comb and 'ACP' not in domain_comb and 'PKS_KR' in domain_comb and 'PKS_DH' in domain_comb and 'PKS_ER' not in domain_comb and 'cMT' not in domain_comb:
-        discriminant = 'AT_KS_DH_KR'
-
-    elif 'PKS_AT' in domain_comb and 'PKS_KS' in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb) and 'PKS_KR' in domain_comb and 'PKS_DH' in domain_comb and 'PKS_ER' in domain_comb and 'cMT' not in domain_comb:
+    elif ('ACP' in domain_comb or 'PCP' in domain_comb) \
+            and 'PKS_AT' in domain_comb \
+            and 'PKS_KS' in domain_comb \
+            and 'PKS_KR' in domain_comb \
+            and 'PKS_DH' in domain_comb \
+            and 'PKS_ER' in domain_comb \
+            and 'cMT' not in domain_comb:
         discriminant = 'AT_KS_DH_ER_KR_ACP'
 
-    elif 'PKS_AT' in domain_comb and 'PKS_KS' in domain_comb and 'PCP' not in domain_comb and 'ACP' not in domain_comb and 'PKS_KR' in domain_comb and 'PKS_DH' in domain_comb and 'PKS_ER' in domain_comb and 'cMT' not in domain_comb:
+    elif 'ACP' not in domain_comb \
+            and 'PCP' not in domain_comb \
+            and 'PKS_AT' in domain_comb \
+            and 'PKS_KS' in domain_comb \
+            and 'PKS_KR' not in domain_comb \
+            and 'PKS_DH' not in domain_comb \
+            and 'PKS_ER' not in domain_comb \
+            and 'cMT' not in domain_comb:
+        discriminant = 'AT_KS'
+    elif 'ACP' not in domain_comb \
+            and 'PCP' not in domain_comb \
+            and 'PKS_AT' in domain_comb \
+            and 'PKS_KS' in domain_comb \
+            and 'PKS_KR' in domain_comb \
+            and 'PKS_DH' not in domain_comb \
+            and 'PKS_ER' not in domain_comb \
+            and 'cMT' not in domain_comb:
+        discriminant = 'AT_KS_KR'
+    elif 'ACP' not in domain_comb \
+            and 'PCP' not in domain_comb \
+            and 'PKS_AT' in domain_comb \
+            and 'PKS_KS' in domain_comb \
+            and 'PKS_KR' in domain_comb \
+            and 'PKS_DH' in domain_comb \
+            and 'PKS_ER' not in domain_comb \
+            and 'cMT' not in domain_comb:
+        discriminant = 'AT_KS_DH_KR'
+    elif 'ACP' not in domain_comb \
+            and 'PCP' not in domain_comb \
+            and 'PKS_AT' in domain_comb \
+            and 'PKS_KS' in domain_comb \
+            and 'PKS_KR' in domain_comb \
+            and 'PKS_DH' in domain_comb \
+            and 'PKS_ER' in domain_comb \
+            and 'cMT' not in domain_comb:
         discriminant = 'AT_KS_DH_ER_KR'
 
     #Exeptional cases
-    elif 'PKS_AT' in domain_comb and 'PKS_KS' in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb) and 'PKS_KR' in domain_comb and 'PKS_DH' not in domain_comb and 'PKS_ER' in domain_comb and 'cMT' not in domain_comb:
-        discriminant = 'AT_KS_ER_KR_ACP'
-
-    elif 'PKS_AT' in domain_comb and 'PKS_KS' in domain_comb and 'PCP' not in domain_comb and 'ACP' not in domain_comb and 'PKS_KR' in domain_comb and 'PKS_DH' not in domain_comb and 'PKS_ER' in domain_comb and 'cMT' not in domain_comb:
-        discriminant = 'AT_KS_ER_KR'
+    elif 'PKS_AT' in domain_comb \
+            and 'PKS_KS' in domain_comb \
+            and 'PKS_KR' in domain_comb \
+            and 'PKS_DH' not in domain_comb \
+            and'PKS_ER' in domain_comb \
+            and 'cMT' not in domain_comb:
+        if 'PCP' not in domain_comb and 'ACP' not in domain_comb:
+            discriminant = 'AT_KS_ER_KR'
+        elif ('PCP' in domain_comb or 'ACP' in domain_comb):
+            discriminant = 'AT_KS_ER_KR_ACP'
 
     #Methytransferase
-    elif 'PKS_AT' in domain_comb and 'PKS_KS' in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb) and 'PKS_KR' not in domain_comb and 'PKS_DH' not in domain_comb and 'PKS_ER' not in domain_comb and 'cMT' in domain_comb:
-        discriminant = 'AT_KS_cMT_ACP'
+    elif 'PKS_AT' in domain_comb \
+            and 'PKS_KS' in domain_comb \
+            and 'cMT' in domain_comb:
+        if 'PCP' not in domain_comb and 'ACP' not in domain_comb:
+            if 'PKS_KR' not in domain_comb:
+                if 'PKS_DH' not in domain_comb and 'PKS_ER' not in domain_comb:
+                    discriminant = 'AT_KS_cMT'
+            elif 'PKS_KR' in domain_comb:
+                if 'PKS_DH' not in domain_comb:
+                    if 'PKS_ER' not in domain_comb:
+                        discriminant = 'AT_KS_KR_cMT'
+                elif 'PKS_DH' in domain_comb and 'PKS_ER' not in domain_comb:
+                    discriminant = 'AT_KS_DH_KR_cMT'
+                elif 'PKS_DH' in domain_comb and 'PKS_ER' in domain_comb:
+                    discriminant = 'AT_KS_DH_KR_cMT_ER'
+        elif ('PCP' in domain_comb or 'ACP' in domain_comb):
+            if 'PKS_KR' not in domain_comb:
+                if 'PKS_DH' not in domain_comb and 'PKS_ER' not in domain_comb:
+                    discriminant = 'AT_KS_cMT_ACP'
+            if 'PKS_KR' in domain_comb:
+                if 'PKS_DH' not in domain_comb and 'PKS_ER' not in domain_comb:
+                    discriminant = 'AT_KS_KR_cMT_ACP'
+                elif 'PKS_DH' in domain_comb and 'PKS_ER' not in domain_comb:
+                    discriminant = 'AT_KS_DH_KR_cMT_ACP'
+                elif 'PKS_DH' in domain_comb and 'PKS_ER' in domain_comb:
+                    discriminant = 'AT_KS_DH_KR_cMT_ER_ACP'
 
-    elif 'PKS_AT' in domain_comb and 'PKS_KS' in domain_comb and 'PCP' not in domain_comb and 'ACP' not in domain_comb and 'PKS_KR' not in domain_comb and 'PKS_DH' not in domain_comb and 'PKS_ER' not in domain_comb and 'cMT' in domain_comb:
-        discriminant = 'AT_KS_cMT'
-
-    elif 'PKS_AT' in domain_comb and 'PKS_KS' in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb) and 'PKS_KR' in domain_comb and 'PKS_DH' not in domain_comb and 'PKS_ER' not in domain_comb and 'cMT' in domain_comb:
-        discriminant = 'AT_KS_KR_cMT_ACP'
-
-    elif 'PKS_AT' in domain_comb and 'PKS_KS' in domain_comb and 'PCP' not in domain_comb and 'ACP' not in domain_comb and 'PKS_KR' in domain_comb and 'PKS_DH' not in domain_comb and 'PKS_ER' not in domain_comb and 'cMT' in domain_comb:
-        discriminant = 'AT_KS_KR_cMT'
-
-    elif 'PKS_AT' in domain_comb and 'PKS_KS' in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb) and 'PKS_KR' in domain_comb and 'PKS_DH' in domain_comb and 'PKS_ER' not in domain_comb and 'cMT' in domain_comb:
-        discriminant = 'AT_KS_DH_KR_cMT_ACP'
-
-    elif 'PKS_AT' in domain_comb and 'PKS_KS' in domain_comb and 'PCP' not in domain_comb and 'ACP' not in domain_comb and 'PKS_KR' in domain_comb and 'PKS_DH' in domain_comb and 'PKS_ER' not in domain_comb and 'cMT' in domain_comb:
-        discriminant = 'AT_KS_DH_KR_cMT'
-
-    elif 'PKS_AT' in domain_comb and 'PKS_KS' in domain_comb and ('PCP' in domain_comb or 'ACP' in domain_comb) and 'PKS_KR' in domain_comb and 'PKS_DH' in domain_comb and 'PKS_ER' in domain_comb and 'cMT' in domain_comb:
-        discriminant = 'AT_KS_DH_KR_cMT_ER_ACP'
-
-    elif 'PKS_AT' in domain_comb and 'PKS_KS' in domain_comb and 'PCP' not in domain_comb and 'ACP' not in domain_comb and 'PKS_KR' in domain_comb and 'PKS_DH' in domain_comb and 'PKS_ER' in domain_comb and 'cMT' in domain_comb:
-        discriminant = 'AT_KS_DH_KR_cMT_ER'
-
-    #Terminal reductase domain: terminal domain
-    elif 'TD' in domain_comb and 'Condensation_Starter' not in domain_comb and 'Condensation' not in domain_comb and 'Condensation_DCL' not in domain_comb and 'Condensation_LCL' not in domain_comb and 'Condensation_Dual' not in domain_comb and 'Cglyc' not in domain_comb and 'CXglyc' not in domain_comb and 'Heterocyclization' not in domain_comb and 'AMP-binding' not in domain_comb and 'A-OX' not in domain_comb and 'cMT' not in domain_comb and 'nMT' not in domain_comb and 'Epimerization' not in domain_comb and 'PCP' not in domain_comb and 'ACP' not in domain_comb:
-        discriminant = 'TD'
 
     else:
         discriminant = 'None'
-
+    print 'check1', each_module
+    print 'check2', domain_comb
+    print 'check3', discriminant
     return discriminant
 
 
