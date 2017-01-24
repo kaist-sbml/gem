@@ -12,7 +12,7 @@ from cobra import Model, Reaction, Metabolite
 from cobra.io.sbml import create_cobra_model_from_sbml_file, write_cobra_model_to_sbml_file
 from general_sec_met_info import (
     get_module_struct,
-    determine_kr_activity,
+    get_kr_activity,
     get_module_currency_metab_dict,
     get_biggid_from_aSid,
     get_metab_coeff_dict,
@@ -33,7 +33,6 @@ def get_cluster_location(cluster_nr, options):
                 options.cluster_loc2 = feature.location.end
 
 #Exract all the information associated with a particular locus_tag for the selected cluster
-#def get_locustag_info_from_cluster_gbk(gbkFile, FileType, locustag_product_monomer_dict):
 def get_cluster_info_from_seq_record(options):
 
     cluster_info_dict = {}
@@ -49,8 +48,7 @@ def get_cluster_info_from_seq_record(options):
 
                     cluster_info_dict[qualifier_locus_tag] = sec_met_info_list
 
-    #print 'cluster_info_dict'
-    #print cluster_info_dict, '\n'
+    logging.debug('cluster_info_dict: %s' %cluster_info_dict)
     options.cluster_info_dict = cluster_info_dict
 
 
@@ -131,8 +129,7 @@ def get_cluster_domain(options):
         locustag_domain_dict[each_gene] = sec_met_domain_list
         locustag_kr_dict[each_gene] = kr_domain_info_dict
 
-    #print 'locustag_domain_dict'
-    #print locustag_domain_dict, '\n'
+    logging.debug('locustag_domain_dict: %s' %locustag_domain_dict)
     options.locustag_domain_dict = locustag_domain_dict
     options.locustag_kr_dict = locustag_kr_dict
 
@@ -148,21 +145,26 @@ def get_cluster_monomers(options):
 
         for each_sub_set in sec_met_info_list:
             discriminator = "true"
-            if "Substrate specificity predictions" in each_sub_set and "AMP-binding" in each_sub_set:
-                pred_monomer_list, discriminator = extract_nrp_monomers(each_sub_set, discriminator)
+            if "Substrate specificity predictions" in each_sub_set \
+                    and "AMP-binding" in each_sub_set:
+                pred_monomer_list, discriminator = extract_nrp_monomers(
+                        each_sub_set, discriminator)
                 module_number = each_gene + '_M' + str(module_count)
                 locustag_monomer_dict[module_number] = pred_monomer_list
                 module_count += 1
                 #print "check", module_number, pred_monomer_list
 
-            if "Substrate specificity predictions" in each_sub_set and "A-OX" in each_sub_set:
-                pred_monomer_list, discriminator = extract_nrp_monomers(each_sub_set, discriminator)
+            if "Substrate specificity predictions" in each_sub_set \
+                    and "A-OX" in each_sub_set:
+                pred_monomer_list, discriminator = extract_nrp_monomers(
+                        each_sub_set, discriminator)
                 module_number = each_gene + '_M' + str(module_count)
                 locustag_monomer_dict[module_number] = pred_monomer_list
                 module_count += 1
                 #print "check", module_number, pred_monomer_list
 
-            if "Substrate specificity predictions" in each_sub_set and "PKS_AT" in each_sub_set:
+            if "Substrate specificity predictions" in each_sub_set \
+                    and "PKS_AT" in each_sub_set:
                 pred_monomer_list = extract_pk_monomers(each_sub_set)
                 module_number = each_gene + '_M' + str(module_count)
                 locustag_monomer_dict[module_number] = pred_monomer_list
@@ -231,28 +233,25 @@ def get_cluster_module(options):
 
         count = 0
         module_info_list = []
-        module_info_trunc_list = []
-        number_of_list = len(options.locustag_domain_dict[locustag])
+        total_number_domain = len(options.locustag_domain_dict[locustag])
 
         for each_domain in options.locustag_domain_dict[locustag]:
-            domain_name = each_domain[:-5]
             module_info_list.append(each_domain)
-            module_info_trunc_list.append(domain_name)
-            number_of_list -= 1
+            total_number_domain -= 1
 
-            #Check final domain of a module: core domain
-            if domain_name == 'PCP' or domain_name == 'ACP':
+            # Check final domain of a module: core domain
+            if 'PCP' in each_domain or 'ACP' in each_domain:
                 module_number = get_locustag_module_number(locustag, count)
                 locustag_module_domain_dict[module_number] = module_info_list
 
                 module_info_list = []
-                module_info_trunc_list = []
                 count += 1
 
-            #Check final domain of a module: optional domain
-            #Presence of 'PCP' was considered in case Epimerization appears first before 'PCP'
-            #e.g., 'M271_46685' in cluster 46 of 'src' (KEGG organism code)
-            elif domain_name == 'Epimerization' and 'PCP' in module_info_list:
+            # Check final domain of a module: optional domain
+            # Presence of 'PCP' was considered in case Epimerization appears first
+            #before 'PCP'
+            # e.g., 'M271_46685' in cluster 46 of 'src' (KEGG organism code)
+            elif 'Epimerization' in each_domain and 'PCP' in module_info_list:
                 count -= 1
 
                 module_number = get_locustag_module_number(locustag, count)
@@ -261,11 +260,13 @@ def get_cluster_module(options):
                 locustag_module_domain_dict[module_number] = module_info_list
 
                 module_info_list = []
-                module_info_trunc_list = []
                 count += 1
 
-            #Check final domain of a module: linker domain
-            elif domain_name == 'PKS_Docking_Cterm' and 'ACP' in options.locustag_domain_dict[locustag]:
+            # Check final domain of a module: linker domain
+            # Modules exist where the final domain is 'PKS_Docking_Cterm'
+            # 'PKS_Docking_Nterm'' is only for the starting domain
+            elif 'PKS_Docking_Cterm' in each_domain \
+                    and 'ACP' in options.locustag_domain_dict[locustag]:
                 count -= 1
                 module_number = locustag + '_M' + str(count)
                 module_info_list = locustag_module_domain_dict[module_number]
@@ -273,41 +274,46 @@ def get_cluster_module(options):
                 locustag_module_domain_dict[module_number] = module_info_list
 
                 module_info_list = []
-                module_info_trunc_list = []
                 count += 1
 
-            #Check final domain of a module: final point of the carbon scaffold
-            #'ACP' was inserted, otherwise it causes an error
+            # Check final domain of a module: final point of the carbon scaffold
+            # 'ACP' was inserted, otherwise it causes an error
             #by having a locus_tag with unspecified monomer
-            elif domain_name == 'Thioesterase' and 'ACP' in options.locustag_domain_dict[locustag]:
+            elif 'Thioesterase' in each_domain\
+                    and 'ACP' in options.locustag_domain_dict[locustag]:
                 count -= 1
                 module_number = get_locustag_module_number(locustag, count)
                 module_info_list = locustag_module_domain_dict[module_number]
                 module_info_list.append(str(each_domain))
                 locustag_module_domain_dict[module_number] = module_info_list
 
-            elif module_info_list.count('PKS_KS') == 2 or module_info_list.count('Condensation') == 2 or module_info_list.count('Condensation_DCL') == 2 or module_info_list.count('Condensation_LCL') == 2 or module_info_list.count('Condensation_LCL') + module_info_list.count('Condensation_DCL') == 2 or module_info_list.count('Condensation_Dual') == 2 or module_info_list.count('Cglyc') == 2 or module_info_list.count('CXglyc') == 2 or module_info_list.count('Heterocyclization') == 2:
+            #TODO: do final check and remove the lines
+#            elif module_info_list.count('PKS_KS') == 2 \
+#                    or module_info_list.count('Condensation') == 2 \
+#                    or module_info_list.count('Condensation_DCL') == 2 \
+#                    or module_info_list.count('Condensation_LCL') == 2 \
+#                    or module_info_list.count('Condensation_LCL') + module_info_list.count('Condensation_DCL') == 2 \
+#                    or module_info_list.count('Condensation_Dual') == 2 \
+#                    or module_info_list.count('Cglyc') == 2 \
+#                    or module_info_list.count('CXglyc') == 2 \
+#                    or module_info_list.count('Heterocyclization') == 2:
+#                module_number = get_locustag_module_number(locustag, count)
+#                poped_domain = module_info_list.pop()
+#                locustag_module_domain_dict[module_number] = module_info_list
+
+#                module_info_list = []
+#                module_info_list.append(poped_domain)
+#                count += 1
+
+            # Necessary for final domain of a module other than those stated above
+            elif float(total_number_domain) == 0:
                 module_number = get_locustag_module_number(locustag, count)
-                poped_domain = module_info_list.pop()
-                abbr_poped_domain = module_info_trunc_list.pop()
                 locustag_module_domain_dict[module_number] = module_info_list
 
                 module_info_list = []
-                module_info_trunc_list = []
-                module_info_list.append(poped_domain)
-                module_info_trunc_list.append(abbr_poped_domain)
                 count += 1
 
-            elif float(number_of_list) == 0:
-                module_number = get_locustag_module_number(locustag, count)
-                locustag_module_domain_dict[module_number] = module_info_list
-
-                module_info_list = []
-                module_info_trunc_list = []
-                count += 1
-
-    #print 'locustag_module_domain_dict'
-    #print locustag_module_domain_dict, '\n'
+    logging.debug('locustag_module_domain_dict: %s' %locustag_module_domain_dict)
     options.locustag_module_domain_dict = locustag_module_domain_dict
 
 
@@ -325,9 +331,11 @@ def get_currency_metabolites(options):
 
     module_currency_metab_dict = {}
 
-    for each_module in options.locustag_module_domain_dict:
-        each_locustag = each_module[:-4]
-        domain_comb = options.locustag_module_domain_dict[each_module]
+    for locustag_moduleNumber in options.locustag_module_domain_dict.keys():
+        logging.debug('locustag_moduleNumber: %s' %locustag_moduleNumber)
+
+        each_locustag = locustag_moduleNumber[:-4]
+        domain_comb = options.locustag_module_domain_dict[locustag_moduleNumber]
 
         each_module_substrates = {}
         domain_trunc_list = []
@@ -336,20 +344,24 @@ def get_currency_metabolites(options):
             abbr_domain = each_domain[:-5]
             domain_trunc_list.append(abbr_domain)
 
-        discriminant = get_module_struct(domain_trunc_list, each_module)
-        f_discriminant = determine_kr_activity(each_locustag, domain_comb, options.locustag_kr_dict, discriminant)
+        module_struct = get_module_struct(domain_trunc_list)
+        module_struct_kr = get_kr_activity(
+                each_locustag, domain_comb, options.locustag_kr_dict, module_struct)
 
-        if f_discriminant == 'None':
+        #TODO: Check these if statements and remove if necessary
+        if module_struct_kr == 'None':
             continue
 
-        elif f_discriminant == 'ACP':
+        elif module_struct_kr == 'ACP':
             continue
 
-        elif f_discriminant == 'PCP':
+        elif module_struct_kr == 'PCP':
             continue
 
         else:
-            module_currency_metab_dict = get_module_currency_metab_dict(f_discriminant, each_module, each_module_substrates, module_currency_metab_dict)
+            module_currency_metab_dict = get_module_currency_metab_dict(
+                    module_struct_kr, locustag_moduleNumber,
+                    each_module_substrates, module_currency_metab_dict)
 
     #print "module_currency_metab_dict"
     #print module_currency_metab_dict, '\n'
@@ -400,21 +412,35 @@ def get_all_metab_coeff(options):
                 #Not considered: e.g., NRPSPredictor2 SVM: val,leu,ile,abu,iva
                 #Checked by ',' in aSid_met2
                 aSid_met2 = options.locustag_monomer_dict[each_module][0]
-                if aSid_met2 != 'hydrophobic-aliphatic' and aSid_met2 != 'hydrophilic' and aSid_met2 != 'hydrophobic-aromatic' and aSid_met2 != 'N/A' and ',' not in aSid_met2:
+                if aSid_met2 != 'hydrophobic-aliphatic' \
+                        and aSid_met2 != 'hydrophilic' \
+                        and aSid_met2 != 'hydrophobic-aromatic' \
+                        and aSid_met2 != 'N/A' \
+                        and ',' not in aSid_met2:
                     biggid_met2 = get_biggid_from_aSid(aSid_met2)
 
                     #In case of non-consensus, NRPSPredictor2 SVM is considered
                     metab_coeff_dict[biggid_met2] -= 1
 
-                elif aSid_met2 == 'hydrophobic-aliphatic' or aSid_met2 == 'hydrophilic' or aSid_met2 == 'hydrophobic-aromatic' or aSid_met2 == 'N/A' or ',' in aSid_met2:
+                elif aSid_met2 == 'hydrophobic-aliphatic' \
+                        or aSid_met2 == 'hydrophilic' \
+                        or aSid_met2 == 'hydrophobic-aromatic' \
+                        or aSid_met2 == 'N/A' \
+                        or ',' in aSid_met2:
                     #If NRPSPredictor2 SVM has invalid monomer, then Minowa is considered
                     aSid_met4 = options.locustag_monomer_dict[each_module][2]
-                    if aSid_met4 != 'hydrophobic-aliphatic' and aSid_met4 != 'hydrophilic' and aSid_met4 != 'hydrophobic-aromatic' and aSid_met4 != 'N/A':
+                    if aSid_met4 != 'hydrophobic-aliphatic' \
+                            and aSid_met4 != 'hydrophilic' \
+                            and aSid_met4 != 'hydrophobic-aromatic' \
+                            and aSid_met4 != 'N/A':
                         biggid_met4 = get_biggid_from_aSid(aSid_met4)
                         metab_coeff_dict[biggid_met4] -= 1
 
                     #If Minowa has invalid monomer, then Stachelhaus code is considered
-                    elif aSid_met4 == 'hydrophobic-aliphatic' or aSid_met4 == 'hydrophilic' or aSid_met4 == 'hydrophobic-aromatic' or aSid_met4 == 'N/A':
+                    elif aSid_met4 == 'hydrophobic-aliphatic' \
+                            or aSid_met4 == 'hydrophilic' \
+                            or aSid_met4 == 'hydrophobic-aromatic' \
+                            or aSid_met4 == 'N/A':
                         aSid_met3 = options.locustag_monomer_dict[each_module][1]
                         biggid_met3 = get_biggid_from_aSid(aSid_met3)
                         metab_coeff_dict[biggid_met3] -= 1
@@ -461,11 +487,14 @@ def get_all_metab_coeff(options):
                 #Original monomers are considered for those reduced by KR, DH and/or ER
                 if aSid_met8 == 'ohmal' or aSid_met8 == 'ccmal' or aSid_met8 == 'redmal':
                     aSid_met8 = 'mal'
-                elif aSid_met8 == 'ohmmal' or aSid_met8 == 'ccmmal' or aSid_met8 == 'redmmal':
+                elif aSid_met8 == 'ohmmal' or aSid_met8 == 'ccmmal' \
+                        or aSid_met8 == 'redmmal':
                     aSid_met8 = 'mmal'
-                elif aSid_met8 == 'ohmxmal' or aSid_met8 == 'ccmxmal' or aSid_met8 == 'redmxmal':
+                elif aSid_met8 == 'ohmxmal' or aSid_met8 == 'ccmxmal' \
+                        or aSid_met8 == 'redmxmal':
                     aSid_met8 = 'mxmal'
-                elif aSid_met8 == 'ohemal' or aSid_met8 == 'ccemal' or aSid_met8 == 'redemal':
+                elif aSid_met8 == 'ohemal' or aSid_met8 == 'ccemal' \
+                        or aSid_met8 == 'redemal':
                     aSid_met8 = 'emal'
 
                 biggid_met8 = get_biggid_from_aSid(aSid_met8)
@@ -637,7 +666,20 @@ def get_monomers_nonprod_sec_met(options):
 
     for metab in options.metab_coeff_dict.keys():
         #Exclude currency metabolites
-        if options.metab_coeff_dict[metab] <0 and metab != 'atp' and metab != 'amp' and metab != 'ppi' and metab != 'amet' and metab != 'ahcys' and metab != 'fmn' and metab != 'fmnh2' and metab != 'nadp' and metab != 'nadph' and metab != 'h' and metab != 'h2o' and metab != 'hco3' and metab != 'coa':
+        if options.metab_coeff_dict[metab] <0 \
+                and metab != 'atp' \
+                and metab != 'amp' \
+                and metab != 'ppi' \
+                and metab != 'amet' \
+                and metab != 'ahcys' \
+                and metab != 'fmn' \
+                and metab != 'fmnh2' \
+                and metab != 'nadp' \
+                and metab != 'nadph' \
+                and metab != 'h' \
+                and metab != 'h2o' \
+                and metab != 'hco3' \
+                and metab != 'coa':
             nonprod_sec_met_metab_list.append(metab)
 
     return nonprod_sec_met_metab_list
@@ -649,7 +691,20 @@ def get_monomers_prod_sec_met(options):
 
     for metab in options.metab_coeff_dict.keys():
         #Exclude currency metabolites
-        if options.metab_coeff_dict[metab] <0 and metab != 'atp' and metab != 'amp' and metab != 'ppi' and metab != 'amet' and metab != 'ahcys' and metab != 'fmn' and metab != 'fmnh2' and metab != 'nadp' and metab != 'nadph' and metab != 'h' and metab != 'h2o' and metab != 'hco3' and metab != 'coa':
+        if options.metab_coeff_dict[metab] <0 \
+                and metab != 'atp' \
+                and metab != 'amp' \
+                and metab != 'ppi' \
+                and metab != 'amet' \
+                and metab != 'ahcys' \
+                and metab != 'fmn' \
+                and metab != 'fmnh2' \
+                and metab != 'nadp' \
+                and metab != 'nadph' \
+                and metab != 'h' \
+                and metab != 'h2o' \
+                and metab != 'hco3' \
+                and metab != 'coa':
             prod_sec_met_metab_list.append(metab)
 
     return prod_sec_met_metab_list

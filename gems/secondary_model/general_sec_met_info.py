@@ -2,9 +2,10 @@
 #Copyright 2014-2016 BioInformatics Research Center, KAIST
 #Copyright 2014-2016 Novo Nordisk Foundation Center for Biosustainability, DTU
 
+import logging
 from cobra import Metabolite
 
-def get_module_struct(domain_comb, each_module):
+def get_module_struct(domain_comb):
 #TODO: category these lines according to core and optional domains
 ## domain information(nrps) :
 ## Condensation    Condensation domain
@@ -50,7 +51,7 @@ def get_module_struct(domain_comb, each_module):
             and 'cMT' not in domain_comb \
             and 'nMT' not in domain_comb \
             and 'PCP' not in domain_comb:
-        discriminant = 'A'
+        module_struct = 'A'
 
     #Starter unit_AMP-binding+PCP
     # Following combination applies to all cases
@@ -67,9 +68,9 @@ def get_module_struct(domain_comb, each_module):
             and 'Epimerization' not in domain_comb \
             and 'Heterocyclization' not in domain_comb:
         if 'cMT' not in domain_comb and 'nMT' not in domain_comb:
-            discriminant = 'A_PCP'
+            module_struct = 'A_PCP'
         elif 'cMT' in domain_comb or 'nMT' in domain_comb:
-            discriminant = 'MT_A_PCP'
+            module_struct = 'MT_A_PCP'
 
     #Condensation starter domain : C-domain
     elif ('ACP' in domain_comb or 'PCP' in domain_comb) \
@@ -78,14 +79,14 @@ def get_module_struct(domain_comb, each_module):
             and 'Condensation_Starter' in domain_comb:
         if 'Epimerization' not in domain_comb:
             if 'cMT' not in domain_comb and 'nMT' not in domain_comb:
-                discriminant = 'Cs_A_PCP'
+                module_struct = 'Cs_A_PCP'
             elif 'cMT' in domain_comb or 'nMT' in domain_comb:
-                discriminant = 'Cs_A_MT_PCP'
+                module_struct = 'Cs_A_MT_PCP'
         elif 'Epimerization' in domain_comb:
             if 'cMT' not in domain_comb and 'nMT' not in domain_comb:
-                discriminant = 'Cs_A_PCP_E'
+                module_struct = 'Cs_A_PCP_E'
             elif 'cMT' in domain_comb or 'nMT' in domain_comb:
-                discriminant = 'Cs_A_MT_E_PCP'
+                module_struct = 'Cs_A_MT_E_PCP'
 
     #Condensation domain linking D-amino acid to peptides ending with L-amino acid: C-domain
     elif ('ACP' in domain_comb or 'PCP' in domain_comb) \
@@ -94,14 +95,14 @@ def get_module_struct(domain_comb, each_module):
             and 'Condensation' in domain_comb:
         if 'Epimerization' not in domain_comb:
             if 'cMT' not in domain_comb and 'nMT' not in domain_comb:
-                discriminant = 'C_A_PCP'
+                module_struct = 'C_A_PCP'
             elif 'cMT' in domain_comb or 'nMT' in domain_comb:
-                discriminant = 'C_A_MT_PCP'
+                module_struct = 'C_A_MT_PCP'
         elif 'Epimerization' in domain_comb:
             if 'cMT' not in domain_comb and 'nMT' not in domain_comb:
-                discriminant = 'C_A_PCP_E'
+                module_struct = 'C_A_PCP_E'
             elif 'cMT' in domain_comb or 'nMT' in domain_comb:
-                discriminant = 'C_A_MT_E_PCP'
+                module_struct = 'C_A_MT_E_PCP'
 
     #Condensation domain linking D-amino acid to peptides ending with L-amino acid: C-domain
     elif ('ACP' in domain_comb or 'PCP' in domain_comb) \
@@ -110,14 +111,14 @@ def get_module_struct(domain_comb, each_module):
             and 'Condensation_DCL' in domain_comb:
         if 'Epimerization' not in domain_comb:
             if 'cMT' not in domain_comb and 'nMT' not in domain_comb:
-                discriminant = 'Cdcl_A_PCP'
+                module_struct = 'Cdcl_A_PCP'
             elif 'cMT' in domain_comb or 'nMT' in domain_comb:
-                discriminant = 'Cdcl_A_MT_PCP'
+                module_struct = 'Cdcl_A_MT_PCP'
         elif 'Epimerization' in domain_comb:
             if 'cMT' not in domain_comb and 'nMT' not in domain_comb:
-                discriminant = 'Cdcl_A_PCP_E'
+                module_struct = 'Cdcl_A_PCP_E'
             elif 'cMT' in domain_comb or 'nMT' in domain_comb:
-                discriminant = 'Cdcl_A_MT_E_PCP'
+                module_struct = 'Cdcl_A_MT_E_PCP'
 
     #Condensation domain that links L-amino acid to peptides ending with L-amino acid: C-domain
     elif ('ACP' in domain_comb or 'PCP' in domain_comb) \
@@ -126,14 +127,14 @@ def get_module_struct(domain_comb, each_module):
             and 'Condensation_LCL' in domain_comb:
         if 'Epimerization' not in domain_comb:
             if 'cMT' not in domain_comb and 'nMT' not in domain_comb:
-                discriminant = 'Clcl_A_PCP'
+                module_struct = 'Clcl_A_PCP'
             elif 'cMT' in domain_comb or 'nMT' in domain_comb:
-                discriminant = 'Clcl_A_MT_PCP'
+                module_struct = 'Clcl_A_MT_PCP'
         elif 'Epimerization' in domain_comb:
             if 'cMT' not in domain_comb and 'nMT' not in domain_comb:
-                discriminant = 'Clcl_A_PCP_E'
+                module_struct = 'Clcl_A_PCP_E'
             elif 'cMT' in domain_comb or 'nMT' in domain_comb:
-                discriminant = 'Clcl_A_MT_E_PCP'
+                module_struct = 'Clcl_A_MT_E_PCP'
 
     #Condensation_dual: C-domain
     elif ('ACP' in domain_comb or 'PCP' in domain_comb) \
@@ -142,9 +143,9 @@ def get_module_struct(domain_comb, each_module):
             and 'Condensation_Dual' in domain_comb \
             and 'Epimerization' not in domain_comb:
         if 'cMT' not in domain_comb and 'nMT' not in domain_comb:
-            discriminant = 'Cd_A_PCP' #### + epimerization
+            module_struct = 'Cd_A_PCP' #### + epimerization
         elif 'cMT' in domain_comb or 'nMT' in domain_comb:
-            discriminant = 'Cd_A_MT_PCP'
+            module_struct = 'Cd_A_MT_PCP'
 
     #Glycopeptide condensation domain (O): C-domain
     elif ('ACP' in domain_comb or 'PCP' in domain_comb) \
@@ -153,14 +154,14 @@ def get_module_struct(domain_comb, each_module):
             and 'Cglyc' in domain_comb:
         if 'Epimerization' not in domain_comb:
             if 'cMT' not in domain_comb and 'nMT' not in domain_comb:
-                discriminant = 'Cglyc_A_PCP'
+                module_struct = 'Cglyc_A_PCP'
             elif 'cMT' in domain_comb or 'nMT' in domain_comb:
-                discriminant = 'Cglyc_A_MT_PCP'
+                module_struct = 'Cglyc_A_MT_PCP'
         elif 'Epimerization' in domain_comb:
             if 'cMT' not in domain_comb and 'nMT' not in domain_comb:
-                discriminant = 'Cglyc_A_PCP_E'
+                module_struct = 'Cglyc_A_PCP_E'
             elif 'cMT' in domain_comb or 'nMT' in domain_comb:
-                discriminant = 'Cglyc_A_MT_E_PCP'
+                module_struct = 'Cglyc_A_MT_E_PCP'
 
     #Glycopeptide condensation domain (X): C-domain
     elif ('ACP' in domain_comb or 'PCP' in domain_comb) \
@@ -169,14 +170,14 @@ def get_module_struct(domain_comb, each_module):
             and 'CXglyc' in domain_comb:
         if 'Epimerization' not in domain_comb:
             if 'cMT' not in domain_comb and 'nMT' not in domain_comb:
-                discriminant = 'CXglyc_A_PCP'
+                module_struct = 'CXglyc_A_PCP'
             elif 'cMT' in domain_comb or 'nMT' in domain_comb:
-                discriminant = 'CXglyc_A_MT_PCP'
+                module_struct = 'CXglyc_A_MT_PCP'
         elif 'Epimerization' in domain_comb:
             if 'cMT' not in domain_comb and 'nMT' not in domain_comb:
-                discriminant = 'CXglyc_A_PCP_E'
+                module_struct = 'CXglyc_A_PCP_E'
             elif 'cMT' in domain_comb or 'nMT' in domain_comb:
-                discriminant = 'CXglyc_A_MT_E_PCP'
+                module_struct = 'CXglyc_A_MT_E_PCP'
 
     #Heterocyclization: C-domain
     elif ('ACP' in domain_comb or 'PCP' in domain_comb) \
@@ -184,19 +185,19 @@ def get_module_struct(domain_comb, each_module):
         if 'AMP-binding' in domain_comb and 'A-OX' not in domain_comb:
             if 'Epimerization' not in domain_comb:
                 if 'cMT' not in domain_comb and 'nMT' not in domain_comb:
-                    discriminant = 'HC_A_PCP'
+                    module_struct = 'HC_A_PCP'
                 elif 'cMT' in domain_comb or 'nMT' in domain_comb:
-                    discriminant = 'HC_A_MT_PCP'
+                    module_struct = 'HC_A_MT_PCP'
             elif 'Epimerization' in domain_comb:
-                discriminant = 'HC_A_MT_E_PCP'
+                module_struct = 'HC_A_MT_E_PCP'
         elif 'AMP-binding' not in domain_comb and 'A-OX' in domain_comb:
             if 'Epimerization' not in domain_comb:
                 if 'cMT' not in domain_comb and 'nMT' not in domain_comb:
-                    discriminant = 'HC_Aox_PCP'
+                    module_struct = 'HC_Aox_PCP'
                 elif 'cMT' in domain_comb or 'nMT' in domain_comb:
-                    discriminant = 'HC_Aox_MT_PCP'
+                    module_struct = 'HC_Aox_MT_PCP'
             elif 'Epimerization' in domain_comb:
-                discriminant = 'HC_Aox_MT_E_PCP'
+                module_struct = 'HC_Aox_MT_E_PCP'
 
     #Terminal reductase domain: terminal domain
     elif 'ACP' not in domain_comb and 'PCP' not in domain_comb \
@@ -214,7 +215,7 @@ def get_module_struct(domain_comb, each_module):
             and 'cMT' not in domain_comb \
             and 'nMT' not in domain_comb \
             and 'TD' in domain_comb:
-        discriminant = 'TD'
+        module_struct = 'TD'
 
     #Starter units
     elif ('ACP' in domain_comb or 'PCP' in domain_comb) \
@@ -223,16 +224,16 @@ def get_module_struct(domain_comb, each_module):
             and 'cMT' not in domain_comb:
         if 'PKS_KR' not in domain_comb:
             if 'PKS_DH' not in domain_comb and 'PKS_ER' not in domain_comb:
-                discriminant = 'AT_ACP'
+                module_struct = 'AT_ACP'
         elif 'PKS_KR' in domain_comb:
             if 'PKS_DH' not in domain_comb:
                 if 'PKS_ER' not in domain_comb:
-                    discriminant = 'AT_KR_ACP'
+                    module_struct = 'AT_KR_ACP'
             elif 'PKS_DH' in domain_comb:
                 if 'PKS_ER' not in domain_comb:
-                    discriminant = 'AT_DH_KR_ACP'
+                    module_struct = 'AT_DH_KR_ACP'
                 if 'PKS_ER' in domain_comb:
-                    discriminant = 'AT_DH_ER_KR_ACP'
+                    module_struct = 'AT_DH_ER_KR_ACP'
 
     #Exceptional cases
     # Following cases cannot be further reduced with if statements
@@ -243,7 +244,7 @@ def get_module_struct(domain_comb, each_module):
             and 'PKS_DH' not in domain_comb \
             and 'PKS_ER' not in domain_comb \
             and 'cMT' not in domain_comb:
-        discriminant = 'ACP'
+        module_struct = 'ACP'
 
     elif ('ACP' in domain_comb or 'PCP' in domain_comb) \
             and 'PKS_AT' in domain_comb \
@@ -252,7 +253,7 @@ def get_module_struct(domain_comb, each_module):
             and 'PKS_DH' not in domain_comb \
             and 'PKS_ER' in domain_comb \
             and 'cMT' not in domain_comb:
-        discriminant = 'AT_ER_KR_ACP'
+        module_struct = 'AT_ER_KR_ACP'
 
     #Extension units
     # Following cases cannot be further reduced with if statements
@@ -263,7 +264,7 @@ def get_module_struct(domain_comb, each_module):
             and 'PKS_DH' not in domain_comb \
             and 'PKS_ER' not in domain_comb \
             and 'cMT' not in domain_comb:
-        discriminant = 'AT_KS_ACP'
+        module_struct = 'AT_KS_ACP'
     elif ('ACP' in domain_comb or 'PCP' in domain_comb) \
             and 'PKS_AT' in domain_comb \
             and 'PKS_KS' in domain_comb \
@@ -271,7 +272,7 @@ def get_module_struct(domain_comb, each_module):
             and 'PKS_DH' not in domain_comb \
             and 'PKS_ER' not in domain_comb \
             and 'cMT' not in domain_comb:
-        discriminant = 'AT_KS_KR_ACP'
+        module_struct = 'AT_KS_KR_ACP'
     elif ('ACP' in domain_comb or 'PCP' in domain_comb) \
             and 'PKS_AT' in domain_comb \
             and 'PKS_KS' in domain_comb \
@@ -279,7 +280,7 @@ def get_module_struct(domain_comb, each_module):
             and 'PKS_DH' in domain_comb \
             and 'PKS_ER' not in domain_comb \
             and 'cMT' not in domain_comb:
-        discriminant = 'AT_KS_DH_KR_ACP'
+        module_struct = 'AT_KS_DH_KR_ACP'
     elif ('ACP' in domain_comb or 'PCP' in domain_comb) \
             and 'PKS_AT' in domain_comb \
             and 'PKS_KS' in domain_comb \
@@ -287,7 +288,7 @@ def get_module_struct(domain_comb, each_module):
             and 'PKS_DH' in domain_comb \
             and 'PKS_ER' in domain_comb \
             and 'cMT' not in domain_comb:
-        discriminant = 'AT_KS_DH_ER_KR_ACP'
+        module_struct = 'AT_KS_DH_ER_KR_ACP'
 
     elif 'ACP' not in domain_comb \
             and 'PCP' not in domain_comb \
@@ -297,7 +298,7 @@ def get_module_struct(domain_comb, each_module):
             and 'PKS_DH' not in domain_comb \
             and 'PKS_ER' not in domain_comb \
             and 'cMT' not in domain_comb:
-        discriminant = 'AT_KS'
+        module_struct = 'AT_KS'
     elif 'ACP' not in domain_comb \
             and 'PCP' not in domain_comb \
             and 'PKS_AT' in domain_comb \
@@ -306,7 +307,7 @@ def get_module_struct(domain_comb, each_module):
             and 'PKS_DH' not in domain_comb \
             and 'PKS_ER' not in domain_comb \
             and 'cMT' not in domain_comb:
-        discriminant = 'AT_KS_KR'
+        module_struct = 'AT_KS_KR'
     elif 'ACP' not in domain_comb \
             and 'PCP' not in domain_comb \
             and 'PKS_AT' in domain_comb \
@@ -315,7 +316,7 @@ def get_module_struct(domain_comb, each_module):
             and 'PKS_DH' in domain_comb \
             and 'PKS_ER' not in domain_comb \
             and 'cMT' not in domain_comb:
-        discriminant = 'AT_KS_DH_KR'
+        module_struct = 'AT_KS_DH_KR'
     elif 'ACP' not in domain_comb \
             and 'PCP' not in domain_comb \
             and 'PKS_AT' in domain_comb \
@@ -324,7 +325,7 @@ def get_module_struct(domain_comb, each_module):
             and 'PKS_DH' in domain_comb \
             and 'PKS_ER' in domain_comb \
             and 'cMT' not in domain_comb:
-        discriminant = 'AT_KS_DH_ER_KR'
+        module_struct = 'AT_KS_DH_ER_KR'
 
     #Exeptional cases
     elif 'PKS_AT' in domain_comb \
@@ -334,9 +335,9 @@ def get_module_struct(domain_comb, each_module):
             and'PKS_ER' in domain_comb \
             and 'cMT' not in domain_comb:
         if 'PCP' not in domain_comb and 'ACP' not in domain_comb:
-            discriminant = 'AT_KS_ER_KR'
+            module_struct = 'AT_KS_ER_KR'
         elif ('PCP' in domain_comb or 'ACP' in domain_comb):
-            discriminant = 'AT_KS_ER_KR_ACP'
+            module_struct = 'AT_KS_ER_KR_ACP'
 
     #Methytransferase
     elif 'PKS_AT' in domain_comb \
@@ -345,59 +346,55 @@ def get_module_struct(domain_comb, each_module):
         if 'PCP' not in domain_comb and 'ACP' not in domain_comb:
             if 'PKS_KR' not in domain_comb:
                 if 'PKS_DH' not in domain_comb and 'PKS_ER' not in domain_comb:
-                    discriminant = 'AT_KS_cMT'
+                    module_struct = 'AT_KS_cMT'
             elif 'PKS_KR' in domain_comb:
                 if 'PKS_DH' not in domain_comb:
                     if 'PKS_ER' not in domain_comb:
-                        discriminant = 'AT_KS_KR_cMT'
+                        module_struct = 'AT_KS_KR_cMT'
                 elif 'PKS_DH' in domain_comb and 'PKS_ER' not in domain_comb:
-                    discriminant = 'AT_KS_DH_KR_cMT'
+                    module_struct = 'AT_KS_DH_KR_cMT'
                 elif 'PKS_DH' in domain_comb and 'PKS_ER' in domain_comb:
-                    discriminant = 'AT_KS_DH_KR_cMT_ER'
+                    module_struct = 'AT_KS_DH_KR_cMT_ER'
         elif ('PCP' in domain_comb or 'ACP' in domain_comb):
             if 'PKS_KR' not in domain_comb:
                 if 'PKS_DH' not in domain_comb and 'PKS_ER' not in domain_comb:
-                    discriminant = 'AT_KS_cMT_ACP'
+                    module_struct = 'AT_KS_cMT_ACP'
             if 'PKS_KR' in domain_comb:
                 if 'PKS_DH' not in domain_comb and 'PKS_ER' not in domain_comb:
-                    discriminant = 'AT_KS_KR_cMT_ACP'
+                    module_struct = 'AT_KS_KR_cMT_ACP'
                 elif 'PKS_DH' in domain_comb and 'PKS_ER' not in domain_comb:
-                    discriminant = 'AT_KS_DH_KR_cMT_ACP'
+                    module_struct = 'AT_KS_DH_KR_cMT_ACP'
                 elif 'PKS_DH' in domain_comb and 'PKS_ER' in domain_comb:
-                    discriminant = 'AT_KS_DH_KR_cMT_ER_ACP'
+                    module_struct = 'AT_KS_DH_KR_cMT_ER_ACP'
 
 
     else:
-        discriminant = 'None'
-    print 'check1', each_module
-    print 'check2', domain_comb
-    print 'check3', discriminant
-    return discriminant
+        module_struct = 'None'
+    logging.debug('domain_comb: %s' %domain_comb)
+    logging.debug('module_struct: %s' %module_struct)
+    return module_struct
 
 
-def determine_kr_activity(each_locustag, domain_comb, locustag_kr_dict, discriminant):
+def get_kr_activity(each_locustag, domain_comb, locustag_kr_dict, module_struct):
 
     domain_kr_activity_dict = locustag_kr_dict[each_locustag]
 
     for each_domain in domain_comb:
         domain_name = each_domain[:-5]
-        if domain_name == 'PKS_KR' and domain_kr_activity_dict[each_domain] == 'active':
-            f_discriminant = discriminant
-            return f_discriminant
 
-        elif domain_name == "PKS_KR" and domain_kr_activity_dict[each_domain] == 'inactive':
-            f_discriminant = discriminant.replace('KR','KR(inactive)')
-            return f_discriminant
+        if domain_name == "PKS_KR" and domain_kr_activity_dict[each_domain] == 'inactive':
+            module_struct_kr = module_struct.replace('KR','KR(inactive)')
+            return module_struct_kr
+        else:
+            module_struct_kr = module_struct
+            return module_struct_kr
 
-    #This assignment is given
-    #only if all the checked domains do not enter the above two conditions
-    f_discriminant = discriminant
-    return f_discriminant
+    return module_struct_kr
 
 
-def get_module_currency_metab_dict(discriminant, each_module, each_module_substrates, module_currency_metab_dict):
+def get_module_currency_metab_dict(module_struct, each_module, each_module_substrates, module_currency_metab_dict):
 
-    if discriminant == 'A' or discriminant == 'Aox':
+    if module_struct == 'A' or module_struct == 'Aox':
         each_module_substrates['atp'] = -1
         each_module_substrates['amp'] = 1
         each_module_substrates['ppi'] = 1
@@ -405,7 +402,7 @@ def get_module_currency_metab_dict(discriminant, each_module, each_module_substr
         module_currency_metab_dict[each_module] = each_module_substrates
         #print 'A or Aox:', each_module_substrates
 
-    elif discriminant == 'A_PCP' or discriminant == 'Cs_A_PCP' or discriminant == 'C_A_PCP' or discriminant == 'Cdcl_A_PCP' or discriminant == 'Clcl_A_PCP' or discriminant == 'Clcl_A_PCP' or discriminant == 'Cglyc_A_PCP' or discriminant == 'CXglyc_A_PCP':
+    elif module_struct == 'A_PCP' or module_struct == 'Cs_A_PCP' or module_struct == 'C_A_PCP' or module_struct == 'Cdcl_A_PCP' or module_struct == 'Clcl_A_PCP' or module_struct == 'Clcl_A_PCP' or module_struct == 'Cglyc_A_PCP' or module_struct == 'CXglyc_A_PCP':
         each_module_substrates['atp'] = -1
         each_module_substrates['amp'] = 1
         each_module_substrates['ppi'] = 1
@@ -413,7 +410,7 @@ def get_module_currency_metab_dict(discriminant, each_module, each_module_substr
         module_currency_metab_dict[each_module] = each_module_substrates
         #print 'A_PCP or C_A_PCP:', each_module_substrates
 
-    elif discriminant == 'MT_A_PCP' or discriminant == 'Cs_A_MT_PCP' or discriminant == 'C_A_MT_PCP' or discriminant == 'Cdcl_A_MT_PCP' or discriminant == 'Clcl_A_MT_PCP' or discriminant == 'Cglyc_A_MT_PCP' or discriminant == 'CXglyc_A_MT_PCP':
+    elif module_struct == 'MT_A_PCP' or module_struct == 'Cs_A_MT_PCP' or module_struct == 'C_A_MT_PCP' or module_struct == 'Cdcl_A_MT_PCP' or module_struct == 'Clcl_A_MT_PCP' or module_struct == 'Cglyc_A_MT_PCP' or module_struct == 'CXglyc_A_MT_PCP':
         each_module_substrates['atp'] = -1
         each_module_substrates['amp'] = 1
         each_module_substrates['ppi'] = 1
@@ -423,7 +420,7 @@ def get_module_currency_metab_dict(discriminant, each_module, each_module_substr
         module_currency_metab_dict[each_module] = each_module_substrates
         #print 'MT-A-PCP or C-A-MT-PCP:', each_module_substrates
 
-    elif discriminant == 'Cs_A_PCP_E' or discriminant == 'C_A_PCP_E' or discriminant == 'Cdcl_A_PCP_E' or discriminant == 'Clcl_A_PCP_E' or discriminant == 'Cd_A_PCP' or discriminant == 'Cglyc_A_PCP_E' or discriminant == 'CXglyc_A_PCP_E':
+    elif module_struct == 'Cs_A_PCP_E' or module_struct == 'C_A_PCP_E' or module_struct == 'Cdcl_A_PCP_E' or module_struct == 'Clcl_A_PCP_E' or module_struct == 'Cd_A_PCP' or module_struct == 'Cglyc_A_PCP_E' or module_struct == 'CXglyc_A_PCP_E':
         each_module_substrates['atp'] = -1
         each_module_substrates['amp'] = 1
         each_module_substrates['ppi'] = 1
@@ -431,7 +428,7 @@ def get_module_currency_metab_dict(discriminant, each_module, each_module_substr
         module_currency_metab_dict[each_module] = each_module_substrates
         #print 'C_A_PCP_E:', each_module_substrates
 
-    elif discriminant == 'Cs_A_MT_E_PCP' or discriminant == 'C_A_MT_E_PCP' or discriminant == 'Cdcl_A_MT_E_PCP' or discriminant == 'Clcl_A_MT_E_PCP' or discriminant == 'Cglyc_A_MT_E_PCP' or discriminant == 'CXglyc_A_MT_E_PCP' or discriminant == 'Cd_A_MT_PCP':
+    elif module_struct == 'Cs_A_MT_E_PCP' or module_struct == 'C_A_MT_E_PCP' or module_struct == 'Cdcl_A_MT_E_PCP' or module_struct == 'Clcl_A_MT_E_PCP' or module_struct == 'Cglyc_A_MT_E_PCP' or module_struct == 'CXglyc_A_MT_E_PCP' or module_struct == 'Cd_A_MT_PCP':
         each_module_substrates['atp'] = -1
         each_module_substrates['amp'] = 1
         each_module_substrates['ppi'] = 1
@@ -441,7 +438,7 @@ def get_module_currency_metab_dict(discriminant, each_module, each_module_substr
         module_currency_metab_dict[each_module] = each_module_substrates
         #print 'C_A_MT_E_PCP:', each_module_substrates
 
-    elif discriminant == 'HC_A_PCP':
+    elif module_struct == 'HC_A_PCP':
         each_module_substrates['atp'] = -1
         each_module_substrates['amp'] = 1
         each_module_substrates['ppi'] = 1
@@ -449,7 +446,7 @@ def get_module_currency_metab_dict(discriminant, each_module, each_module_substr
         module_currency_metab_dict[each_module] = each_module_substrates
         #print 'HC_A_PCP:', each_module_substrates
 
-    elif discriminant == 'HC_Aox_PCP':
+    elif module_struct == 'HC_Aox_PCP':
         each_module_substrates['atp'] = -1
         each_module_substrates['amp'] = 1
         each_module_substrates['ppi'] = 1
@@ -461,7 +458,7 @@ def get_module_currency_metab_dict(discriminant, each_module, each_module_substr
         module_currency_metab_dict[each_module] = each_module_substrates
         #print 'HC_Aox_PCP:', each_module_substrates
 
-    elif discriminant == 'HC_A_MT_PCP' or discriminant == 'HC_A_MT_E_PCP':
+    elif module_struct == 'HC_A_MT_PCP' or module_struct == 'HC_A_MT_E_PCP':
         each_module_substrates['atp'] = -1
         each_module_substrates['amp'] = 1
         each_module_substrates['ppi'] = 1
@@ -471,7 +468,7 @@ def get_module_currency_metab_dict(discriminant, each_module, each_module_substr
         module_currency_metab_dict[each_module] = each_module_substrates
         #print 'HC_A_MT_PCP:', each_module_substrates
 
-    elif discriminant == 'HC_Aox_MT_PCP' or discriminant == 'HC_Aox_MT_E_PCP':
+    elif module_struct == 'HC_Aox_MT_PCP' or module_struct == 'HC_Aox_MT_E_PCP':
         each_module_substrates['atp'] = -1
         each_module_substrates['amp'] = 1
         each_module_substrates['amet'] = -1
@@ -484,19 +481,19 @@ def get_module_currency_metab_dict(discriminant, each_module, each_module_substr
         module_currency_metab_dict[each_module] = each_module_substrates
         #print 'HC_Aox_MT_PCP:', each_module_substrates
 
-    elif discriminant == 'AT_ACP' or discriminant == 'AT_KR(inactive)_ACP' or discriminant == 'AT_DH_KR(inactive)_ACP' or discriminant == 'AT_DH_ER_KR(inactive)_ACP':
+    elif module_struct == 'AT_ACP' or module_struct == 'AT_KR(inactive)_ACP' or module_struct == 'AT_DH_KR(inactive)_ACP' or module_struct == 'AT_DH_ER_KR(inactive)_ACP':
         each_module_substrates['coa'] = 1
         each_module_substrates['hco3'] = 1
         module_currency_metab_dict[each_module] = each_module_substrates
         #print 'AT-ACP:', each_module_substrates
 
-    elif discriminant == 'AT_KS_ACP' or discriminant == 'AT_KS' or discriminant == 'AT_KS_KR(inactive)_ACP' or discriminant == 'AT_KS_KR(inactive)' or discriminant == 'AT_KS_DH_KR(inactive)_ACP' or discriminant == 'AT_KS_DH_KR(inactive)' or discriminant == 'AT_KS_DH_KR(inactive)_ACP' or discriminant == 'AT_KS_DH_ER_KR(inactive)':
+    elif module_struct == 'AT_KS_ACP' or module_struct == 'AT_KS' or module_struct == 'AT_KS_KR(inactive)_ACP' or module_struct == 'AT_KS_KR(inactive)' or module_struct == 'AT_KS_DH_KR(inactive)_ACP' or module_struct == 'AT_KS_DH_KR(inactive)' or module_struct == 'AT_KS_DH_KR(inactive)_ACP' or module_struct == 'AT_KS_DH_ER_KR(inactive)':
         each_module_substrates['coa'] = 1
         each_module_substrates['hco3'] = 1
         module_currency_metab_dict[each_module] = each_module_substrates
         #print 'AT-KS-ACP:', each_module_substrates
 
-    elif discriminant == 'AT_KS_KR_ACP' or discriminant == 'AT_KR_ACP' or discriminant == 'AT_KS_KR' or discriminant == 'AT_ER_KR_ACP' or discriminant == 'AT_KS_ER_KR' or discriminant == 'AT_KS_ER_KR_ACP':
+    elif module_struct == 'AT_KS_KR_ACP' or module_struct == 'AT_KR_ACP' or module_struct == 'AT_KS_KR' or module_struct == 'AT_ER_KR_ACP' or module_struct == 'AT_KS_ER_KR' or module_struct == 'AT_KS_ER_KR_ACP':
         each_module_substrates['coa'] = 1
         each_module_substrates['hco3'] = 1
         each_module_substrates['nadp'] = 1
@@ -505,7 +502,7 @@ def get_module_currency_metab_dict(discriminant, each_module, each_module_substr
         module_currency_metab_dict[each_module] = each_module_substrates
         #print 'KS-AT-KR-ACP:', each_module_substrates
 
-    elif discriminant == 'AT_KS_DH_KR_ACP' or discriminant == 'AT_DH_KR_ACP' or discriminant == 'AT_KS_DH_KR':
+    elif module_struct == 'AT_KS_DH_KR_ACP' or module_struct == 'AT_DH_KR_ACP' or module_struct == 'AT_KS_DH_KR':
         each_module_substrates['coa'] = 1
         each_module_substrates['hco3'] = 1
         each_module_substrates['h2o'] = 1
@@ -515,7 +512,7 @@ def get_module_currency_metab_dict(discriminant, each_module, each_module_substr
         module_currency_metab_dict[each_module] = each_module_substrates
         #print 'KS-AT-DH-KR-ACP:', each_module_substrates
 
-    elif discriminant == 'AT_KS_DH_ER_KR_ACP' or discriminant == 'AT_DH_ER_KR_ACP' or discriminant == 'AT_KS_DH_ER_KR':
+    elif module_struct == 'AT_KS_DH_ER_KR_ACP' or module_struct == 'AT_DH_ER_KR_ACP' or module_struct == 'AT_KS_DH_ER_KR':
         each_module_substrates['coa'] = 1
         each_module_substrates['hco3'] = 1
         each_module_substrates['h2o'] = 1
@@ -525,7 +522,7 @@ def get_module_currency_metab_dict(discriminant, each_module, each_module_substr
         module_currency_metab_dict[each_module] = each_module_substrates
         #print 'KS-AT-DH-ER-KR-ACP:', each_module_substrates
 
-    elif discriminant == 'AT_KS_cMT_ACP' or discriminant == 'AT_KS_cMT':
+    elif module_struct == 'AT_KS_cMT_ACP' or module_struct == 'AT_KS_cMT':
         each_module_substrates['coa'] = 1
         each_module_substrates['hco3'] = 1
         each_module_substrates['amet'] = -1
@@ -533,7 +530,7 @@ def get_module_currency_metab_dict(discriminant, each_module, each_module_substr
         module_currency_metab_dict[each_module] = each_module_substrates
         #print 'AT_KS_cMT_ACP:', each_module_substrates
 
-    elif discriminant == 'AT_KS_KR_cMT_ACP' or discriminant == 'AT_KS_KR_cMT':
+    elif module_struct == 'AT_KS_KR_cMT_ACP' or module_struct == 'AT_KS_KR_cMT':
         each_module_substrates['coa'] = 1
         each_module_substrates['hco3'] = 1
         each_module_substrates['nadp'] = 1
@@ -544,7 +541,7 @@ def get_module_currency_metab_dict(discriminant, each_module, each_module_substr
         module_currency_metab_dict[each_module] = each_module_substrates
         #print 'AT_KS_KR_cMT_ACP:', each_module_substrates
 
-    elif discriminant == 'AT_KS_DH_KR_cMT_ACP' or discriminant == 'AT_KS_DH_KR_cMT':
+    elif module_struct == 'AT_KS_DH_KR_cMT_ACP' or module_struct == 'AT_KS_DH_KR_cMT':
         each_module_substrates['coa'] = 1
         each_module_substrates['hco3'] = 1
         each_module_substrates['h2o'] = 1
@@ -556,7 +553,7 @@ def get_module_currency_metab_dict(discriminant, each_module, each_module_substr
         module_currency_metab_dict[each_module] = each_module_substrates
         #print 'AT_KS_DH_KR_cMT_ACP:', each_module_substrates
 
-    elif discriminant == 'AT_KS_DH_KR_cMT_ER_ACP' or discriminant == 'AT_KS_DH_KR_cMT_ER':
+    elif module_struct == 'AT_KS_DH_KR_cMT_ER_ACP' or module_struct == 'AT_KS_DH_KR_cMT_ER':
         each_module_substrates['coa'] = 1
         each_module_substrates['hco3'] = 1
         each_module_substrates['h2o'] = 1
@@ -568,7 +565,7 @@ def get_module_currency_metab_dict(discriminant, each_module, each_module_substr
         module_currency_metab_dict[each_module] = each_module_substrates
         #print 'AT_KS_DH_KR_cMT_ER_ACP:', each_module_substrates
 
-    elif discriminant == 'TD':
+    elif module_struct == 'TD':
         each_module_substrates['nadp'] = 1
         each_module_substrates['nadph'] = -1
         each_module_substrates['h'] = -1
