@@ -4,7 +4,7 @@
 
 from cobra import Metabolite
 
-def determine_module(domain_comb, each_module):
+def get_module_struct(domain_comb, each_module):
 #TODO: category these lines according to core and optional domains
 ## domain information(nrps) :
 ## Condensation    Condensation domain

@@ -11,7 +11,7 @@ from Bio import SeqIO
 from cobra import Model, Reaction, Metabolite
 from cobra.io.sbml import create_cobra_model_from_sbml_file, write_cobra_model_to_sbml_file
 from general_sec_met_info import (
-    determine_module,
+    get_module_struct,
     determine_kr_activity,
     get_module_currency_metab_dict,
     get_biggid_from_aSid,
@@ -336,7 +336,7 @@ def get_currency_metabolites(options):
             abbr_domain = each_domain[:-5]
             domain_trunc_list.append(abbr_domain)
 
-        discriminant = determine_module(domain_trunc_list, each_module)
+        discriminant = get_module_struct(domain_trunc_list, each_module)
         f_discriminant = determine_kr_activity(each_locustag, domain_comb, options.locustag_kr_dict, discriminant)
 
         if f_discriminant == 'None':
