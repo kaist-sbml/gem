@@ -77,8 +77,6 @@ def get_cluster_product(cluster_nr, options):
     options.product = product3
 
 
-#Output: e.g.,
-#['SAV_938'] = ['PKS_AT', 'ACP', 'PKS_KS', 'PKS_AT', 'PKS_KR', 'ACP', 'PKS_KS']
 def get_cluster_domain(options):
 
     locustag_domain_dict = {}
@@ -93,36 +91,31 @@ def get_cluster_domain(options):
         for sec_met_info in options.cluster_info_dict[each_gene]:
 
             if "NRPS/PKS Domain" in sec_met_info:
-                sptline1 = sec_met_info.split('. ')
-                crude_domain_info = sptline1[0]
-                logging.debug('crude_domain_info: %s' %crude_domain_info)
+                #e.g., 'NRPS/PKS Domain: Condensation_LCL (36-335)'
+                domain_info1 = sec_met_info.split('. ')[0]
 
-                #Extract the information of KR activity and AT substrate specificity
-                sptline2 = sec_met_info.split('; ')
+                #e.g., 'Condensation_LCL (36-335)'
+                domain_info2 = domain_info1.split(':')[1]
 
-                spt_domain_info = crude_domain_info.split(':')
-                whole_domain_info = spt_domain_info[1]
-                logging.debug('whole_domain_info: %s' %whole_domain_info)
+                #e.g., 'Condensation_LCL'
+                each_sec_met_domain = domain_info2.split()[0]
 
-                spt_list_domain_info = whole_domain_info.split()
-                spt_list_domain_info.append(each_gene)
-                each_sec_met_domain = spt_list_domain_info[0]
-                logging.debug('each_sec_met_domain_info: %s' %each_sec_met_domain)
-
-                #Domain information
-                #Correction by HKS; counts the number of domains
+                # Count the number of domains
                 if float(domain_count) < 10:
-                    domain_number = "_DM0"+str(domain_count)
+                    domain_number = "_DM0" + str(domain_count)
                 else:
-                    domain_number = "_DM"+str(domain_count)
+                    domain_number = "_DM" + str(domain_count)
 
                 domain_number = each_sec_met_domain + domain_number
                 sec_met_domain_list.append(domain_number)
                 domain_count += 1
 
                 #Collects KR activity information
-                if domain_number[:-5] == "PKS_KR":
-                    kr_info_list = sptline2[1].split(': ')
+                if each_sec_met_domain == "PKS_KR":
+                    sec_met_info_list = sec_met_info.split('; ')
+                    for kr_chars in sec_met_info_list:
+                        if 'Predicted KR activity' in kr_chars:
+                            kr_info_list = kr_chars.split(': ')
                     dm_kr_activity = kr_info_list[1]
                     kr_domain_info_dict[domain_number] = dm_kr_activity
 
