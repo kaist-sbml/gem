@@ -38,15 +38,14 @@ def get_cluster_info_from_seq_record(options):
     cluster_info_dict = {}
 
     for feature in options.seq_record.features:
-        sec_met_info_list = []
+
         if feature.type == 'CDS':
-            if feature.location.start >= options.cluster_loc1 and feature.location.end <= options.cluster_loc2:
+            if feature.location.start >= options.cluster_loc1 \
+                    and feature.location.end <= options.cluster_loc2:
                 qualifier_locus_tag = feature.qualifiers.get('locus_tag')[0]
                 if feature.qualifiers.get('sec_met'):
-                    qualifier_sec_met = feature.qualifiers.get('sec_met')
-                    sec_met_info_list.append(qualifier_sec_met)
-
-                    cluster_info_dict[qualifier_locus_tag] = sec_met_info_list
+                    cluster_info_dict[qualifier_locus_tag] = \
+                            feature.qualifiers.get('sec_met')
 
     logging.debug('cluster_info_dict: %s' %cluster_info_dict)
     options.cluster_info_dict = cluster_info_dict
@@ -87,27 +86,28 @@ def get_cluster_domain(options):
 
     for each_gene in options.cluster_info_dict.keys():
 
-        sec_met_info_list = options.cluster_info_dict[each_gene][0]
-
         domain_count = 0
         sec_met_domain_list = []
         kr_domain_info_dict = {}
 
-        for each_sub_set in sec_met_info_list:
+        for sec_met_info in options.cluster_info_dict[each_gene]:
 
-            if "NRPS/PKS Domain" in each_sub_set:
-                sptline1 = each_sub_set.split('. ')
+            if "NRPS/PKS Domain" in sec_met_info:
+                sptline1 = sec_met_info.split('. ')
                 crude_domain_info = sptline1[0]
+                logging.debug('crude_domain_info: %s' %crude_domain_info)
 
                 #Extract the information of KR activity and AT substrate specificity
-                sptline2 = each_sub_set.split('; ')
+                sptline2 = sec_met_info.split('; ')
 
                 spt_domain_info = crude_domain_info.split(':')
                 whole_domain_info = spt_domain_info[1]
+                logging.debug('whole_domain_info: %s' %whole_domain_info)
 
                 spt_list_domain_info = whole_domain_info.split()
                 spt_list_domain_info.append(each_gene)
                 each_sec_met_domain = spt_list_domain_info[0]
+                logging.debug('each_sec_met_domain_info: %s' %each_sec_met_domain)
 
                 #Domain information
                 #Correction by HKS; counts the number of domains
@@ -141,31 +141,30 @@ def get_cluster_monomers(options):
     locustag_monomer_dict = {}
     for each_gene in options.cluster_info_dict.keys():
         module_count = 0
-        sec_met_info_list =  options.cluster_info_dict[each_gene][0]
 
-        for each_sub_set in sec_met_info_list:
+        for sec_met_info in options.cluster_info_dict[each_gene]:
             discriminator = "true"
-            if "Substrate specificity predictions" in each_sub_set \
-                    and "AMP-binding" in each_sub_set:
+            if "Substrate specificity predictions" in sec_met_info \
+                    and "AMP-binding" in sec_met_info:
                 pred_monomer_list, discriminator = extract_nrp_monomers(
-                        each_sub_set, discriminator)
+                        sec_met_info, discriminator)
                 module_number = each_gene + '_M' + str(module_count)
                 locustag_monomer_dict[module_number] = pred_monomer_list
                 module_count += 1
                 #print "check", module_number, pred_monomer_list
 
-            if "Substrate specificity predictions" in each_sub_set \
-                    and "A-OX" in each_sub_set:
+            if "Substrate specificity predictions" in sec_met_info \
+                    and "A-OX" in sec_met_info:
                 pred_monomer_list, discriminator = extract_nrp_monomers(
-                        each_sub_set, discriminator)
+                        sec_met_info, discriminator)
                 module_number = each_gene + '_M' + str(module_count)
                 locustag_monomer_dict[module_number] = pred_monomer_list
                 module_count += 1
                 #print "check", module_number, pred_monomer_list
 
-            if "Substrate specificity predictions" in each_sub_set \
-                    and "PKS_AT" in each_sub_set:
-                pred_monomer_list = extract_pk_monomers(each_sub_set)
+            if "Substrate specificity predictions" in sec_met_info \
+                    and "PKS_AT" in sec_met_info:
+                pred_monomer_list = extract_pk_monomers(sec_met_info)
                 module_number = each_gene + '_M' + str(module_count)
                 locustag_monomer_dict[module_number] = pred_monomer_list
                 module_count += 1
@@ -179,8 +178,8 @@ def get_cluster_monomers(options):
     options.locustag_monomer_dict = locustag_monomer_dict
 
 
-def extract_nrp_monomers(each_sub_set, discriminator):
-    sptline2 = each_sub_set.split(';')
+def extract_nrp_monomers(sec_met_info, discriminator):
+    sptline2 = sec_met_info.split(';')
 
     for element in sptline2:
         if 'Substrate specificity predictions' in element:
@@ -205,8 +204,8 @@ def extract_nrp_monomers(each_sub_set, discriminator):
     return pred_monomer_list, discriminator
 
 
-def extract_pk_monomers(each_sub_set):
-    sptline2 = each_sub_set.split(';')
+def extract_pk_monomers(sec_met_info):
+    sptline2 = sec_met_info.split(';')
     whole_substrate_info = sptline2[1]
 
     predicted_monomers = whole_substrate_info.split(':')
@@ -233,11 +232,11 @@ def get_cluster_module(options):
 
         count = 0
         module_info_list = []
-        total_number_domain = len(options.locustag_domain_dict[locustag])
+        total_domain_number = len(options.locustag_domain_dict[locustag])
 
         for each_domain in options.locustag_domain_dict[locustag]:
             module_info_list.append(each_domain)
-            total_number_domain -= 1
+            total_domain_number -= 1
 
             # Check final domain of a module: core domain
             if 'PCP' in each_domain or 'ACP' in each_domain:
@@ -306,7 +305,7 @@ def get_cluster_module(options):
 #                count += 1
 
             # Necessary for final domain of a module other than those stated above
-            elif float(total_number_domain) == 0:
+            elif float(total_domain_number) == 0:
                 module_number = get_locustag_module_number(locustag, count)
                 locustag_module_domain_dict[module_number] = module_info_list
 
