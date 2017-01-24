@@ -7,7 +7,6 @@ import pytest
 from argparse import Namespace
 from Bio import SeqIO
 from cobra.io import read_sbml_model, write_sbml_model
-from gems.secondary_model.sec_met_rxn_generation import get_cluster_location
 from os.path import join, abspath, dirname
 
 data_model_dir = join(dirname(abspath(__file__)), 'data_model')
@@ -35,16 +34,7 @@ def options():
 @pytest.fixture(scope="function")
 def seq_record():
 
-    options = Namespace()
-
     # Streptomyces collinus Tu 365
     seq_record = SeqIO.read(join(data_antismash_dir, 'NC_021985.1.final.gbk'), 'genbank')
-    options.seq_record = seq_record
+    return seq_record
 
-    # Hybrid cluster: nrps-transatpks-t1pks
-    # locations: 341017 - 503094
-    # Kirromycin biosynthetic gene cluster (81% of genes show similarity)
-    cluster_nr = 3
-    get_cluster_location(cluster_nr, options)
-
-    return options
