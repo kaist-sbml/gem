@@ -5,33 +5,83 @@
 import logging
 from cobra import Metabolite
 
-#TODO: category these lines according to core and optional domains
-## domain information(nrps) :
-## Condensation    Condensation domain
-## Condensation_DCL    Condensation domain that links L-amino acid to peptide ending with D-amino acid
-## Condensation_LCL    Condensation domain that links L-amino acid to peptide ending with L-amino acid
-## Condensation_Dual     Dual condensation / epimerization domain
-## Condensation_Starter    Starter condensation domain
-## CXglyc    Putatively inactive glycopeptide condensation-like domain
-## Cglyc    Glycopeptide condensation domain
-## Heterocyclization    Heterocyclization domain
-## Epimerization    Epimerization domain
-## AMP-binding    Adenylation domain
-## A-OX     Adenylation domain with integrated oxidase
-## PCP     Peptidyl-carrier protein domain
-## ACP    4'-phosphopantetheinyl transferase
-## NRPS-COM_Nterm    NRPS COM domain Nterminal
-## NRPS-COM_Cterm    NRPS COM domain Cterminal
+def get_metab_coeff_dict():
 
-## domain information(pks) :
-## AT    acyltransferase
-## KS    ketosynthase
-## ACP    acyl carrier protein
-## KR    ketoreductase
-## DH    dehydratase
-## ER    enolase
-## cMT    methyltransferase
-## TD    thiolesterase domain
+    #Currency metabolites
+    metab_coeff_dict = {}
+    metab_coeff_dict['atp'] = 0
+    metab_coeff_dict['amp'] = 0
+    metab_coeff_dict['ppi'] = 0
+    metab_coeff_dict['amet'] = 0
+    metab_coeff_dict['ahcys'] = 0
+    metab_coeff_dict['fmn'] = 0
+    metab_coeff_dict['fmnh2'] = 0
+    metab_coeff_dict['nadp'] = 0
+    metab_coeff_dict['nadph'] = 0
+    metab_coeff_dict['h'] = 0
+    metab_coeff_dict['h2o'] = 0
+    metab_coeff_dict['hco3'] = 0
+    metab_coeff_dict['coa'] = 0
+
+    metab_coeff_dict['ala_DASH_L'] = 0 #'L-alanine', 'C00041', 'MNXM32'
+    metab_coeff_dict['arg_DASH_L'] = 0 #'L-Arginine', 'C00062', 'MNXM70'
+    metab_coeff_dict['asn_DASH_L'] = 0 #'L-asparagine', 'C00152', 'MNXM147'
+    metab_coeff_dict['asp_DASH_L'] = 0 #'L-Aspartate', 'C00049', 'MNXM42'
+    metab_coeff_dict['cys_DASH_L'] = 0  #'L-Cysteine', 'C00097', 'MNXM55'
+    metab_coeff_dict['gln_DASH_L'] = 0 #'L-Glutamine', 'C00064', 'MNXM37'
+    metab_coeff_dict['glu_DASH_L'] = 0 #'L-Glutamate', 'C00025', 'MNXM89557'
+    metab_coeff_dict['gly'] = 0 #'glycine', 'C00037', 'MNXM29'
+    metab_coeff_dict['his_DASH_L'] = 0 #'L-Histidine', 'C00135', 'MNXM134'
+    metab_coeff_dict['leu_DASH_L'] = 0 #'L-Leucine', 'C00123', 'MNXM140'
+    metab_coeff_dict['lys_DASH_L'] = 0 #'L-Lysine', 'C00047 ', 'MNXM78'
+    metab_coeff_dict['met_DASH_L'] = 0 #'L-Methionine', 'C00073', 'MNXM61'
+    metab_coeff_dict['phe_DASH_L'] = 0 #'L-Phenylalanine', 'C00079', 'MNXM97'
+    metab_coeff_dict['pro_DASH_L'] = 0 #'L-Proline', 'C00148', 'MNXM114'
+    metab_coeff_dict['ser_DASH_L'] = 0 #'L-Serine', 'C00065', 'MNXM53'
+    metab_coeff_dict['thr_DASH_L'] = 0 #'L-Threonine', 'C00188', 'MNXM142'
+    metab_coeff_dict['trp_DASH_L'] = 0 #'L-Tryptophan', 'C00078', 'MNXM94'
+    metab_coeff_dict['tyr_DASH_L'] = 0 #'L-Tyrosine', 'C00082', 'MNXM76'
+    metab_coeff_dict['val_DASH_L'] = 0 #'L-Valine', 'C00183', 'MNXM199'
+    metab_coeff_dict['ile_DASH_L'] = 0 #'L-Isoleucine', 'C00407', 'MNXM231'
+    metab_coeff_dict['phg_DASH_L'] = 0 #'phenylglycine', 'C18623', 'MNXM59292'
+    metab_coeff_dict['bht_DASH_L'] = 0 #'beta-hydroxyl-tyrosine', 'N/A', 'N/A'
+    metab_coeff_dict['orn'] = 0 #'Ornithine', 'C01602', 'MNXM89689'
+    metab_coeff_dict['MNXM17054'] = 0 #'abu', 'D-2-Aminobutyric acid', 'C02261', 'MNXM17054'
+    metab_coeff_dict['MNXM34821'] = 0 #'iva', '2-Amino-2-methylbutanoate', 'C03571', 'MNXM34821'
+    metab_coeff_dict['L2aadp'] = 0 #'L-2-Aminoadipic acid', 'C00956', 'MNXM268'
+    metab_coeff_dict['MNXM4544'] = 0 #'hpg', 'D-4-Hydroxyphenylglycine', 'C03493', 'MNXM4544'
+    metab_coeff_dict['23dhb'] = 0 #'2,3-Dihydroxybenzoic acid', 'C00196', 'MNXM455'
+    metab_coeff_dict['MNXM9962'] = 0 #'dhpg', '3,5-Dihydroxy-phenylglycine', 'C12026', 'MNXM9962'
+    metab_coeff_dict['MNXM59438'] = 0 #'hty', 'L-Homotyrosine', 'C18622', 'MNXM59438'
+    metab_coeff_dict['citr_DASH_L'] = 0 #'L-citruline', 'C00327', 'MNXM211'
+    metab_coeff_dict['Lpipecol'] = 0 #'L-pipecolate', 'C00408', 'MNXM684'
+    metab_coeff_dict['ala_DASH_B'] = 0 #'beta-alanine zwitterion', 'C00099', 'MNXM144'
+    metab_coeff_dict['24dab'] = 0 #'L-2,4-diazaniumylbutyrate', 'C03283', 'MNXM840'
+    metab_coeff_dict['pac'] = 0 #'phenylacetate', 'C00548', 'MNXM497'
+    metab_coeff_dict['23dappa'] = 0 #'3-aminoalanine zwitterion', 'C06393', 'MNXM91374'
+    metab_coeff_dict['MNXM37380'] = 0 #'tcl', '4-Chlorothreonine', 'N/A', 'MNXM37380'
+    metab_coeff_dict['tcl'] = 0 #(4S)-5,5,5-trichloro-leucine', 'N/A','N/A'
+    metab_coeff_dict['MNXM80505'] = 0 #'qa', 'quinoxaline', 'C18575','MNXM80505'
+    metab_coeff_dict['23cpda'] = 0 #'Trans-cyclopentane-(1R, 2R)-dicarboxylic acid', 'N/A','N/A'
+    metab_coeff_dict['MNXM31446'] = 0 #'2-Butenyl-4-methyl-threonine', 'C12029','MNXM31446'
+    metab_coeff_dict['salc'] = 0 #'salicylate', 'C00805','MNXM378'
+    metab_coeff_dict['MNXM8817'] = 0 #'L-alaninol', 'N/A','MNXM8817'
+    metab_coeff_dict['malcoa'] = 0 #'malonyl-CoA', 'C00083', 'MNXM40'
+    metab_coeff_dict['mmcoa_DASH_S'] = 0 #'(S)-methylmalonyl-CoA(5-)','C00683', 'MNXM190'
+    metab_coeff_dict['2mbcoa'] = 0 #'2-methylbutanoyl-CoA', C01033,'MNXM569'
+    metab_coeff_dict['emcoa_DASH_S'] = 0 #'ethylmalonyl-CoA','C18026', 'MNXM2043'
+    metab_coeff_dict['ibcoa'] = 0 #'2-Methylpropanoyl-CoA', 'C00630', 'MNXM470'
+    metab_coeff_dict['accoa'] = 0 #'Acetyl-CoA', 'C00024', 'MNXM21'
+    metab_coeff_dict['ppcoa'] = 0 #'Propionyl-CoA', 'C00100', 'MNXM86'
+    metab_coeff_dict['ivcoa'] = 0 #'3-Methylbutanoyl-CoA', 'C02939', 'MNXM471'
+    metab_coeff_dict['MNXM61686'] = 0 #'mxmalacp', 'Methoxymalonyl-[acp]', 'C18616', 'MNXM61686'
+    metab_coeff_dict['MNXM5111'] = 0 #'chccoa', 'cyclohexane-1-carboxyl-CoA', 'C09823', 'MNXM5111'
+    metab_coeff_dict['MNXM10927'] = 0 #'chloroethylmalonyl-CoA','N/A', 'MNXM10927'
+    metab_coeff_dict['MNXM4797'] = 0 #'Quinaldinic acid','C06325', 'MNXM4797'
+    metab_coeff_dict['MNXM240'] = 0 #'Benzoyl-CoA','C00512', 'MNXM240'
+    metab_coeff_dict['MNXM18891'] = 0 #'L-Capreomycidine', 'C18472', 'MNXM18891'
+    return metab_coeff_dict
+
 
 def get_biggid_from_aSid(each_substrate):
 
@@ -225,84 +275,6 @@ def get_biggid_from_aSid(each_substrate):
         met_name = 'MNXM18891'
 
     return met_name
-
-
-def get_metab_coeff_dict():
-
-    #Currency metabolites
-    metab_coeff_dict = {}
-    metab_coeff_dict['atp'] = 0
-    metab_coeff_dict['amp'] = 0
-    metab_coeff_dict['ppi'] = 0
-    metab_coeff_dict['amet'] = 0
-    metab_coeff_dict['ahcys'] = 0
-    metab_coeff_dict['fmn'] = 0
-    metab_coeff_dict['fmnh2'] = 0
-    metab_coeff_dict['nadp'] = 0
-    metab_coeff_dict['nadph'] = 0
-    metab_coeff_dict['h'] = 0
-    metab_coeff_dict['h2o'] = 0
-    metab_coeff_dict['hco3'] = 0
-    metab_coeff_dict['coa'] = 0
-
-    metab_coeff_dict['ala_DASH_L'] = 0 #'L-alanine', 'C00041', 'MNXM32'
-    metab_coeff_dict['arg_DASH_L'] = 0 #'L-Arginine', 'C00062', 'MNXM70'
-    metab_coeff_dict['asn_DASH_L'] = 0 #'L-asparagine', 'C00152', 'MNXM147'
-    metab_coeff_dict['asp_DASH_L'] = 0 #'L-Aspartate', 'C00049', 'MNXM42'
-    metab_coeff_dict['cys_DASH_L'] = 0  #'L-Cysteine', 'C00097', 'MNXM55'
-    metab_coeff_dict['gln_DASH_L'] = 0 #'L-Glutamine', 'C00064', 'MNXM37'
-    metab_coeff_dict['glu_DASH_L'] = 0 #'L-Glutamate', 'C00025', 'MNXM89557'
-    metab_coeff_dict['gly'] = 0 #'glycine', 'C00037', 'MNXM29'
-    metab_coeff_dict['his_DASH_L'] = 0 #'L-Histidine', 'C00135', 'MNXM134'
-    metab_coeff_dict['leu_DASH_L'] = 0 #'L-Leucine', 'C00123', 'MNXM140'
-    metab_coeff_dict['lys_DASH_L'] = 0 #'L-Lysine', 'C00047 ', 'MNXM78'
-    metab_coeff_dict['met_DASH_L'] = 0 #'L-Methionine', 'C00073', 'MNXM61'
-    metab_coeff_dict['phe_DASH_L'] = 0 #'L-Phenylalanine', 'C00079', 'MNXM97'
-    metab_coeff_dict['pro_DASH_L'] = 0 #'L-Proline', 'C00148', 'MNXM114'
-    metab_coeff_dict['ser_DASH_L'] = 0 #'L-Serine', 'C00065', 'MNXM53'
-    metab_coeff_dict['thr_DASH_L'] = 0 #'L-Threonine', 'C00188', 'MNXM142'
-    metab_coeff_dict['trp_DASH_L'] = 0 #'L-Tryptophan', 'C00078', 'MNXM94'
-    metab_coeff_dict['tyr_DASH_L'] = 0 #'L-Tyrosine', 'C00082', 'MNXM76'
-    metab_coeff_dict['val_DASH_L'] = 0 #'L-Valine', 'C00183', 'MNXM199'
-    metab_coeff_dict['ile_DASH_L'] = 0 #'L-Isoleucine', 'C00407', 'MNXM231'
-    metab_coeff_dict['phg_DASH_L'] = 0 #'phenylglycine', 'C18623', 'MNXM59292'
-    metab_coeff_dict['bht_DASH_L'] = 0 #'beta-hydroxyl-tyrosine', 'N/A', 'N/A'
-    metab_coeff_dict['orn'] = 0 #'Ornithine', 'C01602', 'MNXM89689'
-    metab_coeff_dict['MNXM17054'] = 0 #'abu', 'D-2-Aminobutyric acid', 'C02261', 'MNXM17054'
-    metab_coeff_dict['MNXM34821'] = 0 #'iva', '2-Amino-2-methylbutanoate', 'C03571', 'MNXM34821'
-    metab_coeff_dict['L2aadp'] = 0 #'L-2-Aminoadipic acid', 'C00956', 'MNXM268'
-    metab_coeff_dict['MNXM4544'] = 0 #'hpg', 'D-4-Hydroxyphenylglycine', 'C03493', 'MNXM4544'
-    metab_coeff_dict['23dhb'] = 0 #'2,3-Dihydroxybenzoic acid', 'C00196', 'MNXM455'
-    metab_coeff_dict['MNXM9962'] = 0 #'dhpg', '3,5-Dihydroxy-phenylglycine', 'C12026', 'MNXM9962'
-    metab_coeff_dict['MNXM59438'] = 0 #'hty', 'L-Homotyrosine', 'C18622', 'MNXM59438'
-    metab_coeff_dict['citr_DASH_L'] = 0 #'L-citruline', 'C00327', 'MNXM211'
-    metab_coeff_dict['Lpipecol'] = 0 #'L-pipecolate', 'C00408', 'MNXM684'
-    metab_coeff_dict['ala_DASH_B'] = 0 #'beta-alanine zwitterion', 'C00099', 'MNXM144'
-    metab_coeff_dict['24dab'] = 0 #'L-2,4-diazaniumylbutyrate', 'C03283', 'MNXM840'
-    metab_coeff_dict['pac'] = 0 #'phenylacetate', 'C00548', 'MNXM497'
-    metab_coeff_dict['23dappa'] = 0 #'3-aminoalanine zwitterion', 'C06393', 'MNXM91374'
-    metab_coeff_dict['MNXM37380'] = 0 #'tcl', '4-Chlorothreonine', 'N/A', 'MNXM37380'
-    metab_coeff_dict['tcl'] = 0 #(4S)-5,5,5-trichloro-leucine', 'N/A','N/A'
-    metab_coeff_dict['MNXM80505'] = 0 #'qa', 'quinoxaline', 'C18575','MNXM80505'
-    metab_coeff_dict['23cpda'] = 0 #'Trans-cyclopentane-(1R, 2R)-dicarboxylic acid', 'N/A','N/A'
-    metab_coeff_dict['MNXM31446'] = 0 #'2-Butenyl-4-methyl-threonine', 'C12029','MNXM31446'
-    metab_coeff_dict['salc'] = 0 #'salicylate', 'C00805','MNXM378'
-    metab_coeff_dict['MNXM8817'] = 0 #'L-alaninol', 'N/A','MNXM8817'
-    metab_coeff_dict['malcoa'] = 0 #'malonyl-CoA', 'C00083', 'MNXM40'
-    metab_coeff_dict['mmcoa_DASH_S'] = 0 #'(S)-methylmalonyl-CoA(5-)','C00683', 'MNXM190'
-    metab_coeff_dict['2mbcoa'] = 0 #'2-methylbutanoyl-CoA', C01033,'MNXM569'
-    metab_coeff_dict['emcoa_DASH_S'] = 0 #'ethylmalonyl-CoA','C18026', 'MNXM2043'
-    metab_coeff_dict['ibcoa'] = 0 #'2-Methylpropanoyl-CoA', 'C00630', 'MNXM470'
-    metab_coeff_dict['accoa'] = 0 #'Acetyl-CoA', 'C00024', 'MNXM21'
-    metab_coeff_dict['ppcoa'] = 0 #'Propionyl-CoA', 'C00100', 'MNXM86'
-    metab_coeff_dict['ivcoa'] = 0 #'3-Methylbutanoyl-CoA', 'C02939', 'MNXM471'
-    metab_coeff_dict['MNXM61686'] = 0 #'mxmalacp', 'Methoxymalonyl-[acp]', 'C18616', 'MNXM61686'
-    metab_coeff_dict['MNXM5111'] = 0 #'chccoa', 'cyclohexane-1-carboxyl-CoA', 'C09823', 'MNXM5111'
-    metab_coeff_dict['MNXM10927'] = 0 #'chloroethylmalonyl-CoA','N/A', 'MNXM10927'
-    metab_coeff_dict['MNXM4797'] = 0 #'Quinaldinic acid','C06325', 'MNXM4797'
-    metab_coeff_dict['MNXM240'] = 0 #'Benzoyl-CoA','C00512', 'MNXM240'
-    metab_coeff_dict['MNXM18891'] = 0 #'L-Capreomycidine', 'C18472', 'MNXM18891'
-    return metab_coeff_dict
 
 
 #Add metabolite MNXM having no bigg ID to the model

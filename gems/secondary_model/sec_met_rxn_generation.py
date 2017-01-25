@@ -11,8 +11,8 @@ from Bio import SeqIO
 from cobra import Model, Reaction, Metabolite
 from cobra.io.sbml import create_cobra_model_from_sbml_file, write_cobra_model_to_sbml_file
 from general_sec_met_info import (
-    get_biggid_from_aSid,
     get_metab_coeff_dict,
+    get_biggid_from_aSid,
     add_sec_met_mnxm_having_no_biggid_to_model
 )
 
