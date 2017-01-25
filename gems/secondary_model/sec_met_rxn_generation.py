@@ -11,9 +11,6 @@ from Bio import SeqIO
 from cobra import Model, Reaction, Metabolite
 from cobra.io.sbml import create_cobra_model_from_sbml_file, write_cobra_model_to_sbml_file
 from general_sec_met_info import (
-    get_module_struct,
-    get_kr_activity,
-    get_module_currency_metab_dict,
     get_biggid_from_aSid,
     get_metab_coeff_dict,
     add_sec_met_mnxm_having_no_biggid_to_model
@@ -77,6 +74,36 @@ def get_cluster_product(cluster_nr, options):
     options.product = product3
 
 
+#TODO: Check how this information can be used in future
+# Addition of currency metabolites for each domain
+#rather than previous way of domain combinations
+
+# domain information(nrps) :
+# Condensation    Condensation domain
+# Condensation_DCL    Condensation domain that links L-amino acid to peptide ending with D    -amino acid
+# Condensation_LCL    Condensation domain that links L-amino acid to peptide ending with L    -amino acid
+# Condensation_Dual     Dual condensation / epimerization domain
+# Condensation_Starter    Starter condensation domain
+# CXglyc    Putatively inactive glycopeptide condensation-like domain
+# Cglyc    Glycopeptide condensation domain
+# Heterocyclization    Heterocyclization domain
+# Epimerization    Epimerization domain
+# AMP-binding    Adenylation domain
+# A-OX     Adenylation domain with integrated oxidase
+# PCP     Peptidyl-carrier protein domain
+# ACP    4'-phosphopantetheinyl transferase
+# NRPS-COM_Nterm    NRPS COM domain Nterminal
+# NRPS-COM_Cterm    NRPS COM domain Cterminal
+
+# domain information(pks) :
+# AT    acyltransferase
+# KS    ketosynthase
+# ACP    acyl carrier protein
+# KR    ketoreductase
+# DH    dehydratase
+# ER    enolase
+# cMT    methyltransferase
+# TD    thiolesterase domain
 def get_cluster_domain(options):
 
     locustag_domain_dict = {}
@@ -216,6 +243,7 @@ def extract_pk_monomers(sec_met_info):
     return pred_monomer_list
 
 
+#TODO: Remove if necessary
 def get_cluster_module(options):
 
     locustag_module_domain_dict = {}
@@ -261,73 +289,12 @@ def get_locustag_module_number(locustag, count):
     return module_number
 
 
-#Ouput: e.g., {'SAV_943_M0':{'coa': 1, 'nadph': -1, 'nadp': 1, 'hco3': 1, 'h': -1}
-def get_currency_metabolites(options):
-
-    module_currency_metab_dict = {}
-
-    for locustag_moduleNumber in options.locustag_module_domain_dict.keys():
-        #logging.debug('locustag_moduleNumber: %s' %locustag_moduleNumber)
-
-        each_locustag = locustag_moduleNumber[:-4]
-        domain_comb = options.locustag_module_domain_dict[locustag_moduleNumber]
-
-        each_module_substrates = {}
-        domain_trunc_list = []
-
-        for each_domain in domain_comb:
-            abbr_domain = each_domain[:-5]
-            domain_trunc_list.append(abbr_domain)
-
-        module_struct = get_module_struct(domain_trunc_list)
-        module_struct_kr = get_kr_activity(
-                each_locustag, domain_comb, options.locustag_kr_dict, module_struct)
-
-        #TODO: Check these if statements and remove if necessary
-        if module_struct_kr == 'None':
-            continue
-
-        elif module_struct_kr == 'ACP':
-            continue
-
-        elif module_struct_kr == 'PCP':
-            continue
-
-        else:
-            module_currency_metab_dict = get_module_currency_metab_dict(
-                    module_struct_kr, locustag_moduleNumber,
-                    each_module_substrates, module_currency_metab_dict)
-
-    options.module_currency_metab_dict = module_currency_metab_dict
-
-
-#Output: {'nadph': 0, 'fmnh2': 0, 'h': 0, 'ppi': 1, 'ahcys': 0}
-def get_total_currency_metab_coeff(options):
-
-    currency_metab_coeff_dict = get_metab_coeff_dict()
-
-    for each_module in options.module_currency_metab_dict.keys():
-        for each_metabolite in options.module_currency_metab_dict[each_module]:
-            metab_coeff = options.module_currency_metab_dict[each_module][each_metabolite]
-
-            if options.module_currency_metab_dict[each_module][each_metabolite] > 0:
-                currency_metab_coeff_dict[each_metabolite] += metab_coeff
-
-            else:
-                currency_metab_coeff_dict[each_metabolite] += metab_coeff
-
-    #print 'currency_metab_coeff_dict'
-    #print currency_metab_coeff_dict, '\n'
-    options.currency_metab_coeff_dict = currency_metab_coeff_dict
-
-
 #Coeff data of major monomers are added in the same dict file used for currency metabolites
 #Output: e.g.,
-#{'coa': 13, 'mmalcoa': -4, 'h': -10, 'malcoa': -7,     'hco3': 13, 'nadph': -10, 'h2o': 5, 'nadp': 10}
+#{'coa': 13, 'mmalcoa': -4, 'h': -10, 'malcoa': -7, 'hco3': 13, 'nadph': -10, 'h2o': 5, 'nadp': 10}
 def get_all_metab_coeff(options):
 
-    metab_coeff_dict = {}
-    metab_coeff_dict = options.currency_metab_coeff_dict
+    metab_coeff_dict = get_metab_coeff_dict()
 
     for each_module in options.locustag_monomer_dict.keys():
         #locustag_monomer_dict[each_module] for nrps
