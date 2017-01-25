@@ -47,7 +47,7 @@ def get_cluster_info_from_seq_record(options):
                     cluster_info_dict[qualifier_locus_tag] = \
                             feature.qualifiers.get('sec_met')
 
-    logging.debug('cluster_info_dict: %s' %cluster_info_dict)
+    #logging.debug('cluster_info_dict: %s' %cluster_info_dict)
     options.cluster_info_dict = cluster_info_dict
 
 
@@ -122,7 +122,7 @@ def get_cluster_domain(options):
         locustag_domain_dict[each_gene] = sec_met_domain_list
         locustag_kr_dict[each_gene] = kr_domain_info_dict
 
-    logging.debug('locustag_domain_dict: %s' %locustag_domain_dict)
+    #logging.debug('locustag_domain_dict: %s' %locustag_domain_dict)
     options.locustag_domain_dict = locustag_domain_dict
     options.locustag_kr_dict = locustag_kr_dict
 
@@ -239,64 +239,6 @@ def get_cluster_module(options):
                 module_info_list = []
                 count += 1
 
-            # Check final domain of a module: optional domain
-            # Presence of 'PCP' was considered in case Epimerization appears first
-            #before 'PCP'
-            # e.g., 'M271_46685' in cluster 46 of 'src' (KEGG organism code)
-            elif 'Epimerization' in each_domain and 'PCP' in module_info_list:
-                count -= 1
-
-                module_number = get_locustag_module_number(locustag, count)
-                module_info_list = locustag_module_domain_dict[module_number]
-                module_info_list.append(str(each_domain))
-                locustag_module_domain_dict[module_number] = module_info_list
-
-                module_info_list = []
-                count += 1
-
-            # Check final domain of a module: linker domain
-            # Modules exist where the final domain is 'PKS_Docking_Cterm'
-            # 'PKS_Docking_Nterm'' is only for the starting domain
-            elif 'PKS_Docking_Cterm' in each_domain \
-                    and 'ACP' in options.locustag_domain_dict[locustag]:
-                count -= 1
-                module_number = locustag + '_M' + str(count)
-                module_info_list = locustag_module_domain_dict[module_number]
-                module_info_list.append('PKS_Docking_Cterm')
-                locustag_module_domain_dict[module_number] = module_info_list
-
-                module_info_list = []
-                count += 1
-
-            # Check final domain of a module: final point of the carbon scaffold
-            # 'ACP' was inserted, otherwise it causes an error
-            #by having a locus_tag with unspecified monomer
-            elif 'Thioesterase' in each_domain\
-                    and 'ACP' in options.locustag_domain_dict[locustag]:
-                count -= 1
-                module_number = get_locustag_module_number(locustag, count)
-                module_info_list = locustag_module_domain_dict[module_number]
-                module_info_list.append(str(each_domain))
-                locustag_module_domain_dict[module_number] = module_info_list
-
-            #TODO: do final check and remove the lines
-#            elif module_info_list.count('PKS_KS') == 2 \
-#                    or module_info_list.count('Condensation') == 2 \
-#                    or module_info_list.count('Condensation_DCL') == 2 \
-#                    or module_info_list.count('Condensation_LCL') == 2 \
-#                    or module_info_list.count('Condensation_LCL') + module_info_list.count('Condensation_DCL') == 2 \
-#                    or module_info_list.count('Condensation_Dual') == 2 \
-#                    or module_info_list.count('Cglyc') == 2 \
-#                    or module_info_list.count('CXglyc') == 2 \
-#                    or module_info_list.count('Heterocyclization') == 2:
-#                module_number = get_locustag_module_number(locustag, count)
-#                poped_domain = module_info_list.pop()
-#                locustag_module_domain_dict[module_number] = module_info_list
-
-#                module_info_list = []
-#                module_info_list.append(poped_domain)
-#                count += 1
-
             # Necessary for final domain of a module other than those stated above
             elif float(total_domain_number) == 0:
                 module_number = get_locustag_module_number(locustag, count)
@@ -305,7 +247,7 @@ def get_cluster_module(options):
                 module_info_list = []
                 count += 1
 
-    logging.debug('locustag_module_domain_dict: %s' %locustag_module_domain_dict)
+    #logging.debug('locustag_module_domain_dict: %s' %locustag_module_domain_dict)
     options.locustag_module_domain_dict = locustag_module_domain_dict
 
 
@@ -324,7 +266,7 @@ def get_currency_metabolites(options):
     module_currency_metab_dict = {}
 
     for locustag_moduleNumber in options.locustag_module_domain_dict.keys():
-        logging.debug('locustag_moduleNumber: %s' %locustag_moduleNumber)
+        #logging.debug('locustag_moduleNumber: %s' %locustag_moduleNumber)
 
         each_locustag = locustag_moduleNumber[:-4]
         domain_comb = options.locustag_module_domain_dict[locustag_moduleNumber]

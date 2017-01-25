@@ -370,8 +370,8 @@ def get_module_struct(domain_comb):
 
     else:
         module_struct = 'None'
-    logging.debug('domain_comb: %s' %domain_comb)
-    logging.debug('module_struct: %s' %module_struct)
+    #logging.debug('domain_comb: %s' %domain_comb)
+    #logging.debug('module_struct: %s' %module_struct)
     return module_struct
 
 
