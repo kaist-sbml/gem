@@ -50,25 +50,25 @@ class TestSecondary_model:
         assert 'Polyketide_cyc' in str(options.locustag_domain_dict['B446_01405'])
 
         assert len(options.locustag_domain_dict['B446_01480']) == 7
-        assert 'Condensation_Starter_DM00' in options.locustag_domain_dict['B446_01480'] \
-            and 'AMP-binding_DM01' in options.locustag_domain_dict['B446_01480'] \
-            and 'PCP_DM02' in options.locustag_domain_dict['B446_01480'] \
-            and 'Epimerization_DM03' in options.locustag_domain_dict['B446_01480'] \
-            and 'Condensation_DCL_DM04' in options.locustag_domain_dict['B446_01480'] \
-            and 'AMP-binding_DM05' in options.locustag_domain_dict['B446_01480'] \
-            and 'PCP_DM06' in options.locustag_domain_dict['B446_01480']
+        assert 'Condensation_Starter_D00' in options.locustag_domain_dict['B446_01480'] \
+            and 'AMP-binding_D01' in options.locustag_domain_dict['B446_01480'] \
+            and 'PCP_D02' in options.locustag_domain_dict['B446_01480'] \
+            and 'Epimerization_D03' in options.locustag_domain_dict['B446_01480'] \
+            and 'Condensation_DCL_D04' in options.locustag_domain_dict['B446_01480'] \
+            and 'AMP-binding_D05' in options.locustag_domain_dict['B446_01480'] \
+            and 'PCP_D06' in options.locustag_domain_dict['B446_01480']
 
         assert len(options.locustag_domain_dict['B446_01485']) == 10
-        assert 'Condensation_LCL_DM00' in options.locustag_domain_dict['B446_01485'] \
-            and 'AMP-binding_DM01' in options.locustag_domain_dict['B446_01485'] \
-            and 'PCP_DM02' in options.locustag_domain_dict['B446_01485'] \
-            and 'Condensation_LCL_DM03' in options.locustag_domain_dict['B446_01485'] \
-            and 'AMP-binding_DM04' in options.locustag_domain_dict['B446_01485'] \
-            and 'PCP_DM05' in options.locustag_domain_dict['B446_01485'] \
-            and 'Condensation_LCL_DM06' in options.locustag_domain_dict['B446_01485'] \
-            and 'AMP-binding_DM07' in options.locustag_domain_dict['B446_01485'] \
-            and 'PCP_DM08' in options.locustag_domain_dict['B446_01485'] \
-            and 'Thioesterase_DM09' in options.locustag_domain_dict['B446_01485']
+        assert 'Condensation_LCL_D00' in options.locustag_domain_dict['B446_01485'] \
+            and 'AMP-binding_D01' in options.locustag_domain_dict['B446_01485'] \
+            and 'PCP_D02' in options.locustag_domain_dict['B446_01485'] \
+            and 'Condensation_LCL_D03' in options.locustag_domain_dict['B446_01485'] \
+            and 'AMP-binding_D04' in options.locustag_domain_dict['B446_01485'] \
+            and 'PCP_D05' in options.locustag_domain_dict['B446_01485'] \
+            and 'Condensation_LCL_D06' in options.locustag_domain_dict['B446_01485'] \
+            and 'AMP-binding_D07' in options.locustag_domain_dict['B446_01485'] \
+            and 'PCP_D08' in options.locustag_domain_dict['B446_01485'] \
+            and 'Thioesterase_D09' in options.locustag_domain_dict['B446_01485']
 
         assert len(options.locustag_domain_dict['B446_01525']) == 1
         assert len(options.locustag_domain_dict['B446_01530']) == 4
@@ -83,26 +83,26 @@ class TestSecondary_model:
         assert len(options.locustag_domain_dict['B446_01670']) == 9
         assert len(options.locustag_domain_dict['B446_01675']) == 8
         assert len(options.locustag_domain_dict['B446_01680']) == 20
-        assert 'PKS_DH2_DM00' in options.locustag_domain_dict['B446_01680'] \
-            and 'PKS_KR_DM01' in options.locustag_domain_dict['B446_01680'] \
-            and 'ACP_DM02' in options.locustag_domain_dict['B446_01680'] \
-            and 'PKS_KS_DM03' in options.locustag_domain_dict['B446_01680'] \
-            and 'PKS_DH2_DM04' in options.locustag_domain_dict['B446_01680'] \
-            and 'PKS_KR_DM05' in options.locustag_domain_dict['B446_01680'] \
-            and 'cMT_DM06' in options.locustag_domain_dict['B446_01680'] \
-            and 'ACP_DM07' in options.locustag_domain_dict['B446_01680'] \
-            and 'PKS_KS_DM08' in options.locustag_domain_dict['B446_01680'] \
-            and 'PKS_DHt_DM09' in options.locustag_domain_dict['B446_01680'] \
-            and 'ACP_DM10' in options.locustag_domain_dict['B446_01680'] \
-            and 'PKS_KS_DM11' in options.locustag_domain_dict['B446_01680'] \
-            and 'Trans-AT_docking_DM12' in options.locustag_domain_dict['B446_01680'] \
-            and 'PKS_KR_DM13' in options.locustag_domain_dict['B446_01680'] \
-            and 'ACP_DM14' in options.locustag_domain_dict['B446_01680'] \
-            and 'PKS_KS_DM15' in options.locustag_domain_dict['B446_01680'] \
-            and 'Trans-AT_docking_DM16' in options.locustag_domain_dict['B446_01680'] \
-            and 'PKS_KR_DM17' in options.locustag_domain_dict['B446_01680'] \
-            and 'ACP_DM18' in options.locustag_domain_dict['B446_01680'] \
-            and 'PKS_KS_DM19' in options.locustag_domain_dict['B446_01680']
+        assert 'PKS_DH2_D00' in options.locustag_domain_dict['B446_01680'] \
+            and 'PKS_KR_D01' in options.locustag_domain_dict['B446_01680'] \
+            and 'ACP_D02' in options.locustag_domain_dict['B446_01680'] \
+            and 'PKS_KS_D03' in options.locustag_domain_dict['B446_01680'] \
+            and 'PKS_DH2_D04' in options.locustag_domain_dict['B446_01680'] \
+            and 'PKS_KR_D05' in options.locustag_domain_dict['B446_01680'] \
+            and 'cMT_D06' in options.locustag_domain_dict['B446_01680'] \
+            and 'ACP_D07' in options.locustag_domain_dict['B446_01680'] \
+            and 'PKS_KS_D08' in options.locustag_domain_dict['B446_01680'] \
+            and 'PKS_DHt_D09' in options.locustag_domain_dict['B446_01680'] \
+            and 'ACP_D10' in options.locustag_domain_dict['B446_01680'] \
+            and 'PKS_KS_D11' in options.locustag_domain_dict['B446_01680'] \
+            and 'Trans-AT_docking_D12' in options.locustag_domain_dict['B446_01680'] \
+            and 'PKS_KR_D13' in options.locustag_domain_dict['B446_01680'] \
+            and 'ACP_D14' in options.locustag_domain_dict['B446_01680'] \
+            and 'PKS_KS_D15' in options.locustag_domain_dict['B446_01680'] \
+            and 'Trans-AT_docking_D16' in options.locustag_domain_dict['B446_01680'] \
+            and 'PKS_KR_D17' in options.locustag_domain_dict['B446_01680'] \
+            and 'ACP_D18' in options.locustag_domain_dict['B446_01680'] \
+            and 'PKS_KS_D19' in options.locustag_domain_dict['B446_01680']
 
         assert len(options.locustag_domain_dict['B446_01685']) == 4
         assert len(options.locustag_domain_dict['B446_01690']) == 14
@@ -116,11 +116,11 @@ class TestSecondary_model:
         get_cluster_module(options)
 
         assert len(options.locustag_module_domain_dict.keys()) == 42
-        assert 'Thioesterase_DM06' in options.locustag_module_domain_dict['B446_01565_M02']
-        assert 'PKS_KR_DM02' in options.locustag_module_domain_dict['B446_01675_M01'] \
-            and 'PKS_KS_DM03' in options.locustag_module_domain_dict['B446_01675_M01'] \
-            and 'PKS_DH_DM04' in options.locustag_module_domain_dict['B446_01675_M01'] \
-            and 'PKS_KR_DM05' in options.locustag_module_domain_dict['B446_01675_M01'] \
-            and 'ACP_DM06' in options.locustag_module_domain_dict['B446_01675_M01']
+        assert 'Thioesterase_D06' in options.locustag_module_domain_dict['B446_01565_M02']
+        assert 'PKS_KR_D02' in options.locustag_module_domain_dict['B446_01675_M01'] \
+            and 'PKS_KS_D03' in options.locustag_module_domain_dict['B446_01675_M01'] \
+            and 'PKS_DH_D04' in options.locustag_module_domain_dict['B446_01675_M01'] \
+            and 'PKS_KR_D05' in options.locustag_module_domain_dict['B446_01675_M01'] \
+            and 'ACP_D06' in options.locustag_module_domain_dict['B446_01675_M01']
 
 

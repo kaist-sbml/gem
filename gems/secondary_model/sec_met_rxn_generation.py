@@ -102,9 +102,9 @@ def get_cluster_domain(options):
 
                 # Count the number of domains
                 if float(domain_count) < 10:
-                    domain_number = "_DM0" + str(domain_count)
+                    domain_number = "_D0" + str(domain_count)
                 else:
-                    domain_number = "_DM" + str(domain_count)
+                    domain_number = "_D" + str(domain_count)
 
                 domain_number = each_sec_met_domain + domain_number
                 sec_met_domain_list.append(domain_number)
@@ -216,7 +216,6 @@ def extract_pk_monomers(sec_met_info):
     return pred_monomer_list
 
 
-#Output: e.g., {'SAV_943_M1': ['PKS_KS', 'PKS_AT', 'ACP']}
 def get_cluster_module(options):
 
     locustag_module_domain_dict = {}
@@ -239,7 +238,9 @@ def get_cluster_module(options):
                 module_info_list = []
                 count += 1
 
-            # Necessary for final domain of a module other than those stated above
+            #TODO: Check this if statement causes changes in
+            #the results of 'get_currency_metabolites'
+            # Without this, modules not having 'PCP' or 'ACP' are not considered
             elif float(total_domain_number) == 0:
                 module_number = get_locustag_module_number(locustag, count)
                 locustag_module_domain_dict[module_number] = module_info_list
@@ -247,7 +248,7 @@ def get_cluster_module(options):
                 module_info_list = []
                 count += 1
 
-    #logging.debug('locustag_module_domain_dict: %s' %locustag_module_domain_dict)
+    logging.debug('locustag_module_domain_dict: %s' %locustag_module_domain_dict)
     options.locustag_module_domain_dict = locustag_module_domain_dict
 
 
@@ -297,8 +298,6 @@ def get_currency_metabolites(options):
                     module_struct_kr, locustag_moduleNumber,
                     each_module_substrates, module_currency_metab_dict)
 
-    #print "module_currency_metab_dict"
-    #print module_currency_metab_dict, '\n'
     options.module_currency_metab_dict = module_currency_metab_dict
 
 
