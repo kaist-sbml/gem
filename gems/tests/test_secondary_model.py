@@ -7,7 +7,8 @@ from os.path import join
 from gems.secondary_model.sec_met_rxn_generation import (
         get_cluster_location,
         get_cluster_info_from_seq_record,
-        get_cluster_domain
+        get_cluster_domain,
+        get_cluster_module
         )
 
 class TestSecondary_model:
@@ -108,3 +109,18 @@ class TestSecondary_model:
         assert len(options.locustag_domain_dict['B446_01695']) == 6
         assert len(options.locustag_domain_dict['B446_01700']) == 1
         assert len(options.locustag_domain_dict['B446_01730']) == 1
+
+    def test_get_cluster_module(self, locustag_domain_dict, options):
+
+        options.locustag_domain_dict = locustag_domain_dict
+        get_cluster_module(options)
+
+        assert len(options.locustag_module_domain_dict.keys()) == 42
+        assert 'Thioesterase_DM06' in options.locustag_module_domain_dict['B446_01565_M02']
+        assert 'PKS_KR_DM02' in options.locustag_module_domain_dict['B446_01675_M01'] \
+            and 'PKS_KS_DM03' in options.locustag_module_domain_dict['B446_01675_M01'] \
+            and 'PKS_DH_DM04' in options.locustag_module_domain_dict['B446_01675_M01'] \
+            and 'PKS_KR_DM05' in options.locustag_module_domain_dict['B446_01675_M01'] \
+            and 'ACP_DM06' in options.locustag_module_domain_dict['B446_01675_M01']
+
+
