@@ -243,43 +243,6 @@ def extract_pk_monomers(sec_met_info):
     return pred_monomer_list
 
 
-#TODO: Remove if necessary
-def get_cluster_module(options):
-
-    locustag_module_domain_dict = {}
-
-    for locustag in options.locustag_domain_dict.keys():
-
-        count = 0
-        module_info_list = []
-        total_domain_number = len(options.locustag_domain_dict[locustag])
-
-        for each_domain in options.locustag_domain_dict[locustag]:
-            module_info_list.append(each_domain)
-            total_domain_number -= 1
-
-            # Check final domain of a module: core domain
-            if 'PCP' in each_domain or 'ACP' in each_domain:
-                module_number = get_locustag_module_number(locustag, count)
-                locustag_module_domain_dict[module_number] = module_info_list
-
-                module_info_list = []
-                count += 1
-
-            #TODO: Check this if statement causes changes in
-            #the results of 'get_currency_metabolites'
-            # Without this, modules not having 'PCP' or 'ACP' are not considered
-            elif float(total_domain_number) == 0:
-                module_number = get_locustag_module_number(locustag, count)
-                locustag_module_domain_dict[module_number] = module_info_list
-
-                module_info_list = []
-                count += 1
-
-    logging.debug('locustag_module_domain_dict: %s' %locustag_module_domain_dict)
-    options.locustag_module_domain_dict = locustag_module_domain_dict
-
-
 def get_locustag_module_number(locustag, count):
     if float(count) < 10:
         module_number = locustag + '_M0' + str(count)
