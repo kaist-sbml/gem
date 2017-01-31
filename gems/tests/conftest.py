@@ -68,25 +68,3 @@ def locustag_domain_dict():
     return locustag_domain_dict
 
 
-@pytest.fixture(scope="function")
-def locustag_monomer_dict():
-    locustag_monomer_dict = {
-            'B446_01480_M0': ['orn,lys,arg', 'lys', 'leu', 'nrp'],
-            'B446_01480_M1': ['ser', 'ser', 'ser', 'ser'],
-            'B446_01485_M0': ['val', 'val', 'val', 'val'],
-            'B446_01485_M1': ['asp,asn,glu,gln,aad', 'N/A', 'ala', 'nrp'],
-            'B446_01485_M2': ['gly', 'gly', 'gly', 'gly'],
-            'B446_01525_M0': ['hydrophilic', 'arg', 'arg', 'arg'],
-            'B446_01530_M0': ['N/A', 'ser', 'dab', 'nrp'],
-            'B446_01535_M0': ['val', 'val', 'val', 'val'],
-            'B446_01565_M0': ['thr', 'thr', 'thr', 'thr'],
-            'B446_01565_M1': ['ser', 'ser', 'ser', 'ser'],
-            'B446_01635_M0': ['mmal', 'mmal', 'mmal'],
-            'B446_01655_M0': ['mal', 'mal', 'mal'],
-            'B446_01655_M1': ['mal', 'mal', 'mal'],
-            'B446_01660_M0': ['gly', 'gly', 'gly', 'gly'],
-            'B446_01670_M0': ['mmal', 'mmal', 'ccmmal'],
-            'B446_01670_M1': ['mal', 'mal', 'mal'],
-            'B446_01685_M0': ['gly', 'gly', 'gly', 'gly']
-            }
-

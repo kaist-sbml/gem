@@ -191,9 +191,8 @@ def get_cluster_monomers(options):
     options.locustag_monomer_dict = locustag_monomer_dict
 
 
-#Coeff data of major monomers are added in the same dict file used for currency metabolites
-#Output: e.g.,
-#{'coa': 13, 'mmalcoa': -4, 'h': -10, 'malcoa': -7, 'hco3': 13, 'nadph': -10, 'h2o': 5, 'nadp': 10}
+#Add stoichiometric coeff's of monomers
+#Output: e.g., {'mmalcoa': -4, 'malcoa': -7}
 def get_all_metab_coeff(options):
 
     metab_coeff_dict = get_metab_coeff_dict()
@@ -205,8 +204,6 @@ def get_all_metab_coeff(options):
         #Position [2]: Minowa
         #Position [3]: consensus
         if len(options.locustag_monomer_dict[each_module]) == 4:
-
-            sptlist1 = options.locustag_monomer_dict[each_module][0].split(',')
 
             #In case "consensus" is not reached:
             if options.locustag_monomer_dict[each_module][3] == 'nrp':
@@ -306,8 +303,7 @@ def get_all_metab_coeff(options):
     #Add secondary metabolite product to the reaction
     metab_coeff_dict[options.product] = 1
 
-    #print 'metab_coeff_dict'
-    #print metab_coeff_dict, '\n'
+    logging.debug('metab_coeff_dict: %s' %metab_coeff_dict)
     options.metab_coeff_dict = metab_coeff_dict
 
 
