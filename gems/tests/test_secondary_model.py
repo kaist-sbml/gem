@@ -8,7 +8,8 @@ from gems.secondary_model.sec_met_rxn_generation import (
         get_cluster_location,
         get_cluster_product,
         get_cluster_info_from_seq_record,
-        get_cluster_domain
+        get_cluster_domain,
+        get_cluster_monomers
         )
 
 class TestSecondary_model:
@@ -22,6 +23,7 @@ class TestSecondary_model:
         # locations: 341017 - 503094
         # Kirromycin biosynthetic gene cluster (81% of genes show similarity)
         cluster_nr = 3
+
         get_cluster_location(cluster_nr, options)
         get_cluster_info_from_seq_record(options)
 
@@ -36,6 +38,7 @@ class TestSecondary_model:
 
         options.seq_record = seq_record
         cluster_nr = 3
+
         get_cluster_location(cluster_nr, options)
         get_cluster_product(cluster_nr, options)
 
@@ -43,10 +46,11 @@ class TestSecondary_model:
 
 
     def test_get_cluster_domain(self, seq_record, options):
-        options.seq_record = seq_record
 
+        options.seq_record = seq_record
         # 'cluster_info_dict' is too long to write in file
         cluster_nr = 3
+
         get_cluster_location(cluster_nr, options)
         get_cluster_info_from_seq_record(options)
 
@@ -118,4 +122,21 @@ class TestSecondary_model:
         assert len(options.locustag_domain_dict['B446_01695']) == 6
         assert len(options.locustag_domain_dict['B446_01700']) == 1
         assert len(options.locustag_domain_dict['B446_01730']) == 1
+
+
+    def test_get_cluster_monomers(self, seq_record, options):
+
+        options.seq_record = seq_record
+        cluster_nr = 3
+
+        get_cluster_location(cluster_nr, options)
+        get_cluster_info_from_seq_record(options)
+        get_cluster_monomers(options)
+
+        assert len(options.locustag_monomer_dict.keys()) == 17
+
+        #Consensus monomers
+        assert options.locustag_monomer_dict['B446_01480_M0'][3] == 'nrp'
+        assert options.locustag_monomer_dict['B446_01480_M1'][3] == 'ser'
+        assert options.locustag_monomer_dict['B446_01670_M0'][2] == 'ccmmal'
 
