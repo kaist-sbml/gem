@@ -1,10 +1,18 @@
+# GEMS I/O
+input/
+output/
+
+# Test suite and coverage report
+.cache/
+.coverage
+.tox/
+data_antismash
+tmp
+
+# System
 *.log
 *.pyc
 *.swp
+
+# virtualenv
 venv/
-.cache/
-input/
-output/
-tmp
-.coverage
-data_antismash
