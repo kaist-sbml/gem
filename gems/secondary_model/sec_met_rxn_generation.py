@@ -146,6 +146,7 @@ def get_cluster_domain(options):
         locustag_kr_dict[each_gene] = kr_domain_info_dict
 
     #logging.debug('locustag_domain_dict: %s' %locustag_domain_dict)
+    options.locustag_domain_dict = locustag_domain_dict
     options.locustag_kr_dict = locustag_kr_dict
 
 
