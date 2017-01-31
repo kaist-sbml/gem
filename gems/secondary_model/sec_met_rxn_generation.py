@@ -146,11 +146,9 @@ def get_cluster_domain(options):
         locustag_kr_dict[each_gene] = kr_domain_info_dict
 
     #logging.debug('locustag_domain_dict: %s' %locustag_domain_dict)
-    options.locustag_domain_dict = locustag_domain_dict
     options.locustag_kr_dict = locustag_kr_dict
 
 
-#Two nested functions: extract_nrp_monomers, extract_pk_monomers
 #Output: e.g., {'SAV_943_M1':['mmal', 'Ethyl_mal', 'pk']}
 def get_cluster_monomers(options):
 
@@ -159,93 +157,37 @@ def get_cluster_monomers(options):
         module_count = 0
 
         for sec_met_info in options.cluster_info_dict[each_gene]:
-            discriminator = "true"
-            if "Substrate specificity predictions" in sec_met_info \
-                    and "AMP-binding" in sec_met_info:
-                pred_monomer_list, discriminator = extract_nrp_monomers(
-                        sec_met_info, discriminator)
+
+            if 'Substrate specificity predictions' in sec_met_info:
+                #type(sec_met_info) is string
+                #Convert 'sec_met_info' into a list
+                sec_met_info_list = sec_met_info.split(';')
+                for each_sec_met_info in sec_met_info_list:
+                    if 'Substrate specificity predictions' in each_sec_met_info:
+                        pred_monomer_list = []
+                        #Following statement produces a list with 2 elements:
+                        #e.g., [' Substrate specificity predictions',
+                        #' gly (NRPSPredictor2 SVM), gly (Stachelhaus code),
+                        #gly (Minowa), gly (consensus)']
+                        monomer_list = each_sec_met_info.split(':')
+                        for monomer in monomer_list:
+                            #Make sure to include a space ''
+                            #for monomers predicted from different engines:
+                            #e.g., 'orn,lys,arg (NRPSPredictor2 SVM),
+                            #lys (Stachelhaus code), leu (Minowa), nrp (consensus)'
+                            if 'Substrate specificity predictions' not in monomer \
+                                    and ', ' in monomer:
+                                monomer_list2 = monomer.split(', ')
+                                for monomer2 in monomer_list2:
+                                    monomer2_list = monomer2.split('(')
+                                    monomer3 = monomer2_list[0].strip()
+                                    pred_monomer_list.append(monomer3)
+
                 module_number = each_gene + '_M' + str(module_count)
                 locustag_monomer_dict[module_number] = pred_monomer_list
                 module_count += 1
-                #print "check", module_number, pred_monomer_list
 
-            if "Substrate specificity predictions" in sec_met_info \
-                    and "A-OX" in sec_met_info:
-                pred_monomer_list, discriminator = extract_nrp_monomers(
-                        sec_met_info, discriminator)
-                module_number = each_gene + '_M' + str(module_count)
-                locustag_monomer_dict[module_number] = pred_monomer_list
-                module_count += 1
-                #print "check", module_number, pred_monomer_list
-
-            if "Substrate specificity predictions" in sec_met_info \
-                    and "PKS_AT" in sec_met_info:
-                pred_monomer_list = extract_pk_monomers(sec_met_info)
-                module_number = each_gene + '_M' + str(module_count)
-                locustag_monomer_dict[module_number] = pred_monomer_list
-                module_count += 1
-                #print "check", module_number, pred_monomer_list
-
-            if discriminator == "false":
-                continue
-
-    #print 'locustag_monomer_dict'
-    #print locustag_monomer_dict, '\n'
     options.locustag_monomer_dict = locustag_monomer_dict
-
-
-def extract_nrp_monomers(sec_met_info, discriminator):
-    sptline2 = sec_met_info.split(';')
-
-    for element in sptline2:
-        if 'Substrate specificity predictions' in element:
-            pred_monomer_list = []
-
-            predicted_monomers = element.split(':')
-            sptSubstrates = predicted_monomers[1]
-
-    if ', ' not in sptSubstrates:
-        logging.debug("Insufficient substrate_info")
-        discriminator = "false"
-        return pred_monomer_list
-
-    substrates = sptSubstrates.split(', ')
-
-    for each_substrate in substrates:
-        sptSubstrate = each_substrate.split('(')
-        predicted_monomer = sptSubstrate[0].strip()
-
-        pred_monomer_list.append(predicted_monomer)
-
-    return pred_monomer_list, discriminator
-
-
-def extract_pk_monomers(sec_met_info):
-    sptline2 = sec_met_info.split(';')
-    whole_substrate_info = sptline2[1]
-
-    predicted_monomers = whole_substrate_info.split(':')
-    sptSubstrates = predicted_monomers[1]
-    substrates = sptSubstrates.split(', ')
-
-    pred_monomer_list = []
-
-    for each_substrate in substrates:
-        sptSubstrate = each_substrate.split('(')
-        predicted_monomer = sptSubstrate[0].strip()
-
-        pred_monomer_list.append(predicted_monomer)
-
-    return pred_monomer_list
-
-
-def get_locustag_module_number(locustag, count):
-    if float(count) < 10:
-        module_number = locustag + '_M0' + str(count)
-    else:
-        module_number = locustag + '_M' + str(count)
-
-    return module_number
 
 
 #Coeff data of major monomers are added in the same dict file used for currency metabolites
