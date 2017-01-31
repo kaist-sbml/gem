@@ -7,3 +7,4 @@ input/
 output/
 tmp
 .coverage
+data_antismash
