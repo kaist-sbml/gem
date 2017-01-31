@@ -48,10 +48,6 @@ def get_cluster_info_from_seq_record(options):
     options.cluster_info_dict = cluster_info_dict
 
 
-#Output: e.g.
-#Cluster number: 2
-#Product: nrps
-#NC021055_Cluster_02_nrps
 def get_cluster_product(cluster_nr, options):
 
     for feature in options.seq_record.features:

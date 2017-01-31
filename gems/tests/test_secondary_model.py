@@ -6,9 +6,9 @@ from argparse import Namespace
 from os.path import join
 from gems.secondary_model.sec_met_rxn_generation import (
         get_cluster_location,
+        get_cluster_product,
         get_cluster_info_from_seq_record,
-        get_cluster_domain,
-        get_cluster_module
+        get_cluster_domain
         )
 
 class TestSecondary_model:
@@ -23,7 +23,6 @@ class TestSecondary_model:
         # Kirromycin biosynthetic gene cluster (81% of genes show similarity)
         cluster_nr = 3
         get_cluster_location(cluster_nr, options)
-
         get_cluster_info_from_seq_record(options)
 
         # Number of genes for Cluster 3 in Streptomyces collinus Tu 365
@@ -31,6 +30,16 @@ class TestSecondary_model:
 
         for locustag in options.cluster_info_dict.keys():
             assert 'NRPS/PKS Domain' in str(options.cluster_info_dict[locustag])
+
+
+    def test_get_cluster_product(self, seq_record, options):
+
+        options.seq_record = seq_record
+        cluster_nr = 3
+        get_cluster_location(cluster_nr, options)
+        get_cluster_product(cluster_nr, options)
+
+        assert options.product == 'Cluster03_nrps_t1pks_transatpks'
 
 
     def test_get_cluster_domain(self, seq_record, options):
