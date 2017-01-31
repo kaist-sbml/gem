@@ -1,0 +1,6 @@
+# .coveragerc to control coverage.py
+
+[run]
+source = gems
+branch = true
+omit = gems/tests/*

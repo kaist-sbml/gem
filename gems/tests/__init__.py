@@ -18,6 +18,6 @@ def test_gems():
 
     if pytest:
         # Arguement 'gems' is needed to test only the GEMS files
-        pytest.main(['--pyargs', 'gems', '--basetemp=tmp', '-v'])
+        pytest.main(['--pyargs', 'gems', '--basetemp=tmp', '--cov=gems', '-v'])
     else:
         raise ImportError("pytest is not installed")
