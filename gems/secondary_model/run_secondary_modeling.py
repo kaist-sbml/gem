@@ -11,7 +11,6 @@ from sec_met_rxn_generation import(
     get_cluster_product,
     get_cluster_domain,
     get_cluster_monomers,
-    get_cluster_module,
     get_all_metab_coeff,
     get_pickles,
     add_sec_met_rxn,
@@ -41,8 +40,6 @@ def run_sec_met_rxn_generation(cluster_nr, target_model, prod_sec_met_dict,
         get_cluster_domain(options)
 
         get_cluster_monomers(options)
-
-        get_cluster_module(options)
 
         get_all_metab_coeff(options)
 
