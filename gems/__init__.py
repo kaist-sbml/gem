@@ -7,7 +7,7 @@ import os
 from io.eficaz import utils
 
 
-__version__ = '0.1.1'
+__version__ = '0.1.2'
 
 
 def check_prereqs(options):
