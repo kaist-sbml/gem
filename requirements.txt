@@ -1,7 +1,6 @@
 biopython==1.68
 cobra==0.5.11
 coverage==4.3.4
-cycler==0.10.0
 Cython==0.25.2
 lxml==3.3.3
 matplotlib==1.5.3
