@@ -6,7 +6,6 @@ output/
 .cache/
 .coverage
 .tox/
-data_antismash
 tmp
 
 # System
