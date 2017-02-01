@@ -13,8 +13,16 @@ data_model_dir = join(dirname(abspath(__file__)), 'data_model')
 data_antismash_dir = join(dirname(abspath(__file__)), 'data_antismash')
 
 @pytest.fixture(scope="function")
-def model():
+def sco_tmp_model():
     model = read_sbml_model(join(data_model_dir, 'iMK1208Edited4.xml'))
+
+    # Returning model is necessary, otherwise error occurs
+    return model
+
+
+@pytest.fixture(scope="function")
+def sci_primary_model():
+    model = read_sbml_model(join(data_model_dir, 'sci_primary_model.xml'))
 
     # Returning model is necessary, otherwise error occurs
     return model

@@ -10,7 +10,7 @@ class TestPrimary_model:
 
     # Focus on metabolite addition in this test
     # New metabolites: 'MNXM38659' and 'fuc_DASH_L'
-    def test_add_nonBBH_rxn_with_focus_on_metabolites(self, model, tmpdir, options):
+    def test_add_nonBBH_rxn(self, sco_tmp_model, tmpdir, options):
         rxnid_info_dict = {
             'R08926':{
                 'ENZYME': '1.1.1.122',
@@ -40,18 +40,18 @@ class TestPrimary_model:
         options.targetGenome_locusTag_prod_dict = targetGenome_locusTag_prod_dict
         options.outputfolder5 = outputfolder5
 
-        assert 'R08926' not in model.reactions # To be added to the model
-        assert 'MNXM38659_c' not in model.metabolites # To be added to the model
-        assert 'fuc_DASH_L_c' not in model.metabolites # To be added to the model
-        assert 'h_c' in model.metabolites
-        assert 'nadh_c' in model.metabolites
-        assert 'nad_c' in model.metabolites
+        assert 'R08926' not in sco_tmp_model.reactions # To be added to the model
+        assert 'MNXM38659_c' not in sco_tmp_model.metabolites # To be added to the model
+        assert 'fuc_DASH_L_c' not in sco_tmp_model.metabolites # To be added to the model
+        assert 'h_c' in sco_tmp_model.metabolites
+        assert 'nadh_c' in sco_tmp_model.metabolites
+        assert 'nad_c' in sco_tmp_model.metabolites
 
-        augPhase_utils.add_nonBBH_rxn(model, options)
+        augPhase_utils.add_nonBBH_rxn(sco_tmp_model, options)
 
-        assert 'R08926' in model.reactions # Should be available in the model
-        assert 'MNXM38659_c' in model.metabolites # Should be available in the model
-        assert 'fuc_DASH_L_c' in model.metabolites # Should be available in the model
-        assert 'h_c' in model.metabolites
-        assert 'nadh_c' in model.metabolites
-        assert 'nad_c' in model.metabolites
+        assert 'R08926' in sco_tmp_model.reactions # Should be available in the model
+        assert 'MNXM38659_c' in sco_tmp_model.metabolites # Should be available in the model
+        assert 'fuc_DASH_L_c' in sco_tmp_model.metabolites # Should be available in the model
+        assert 'h_c' in sco_tmp_model.metabolites
+        assert 'nadh_c' in sco_tmp_model.metabolites
+        assert 'nad_c' in sco_tmp_model.metabolites
