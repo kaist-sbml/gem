@@ -9,11 +9,9 @@ from cobra.io.sbml import write_cobra_model_to_sbml_file, create_cobra_model_fro
 
 
 def generate_outputs(folder, cobra_model, runtime, options):
-    #Output files
     #Model reloading and overwrtting are necessary for model consistency:
     #e.g., metabolite IDs with correct compartment suffices & accurate model stats
     #This can also mask the effects of model error (e.g., undeclared metabolite ID)
-    #Cobrapy IO module seems to have an error for adding new reactions
     write_cobra_model_to_sbml_file(cobra_model,
             './%s/model.xml' %folder, use_fbc_package=False)
     cobra_model = create_cobra_model_from_sbml_file(
