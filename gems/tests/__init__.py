@@ -4,7 +4,6 @@
 
 import warnings
 from cobra.io import read_sbml_model, write_sbml_model
-from os.path import join, abspath, dirname
 
 try:
     import pytest
