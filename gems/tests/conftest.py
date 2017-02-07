@@ -9,7 +9,7 @@ from Bio import SeqIO
 from cobra.io import read_sbml_model, write_sbml_model
 from os.path import join, abspath, dirname
 
-data_model_dir = join(dirname(abspath(__file__)), 'data_model')
+data_model_dir = join(dirname(abspath(__file__)), 'data')
 data_antismash_dir = join(dirname(abspath(__file__)), 'data_antismash')
 
 @pytest.fixture(scope="function")
