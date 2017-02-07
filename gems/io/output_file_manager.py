@@ -32,7 +32,7 @@ def generate_outputs(folder, cobra_model, runtime, options):
     elif '4_complete_model' in folder:
         logging.info("'Secondary' metabolic model completed")
 
-    if not options.smr_generation and options.options.debug:
+    if options.pmr_generation and options.debug:
         write_data_for_debug(options)
 
 def get_model_reactions(folder, cobra_model, options):
