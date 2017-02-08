@@ -21,6 +21,7 @@ from cobra.io.sbml import (
 from cobra.manipulation.delete import prune_unused_metabolites
 from argparse import Namespace
 from gems import check_prereqs
+from gems.config import load_config
 from gems.io.input_file_manager import (
     get_genome_files,
     get_pickles_prunPhase,
@@ -117,6 +118,9 @@ def main():
 
     #Get genome files only if one of functional options is selected
     if options.eficaz or options.pmr_generation or options.smr_generation:
+        #Load config data
+        load_config(options)
+
         #Check prerequisites of executables and libraries
         check_prereqs(options)
 

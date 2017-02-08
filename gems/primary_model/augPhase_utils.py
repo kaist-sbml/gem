@@ -16,8 +16,8 @@ from cobra.io.sbml import write_cobra_model_to_sbml_file, create_cobra_model_fro
 #Retrieves a list of reaction IDs using their EC numbers from KEGG
 #Input: E.C number in string form (e.g., 4.1.3.6)
 #Output: reactionID in list form (e.g., ['R00362'])
-def get_rxnid_from_ECNumber(enzymeEC):
-    url = "http://rest.kegg.jp/get/enzyme:%s"%(enzymeEC)
+def get_rxnid_from_ECNumber(enzymeEC, options):
+    url = options.urls.kegg_enzyme + '%s' %enzymeEC
     ecinfo_text = urllib2.urlopen(url).read()
 
     #Original line also extracted genes in other organisms: R50912; R50345 (NOT rxnid)
@@ -39,8 +39,8 @@ def get_rxnid_from_ECNumber(enzymeEC):
 #Output: Reaction information for 'Name', 'Definition', and 'Equation' as dictionary form
 #{'NAME': 'citrate oxaloacetate-lyase', 'DEFINITION': Citrate <=> Acetate + Oxaloacetate,
 #'EQUATION': C00158 <=> C00033 + C00036}
-def get_rxnInfo_from_rxnid(rxnid):
-    url = "http://rest.kegg.jp/get/rn:%s"%(rxnid)
+def get_rxnInfo_from_rxnid(rxnid, options):
+    url = options.urls.kegg_rn + '%s' %rxnid
     reaction_info_text = urllib2.urlopen(url).read()
     split_text = reaction_info_text.strip().split('\n')
     NAME = ''
@@ -87,9 +87,9 @@ def get_rxnid_info_dict_from_kegg(options):
 
             #KEGG REST does not accept unspecific EC_number: e.g., 3.2.2.-
             if '-' not in enzymeEC:
-                rxnid_list = get_rxnid_from_ECNumber(enzymeEC)
+                rxnid_list = get_rxnid_from_ECNumber(enzymeEC, options)
                 for rxnid in rxnid_list:
-                    rxnid_info_dict[rxnid] = get_rxnInfo_from_rxnid(rxnid)
+                    rxnid_info_dict[rxnid] = get_rxnInfo_from_rxnid(rxnid, options)
 
                     if rxnid not in rxnid_locusTag_dict.keys():
                         rxnid_locusTag_dict[rxnid] = [(locusTag)]
@@ -364,7 +364,7 @@ def add_nonBBH_rxn(modelPrunedGPR, options):
                     options.template_exrxnid_flux_dict)
             exrxn_flux_change_list = check_exrxn_flux_direction(
                     options.template_exrxnid_flux_dict,
-                    target_exrxnid_flux_dict)
+                    target_exrxnid_flux_dict, options)
 
             if 'F' in exrxn_flux_change_list:
                 #'remove_reactions' does not seem to require
@@ -404,7 +404,8 @@ def get_exrxnid_flux(model, template_exrxnid_flux_dict):
 
 
 #Output: a list file having either T or F for major Exchange reactions
-def check_exrxn_flux_direction(template_exrxnid_flux_dict, target_exrxnid_flux_dict):
+def check_exrxn_flux_direction(
+        template_exrxnid_flux_dict, target_exrxnid_flux_dict, options):
 
     exrxn_flux_change_list = []
 
@@ -415,8 +416,9 @@ def check_exrxn_flux_direction(template_exrxnid_flux_dict, target_exrxnid_flux_d
             ratio_exrxn_flux = float(target_exrxn_flux)/float(template_exrxn_flux)
 
             #Similar species are allowed to uptake nutrients within a decent range
-            if float(target_exrxn_flux)*float(template_exrxn_flux) > 0.0 and \
-                0.2 < ratio_exrxn_flux and ratio_exrxn_flux < 2.0:
+            if float(target_exrxn_flux)*float(template_exrxn_flux) > float(options.cobrapy.non_zero_flux_cutoff) \
+                    and float(options.cobrapy.nutrient_uptake_rate) < ratio_exrxn_flux \
+                    and ratio_exrxn_flux < float(options.cobrapy.nutrient_uptake_rate):
                 exrxn_flux_change_list.append('T')
 
             #Cause drastic changes in Exchange reaction fluxes

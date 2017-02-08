@@ -49,7 +49,7 @@ def run_sec_met_rxn_generation(cluster_nr, target_model, prod_sec_met_dict,
 
         target_model = check_producibility_sec_met(target_model, options)
 
-        if target_model.solution.f < 0.0001:
+        if target_model.solution.f < float(options.cobrapy.non_zero_flux_cutoff):
             nonprod_sec_met_metab_list = get_monomers_nonprod_sec_met(options)
             nonprod_sec_met_dict[options.product] = nonprod_sec_met_metab_list
         else:
@@ -80,7 +80,7 @@ def get_target_nonprod_monomers_for_gapfilling(target_model, options):
                                nonprod_monomer, options)
         target_model_monomer = check_producibility_nonprod_monomer(target_model_monomer,
                                nonprod_monomer)
-        if target_model_monomer.solution.f < 0.0001:
+        if target_model_monomer.solution.f < float(options.cobrapy.non_zero_flux_cutoff):
             adj_unique_nonprod_monomers_list.append(nonprod_monomer)
         else:
             continue
@@ -104,8 +104,10 @@ def run_gapfilling(target_model, universal_model, options):
 
     for nonprod_monomer in options.adj_unique_nonprod_monomers_list:
         #Gap-filling via cobrapy
+        #TODO: Check downstream functions for 'gapfill_iter' > 1
         gapfill_rxns = cobra.flux_analysis.gapfilling.SMILEY(
-                target_model, '%s_c' %nonprod_monomer, universal_model)
+                target_model, '%s_c' %nonprod_monomer,
+                universal_model, iterations = int(options.cobrapy.gapfill_iter))
         logging.debug('gapfill_rxns: %s' %gapfill_rxns)
 
         #'gapfill_rxns' is a list of list:

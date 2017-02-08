@@ -146,7 +146,7 @@ def pruneModel(model, options):
                 rxnToRemoveEssn_dict[rxnid] = float(growth_rate_dict.values()[0])
 
                 #Check growth rate upon reaction deletion
-                if float(growth_rate_dict.values()[0]) >= 0.01:
+                if float(growth_rate_dict.values()[0]) >= float(options.cobrapy.non_zero_flux_cutoff):
                     model.remove_reactions(rxnid)
                     #List of reactions removed from the template model
                     rxnRemoved_dict[rxnid] = float(growth_rate_dict.values()[0])
