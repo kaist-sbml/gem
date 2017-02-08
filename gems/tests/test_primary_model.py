@@ -3,6 +3,7 @@
 # Copyright 2017 Novo Nordisk Foundation Center for Biosustainability, DTU
 
 from os.path import join
+from gems.config import load_config
 from gems.primary_model import augPhase_utils
 
 class TestPrimary_model:
@@ -39,6 +40,9 @@ class TestPrimary_model:
         options.rxnid_locusTag_dict = rxnid_locusTag_dict
         options.targetGenome_locusTag_prod_dict = targetGenome_locusTag_prod_dict
         options.outputfolder5 = outputfolder5
+
+        _cfg_name = 'gems.cfg'
+        load_config(options)
 
         assert 'R08926' not in sco_tmp_model.reactions # To be added to the model
         assert 'MNXM38659_c' not in sco_tmp_model.metabolites # To be added to the model
