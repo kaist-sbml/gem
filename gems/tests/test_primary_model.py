@@ -9,6 +9,8 @@ from gems.primary_model import augPhase_utils
 class TestPrimary_model:
     """Test functions in gems.primary_model"""
 
+    def swap_locusTag_tempModel(modelPruned, options):
+
     # Focus on metabolite addition in this test
     # New metabolites: 'MNXM38659' and 'fuc_DASH_L'
     def test_add_nonBBH_rxn(self, sco_tmp_model, tmpdir, options):
