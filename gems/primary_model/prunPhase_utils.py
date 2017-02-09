@@ -167,26 +167,53 @@ def pruneModel(model, options):
     return modelPruned
 
 
-def get_gpr_fromString_toList(line):
-    calcNewList = []
-    line = line.strip()
-    calcList = line.split('or')
-    for c in calcList:
-        c = c.replace('(','')
-        c = c.replace(')','')
-        c = c.replace(' ','')
-        c = c.strip()
-        if 'and' in c:
-            newlist = c.split('and')
-            newlist = list(set(newlist))
-            newlist.sort()
-            calcNewList.append(newlist)
-        else:
-            geneid=c.strip()
-            if geneid not in calcNewList:
-                calcNewList.append(geneid)
+# Retain original GPR associations in the template model.
+# Thus, parenthesis structures and Boolean relationships are reteined.
+def get_gpr_fromString_toList(gpr_str):
+    gpr_list3 = []
+    gpr_list4 = []
+    gpr_list6 = []
 
-    return calcNewList
+    # Remove parentheses
+    gpr_list1 = gpr_str.split('(')
+    for gpr in gpr_list1:
+        if ')' in gpr:
+            gpr_list2 = gpr.split(')')
+            for gpr2 in gpr_list2:
+                if len(gpr2) != 0:
+                    gpr3 = gpr2.strip()
+                    gpr_list3.append(gpr3)
+        elif len(gpr) != 0:
+            gpr2 = gpr.strip()
+            gpr_list3.append(gpr2)
+    print 'check1', gpr_list3
+
+    # Remove 'and' and 'or'
+    # TODO: May hold this information to retain original GPR structure
+    for gpr in gpr_list3:
+        if 'and' in gpr:
+            gpr_list4 = gpr.split('and')
+            # Check possibility of sub-parenthesis
+            gpr_list5 = []
+            for gpr2 in gpr_list4:
+                if len(gpr2) != 0:
+                    gpr3 = gpr2.strip()
+                    gpr_list5.append(gpr3)
+            if len(gpr_list5) != 0:
+                gpr_list6.append(gpr_list5)
+        elif 'or' in gpr:
+            gpr_list4 = gpr.split('or')
+            # Check possibility of sub-parenthesis
+            gpr_list5 = []
+            for gpr2 in gpr_list4:
+                if len(gpr2) != 0:
+                    gpr3 = gpr2.strip()
+                    gpr_list5.append(gpr3)
+            if len(gpr_list5) != 0:
+                gpr_list6.append(gpr_list5)
+
+    print 'check2', gpr_list6
+    return gpr_list6
 
 
 def swap_locusTag_tempModel(modelPruned, options):
