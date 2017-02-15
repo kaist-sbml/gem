@@ -37,11 +37,20 @@ def options():
     options = Namespace()
     return options
 
+
+@pytest.fixture(scope="function")
+def bbh_dict():
+    temp_target_BBH_dict = pickle.load(
+            open(join(data_model_dir, 'sco_sci_temp_target_BBH_dict.p'),'rb'))
+    return temp_target_BBH_dict
+
+
 @pytest.fixture(scope="function")
 def sco_tmp_model_flux():
     template_exrxnid_flux_dict = pickle.load(
             open(join(data_model_dir, 'sco_tempModel_exrxnid_flux_dict.p'),'rb'))
     return template_exrxnid_flux_dict
+
 
 @pytest.fixture(scope="function")
 def seq_record():

@@ -167,113 +167,21 @@ def pruneModel(model, options):
     return modelPruned
 
 
-# Retain original GPR associations in the template model.
-# Thus, parenthesis structures and Boolean relationships are reteined.
-def get_gpr_fromString_toList(gpr_str):
-    gpr_list3 = []
-    gpr_list4 = []
-    gpr_list6 = []
+# Retain structures of original GPR associations in the template model:
+# e.g., parenthesis structures and Boolean relationships
+def swap_locustag_with_homolog(modelPruned, options):
 
-    # Remove parentheses
-    gpr_list1 = gpr_str.split('(')
-    for gpr in gpr_list1:
-        if ')' in gpr:
-            gpr_list2 = gpr.split(')')
-            for gpr2 in gpr_list2:
-                if len(gpr2) != 0:
-                    gpr3 = gpr2.strip()
-                    gpr_list3.append(gpr3)
-        elif len(gpr) != 0:
-            gpr2 = gpr.strip()
-            gpr_list3.append(gpr2)
-    print 'check1', gpr_list3
-
-    # Remove 'and' and 'or'
-    # TODO: May hold this information to retain original GPR structure
-    for gpr in gpr_list3:
-        if 'and' in gpr:
-            gpr_list4 = gpr.split('and')
-            # Check possibility of sub-parenthesis
-            gpr_list5 = []
-            for gpr2 in gpr_list4:
-                if len(gpr2) != 0:
-                    gpr3 = gpr2.strip()
-                    gpr_list5.append(gpr3)
-            if len(gpr_list5) != 0:
-                gpr_list6.append(gpr_list5)
-        elif 'or' in gpr:
-            gpr_list4 = gpr.split('or')
-            # Check possibility of sub-parenthesis
-            gpr_list5 = []
-            for gpr2 in gpr_list4:
-                if len(gpr2) != 0:
-                    gpr3 = gpr2.strip()
-                    gpr_list5.append(gpr3)
-            if len(gpr_list5) != 0:
-                gpr_list6.append(gpr_list5)
-
-    print 'check2', gpr_list6
-    return gpr_list6
-
-
-def swap_locusTag_tempModel(modelPruned, options):
-
-    #Retrieve reactions associated with each homologous gene in template model
-    for BBHrxn in modelPruned.reactions:
-	booleanList = []
-        #Retrieve all the genes associated with a reaction having the homologous gene
-        #and transforms String to List
-	booleanList = get_gpr_fromString_toList(BBHrxn.gene_reaction_rule)
-
-        modified_booleanList = []
-	for tempLocusTag in booleanList:
-
-            #Check if the element itself is List.
-            #If the element is not List, then gene in template model is
-            #directly replaced with genes in target genome
-            if type(tempLocusTag) != list:
-		if tempLocusTag in options.temp_target_BBH_dict:
-                    booleanList.pop(booleanList.index(tempLocusTag))
-                    for targetLocusTag in options.temp_target_BBH_dict[tempLocusTag]:
-                        modified_booleanList.append(targetLocusTag)
-                else:
-                    modified_booleanList.append( tempLocusTag )
-
-            #This is the case the element is List
-            else:
-                temp_gpr_list = []
-		for eachLocusTag in tempLocusTag:
-                    if eachLocusTag in options.temp_target_BBH_dict:
-			for targetLocusTag in options.temp_target_BBH_dict[eachLocusTag]:
-                            temp_gpr_list.append(targetLocusTag)
-                    else:
-                        temp_gpr_list.append(eachLocusTag)
-                #This case was not generated, but just in case
-                if len(temp_gpr_list)==1:
-                    logging.debug(temp_gpr_list)
-                    modified_booleanList.append(temp_gpr_list[0])
-                elif len(temp_gpr_list) > 1:
-                    modified_booleanList.append( temp_gpr_list )
-
-
-        #Convert GPR in List to String:
-        booleanList = copy.deepcopy( modified_booleanList )
-	stringlist = []
-	for i in range(len(booleanList)):
-            booleanstring = ''
-            if type(booleanList[i])==list:
-		booleanstring=' and '.join(booleanList[i])
-		booleanstring='('+booleanstring+')'
-		stringlist.append(booleanstring)
-            else:
-		booleanstring=booleanList[i]
-		stringlist.append(booleanstring)
-
-	booleanstring2 = ''
-	if len(stringlist) > 0:
-            booleanstring2 = '('+' or '.join(stringlist)+')'
-	BBHrxn.gene_reaction_rule = booleanstring2
+    for locustag in options.temp_target_BBH_dict:
+        for rxn in modelPruned.reactions:
+            if rxn.gene_reaction_rule and locustag in rxn.gene_reaction_rule:
+                if len(options.temp_target_BBH_dict[locustag]) == 1:
+                    new_gpr = rxn.gene_reaction_rule.replace(
+                            locustag, options.temp_target_BBH_dict[locustag][0])
+                    rxn.gene_reaction_rule = new_gpr
+                elif len(options.temp_target_BBH_dict[locustag]) > 1:
+                    homologs = ' or '.join(options.temp_target_BBH_dict[locustag])
+                    new_gpr = rxn.gene_reaction_rule.replace(locustag, '( %s )' %homologs)
+                    rxn.gene_reaction_rule = new_gpr
 
     modelPrunedGPR = copy.deepcopy(modelPruned)
     return modelPrunedGPR
-
