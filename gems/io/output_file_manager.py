@@ -4,6 +4,7 @@
 
 import collections
 import logging
+import pickle
 import re
 from cobra.io.sbml import write_cobra_model_to_sbml_file, create_cobra_model_from_sbml_file
 
@@ -211,22 +212,25 @@ def get_summary_report(folder, cobra_model, runtime,
 
 def write_data_for_debug(options):
 
-    fp1 = open('./%s/rxnid_to_add_list.txt' %options.outputfolder5,'w')
-    for rxnid in options.rxnid_to_add_list:
-        print >>fp1, '%s' %rxnid
-    fp1.close()
+    with open('./%s/temp_target_BBH_dict.txt' %options.outputfolder2,'w') as f1:
+        for locustag in options.temp_target_BBH_dict.keys():
+            print >> f1, '%s\t%s' %(locustag, options.temp_target_BBH_dict[locustag])
 
-    fp2 = open('./%s/mnxr_to_add_list.txt' %options.outputfolder5,'w')
-    for mnxr in options.mnxr_to_add_list:
-        print >>fp2, '%s' %mnxr
-    fp2.close()
+    pickle.dump(options.temp_target_BBH_dict,
+            open('./%s/temp_target_BBH_dict.p' %options.outputfolder2,'wb'))
 
-    fp3 = open('./%s/rxnid_info_dict.txt' %options.outputfolder5,'w')
-    for rxnid in options.rxnid_info_dict.keys():
-        print >>fp3, '%s' %rxnid
-    fp3.close()
+    with open('./%s/rxnid_to_add_list.txt' %options.outputfolder5,'w') as f2:
+        for rxnid in options.rxnid_to_add_list:
+            print >>f2, '%s' %rxnid
 
-    fp4 = open('./%s/rxnid_mnxm_coeff_dict.txt' %options.outputfolder5,'w')
-    for rxnid in options.rxnid_mnxm_coeff_dict.keys():
-        print >>fp4, '%s\t%s' %(rxnid, options.rxnid_mnxm_coeff_dict[rxnid])
-    fp4.close()
+    with open('./%s/mnxr_to_add_list.txt' %options.outputfolder5,'w') as f3:
+        for mnxr in options.mnxr_to_add_list:
+            print >>f3, '%s' %mnxr
+
+    with open('./%s/rxnid_info_dict.txt' %options.outputfolder5,'w') as f4:
+        for rxnid in options.rxnid_info_dict.keys():
+            print >>f4, '%s' %rxnid
+
+    with open('./%s/rxnid_mnxm_coeff_dict.txt' %options.outputfolder5,'w') as f5:
+        for rxnid in options.rxnid_mnxm_coeff_dict.keys():
+            print >>f5, '%s\t%s' %(rxnid, options.rxnid_mnxm_coeff_dict[rxnid])
