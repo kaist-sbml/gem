@@ -35,13 +35,13 @@ def sci_primary_model():
 @pytest.fixture(scope="function")
 def options():
     options = Namespace()
-
-    template_exrxnid_flux_dict = pickle.load(
-             open(join(data_model_dir, 'sco_tempModel_exrxnid_flux_dict.p'),'rb'))
-    options.template_exrxnid_flux_dict = template_exrxnid_flux_dict
-
     return options
 
+@pytest.fixture(scope="function")
+def sco_tmp_model_flux():
+    template_exrxnid_flux_dict = pickle.load(
+            open(join(data_model_dir, 'sco_tempModel_exrxnid_flux_dict.p'),'rb'))
+    return template_exrxnid_flux_dict
 
 @pytest.fixture(scope="function")
 def seq_record():
