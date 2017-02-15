@@ -167,86 +167,21 @@ def pruneModel(model, options):
     return modelPruned
 
 
-def get_gpr_fromString_toList(line):
-    calcNewList = []
-    line = line.strip()
-    calcList = line.split('or')
-    for c in calcList:
-        c = c.replace('(','')
-        c = c.replace(')','')
-        c = c.replace(' ','')
-        c = c.strip()
-        if 'and' in c:
-            newlist = c.split('and')
-            newlist = list(set(newlist))
-            newlist.sort()
-            calcNewList.append(newlist)
-        else:
-            geneid=c.strip()
-            if geneid not in calcNewList:
-                calcNewList.append(geneid)
+# Retain structures of original GPR associations in the template model:
+# e.g., parenthesis structures and Boolean relationships
+def swap_locustag_with_homolog(modelPruned, options):
 
-    return calcNewList
-
-
-def swap_locusTag_tempModel(modelPruned, options):
-
-    #Retrieve reactions associated with each homologous gene in template model
-    for BBHrxn in modelPruned.reactions:
-	booleanList = []
-        #Retrieve all the genes associated with a reaction having the homologous gene
-        #and transforms String to List
-	booleanList = get_gpr_fromString_toList(BBHrxn.gene_reaction_rule)
-
-        modified_booleanList = []
-	for tempLocusTag in booleanList:
-
-            #Check if the element itself is List.
-            #If the element is not List, then gene in template model is
-            #directly replaced with genes in target genome
-            if type(tempLocusTag) != list:
-		if tempLocusTag in options.temp_target_BBH_dict:
-                    booleanList.pop(booleanList.index(tempLocusTag))
-                    for targetLocusTag in options.temp_target_BBH_dict[tempLocusTag]:
-                        modified_booleanList.append(targetLocusTag)
-                else:
-                    modified_booleanList.append( tempLocusTag )
-
-            #This is the case the element is List
-            else:
-                temp_gpr_list = []
-		for eachLocusTag in tempLocusTag:
-                    if eachLocusTag in options.temp_target_BBH_dict:
-			for targetLocusTag in options.temp_target_BBH_dict[eachLocusTag]:
-                            temp_gpr_list.append(targetLocusTag)
-                    else:
-                        temp_gpr_list.append(eachLocusTag)
-                #This case was not generated, but just in case
-                if len(temp_gpr_list)==1:
-                    logging.debug(temp_gpr_list)
-                    modified_booleanList.append(temp_gpr_list[0])
-                elif len(temp_gpr_list) > 1:
-                    modified_booleanList.append( temp_gpr_list )
-
-
-        #Convert GPR in List to String:
-        booleanList = copy.deepcopy( modified_booleanList )
-	stringlist = []
-	for i in range(len(booleanList)):
-            booleanstring = ''
-            if type(booleanList[i])==list:
-		booleanstring=' and '.join(booleanList[i])
-		booleanstring='('+booleanstring+')'
-		stringlist.append(booleanstring)
-            else:
-		booleanstring=booleanList[i]
-		stringlist.append(booleanstring)
-
-	booleanstring2 = ''
-	if len(stringlist) > 0:
-            booleanstring2 = '('+' or '.join(stringlist)+')'
-	BBHrxn.gene_reaction_rule = booleanstring2
+    for locustag in options.temp_target_BBH_dict:
+        for rxn in modelPruned.reactions:
+            if rxn.gene_reaction_rule and locustag in rxn.gene_reaction_rule:
+                if len(options.temp_target_BBH_dict[locustag]) == 1:
+                    new_gpr = rxn.gene_reaction_rule.replace(
+                            locustag, options.temp_target_BBH_dict[locustag][0])
+                    rxn.gene_reaction_rule = new_gpr
+                elif len(options.temp_target_BBH_dict[locustag]) > 1:
+                    homologs = ' or '.join(options.temp_target_BBH_dict[locustag])
+                    new_gpr = rxn.gene_reaction_rule.replace(locustag, '( %s )' %homologs)
+                    rxn.gene_reaction_rule = new_gpr
 
     modelPrunedGPR = copy.deepcopy(modelPruned)
     return modelPrunedGPR
-

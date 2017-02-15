@@ -15,7 +15,7 @@ from augPhase_utils import(
 from prunPhase_utils import (
     labelRxnToRemove,
     pruneModel,
-    swap_locusTag_tempModel
+    swap_locustag_with_homolog
 )
 
 def run_prunPhase(model, options):
@@ -26,7 +26,7 @@ def run_prunPhase(model, options):
     modelPruned = pruneModel(model, options)
 
     logging.info("Correcting GPR associations in the template model..")
-    modelPrunedGPR = swap_locusTag_tempModel(modelPruned, options)
+    modelPrunedGPR = swap_locustag_with_homolog(modelPruned, options)
 
     return modelPrunedGPR
 

@@ -14,6 +14,8 @@ data_antismash_dir = join(dirname(abspath(__file__)), 'data_antismash')
 
 @pytest.fixture(scope="function")
 def sco_tmp_model():
+
+    # Streptomyces coelicolor A3(2)
     model = read_sbml_model(join(data_model_dir, 'iMK1208Edited4.xml'))
 
     # Returning model is necessary, otherwise error occurs
@@ -22,6 +24,8 @@ def sco_tmp_model():
 
 @pytest.fixture(scope="function")
 def sci_primary_model():
+
+    # Streptomyces collinus Tu 365
     model = read_sbml_model(join(data_model_dir, 'sci_primary_model.xml'))
 
     # Returning model is necessary, otherwise error occurs
@@ -31,12 +35,21 @@ def sci_primary_model():
 @pytest.fixture(scope="function")
 def options():
     options = Namespace()
-
-    template_exrxnid_flux_dict = pickle.load(
-             open(join(data_model_dir, 'sco_tempModel_exrxnid_flux_dict.p'),'rb'))
-    options.template_exrxnid_flux_dict = template_exrxnid_flux_dict
-
     return options
+
+
+@pytest.fixture(scope="function")
+def bbh_dict():
+    temp_target_BBH_dict = pickle.load(
+            open(join(data_model_dir, 'sco_sci_temp_target_BBH_dict.p'),'rb'))
+    return temp_target_BBH_dict
+
+
+@pytest.fixture(scope="function")
+def sco_tmp_model_flux():
+    template_exrxnid_flux_dict = pickle.load(
+            open(join(data_model_dir, 'sco_tempModel_exrxnid_flux_dict.p'),'rb'))
+    return template_exrxnid_flux_dict
 
 
 @pytest.fixture(scope="function")
