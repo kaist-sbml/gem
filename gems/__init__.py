@@ -42,9 +42,9 @@ def check_prereqs(options):
         #Cobra reads version from git tag.
         #'cobra.__version__' gives wrong version in the system
         cobra_path = os.path.dirname(cobra.__file__) + os.sep + 'VERSION'
-        fp = open(cobra_path, "r")
-        version = str(fp.read().strip())
-        logging.debug("Found cobra version %s", version)
+        with open(cobra_path, 'r') as fp:
+            version = str(fp.read().strip())
+            logging.debug("Found cobra version %s", version)
     except (ImportError, ImportWarning) as err:
         failure_messages.append(str(err))
 
