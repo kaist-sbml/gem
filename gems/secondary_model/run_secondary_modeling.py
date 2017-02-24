@@ -93,7 +93,7 @@ def get_target_nonprod_monomers_for_gapfilling(target_model, options):
 def get_universal_model(target_model, options):
 
 
-    universal_model = pickle.load(open("./gems/io/data/input2/universal_model.p","rb"))
+    universal_model = pickle.load(open("./gems/io/data/input2/MNXref.p","rb"))
 
     return universal_model
 
@@ -103,29 +103,30 @@ def run_gapfilling(target_model, universal_model, options):
     gapfill_rxns2 = []
 
     for nonprod_monomer in options.adj_unique_nonprod_monomers_list:
-        #Gap-filling via cobrapy
-        #TODO: Check downstream functions for 'gapfill_iter' > 1
-        gapfill_rxns = cobra.flux_analysis.gapfilling.SMILEY(
-                target_model, '%s_c' %nonprod_monomer,
-                universal_model, iterations = int(options.cobrapy.gapfill_iter))
-        logging.debug('gapfill_rxns: %s' %gapfill_rxns)
+        try:
+            #Gap-filling via cobrapy
+            #TODO: Check downstream functions for 'gapfill_iter' > 1
+            gapfill_rxns = cobra.flux_analysis.gapfilling.SMILEY(
+                    target_model, '%s_c' %nonprod_monomer,
+                    universal_model, iterations = int(options.cobrapy.gapfill_iter))
+            logging.debug('gapfill_rxns: %s' %gapfill_rxns)
 
-        #'gapfill_rxns' is a list of list:
-        #e.g., [[<Reaction HKSR9 at 0x7f706aa8cad0>,
-        #<Reaction MNXR3151_reverse at 0x7f706a86d7d0>]]
-        #Element in a list of list is Class.
-        if len(gapfill_rxns[0]) > 0:
-            for i in gapfill_rxns[0]:
-                if '_reverse' in str(i):
-                    #Check next gap-filling rxn already covered
-                    if str(i)[:-8] not in gapfill_rxns2:
-                        gapfill_rxns2.append(str(i)[:-8])
-                elif '_reverse' not in str(i):
-                    #Check next gap-filling rxn already covered
-                    if str(i) not in gapfill_rxns2:
-                        gapfill_rxns2.append(str(i))
+            #'gapfill_rxns' is a list of list:
+            #e.g., [[<Reaction HKSR9 at 0x7f706aa8cad0>,
+            #<Reaction MNXR3151_reverse at 0x7f706a86d7d0>]]
+            #Element in a list of list is Class.
+            if len(gapfill_rxns[0]) > 0:
+                for i in gapfill_rxns[0]:
+                    if '_reverse' in str(i):
+                        #Check next gap-filling rxn already covered
+                        if str(i)[:-8] not in gapfill_rxns2:
+                            gapfill_rxns2.append(str(i)[:-8])
+                    elif '_reverse' not in str(i):
+                        #Check next gap-filling rxn already covered
+                        if str(i) not in gapfill_rxns2:
+                            gapfill_rxns2.append(str(i))
 
-        else:
+        except:
             logging.warning("Gap-filling not possible: target_model with reactions from universal_model does not produce this monomer: %s" %nonprod_monomer)
 
     #Currently this function causes an error;

@@ -7,16 +7,16 @@ import pickle
 import zipfile
 from cobra import Model, Reaction, Metabolite
 from cobra.io import write_sbml_model
+from cobra.io.sbml import fix_legacy_id
 from os.path import join, abspath, dirname
 
 mnxref_dir = join(dirname(abspath(__file__)), 'input2_data')
 
-class ParseMNXM(object):
+class ParseMNXref(object):
 
-    #TODO: Try to import cobrapy function rather than explicitly writing here
-    #Based on fix_legacy_id(id, use_hyphens=False, fix_compartments=False) of cobrapy:
-    def replace_special_characters_compoundid(biggid):
-        biggid = biggid.replace('-', '_DASH_')
+    # Based on fix_legacy_id(id, use_hyphens=False, fix_compartments=False) of cobrapy:
+    def reverse_fix_legacy_id(self, biggid):
+        biggid = biggid.replace('__', '_DASH_')
         biggid = biggid.replace('/', '_FSLASH_')
         biggid = biggid.replace("\\",'_BSLASH_')
         biggid = biggid.replace('(', '_LPAREN_')
@@ -31,14 +31,14 @@ class ParseMNXM(object):
         biggid = biggid.replace('>', '&gt;')
         biggid = biggid.replace('"', '&quot;')
 
-        return biggid
+        self.biggid = biggid
 
     # This function cannot parse the initial version of NMXref data
-    def read_metabolite_info(self, filename):
-        bigg_mnxm_compound_dict = {}
+    def read_chem_xref(self, filename):
+#        bigg_mnxm_compound_dict = {}
         mnxm_bigg_compound_dict = {}
-        kegg_mnxm_compound_dict = {}
-        mnxm_kegg_compound_dict = {}
+#        kegg_mnxm_compound_dict = {}
+#        mnxm_kegg_compound_dict = {}
 
         f = open(filename,'r')
         f.readline()
@@ -53,29 +53,52 @@ class ParseMNXM(object):
                 mnxm = metab_info_list[1].strip()
 
                 if xref_db == 'bigg':
-                    biggid = replace_special_characters_compoundid(xref_id)
-                    bigg_mnxm_compound_dict[biggid] = mnxm
-                    mnxm_bigg_compound_dict[mnxm] = biggid
-                elif xref_db == 'kegg':
-                    kegg_mnxm_compound_dict[xref_id] = mnxm
+#                    bigg_mnxm_compound_dict[biggid] = mnxm
+                    self.reverse_fix_legacy_id(xref_id)
+                    mnxm_bigg_compound_dict[mnxm] = self.biggid
+                    logging.debug('%s; %s; %s; %s' %(xref_db, xref_id, self.biggid, mnxm))
+#                elif xref_db == 'kegg':
+#                    kegg_mnxm_compound_dict[xref_id] = mnxm
 
                     # Following conditions give priority to compoundID starting with 'C'
-                    if 'D' not in xref_id \
-                            and 'E' not in xref_id \
-                            and 'G' not in xref_id \
-                            and mnxm not in mnxm_kegg_compound_dict.keys():
-                        mnxm_kegg_compound_dict[mnxm] = xref_id
+#                    if 'D' not in xref_id \
+#                            and 'E' not in xref_id \
+#                            and 'G' not in xref_id \
+#                            and mnxm not in mnxm_kegg_compound_dict.keys():
+#                        mnxm_kegg_compound_dict[mnxm] = xref_id
 
-                logging.debug('%s; %s; %s' %(xref_db, xref_id, mnxm))
+                #logging.debug('%s; %s; %s' %(xref_db, xref_id, mnxm))
             except:
                 logging.debug('Cannot parse MNXM: %s' %line)
 
         f.close()
-        return bigg_mnxm_compound_dict, mnxm_bigg_compound_dict,\
-                kegg_mnxm_compound_dict, mnxm_kegg_compound_dict
+#        return bigg_mnxm_compound_dict, mnxm_bigg_compound_dict,\
+#                kegg_mnxm_compound_dict, mnxm_kegg_compound_dict
+        self.mnxm_bigg_compound_dict = mnxm_bigg_compound_dict
 
 
-class ParseMNXR(object):
+    # mnxm_compoundInfo_dict =
+    #{'MNXM128019': ['Methyl trans-p-methoxycinnamate', 'C11H12O3']}
+    def read_chem_prop(self, filename):
+        mnxm_compoundInfo_dict = {}
+
+        f = open(filename,'r')
+        f.readline()
+
+        for line in f:
+            try:
+                metab_prop_list = line.split('\t')
+                mnxm_id = metab_prop_list[0].strip()
+                mnxm_name = metab_prop_list[1].strip()
+                mnxm_formula = metab_prop_list[2].strip()
+                mnxm_compoundInfo_dict[mnxm_id] = [(mnxm_name)]
+                mnxm_compoundInfo_dict[mnxm_id].append((mnxm_formula))
+            except:
+                logging.debug('Cannot parse MNXM: %s' %line)
+
+        f.close()
+        self.mnxm_compoundInfo_dict = mnxm_compoundInfo_dict
+
 
     def parse_equation(self, equation):
         equation = equation.replace('>', '')
@@ -115,7 +138,8 @@ class ParseMNXR(object):
 
         return reactant_info, product_info
 
-    def read_reaction_info(self, filename):
+
+    def read_reac_prop(self, filename):
         reaction_info = {}
         mass_balance = ''
         ec_number = ''
@@ -169,12 +193,18 @@ class ParseMNXR(object):
         fp.close()
         return
 
+
     def get_cobra_reactions(self):
         logging.debug('Creating MNXR reactions: time-consuming')
 
         cobra_reactions = []
+        cobra_metabolites = []
 
+        cnt = 0
         for each_reaction in self.reaction_info:
+            cnt += 1
+            logging.debug('Total reaction number %s; Reaction number covered %s; %s' \
+                    %(len(self.reaction_info), cnt, each_reaction))
             reaction_name = each_reaction
             metabolites = self.reaction_info[each_reaction]['stoichiometry']
             mass_balance = self.reaction_info[each_reaction]['balance']
@@ -191,13 +221,41 @@ class ParseMNXR(object):
 
                 new_reaction_metabolite_obj = {}
                 for each_metabolite in metabolites:
-                    metabolite_id = '%s_%s' % (each_metabolite.strip(), each_compartment)
-                    coeff = metabolites[each_metabolite]
-                    new_metabolite_obj = Metabolite(
+                    # Convert MNXM to BiGG IDs
+                    if each_metabolite in self.mnxm_bigg_compound_dict.keys() \
+                            and each_metabolite in self.mnxm_compoundInfo_dict.keys():
+                        metabolite_id = '%s_%s' \
+                            %(self.mnxm_bigg_compound_dict[each_metabolite.strip()],
+                                each_compartment)
+                        metabolite_obj = Metabolite(
                             str(metabolite_id),
-                            name=str(each_metabolite),
-                            compartment=str(each_compartment))
-                    new_reaction_metabolite_obj[new_metabolite_obj] = float(coeff)
+                            name = self.mnxm_compoundInfo_dict[each_metabolite][0],
+                            formula = self.mnxm_compoundInfo_dict[each_metabolite][1],
+                            compartment = str(each_compartment))
+                    elif each_metabolite not in self.mnxm_bigg_compound_dict.keys() \
+                            and each_metabolite in self.mnxm_compoundInfo_dict.keys():
+                        metabolite_id = '%s_%s' \
+                            %(each_metabolite.strip(), each_compartment)
+                        metabolite_obj = Metabolite(
+                            str(metabolite_id),
+                            name = self.mnxm_compoundInfo_dict[each_metabolite][0],
+                            formula = self.mnxm_compoundInfo_dict[each_metabolite][1],
+                            compartment = str(each_compartment))
+                    elif each_metabolite not in self.mnxm_bigg_compound_dict.keys() \
+                            and each_metabolite not in self.mnxm_compoundInfo_dict.keys():
+                        metabolite_id = '%s_%s' \
+                            %(each_metabolite.strip(), each_compartment)
+                        metabolite_obj = Metabolite(
+                            str(metabolite_id),
+                            name = '',
+                            formula = '',
+                            compartment = str(each_compartment))
+
+                    # TODO: Insert other db IDs
+                    #metabolite.notes = {}
+
+                    coeff = metabolites[each_metabolite]
+                    new_reaction_metabolite_obj[metabolite_obj] = float(coeff)
 
                 if reaction_reversibility == True:
                     lb = -1000.0
@@ -228,18 +286,19 @@ class ParseMNXR(object):
                     reaction_obj.notes['Balance'] = mass_balance
                     cobra_reactions.append(copy.deepcopy(reaction_obj))
 
-        return cobra_reactions
+        self.cobra_reactions = cobra_reactions
+
 
     def make_cobra_model(self, mnx_file):
         cobra_model = Model('mnxref_model')
-        self.read_reaction_info(mnx_file)
-        cobra_reactions = self.get_cobra_reactions()
+        self.read_reac_prop(mnx_file)
+        self.get_cobra_reactions()
 
         reaction_list = []
         for reaction_id in cobra_model.reactions:
             reaction_list.append(reaction_id.id)
 
-        for each_cobra_reaction in cobra_reactions:
+        for each_cobra_reaction in self.cobra_reactions:
             if each_cobra_reaction.id not in reaction_list:
                 print each_cobra_reaction, each_cobra_reaction.notes
                 cobra_model.add_reaction(each_cobra_reaction)
@@ -258,20 +317,17 @@ def unzip_tsv_files():
         zip.extractall(mnxref_dir)
 
 
-def pickle_metabolite_id_conversions():
-    mnxm_parser = ParseMNXM()
-    mnxm_parser.read_metabolite_info(join(mnxref_dir, 'reac_prop.tsv'))
+def run_ParseMNXref():
+    mnx_parser = ParseMNXref()
 
-def convert_mnxref_to_sbml():
-    mnxr_parser = ParseMNXR()
-    cobra_model = mnxr_parser.make_cobra_model(join(mnxref_dir, 'reac_prop.tsv'))
+    mnx_parser.read_chem_xref(join(mnxref_dir, 'chem_xref.tsv'))
+    mnx_parser.read_chem_prop(join(mnxref_dir, 'chem_prop.tsv'))
+    cobra_model = mnx_parser.make_cobra_model(join(mnxref_dir, 'reac_prop.tsv'))
+
     write_sbml_model(cobra_model,
-        join(mnxref_dir, 'universal_model.xml'), use_fbc_package=False)
-    return cobra_model
+        join(mnxref_dir, 'MNXref.xml'), use_fbc_package=False)
 
-
-def pickle_sbml(cobra_model):
-    with open(join(mnxref_dir, 'universal_model.p'), 'wb') as f:
+    with open(join(mnxref_dir, 'MNXref.p'), 'wb') as f:
         pickle.dump(cobra_model, f, protocol=pickle.HIGHEST_PROTOCOL)
 
 
@@ -283,10 +339,13 @@ def remove_tsv_files():
 
 if __name__ == '__main__':
     import logging
+    import time
 
+    start = time.time()
     logging.basicConfig(format='%(levelname)s: %(message)s', level='DEBUG')
 
     unzip_tsv_files()
-    cobra_model = convert_mnxr_to_sbml()
-    pickle_sbml(cobra_model)
+    run_ParseMNXref()
     remove_tsv_files()
+
+    logging.info(time.strftime("Elapsed time %H:%M:%S", time.gmtime(time.time() - start)))
