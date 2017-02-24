@@ -91,13 +91,42 @@ class ParseMNXref(object):
                 mnxm_id = metab_prop_list[0].strip()
                 mnxm_name = metab_prop_list[1].strip()
                 mnxm_formula = metab_prop_list[2].strip()
-                mnxm_compoundInfo_dict[mnxm_id] = [(mnxm_name)]
-                mnxm_compoundInfo_dict[mnxm_id].append((mnxm_formula))
+                mnxm_compoundInfo_dict[mnxm_id] = [mnxm_name]
+                mnxm_compoundInfo_dict[mnxm_id].append(mnxm_formula)
             except:
                 logging.debug('Cannot parse MNXM: %s' %line)
 
         f.close()
         self.mnxm_compoundInfo_dict = mnxm_compoundInfo_dict
+
+
+    def read_reac_xref(self, filename):
+
+        mnxr_xref_dict = {}
+
+        f = open(filename,'r')
+        f.readline()
+
+        for line in f:
+            try:
+                rxn_info_list = line.split('\t')
+                xref = rxn_info_list[0].strip()
+                xref_list = xref.split(':')
+                xref_db = xref_list[0].strip()
+                xref_id = xref_list[1].strip()
+                mnxr = rxn_info_list[1].strip()
+
+                if xref_db == 'bigg' or xref_db == 'kegg':
+                    if mnxr not in mnxr_xref_dict.keys():
+                        mnxr_xref_dict[mnxr] = [xref_id]
+                    elif mnxr in mnxr_xref_dict.keys():
+                        mnxr_xref_dict[mnxr].append(xref_id)
+                logging.debug('%s; %s; %s' %(xref_db, xref_id, mnxr))
+            except:
+                logging.debug('Cannot parse MNXM: %s' %line)
+
+        f.close()
+        self.mnxr_xref_dict = mnxr_xref_dict
 
 
     def parse_equation(self, equation):
@@ -271,7 +300,12 @@ class ParseMNXref(object):
                     new_reaction_id = new_reaction_id.replace(':', '_')
                     new_reaction_id = new_reaction_id + '_' + each_compartment
                     reaction_obj = Reaction(new_reaction_id)
-                    reaction_obj.name = str(reaction_name)
+
+                    try:
+                        reaction_obj.name = ';'.join(self.mnxr_xref_dict[each_reaction])
+                    except:
+                        reaction_obj.name = ''
+
                     reaction_obj.subsystem = ''
                     reaction_obj.lower_bound = lb
                     reaction_obj.upper_bound = ub
@@ -322,6 +356,7 @@ def run_ParseMNXref():
 
     mnx_parser.read_chem_xref(join(mnxref_dir, 'chem_xref.tsv'))
     mnx_parser.read_chem_prop(join(mnxref_dir, 'chem_prop.tsv'))
+    mnx_parser.read_reac_xref(join(mnxref_dir, 'reac_xref.tsv'))
     cobra_model = mnx_parser.make_cobra_model(join(mnxref_dir, 'reac_prop.tsv'))
 
     write_sbml_model(cobra_model,
