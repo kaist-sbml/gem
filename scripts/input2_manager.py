@@ -4,6 +4,7 @@ import copy
 import glob
 import os
 import pickle
+import shutil
 import zipfile
 from cobra import Model, Reaction, Metabolite
 from cobra.io import write_sbml_model
@@ -301,6 +302,7 @@ class ParseMNXref(object):
                     new_reaction_id = new_reaction_id + '_' + each_compartment
                     reaction_obj = Reaction(new_reaction_id)
 
+                    # Insert bigg or kegg reaction IDs
                     try:
                         reaction_obj.name = ';'.join(self.mnxr_xref_dict[each_reaction])
                     except:
@@ -359,11 +361,17 @@ def run_ParseMNXref():
     mnx_parser.read_reac_xref(join(mnxref_dir, 'reac_xref.tsv'))
     cobra_model = mnx_parser.make_cobra_model(join(mnxref_dir, 'reac_prop.tsv'))
 
+    # Write SBML file
     write_sbml_model(cobra_model,
         join(mnxref_dir, 'MNXref.xml'), use_fbc_package=False)
 
+    # Create a pickle
     with open(join(mnxref_dir, 'MNXref.p'), 'wb') as f:
         pickle.dump(cobra_model, f, protocol=pickle.HIGHEST_PROTOCOL)
+
+    # Copy a new pickle to the destination
+    shutil.copyfile(join(mnxref_dir, 'MNXref.p'),
+            join(os.pardir, 'gems', 'io', 'data', 'input2', 'MNXref.p'))
 
 
 def remove_tsv_files():
