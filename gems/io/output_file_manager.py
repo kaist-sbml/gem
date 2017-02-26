@@ -84,18 +84,22 @@ def get_model_reactions(folder, cobra_model_no_gapFilled, cobra_model, options):
 
             #Calculated flux values are inaccurate without
             #manual setting of objective_coefficient to zero
-            if 'Biomass_SCO' in cobra_model_no_gapFilled.reactions:
-                cobra_model_no_gapFilled.reactions.get_by_id('Biomass_SCO').objective_coefficient = 0
-            elif 'Ec_biomass_iAF1260_core_59p81M' in cobra_model_no_gapFilled.reactions:
-                cobra_model_no_gapFilled.reactions.get_by_id('Ec_biomass_iAF1260_core_59p81M').objective_coefficient = 0
+#            if 'Biomass_SCO' in cobra_model_no_gapFilled.reactions:
+            if options.orgName == 'sco':
+                cobra_model_no_gapFilled.reactions.get_by_id(options.model.sco_obj_func).objective_coefficient = 0
+#            elif 'Ec_biomass_iAF1260_core_59p81M' in cobra_model_no_gapFilled.reactions:
+            elif options.orgName == 'eco':
+                cobra_model_no_gapFilled.reactions.get_by_id(options.model.eco_obj_func).objective_coefficient = 0
 
             cobra_model_no_gapFilled.reactions.get_by_id(rxn.id).objective_coefficient = 1
             cobra_model_no_gapFilled.optimize()
 
-            if 'Biomass_SCO' in cobra_model.reactions:
-                cobra_model.reactions.get_by_id('Biomass_SCO').objective_coefficient = 0
-            elif 'Ec_biomass_iAF1260_core_59p81M' in cobra_model.reactions:
-                cobra_model.reactions.get_by_id('Ec_biomass_iAF1260_core_59p81M').objective_coefficient = 0
+#            if 'Biomass_SCO' in cobra_model.reactions:
+            if options.orgName == 'sco':
+                cobra_model.reactions.get_by_id(options.model.sco_obj_func).objective_coefficient = 0
+#            elif 'Ec_biomass_iAF1260_core_59p81M' in cobra_model.reactions:
+            elif options.orgName == 'eco':
+                cobra_model.reactions.get_by_id(options.model.eco_obj_func).objective_coefficient = 0
 
             cobra_model.reactions.get_by_id(rxn.id).objective_coefficient = 1
             cobra_model.optimize()
