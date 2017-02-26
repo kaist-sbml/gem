@@ -4,6 +4,7 @@
 #Copyright 2014-2016 Novo Nordisk Foundation Center for Biosustainability, DTU
 
 import argparse
+import copy
 import glob
 import logging
 import multiprocessing
@@ -194,6 +195,8 @@ def main():
                         target_model, prod_sec_met_dict, nonprod_sec_met_dict, options)
                     cluster_nr += 1
 
+                target_model_no_gapsFilled = copy.deepcopy(target_model) 
+
                 get_target_nonprod_monomers_for_gapfilling(target_model, options)
 
                 universal_model = get_universal_model(target_model, options)
@@ -207,7 +210,7 @@ def main():
                         time.gmtime(time.time() - start))
 
                 generate_outputs(options.outputfolder4,
-                    target_model_complete, runtime2, options)
+                    target_model_no_gapsFilled, target_model_complete, runtime2, options)
 
             else:
                 logging.debug("No cluster information available for secondary metabolic modeling")

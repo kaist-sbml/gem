@@ -9,7 +9,7 @@ import re
 from cobra.io.sbml import write_cobra_model_to_sbml_file, create_cobra_model_from_sbml_file
 
 
-def generate_outputs(folder, cobra_model, runtime, options):
+def generate_outputs(folder, cobra_model_no_gapFilled, cobra_model, runtime, options):
     #Model reloading and overwrtting are necessary for model consistency:
     #e.g., metabolite IDs with correct compartment suffices & accurate model stats
     #This can also mask the effects of model error (e.g., undeclared metabolite ID)
@@ -21,7 +21,7 @@ def generate_outputs(folder, cobra_model, runtime, options):
             './%s/model.xml' %folder, use_fbc_package=False)
 
     num_essen_rxn, num_kegg_rxn, num_cluster_rxn = get_model_reactions(
-                       folder, cobra_model, options)
+                       folder, cobra_model_no_gapFilled, cobra_model, options)
     get_model_metabolites(folder, cobra_model, options)
     template_model_gene_list = get_model_genes(folder, cobra_model)
     get_summary_report(folder, cobra_model, runtime,
@@ -36,7 +36,8 @@ def generate_outputs(folder, cobra_model, runtime, options):
     if options.pmr_generation and options.debug:
         write_data_for_debug(options)
 
-def get_model_reactions(folder, cobra_model, options):
+
+def get_model_reactions(folder, cobra_model_no_gapFilled, cobra_model, options):
 
     fp1 = open('./%s/model_reactions.txt' %folder, 'w')
     fp2 = open('./%s/remaining_essential_reactions_from_template_model.txt' %folder, 'w')
@@ -83,6 +84,14 @@ def get_model_reactions(folder, cobra_model, options):
 
             #Calculated flux values are inaccurate without
             #manual setting of objective_coefficient to zero
+            if 'Biomass_SCO' in cobra_model_no_gapFilled.reactions:
+                cobra_model_no_gapFilled.reactions.get_by_id('Biomass_SCO').objective_coefficient = 0
+            elif 'Ec_biomass_iAF1260_core_59p81M' in cobra_model_no_gapFilled.reactions:
+                cobra_model_no_gapFilled.reactions.get_by_id('Ec_biomass_iAF1260_core_59p81M').objective_coefficient = 0
+
+            cobra_model_no_gapFilled.reactions.get_by_id(rxn.id).objective_coefficient = 1
+            cobra_model_no_gapFilled.optimize()
+
             if 'Biomass_SCO' in cobra_model.reactions:
                 cobra_model.reactions.get_by_id('Biomass_SCO').objective_coefficient = 0
             elif 'Ec_biomass_iAF1260_core_59p81M' in cobra_model.reactions:
@@ -90,7 +99,11 @@ def get_model_reactions(folder, cobra_model, options):
 
             cobra_model.reactions.get_by_id(rxn.id).objective_coefficient = 1
             cobra_model.optimize()
-            print >>fp4, '%s\t%f' %(rxn.id, cobra_model.solution.f)
+
+            print >>fp4, '%s\t%f\t%f' \
+                %(rxn.id, cobra_model_no_gapFilled.solution.f, cobra_model.solution.f)
+
+            cobra_model_no_gapFilled.reactions.get_by_id(rxn.id).objective_coefficient = 0
             cobra_model.reactions.get_by_id(rxn.id).objective_coefficient = 0
 
     fp1.close()
