@@ -36,10 +36,8 @@ class ParseMNXref(object):
 
     # This function cannot parse the initial version of NMXref data
     def read_chem_xref(self, filename):
-#        bigg_mnxm_compound_dict = {}
         mnxm_bigg_compound_dict = {}
-#        kegg_mnxm_compound_dict = {}
-#        mnxm_kegg_compound_dict = {}
+        mnxm_kegg_compound_dict = {}
 
         f = open(filename,'r')
         f.readline()
@@ -54,12 +52,10 @@ class ParseMNXref(object):
                 mnxm = metab_info_list[1].strip()
 
                 if xref_db == 'bigg':
-#                    bigg_mnxm_compound_dict[biggid] = mnxm
                     self.reverse_fix_legacy_id(xref_id)
                     mnxm_bigg_compound_dict[mnxm] = self.biggid
-                    logging.debug('%s; %s; %s; %s' %(xref_db, xref_id, self.biggid, mnxm))
-#                elif xref_db == 'kegg':
-#                    kegg_mnxm_compound_dict[xref_id] = mnxm
+                elif xref_db == 'kegg':
+                    mnxm_kegg_compound_dict[mnxm] = xref_id
 
                     # Following conditions give priority to compoundID starting with 'C'
 #                    if 'D' not in xref_id \
@@ -68,14 +64,13 @@ class ParseMNXref(object):
 #                            and mnxm not in mnxm_kegg_compound_dict.keys():
 #                        mnxm_kegg_compound_dict[mnxm] = xref_id
 
-                #logging.debug('%s; %s; %s' %(xref_db, xref_id, mnxm))
+                logging.debug('%s; %s; %s' %(xref_db, xref_id, mnxm))
             except:
                 logging.debug('Cannot parse MNXM: %s' %line)
 
         f.close()
-#        return bigg_mnxm_compound_dict, mnxm_bigg_compound_dict,\
-#                kegg_mnxm_compound_dict, mnxm_kegg_compound_dict
         self.mnxm_bigg_compound_dict = mnxm_bigg_compound_dict
+        self.mnxm_kegg_compound_dict = mnxm_kegg_compound_dict
 
 
     # mnxm_compoundInfo_dict =
@@ -281,8 +276,15 @@ class ParseMNXref(object):
                             formula = '',
                             compartment = str(each_compartment))
 
-                    # TODO: Insert other db IDs
-                    #metabolite.notes = {}
+                    # Insert other db IDs
+                    metabolite_obj.notes = {}
+                    metabolite_obj.notes['MNXM'] = each_metabolite
+                    if each_metabolite in self.mnxm_bigg_compound_dict:
+                        metabolite_obj.notes['BiGG'] = \
+                                self.mnxm_bigg_compound_dict[each_metabolite]
+                    if each_metabolite in self.mnxm_kegg_compound_dict:
+                        metabolite_obj.notes['KEGG'] = \
+                                self.mnxm_kegg_compound_dict[each_metabolite]
 
                     coeff = metabolites[each_metabolite]
                     new_reaction_metabolite_obj[metabolite_obj] = float(coeff)
@@ -336,7 +338,6 @@ class ParseMNXref(object):
 
         for each_cobra_reaction in self.cobra_reactions:
             if each_cobra_reaction.id not in reaction_list:
-                print each_cobra_reaction, each_cobra_reaction.notes
                 cobra_model.add_reaction(each_cobra_reaction)
 
         logging.debug('%i reactions in model' % len(cobra_model.reactions))
@@ -363,7 +364,7 @@ def run_ParseMNXref():
 
     # Write SBML file
     write_sbml_model(cobra_model,
-        join(mnxref_dir, 'MNXref.xml'), use_fbc_package=False)
+            join(mnxref_dir, 'MNXref.xml'), use_fbc_package=False)
 
     # Create a pickle
     with open(join(mnxref_dir, 'MNXref.p'), 'wb') as f:
