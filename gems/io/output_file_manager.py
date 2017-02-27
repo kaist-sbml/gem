@@ -9,7 +9,11 @@ import re
 from cobra.io.sbml import write_cobra_model_to_sbml_file, create_cobra_model_from_sbml_file
 
 
-def generate_outputs(folder, cobra_model_no_gapFilled, cobra_model, runtime, options):
+def generate_outputs(folder, runtime, options, **kwargs):
+
+    if 'cobra_model' in kwargs:
+        cobra_model = kwargs['cobra_model']
+
     #Model reloading and overwrtting are necessary for model consistency:
     #e.g., metabolite IDs with correct compartment suffices & accurate model stats
     #This can also mask the effects of model error (e.g., undeclared metabolite ID)
@@ -21,7 +25,7 @@ def generate_outputs(folder, cobra_model_no_gapFilled, cobra_model, runtime, opt
             './%s/model.xml' %folder, use_fbc_package=False)
 
     num_essen_rxn, num_kegg_rxn, num_cluster_rxn = get_model_reactions(
-                       folder, cobra_model_no_gapFilled, cobra_model, options)
+                       folder, options, **kwargs)
     get_model_metabolites(folder, cobra_model, options)
     template_model_gene_list = get_model_genes(folder, cobra_model)
     get_summary_report(folder, cobra_model, runtime,
@@ -37,12 +41,11 @@ def generate_outputs(folder, cobra_model_no_gapFilled, cobra_model, runtime, opt
         write_data_for_debug(options)
 
 
-def get_model_reactions(folder, cobra_model_no_gapFilled, cobra_model, options):
+def get_model_reactions(folder, options, **kwargs):
 
     fp1 = open('./%s/model_reactions.txt' %folder, 'w')
     fp2 = open('./%s/remaining_essential_reactions_from_template_model.txt' %folder, 'w')
     fp3 = open('./%s/reactions_added_from_kegg.txt' %folder, 'w')
-    fp4 = open('./%s/cluster_fluxes.txt' %folder, 'w')
 
     fp1.write('reaction_ID'+'\t'+'reaction_name'+'\t'+'reaction_equation'+'\t'
             +'GPR'+'\t'+'pathway'+'\n')
@@ -50,8 +53,14 @@ def get_model_reactions(folder, cobra_model_no_gapFilled, cobra_model, options):
             +'GPR'+'\t'+'pathway'+'\n')
     fp3.write('reaction_ID'+'\t'+'reaction_name'+'\t'+'reaction_equation'+'\t'
             +'GPR'+'\t'+'pathway'+'\n')
-    fp4.write('reaction_ID'+'\t'+'fluxes without gap-filling reactions'+'\t'
+
+    if '4_complete_model' in folder:
+        fp4 = open('./%s/cluster_fluxes.txt' %folder, 'w')
+        fp4.write('reaction_ID'+'\t'+'fluxes without gap-filling reactions'+'\t'
             +'fluxes with gap-filling reactions'+'\n')
+
+    if 'cobra_model' in kwargs:
+        cobra_model = kwargs['cobra_model']
 
     num_essen_rxn = 0
     num_kegg_rxn = 0
@@ -79,41 +88,48 @@ def get_model_reactions(folder, cobra_model_no_gapFilled, cobra_model, options):
                                             rxn.gene_reaction_rule, rxn.subsystem)
 
         #Secondary metabolite biosynthetic reactions
-        if re.search('Ex_Cluster', rxn.id):
+        if re.search('Ex_Cluster', rxn.id) and '4_complete_model' in folder:
             num_cluster_rxn+=1
 
             #Calculated flux values are inaccurate without
             #manual setting of objective_coefficient to zero
-#            if 'Biomass_SCO' in cobra_model_no_gapFilled.reactions:
             if options.orgName == 'sco':
-                cobra_model_no_gapFilled.reactions.get_by_id(options.model.sco_obj_func).objective_coefficient = 0
-#            elif 'Ec_biomass_iAF1260_core_59p81M' in cobra_model_no_gapFilled.reactions:
+                cobra_model.reactions.get_by_id(
+                        options.model.sco_obj_func).objective_coefficient = 0
             elif options.orgName == 'eco':
-                cobra_model_no_gapFilled.reactions.get_by_id(options.model.eco_obj_func).objective_coefficient = 0
-
-            cobra_model_no_gapFilled.reactions.get_by_id(rxn.id).objective_coefficient = 1
-            cobra_model_no_gapFilled.optimize()
-
-#            if 'Biomass_SCO' in cobra_model.reactions:
-            if options.orgName == 'sco':
-                cobra_model.reactions.get_by_id(options.model.sco_obj_func).objective_coefficient = 0
-#            elif 'Ec_biomass_iAF1260_core_59p81M' in cobra_model.reactions:
-            elif options.orgName == 'eco':
-                cobra_model.reactions.get_by_id(options.model.eco_obj_func).objective_coefficient = 0
+                cobra_model.reactions.get_by_id(
+                        options.model.eco_obj_func).objective_coefficient = 0
 
             cobra_model.reactions.get_by_id(rxn.id).objective_coefficient = 1
             cobra_model.optimize()
+            cobra_model.reactions.get_by_id(rxn.id).objective_coefficient = 0
 
-            print >>fp4, '%s\t%f\t%f' \
+            if 'cobra_model_no_gapFilled' in kwargs:
+                cobra_model_no_gapFilled = kwargs['cobra_model_no_gapFilled']
+
+                if options.orgName == 'sco':
+                    cobra_model_no_gapFilled.reactions.get_by_id(
+                            options.model.sco_obj_func).objective_coefficient = 0
+                elif options.orgName == 'eco':
+                    cobra_model_no_gapFilled.reactions.get_by_id(
+                            options.model.eco_obj_func).objective_coefficient = 0
+
+                cobra_model_no_gapFilled.reactions.get_by_id(
+                        rxn.id).objective_coefficient = 1
+                cobra_model_no_gapFilled.optimize()
+                cobra_model_no_gapFilled.reactions.get_by_id(
+                        rxn.id).objective_coefficient = 0
+
+                print >>fp4, '%s\t%f\t%f' \
                 %(rxn.id, cobra_model_no_gapFilled.solution.f, cobra_model.solution.f)
 
-            cobra_model_no_gapFilled.reactions.get_by_id(rxn.id).objective_coefficient = 0
-            cobra_model.reactions.get_by_id(rxn.id).objective_coefficient = 0
 
     fp1.close()
     fp2.close()
     fp3.close()
-    fp4.close()
+
+    if '4_complete_model' in folder:
+        fp4.close()
 
     return num_essen_rxn, num_kegg_rxn, num_cluster_rxn
 
@@ -121,12 +137,13 @@ def get_model_reactions(folder, cobra_model_no_gapFilled, cobra_model, options):
 def get_model_metabolites(folder, cobra_model, options):
 
     fp1 = open('./%s/model_metabolites.txt' %folder, "w")
-    fp2 = open('./%s/metabolites_gapfilling_needed.txt' %folder, "w")
-
     fp1.write('metabolite_ID'+'\t'+'metabolite_name'+'\t'
             +'formula'+'\t'+'compartment'+'\n')
-    fp2.write('metabolite_ID'+'\t'+'reaction_ID'+'\t'+'reaction_name'+'\t'
-            +'reaction_equation'+'\t'+'GPR'+'\t'+'pathway'+'\n')
+
+    if '4_complete_model' in folder:
+        fp2 = open('./%s/metabolites_gapfilling_needed.txt' %folder, "w")
+        fp2.write('metabolite_ID'+'\t'+'reaction_ID'+'\t'+'reaction_name'+'\t'
+                +'reaction_equation'+'\t'+'GPR'+'\t'+'pathway'+'\n')
 
     for i in range(len(cobra_model.metabolites)):
         metab = cobra_model.metabolites[i]
@@ -148,7 +165,9 @@ def get_model_metabolites(folder, cobra_model, options):
                             rxn.gene_reaction_rule, rxn.subsystem)
 
     fp1.close()
-    fp2.close()
+
+    if '4_complete_model' in folder:
+        fp2.close()
 
 
 def get_model_genes(folder, cobra_model):
