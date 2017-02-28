@@ -300,8 +300,6 @@ class ParseMNXref(object):
 
                 if flag == True:
                     new_reaction_id = str(each_reaction)
-                    new_reaction_id = new_reaction_id.replace(':', '_')
-                    new_reaction_id = new_reaction_id + '_' + each_compartment
                     reaction_obj = Reaction(new_reaction_id)
 
                     # Insert bigg or kegg reaction IDs
@@ -373,6 +371,9 @@ def run_ParseMNXref():
     # Copy a new pickle to the destination
     shutil.copyfile(join(mnxref_dir, 'MNXref.p'),
             join(os.pardir, 'gems', 'io', 'data', 'input2', 'MNXref.p'))
+
+    shutil.copyfile(join(mnxref_dir, 'MNXref.p'),
+            join(os.pardir, 'gems', 'tests', 'data', 'MNXref.p'))
 
 
 def remove_tsv_files():
