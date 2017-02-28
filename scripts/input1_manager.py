@@ -20,9 +20,9 @@ def get_tempInfo(orgName):
             if file.endswith('.xml'):
 		tempModel = os.path.join(root, file)
 	if tempGenome and tempModel:
-	    return root, tempGenome, tempModel
+            return root, tempGenome, tempModel
 	else:
-	    sys.exit(1)
+            sys.exit(1)
 
 #Files contents in SBML formatted into Dictionary {key:value} type.
 #Created by Jae Yong Ryu, on 2014. 1. 13.
@@ -33,11 +33,11 @@ def readCobraModel(root, sbmlFile):
     cobra_reaction_dic={}
     cobra_metabolite_dic={}
 
-#Double dictionary:        
+#Double dictionary:
     for each_reaction in cobra_model.reactions:
         cobra_reaction_dic[each_reaction.id]={'id':each_reaction.id, 'name':each_reaction.name,'reactants':each_reaction.get_reactants(), 'products':each_reaction.get_products(), 'reactants_coff':each_reaction.get_coefficients(each_reaction.get_reactants()), 'products_coff':each_reaction.get_coefficients(each_reaction.get_products()), 'gpr':each_reaction.gene_reaction_rule, 'lowerbound':each_reaction.lower_bound, 'upperbound':each_reaction.upper_bound, 'subsystem':each_reaction.subsystem, 'reversibility':each_reaction.reversibility}
-            
-    for each_metabolite in cobra_model.metabolites:  
+
+    for each_metabolite in cobra_model.metabolites:
         abbrmetabolite = each_metabolite.id[:-2]+'[%s]'%(each_metabolite[-1])
         if len(str(each_metabolite.formula).strip()) == 0:
             formula = ''
@@ -46,7 +46,6 @@ def readCobraModel(root, sbmlFile):
         cobra_metabolite_dic[each_metabolite.id]={'id':each_metabolite.id, 'name':each_metabolite.name, 'abbrname':abbrmetabolite, 'reaction':each_metabolite.get_reaction(),'compartment':each_metabolite.compartment, 'formula':formula}
 
     pickle.dump(cobra_model, open('%s/model.p' %(root),'wb'))
-    pickle.dump(cobra_reaction_dic, open('./forChecking/cobra_reaction_dic.p','wb'))
 
     return cobra_model, cobra_reaction_dic
 
@@ -56,7 +55,7 @@ def readCobraModel(root, sbmlFile):
 #Updated Nov, 014
 def readSeq_templateGenome(gbkFile, FileType):
     fp = open('./forChecking/tempGenome_locusTag_aaSeq.fa','w')
-    
+
     tempGenome_locusTag_aaSeq_dict = {}
 
 #Reads GenBank file
@@ -71,7 +70,7 @@ def readSeq_templateGenome(gbkFile, FileType):
 
 #Retrieving "locus_tag (i.e., ORF name)" for each CDS
                 feature_locus_tag = str(feature.qualifiers['locus_tag']).split("']")
-                feature_locus_tag = str(feature_locus_tag[0]).split("['")             
+                feature_locus_tag = str(feature_locus_tag[0]).split("['")
 #                fp.write(str(feature_locus_tag[1]))
 #                fp.write("\t")
 
@@ -90,22 +89,22 @@ def readSeq_templateGenome(gbkFile, FileType):
 def get_gpr_fromString_toList(line):
     calcNewList = []
     line = line.strip()
-    calcList = line.split('or')    
+    calcList = line.split('or')
     for c in calcList:
         c = c.replace('(','')
         c = c.replace(')','')
         c = c.replace(' ','')
-        c = c.strip() 
+        c = c.strip()
         if 'and' in c:
             newlist = c.split('and')
             newlist = list(set(newlist))
-            newlist.sort()                
-            calcNewList.append(newlist) 
-        else:                        
+            newlist.sort()
+            calcNewList.append(newlist)
+        else:
             geneid=c.strip()
             if geneid not in calcNewList:
-                calcNewList.append(geneid)  
-      
+                calcNewList.append(geneid)
+
     return calcNewList
 
 
@@ -133,7 +132,7 @@ def parse_templateModel_gpr(outputFile1, root, cobra_reaction_dic, tempGenome_lo
             #Stores reactions without genes
             if not Genes_each_list:
                 tempModel_biggRxnid_wo_gene_list.append(Reaction_name)
- 
+
             #Checks if the element itself is List.
             #'if type(Genes_each_list) == list' also works.
             #Genes connected with 'AND' come in the List type.
@@ -150,7 +149,7 @@ def parse_templateModel_gpr(outputFile1, root, cobra_reaction_dic, tempGenome_lo
                         tempModel_biggRxnidwithGene_woSeq_list.append(Reaction_name)
 
             #Single genes for a reaction, or genes connected with 'OR'
-	    else:
+            else:
                 if Genes_each_list in tempGenome_locusTag_aaSeq_dict.keys():
 
                     #Dictionary - ORF:AA seq
@@ -163,9 +162,6 @@ def parse_templateModel_gpr(outputFile1, root, cobra_reaction_dic, tempGenome_lo
                     tempModel_biggRxnidwithGene_woSeq_list.append(Reaction_name)
 
     pickle.dump(tempModel_biggRxnid_locusTag_dict, open('%s/tempModel_biggRxnid_locusTag_dict.p' %(root),'wb'))
-    pickle.dump(tempModel_locusTag_aaSeq_dict, open('./forChecking/tempModel_locusTag_aaSeq_dict.p','wb'))
-    pickle.dump(tempModel_biggRxnid_wo_gene_list, open('./forChecking/tempModel_biggRxnid_wo_gene_list.p','wb'))
-    pickle.dump(tempModel_biggRxnidwithGene_woSeq_list, open('./forChecking/tempModel_biggRxnidwithGene_woSeq_list.p','wb'))
 
     for key in tempModel_biggRxnid_locusTag_dict.keys():
 	print >>fp1, '%s\t%s' %(key, tempModel_biggRxnid_locusTag_dict[key])
@@ -195,66 +191,6 @@ def make_blastDB(root, query_fasta):
     return
 
 
-#Get reaction information using its ID from KEGG
-#Input: KEGG rxnid in string form (e.g., R00362)
-#Output: Reaction information for 'Name', 'Definition', and 'Equation' as dictionary form {'NAME': 'citrate oxaloacetate-lyase', 'DEFINITION': Citrate <=> Acetate + Oxaloacetate, 'EQUATION': C00158 <=> C00033 + C00036}
-def get_rxnInfo_from_rxnid(rxnid):  
-    url = "http://rest.kegg.jp/get/rn:%s"%(rxnid)
-    reaction_info_text = urllib2.urlopen(url).read()
-    split_text = reaction_info_text.strip().split('\n')
-    NAME = ''
-    DEFINITION = ''
-    EQUATION = ''
-    ENZYME = ''
-    PATHWAY = ''
-    for line in split_text:
-        sptlist = line.split()
-        if sptlist[0].strip() == 'NAME':
-            NAME = ' '.join(sptlist[1:])
-        if sptlist[0].strip() == 'DEFINITION':
-            DEFINITION = ' '.join(sptlist[1:])
-        if sptlist[0].strip() == 'EQUATION':
-            EQUATION = ' '.join(sptlist[1:])
-        if sptlist[0].strip() == 'ENZYME':
-            ENZYME = ' '.join(sptlist[1:])
-
-#Considers only reactions mapped in pathways
-        if sptlist[0].strip() == 'PATHWAY':        
-            PATHWAY = ' '.join(sptlist[1:])
-	    return {'NAME':NAME, 'DEFINITION':DEFINITION, 'EQUATION':EQUATION, 'ENZYME':ENZYME, 'PATHWAY':PATHWAY}
-
-
-def pickle_templateModel_bigg_mnxr(cobra_model, allDB_mnxr_dict):
-    fp1 = open('./input2/templateModel_bigg_mnxr_dict.txt','w')
-    templateModel_bigg_mnxr_dict = {}
-
-#Counts the number of metabolite IDs
-    index_last = len(cobra_model.reactions)
-
-#This is necessary becasue the index starts from "0", NOT "1"
-    index_last = index_last - 1
-    index = 0
-
-    while index <= index_last:
-        reaction = cobra_model.reactions[index].id
-        biggid_edited = fix_legacy_id(reaction, use_hyphens=True, fix_compartments=False)
-
-#Correcting prefixes: "D_" or "L_" => "D-" or "L-"
-        if biggid_edited.find("D_") == 0 or biggid_edited.find("L_") == 0:
-            sptlist = biggid_edited.split("_")
-            biggid_edited = "-".join(sptlist)
-        if biggid_edited in allDB_mnxr_dict.keys():
-
-#Stores reaction ID with their MNX IDs having compartment tags in a dictionary form
-            templateModel_bigg_mnxr_dict[biggid_edited] = allDB_mnxr_dict[biggid_edited]
-	    fp1.write(str(biggid_edited)+'\t'+str(templateModel_bigg_mnxr_dict[biggid_edited])+'\n')
-        index+=1
-
-    pickle.dump(templateModel_bigg_mnxr_dict, open('./input2/templateModel_bigg_mnxr_dict.p',"wb"))
-    fp1.close()
-    return templateModel_bigg_mnxr_dic
-
-
 #Reaction IDs and their flux values for major Exchange reactions
 def pickle_template_exchange_rxnid_flux_dict():
     fp1 = open('./input1/eco/tempModel_exrxnid_flux_dict.txt',"r")
@@ -267,39 +203,10 @@ def pickle_template_exchange_rxnid_flux_dict():
 	text[1] = text[1].strip()
 	template_exrxnid_flux_dict[text[0]] = text[1]
 
-	print text[0],template_exrxnid_flux_dict[text[0]]  
+	print text[0],template_exrxnid_flux_dict[text[0]]
 	text = fp1.readline()
 
     print template_exrxnid_flux_dict
     pickle.dump(template_exrxnid_flux_dict, open('./input1/eco/tempModel_exrxnid_flux_dict.p','wb'))
     fp1.close()
-
-
-#e.g., "EX_ca2_LPAREN_e_RPAREN_" => "EX_ca2(e)"
-def fix_legacy_id(id, use_hyphens=False, fix_compartments=False):
-    id = id.replace('_DASH_', '__')
-    id = id.replace('_FSLASH_', '/')
-    id = id.replace('_BSLASH_', "\\")
-    id = id.replace('_LPAREN_', '(')
-    id = id.replace('_LSQBKT_', '[')
-    id = id.replace('_RSQBKT_', ']')
-    id = id.replace('_RPAREN_', ')')
-    id = id.replace('_COMMA_', ',')
-    id = id.replace('_PERIOD_', '.')
-    id = id.replace('_APOS_', "'")
-    id = id.replace('&amp;', '&')
-    id = id.replace('&lt;', '<')
-    id = id.replace('&gt;', '>')
-    id = id.replace('&quot;', '"')
-    if use_hyphens:
-        id = id.replace('__', '-')
-    else:
-        id = id.replace("-", "__")
-    if fix_compartments:
-        if len(id) > 2:
-            if (id[-3] == "(" and id[-1] == ")") or \
-               (id[-3] == "[" and id[-1] == "]"):
-                id = id[:-3] + "_" + id[-2]
-    return id
-
 
