@@ -42,6 +42,9 @@ def get_pickles_prunPhase(options):
 def get_pickles_augPhase(options):
     logging.info("Loading pickle files necessary for the model augmentation phase..")
 
+    mnxref = pickle.load(open('./gems/io/data/input2/MNXref.p','rb'))
+    options.mnxref = mnxref
+
     bigg_mnxr_dict = pickle.load(open('./gems/io/data/input2/bigg_mnxr_dict.p','rb'))
     options.bigg_mnxr_dict = bigg_mnxr_dict
     kegg_mnxr_dict = pickle.load(open('./gems/io/data/input2/kegg_mnxr_dict.p','rb'))

@@ -128,33 +128,21 @@ def get_mnxr_list_from_modelPrunedGPR(modelPrunedGPR, options):
 
 # TODO: update
 #This function checks already existing reactions in the model
-def get_rxnid_to_add_list(options):
-    rxnid_to_add_list =[]
+#def get_rxnid_to_add_list(options):
+#    rxnid_to_add_list =[]
 
-    for rxnid in options.rxnid_info_dict.keys():
+#    for rxnid in options.rxnid_info_dict.keys():
         #Consider only reactions mapped in pathways
-	if rxnid in options.kegg_mnxr_dict.keys():
-            kegg_mnxr = options.kegg_mnxr_dict[rxnid]
+#	if rxnid in options.kegg_mnxr_dict.keys():
+#            kegg_mnxr = options.kegg_mnxr_dict[rxnid]
 
             #Check with reactions in the template model through MNXref
-            if kegg_mnxr not in options.modelPrunedGPR_mnxr_list \
-                and rxnid not in rxnid_to_add_list:
-                rxnid_to_add_list.append(rxnid)
+#            if kegg_mnxr not in options.modelPrunedGPR_mnxr_list \
+#                and rxnid not in rxnid_to_add_list:
+#                rxnid_to_add_list.append(rxnid)
 
-    rxnid_to_add_list = list(sorted(set(rxnid_to_add_list)))
-    options.rxnid_to_add_list = rxnid_to_add_list
-
-
-# TODO: Check if 'kegg_mnxr_dict' info can be retrieved from MNXref.xml
-#Output: MNXR for the reactions to add, converted from KEGG rxnid
-#def get_mnxr_to_add_list(options):
-
-#    mnxr_to_add_list = []
-#    for rxnid in options.rxnid_to_add_list:
-#	if rxnid in options.kegg_mnxr_dict.keys():
-#            mnxr_to_add_list.append(options.kegg_mnxr_dict[rxnid])
-
-#    options.mnxr_to_add_list = mnxr_to_add_list
+#    rxnid_to_add_list = list(sorted(set(rxnid_to_add_list)))
+#    options.rxnid_to_add_list = rxnid_to_add_list
 
 
 def get_mnxr_to_add_list(options):
@@ -163,6 +151,9 @@ def get_mnxr_to_add_list(options):
     for rxnid in options.rxnid_info_dict.keys():
         for j in range(len(options.mnxref.reactions)):
             rxn = options.mnxref.reactions[j]
+
+            # 1. Check KEGG reaction ID through MNXref
+            # 2. Check already existing reactions in the model being processed
             if rxnid in rxn.name \
                     and 'MNX' not in rxn.name \
                     and rxn.id not in options.modelPrunedGPR_mnxr_list \
@@ -279,132 +270,90 @@ def get_mnxr_to_add_list(options):
 #    options.rxnid_mnxm_coeff_dict = rxnid_mnxm_coeff_dict
 
 
-# TODO: Optimize
 def add_nonBBH_rxn(modelPrunedGPR, options):
 
-    for rxnid in options.rxnid_mnxm_coeff_dict.keys():
+    #for rxnid in options.rxnid_mnxm_coeff_dict.keys():
+    for mnxr in options.mnxr_to_add_list:
 
         logging.debug("--------------------")
-        logging.debug("Reaction to be added: %s" %rxnid)
-        logging.debug("%s" %options.rxnid_mnxm_coeff_dict[rxnid])
+        logging.debug("Reaction to be added: %s" %mnxr)
 
-        #Some keys of 'rxnid_mnxm_coeff_dict' may be absent in ' rxnid_info_dict'
-        if rxnid in options.rxnid_info_dict and options.rxnid_info_dict[rxnid]:
+        rxn = options.mnxref.reactions.get_by_id(mnxr)
+        modelPrunedGPR.add_reaction(rxn)
 
-            logging.debug("%s" %options.rxnid_info_dict[rxnid])
+        for k, v in options.kegg_mnxr_dict.iteritems():
+            if mnxr in v:
+                kegg_id = k
 
-            #ID
-            rxn = Reaction(rxnid)
+        #Re-define ID
+        rxn.id = kegg_id
 
-            #Name
-            #Some reaction IDs do not have NAME despite the presence of PATHWAY
-            rxn.name = options.rxnid_info_dict[rxnid]['NAME']
+        #Re-define Name
+        #Some reaction IDs do not have NAME despite the presence of PATHWAY
+        rxn.name = options.rxnid_info_dict[kegg_id]['NAME']
 
-            #Reversibility / Lower and upper bounds
-            rxn.lower_bound = -1000
-            rxn.uppwer_bound = 1000
+        #GPR association
+        if len(options.rxnid_locusTag_dict[kegg_id]) == 1:
+            gpr = '( %s )' %(options.rxnid_locusTag_dict[kegg_id][0])
+        else:
+            count = 1
+            for locusTag in options.rxnid_locusTag_dict[kegg_id]:
 
-            #Metabolites and their stoichiometric coeff's
-            for metab in options.rxnid_mnxm_coeff_dict[rxnid]:
-                metab_compt = '_'.join([metab,'c'])
+                #Check whether the submitted gbk file contains "/product" for CDS
+                if locusTag in options.targetGenome_locusTag_prod_dict:
 
-                #Adding metabolites already in the model
-                if metab_compt in modelPrunedGPR.metabolites:
-                    logging.debug("Metabolite %s: Already present in model" %metab_compt)
-                    rxn.add_metabolites({modelPrunedGPR.metabolites.get_by_id(
-                        metab_compt):options.rxnid_mnxm_coeff_dict[rxnid][metab]})
-
-                #Adding metabolites with bigg compoundID, but not in the model
-                elif metab in options.bigg_mnxm_compound_dict.keys():
-                    logging.debug("Metabolite (bigg ID) %s: To be added" %metab)
-                    mnxm = options.bigg_mnxm_compound_dict[metab]
-                    #Compartment suffix (e.g., '_c') is used
-                    #when adding a new metabolite in cobrapy document
-                    metab_compt = Metabolite(metab_compt,
-                            formula = options.mnxm_compoundInfo_dict[mnxm][1],
-                            name = options.mnxm_compoundInfo_dict[mnxm][0],
-                            compartment='c')
-                    rxn.add_metabolites(
-                            {metab_compt:options.rxnid_mnxm_coeff_dict[rxnid][metab]})
-
-                #Adding metabolites with MNXM and not in the model
-                else:
-                    logging.debug("Metabolite (MNXM ID) %s: To be added" %metab)
-                    metab_compt = Metabolite(metab_compt,
-                            formula = options.mnxm_compoundInfo_dict[metab][1],
-                            name = options.mnxm_compoundInfo_dict[metab][0],
-                            compartment='c')
-                    rxn.add_metabolites(
-                            {metab_compt:options.rxnid_mnxm_coeff_dict[rxnid][metab]})
-
-            #GPR association
-            if len(options.rxnid_locusTag_dict[rxnid]) == 1:
-                gpr = '( %s )' %(options.rxnid_locusTag_dict[rxnid][0])
+                    #Consider "and" relationship in the GPR association
+                    if 'subunit' in options.targetGenome_locusTag_prod_dict[locusTag]:
+                        count += 1
+            if count == len(options.rxnid_locusTag_dict[kegg_id]):
+                gpr = ' and '.join(options.rxnid_locusTag_dict[kegg_id])
             else:
-                count = 1
-                for locusTag in options.rxnid_locusTag_dict[rxnid]:
+                gpr = ' or '.join(options.rxnid_locusTag_dict[kegg_id])
+            gpr = '( %s )' %(gpr)
+        rxn.gene_reaction_rule = gpr
 
-                    #Check whether the submitted gbk file contains "/product" for CDS
-                    if locusTag in options.targetGenome_locusTag_prod_dict:
+        #Subsystem
+        rxn.subsystem = options.rxnid_info_dict[kegg_id]['PATHWAY']
 
-                        #Considers "and" relationship in the GPR association
-                        if 'subunit' in options.targetGenome_locusTag_prod_dict[locusTag]:
-                            count += 1
-                if count == len(options.rxnid_locusTag_dict[rxnid]):
-                    gpr = ' and '.join(options.rxnid_locusTag_dict[rxnid])
-                else:
-                    gpr = ' or '.join(options.rxnid_locusTag_dict[rxnid])
-                gpr = '( %s )' %(gpr)
-            rxn.gene_reaction_rule = gpr
+        #E.C. number: not available feature in COBRApy
 
-            #Subsystem
-            rxn.subsystem = options.rxnid_info_dict[rxnid]['PATHWAY']
+        #'add_reaction' requires writing/reloading of the model
+        logging.debug("Number of reactions in model before saving: %s"
+                %len(modelPrunedGPR.reactions))
+        write_cobra_model_to_sbml_file(modelPrunedGPR,
+                "./%s/modelPrunedGPR_%s.xml"
+                %(options.outputfolder5, kegg_id), use_fbc_package=False)
+        modelPrunedGPR = create_cobra_model_from_sbml_file(
+                "./%s/modelPrunedGPR_%s.xml"
+                %(options.outputfolder5, kegg_id))
+        logging.debug("Number of reactions in model after saving: %s"
+                %len(modelPrunedGPR.reactions))
 
-            #E.C. number: not available feature in COBRApy
-            #Objective coeff: default
-            rxn.objective_coefficient = 0
+        #Check model prediction consistency
+        target_exrxnid_flux_dict = get_exrxnid_flux(modelPrunedGPR,
+                options.template_exrxnid_flux_dict)
+        exrxn_flux_change_list = check_exrxn_flux_direction(
+                options.template_exrxnid_flux_dict,
+                target_exrxnid_flux_dict, options)
 
-            #Add a reaction to the model
-            #if it does not affect Exchange reaction flux direction
-            modelPrunedGPR.add_reaction(rxn)
+        if 'F' in exrxn_flux_change_list:
+            #'remove_reactions' does not seem to require
+            #writing/reloading of the model
+            modelPrunedGPR.remove_reactions(rxn)
 
-            #'add_reaction' requires writing/reloading of the model
-            logging.debug("Number of reactions in model before saving: %s"
-                    %len(modelPrunedGPR.reactions))
-            write_cobra_model_to_sbml_file(modelPrunedGPR,
-                    "./%s/modelPrunedGPR_%s.xml"
-                    %(options.outputfolder5, rxnid), use_fbc_package=False)
-            modelPrunedGPR = create_cobra_model_from_sbml_file(
-                    "./%s/modelPrunedGPR_%s.xml"
-                    %(options.outputfolder5, rxnid))
-            logging.debug("Number of reactions in model after saving: %s"
-                    %len(modelPrunedGPR.reactions))
-
-            #Check model prediction consistency
-            target_exrxnid_flux_dict = get_exrxnid_flux(modelPrunedGPR,
-                    options.template_exrxnid_flux_dict)
-            exrxn_flux_change_list = check_exrxn_flux_direction(
-                    options.template_exrxnid_flux_dict,
-                    target_exrxnid_flux_dict, options)
-
-            if 'F' in exrxn_flux_change_list:
-                #'remove_reactions' does not seem to require
-                #writing/reloading of the model
-                modelPrunedGPR.remove_reactions(rxn)
-
-            logging.debug("%s added to the model" %rxnid)
-            logging.debug("--------------------")
+        logging.debug("%s added to the model" %kegg_id)
+        logging.debug("--------------------")
 
         #This can happen when converting keys of 'rxnid_info_dict' to 'mnxr_info_dict'
         #Some MNXR IDS are assigned to multiple KEGG reaction IDs
         #e.g., MNXR56731:R02075 & MNXR56731:R08836
         #Although this issue was previously handled by taking only KEGG reaction IDs with
         #'PATHWAY' information, exceptions still exist.
-        elif rxnid not in options.rxnid_info_dict:
-            logging.debug("%s absent in 'rxnid_info_dict'" %rxnid)
+#        elif rxnid not in options.rxnid_info_dict:
+#            logging.debug("%s absent in 'rxnid_info_dict'" %rxnid)
 
-        elif not options.rxnid_info_dict[rxnid]:
-            logging.debug("No values in 'rxnid_info_dict[%s]'" %rxnid)
+#        elif not options.rxnid_info_dict[rxnid]:
+#            logging.debug("No values in 'rxnid_info_dict[%s]'" %rxnid)
 
     target_model = copy.deepcopy(modelPrunedGPR)
     return target_model
