@@ -33,6 +33,28 @@ class TestPrimary_model:
         assert modelPrunedGPR.reactions.get_by_id('PDH').gene_reaction_rule == \
                 '((( B446_12400 or B446_11440 ) or ( B446_12400 or B446_11440 ) or ( B446_12400 or B446_11440 ) or (SCO1269 and SCO1270)) and (( B446_19415 or B446_19475 ) or ( B446_19415 or B446_19475 )) and (B446_32095 or ( B446_11425 or B446_32095 or B446_23075 ) or ( B446_11425 or B446_23075 )))'
 
+
+    def test_mnxr_to_add_list(self, mnxref, options):
+        rxnid_info_dict = {
+            'R08926':{
+                'ENZYME': '1.1.1.122',
+                'DEFINITION': '6-Deoxy-L-galactose + NAD+ <=> L-Fucono-1,5-lactone + NADH + H+',
+                'EQUATION': 'C01019 + C00003 <=> C18028 + C00004 + C00080',
+                'NAME': 'L-fucose:NAD+ 1-oxidoreductase',
+                'PATHWAY': 'rn00051 Fructose and mannose metabolism'}
+                }
+
+        modelPrunedGPR_mnxr_list = []
+
+        options.rxnid_info_dict = rxnid_info_dict
+        options.mnxref = mnxref
+        options.modelPrunedGPR_mnxr_list = modelPrunedGPR_mnxr_list
+
+        augPhase_utils.get_mnxr_to_add_list(options)
+
+        assert 'MNXR70727' in options.mnxr_to_add_list
+
+
     # Focus on metabolite addition in this test
     # New metabolites: 'MNXM38659' and 'fuc_DASH_L'
     def test_add_nonBBH_rxn(self, sco_tmp_model, tmpdir, sco_tmp_model_flux, options):

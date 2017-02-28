@@ -33,6 +33,15 @@ def sci_primary_model():
 
 
 @pytest.fixture(scope="function")
+def mnxref():
+
+    # MNXref SBML model
+    model = pickle.load(open(join(data_model_dir, 'MNXref.p'), 'rb'))
+
+    return model
+
+
+@pytest.fixture(scope="function")
 def options():
     options = Namespace()
     return options
