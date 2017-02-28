@@ -144,6 +144,7 @@ def get_rxnid_to_add_list(options):
     options.rxnid_to_add_list = rxnid_to_add_list
 
 
+# TODO: Check if 'kegg_mnxr_dict' info can be retrieved from MNXref.xml
 #Output: MNXR for the reactions to add, converted from KEGG rxnid
 def get_mnxr_to_add_list(options):
 
@@ -155,6 +156,7 @@ def get_mnxr_to_add_list(options):
     options.mnxr_to_add_list = mnxr_to_add_list
 
 
+# TODO: Deprecate
 def get_correct_metab_coeff(converted_metab_id, metab_coeff,
                             metab_type, mnxm_coeff_dict, mnxm_metab_list):
 
@@ -172,6 +174,7 @@ def get_correct_metab_coeff(converted_metab_id, metab_coeff,
     return mnxm_coeff_dict
 
 
+# TODO: Deprecate
 #Check if the same metabolite appears as a substrate and a product
 def check_overlap_subs_prod(mnxm_subs_list, mnxm_prod_list):
 
@@ -185,6 +188,7 @@ def check_overlap_subs_prod(mnxm_subs_list, mnxm_prod_list):
     return overlap_check
 
 
+# TODO: Deprecate
 #Metabolites are presented primarily with bigg, otherwise with MNXM
 #Metabolite ID priority: bigg > MNXM > KEGG
 def get_rxnid_mnxm_coeff_dict(options):
@@ -259,6 +263,7 @@ def get_rxnid_mnxm_coeff_dict(options):
     options.rxnid_mnxm_coeff_dict = rxnid_mnxm_coeff_dict
 
 
+# TODO: Optimize
 def add_nonBBH_rxn(modelPrunedGPR, options):
 
     for rxnid in options.rxnid_mnxm_coeff_dict.keys():
