@@ -148,17 +148,12 @@ def get_mnxr_list_from_modelPrunedGPR(modelPrunedGPR, options):
 def get_mnxr_to_add_list(options):
 
     mnxr_to_add_list = []
-    for rxnid in options.rxnid_info_dict.keys():
-        for j in range(len(options.mnxref.reactions)):
-            rxn = options.mnxref.reactions[j]
-
-            # 1. Check KEGG reaction ID through MNXref
-            # 2. Check already existing reactions in the model being processed
-            if rxnid in rxn.name \
-                    and 'MNX' not in rxn.name \
-                    and rxn.id not in options.modelPrunedGPR_mnxr_list \
-                    and rxn.id not in mnxr_to_add_list:
-                mnxr_to_add_list.append(rxn.id)
+    for rxnid in options.rxnid_info_dict:
+        if options.rxnid_info_dict[rxnid] \
+                and options.kegg_mnxr_dict[rxnid] \
+                and rxnid not in options.modelPrunedGPR_mnxr_list \
+                and rxnid not in mnxr_to_add_list:
+            mnxr_to_add_list.append(options.kegg_mnxr_dict[rxnid])
 
     options.mnxr_to_add_list = mnxr_to_add_list
 

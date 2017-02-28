@@ -34,7 +34,7 @@ class TestPrimary_model:
                 '((( B446_12400 or B446_11440 ) or ( B446_12400 or B446_11440 ) or ( B446_12400 or B446_11440 ) or (SCO1269 and SCO1270)) and (( B446_19415 or B446_19475 ) or ( B446_19415 or B446_19475 )) and (B446_32095 or ( B446_11425 or B446_32095 or B446_23075 ) or ( B446_11425 or B446_23075 )))'
 
 
-    def test_mnxr_to_add_list(self, mnxref, options):
+    def test_mnxr_to_add_list(self, options):
         rxnid_info_dict = {
             'R08926':{
                 'ENZYME': '1.1.1.122',
@@ -44,10 +44,11 @@ class TestPrimary_model:
                 'PATHWAY': 'rn00051 Fructose and mannose metabolism'}
                 }
 
+        kegg_mnxr_dict = {'R08926':'MNXR70727'}
         modelPrunedGPR_mnxr_list = []
 
         options.rxnid_info_dict = rxnid_info_dict
-        options.mnxref = mnxref
+        options.kegg_mnxr_dict = kegg_mnxr_dict
         options.modelPrunedGPR_mnxr_list = modelPrunedGPR_mnxr_list
 
         augPhase_utils.get_mnxr_to_add_list(options)
