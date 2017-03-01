@@ -383,6 +383,10 @@ def run_ParseMNXref():
     with open(join(mnxref_dir, 'kegg_mnxr_dict.p'), 'wb') as f:
         pickle.dump(kegg_mnxr_dict, f, protocol=pickle.HIGHEST_PROTOCOL)
 
+    with open(join(mnxref_dir, 'kegg_mnxr_dict.txt'), 'w') as f:
+        for k, v in kegg_mnxr_dict.iteritems():
+            print >>f, '%s\t%s' %(k, v[0])
+
     with open(join(mnxref_dir, 'MNXref.p'), 'wb') as f:
         pickle.dump(cobra_model, f, protocol=pickle.HIGHEST_PROTOCOL)
 
