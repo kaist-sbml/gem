@@ -113,156 +113,37 @@ def get_rxnid_info_dict_from_kegg(options):
 def get_mnxr_list_from_modelPrunedGPR(modelPrunedGPR, options):
     modelPrunedGPR_mnxr_list = []
 
-    index_last = len(modelPrunedGPR.reactions)
-    index_last = index_last - 1
-    index = 0
-
-    while index <= index_last:
-        rxn = modelPrunedGPR.reactions[index].id
-        if rxn in options.bigg_mnxr_dict.keys():
-            modelPrunedGPR_mnxr_list.append(options.bigg_mnxr_dict[rxn])
-        index+=1
+    for j in range(len(modelPrunedGPR.reactions)):
+        rxn = modelPrunedGPR.reactions[j].id
+        if rxn in options.bigg_mnxr_dict:
+            if rxn not in options.modelPrunedGPR_mnxr_list:
+                modelPrunedGPR_mnxr_list.append(options.bigg_mnxr_dict[rxn])
+        else:
+            logging.debug('BiGG reaction %s not available in MNXref', rxn)
 
     options.modelPrunedGPR_mnxr_list = modelPrunedGPR_mnxr_list
-
-
-# TODO: update
-#This function checks already existing reactions in the model
-#def get_rxnid_to_add_list(options):
-#    rxnid_to_add_list =[]
-
-#    for rxnid in options.rxnid_info_dict.keys():
-        #Consider only reactions mapped in pathways
-#	if rxnid in options.kegg_mnxr_dict.keys():
-#            kegg_mnxr = options.kegg_mnxr_dict[rxnid]
-
-            #Check with reactions in the template model through MNXref
-#            if kegg_mnxr not in options.modelPrunedGPR_mnxr_list \
-#                and rxnid not in rxnid_to_add_list:
-#                rxnid_to_add_list.append(rxnid)
-
-#    rxnid_to_add_list = list(sorted(set(rxnid_to_add_list)))
-#    options.rxnid_to_add_list = rxnid_to_add_list
 
 
 def get_mnxr_to_add_list(options):
 
     mnxr_to_add_list = []
     for rxnid in options.rxnid_info_dict:
-        if options.rxnid_info_dict[rxnid] \
-                and options.kegg_mnxr_dict[rxnid] \
-                and rxnid not in options.modelPrunedGPR_mnxr_list \
-                and rxnid not in mnxr_to_add_list:
-            mnxr_to_add_list.append(options.kegg_mnxr_dict[rxnid])
-
+        if options.rxnid_info_dict[rxnid]:
+            if rxnid in options.kegg_mnxr_dict:
+                if rxnid not in options.modelPrunedGPR_mnxr_list:
+                    if rxnid not in mnxr_to_add_list:
+                        # kegg_mnxr_dict[rxnid] is a list
+                        for mnxr in options.kegg_mnxr_dict[rxnid]:
+                            mnxr_to_add_list.append(mnxr)
+                else:
+                    logging.debug('%s (%s) already in the model', rxnid, options.kegg_mnxr_dict[rxnid])
+            else:
+                logging.debug('KEGG reaction %s not available in MNXref', rxnid)
+        else:
+            logging.debug("No values in 'rxnid_info_dict[%s]'", rxnid)
+    print mnxr_to_add_list
+    logging.debug('Number of KEGG reactions to be added: %s', len(mnxr_to_add_list))
     options.mnxr_to_add_list = mnxr_to_add_list
-
-
-# TODO: Deprecate
-#def get_correct_metab_coeff(converted_metab_id, metab_coeff,
-#                            metab_type, mnxm_coeff_dict, mnxm_metab_list):
-
-    #If the same metabolite appears multiple times as either substrates or products,
-    #their stoichiometric coeff's are all added up
-#    if converted_metab_id in mnxm_metab_list:
-#        overlap_metab_coeff = float(mnxm_coeff_dict[converted_metab_id])
-#        mnxm_coeff_dict[converted_metab_id] = overlap_metab_coeff+float(metab_coeff)*-1
-#    else:
-#        if metab_type == 'substrate':
-#            mnxm_coeff_dict[converted_metab_id] = float(metab_coeff)*-1
-#        elif metab_type == 'product':
-#            mnxm_coeff_dict[converted_metab_id] = float(metab_coeff)
-
-#    return mnxm_coeff_dict
-
-
-# TODO: Deprecate
-#Check if the same metabolite appears as a substrate and a product
-#def check_overlap_subs_prod(mnxm_subs_list, mnxm_prod_list):
-
-#    for each_substrate in mnxm_subs_list:
-#        if each_substrate in mnxm_prod_list:
-#            overlap_check = True
-#            break
-#        else:
-#            overlap_check = False
-
-#    return overlap_check
-
-
-# TODO: Deprecate
-#Metabolites are presented primarily with bigg, otherwise with MNXM
-#Metabolite ID priority: bigg > MNXM > KEGG
-#def get_rxnid_mnxm_coeff_dict(options):
-#    rxnid_mnxm_coeff_dict = {}
-#    mnxm_coeff_dict = {}
-
-#    for mnxr in options.mnxr_to_add_list:
-#	unparsed_equation = options.mnxr_rxn_dict[mnxr]
-#        logging.debug("Reaction to add: %s" %unparsed_equation)
-
-        #"substrates" and "products" contain stoichiometric coeff of each compound
-#	sptReaction = unparsed_equation.split('=')
-#	substrates = sptReaction[0].strip()
-#	products = sptReaction[1].strip()
-
-        #Discards polymerization reactions with undefinite coeff's
-        #e.g., 1 MNXM9 + (n+2) MNXM90033 = 1 MNXM5617 + (n) MNXM90033
-#	if '(' not in substrates and '(' not in products:
-            #Creating:
-#            substrates = substrates.split(' + ')
-#            mnxm_coeff_dict = {}
-#            mnxm_subs_list = []
-#            mnxm_prod_list = []
-
-#            for substrate in substrates:
-#                metab_type = 'substrate'
-#                substrate = substrate.split()
-
-#                if substrate[1] in options.mnxm_bigg_compound_dict.keys():
-#                    mnxm_coeff_dict = get_correct_metab_coeff(
-#                            options.mnxm_bigg_compound_dict[substrate[1]],
-#                            substrate[0], metab_type,mnxm_coeff_dict,
-#                            mnxm_subs_list)
-#                    mnxm_subs_list.append(options.mnxm_bigg_compound_dict[substrate[1]])
-
-#                else:
-#                    mnxm_coeff_dict = get_correct_metab_coeff(
-#                            substrate[1], substrate[0],metab_type,
-#                            mnxm_coeff_dict, mnxm_subs_list)
-#                    mnxm_subs_list.append(substrate[1])
-
-            #Creating:
-            #e.g., {bigg compoundID:(-1)coeff}, {mnxm:(-1)coeff}
-            #or {kegg compoundID:(-1)coeff}
-#            products = products.split(' + ')
-#            for product in products:
-#                metab_type = 'product'
-#                product = product.split()
-
-#                if product[1] in options.mnxm_bigg_compound_dict.keys():
-#                    mnxm_coeff_dict = get_correct_metab_coeff(
-#                            options.mnxm_bigg_compound_dict[product[1]],
-#                            product[0], metab_type, mnxm_coeff_dict, mnxm_prod_list)
-#                    mnxm_prod_list.append(options.mnxm_bigg_compound_dict[product[1]])
-
-#                else:
-#                    mnxm_coeff_dict = get_correct_metab_coeff(
-#                            product[1], product[0], metab_type,
-#                            mnxm_coeff_dict, mnxm_prod_list)
-#                    mnxm_prod_list.append(product[1])
-
-            #Check overlapping metabolites as a substrate and a product
-            #e.g., ATP + ADP <=> ADP + ATP
-#            overlap_check = check_overlap_subs_prod(mnxm_subs_list, mnxm_prod_list)
-#            if overlap_check == True:
-#                continue
-#            else:
-                #Creating:
-                #e.g., {'R03232': {'f1p': -1.0, 'C04261': 1.0, 'fru': 1.0, 'C00615': -1.0}}
-#                rxnid_mnxm_coeff_dict[options.mnxr_kegg_dict[mnxr]] = mnxm_coeff_dict
-
-#    options.rxnid_mnxm_coeff_dict = rxnid_mnxm_coeff_dict
 
 
 def add_nonBBH_rxn(modelPrunedGPR, options):
@@ -270,21 +151,23 @@ def add_nonBBH_rxn(modelPrunedGPR, options):
     #for rxnid in options.rxnid_mnxm_coeff_dict.keys():
     for mnxr in options.mnxr_to_add_list:
 
-        logging.debug("--------------------")
-        logging.debug("Reaction to be added: %s" %mnxr)
-
-        rxn = options.mnxref.reactions.get_by_id(mnxr)
-        modelPrunedGPR.add_reaction(rxn)
-
         for k, v in options.kegg_mnxr_dict.iteritems():
             if mnxr in v:
                 kegg_id = k
+
+        logging.debug("--------------------")
+        logging.debug("Reaction to be added: %s; %s", mnxr, kegg_id)
+
+        rxn = options.mnxref.reactions.get_by_id(mnxr)
+        modelPrunedGPR.add_reaction(rxn)
 
         #Re-define ID
         rxn.id = kegg_id
 
         #Re-define Name
         #Some reaction IDs do not have NAME despite the presence of PATHWAY
+#        if options.rxnid_info_dict[kegg_id]['NAME']:
+        print 'check', options.rxnid_info_dict[kegg_id]
         rxn.name = options.rxnid_info_dict[kegg_id]['NAME']
 
         #GPR association
@@ -335,20 +218,6 @@ def add_nonBBH_rxn(modelPrunedGPR, options):
             #'remove_reactions' does not seem to require
             #writing/reloading of the model
             modelPrunedGPR.remove_reactions(rxn)
-
-        logging.debug("%s added to the model" %kegg_id)
-        logging.debug("--------------------")
-
-        #This can happen when converting keys of 'rxnid_info_dict' to 'mnxr_info_dict'
-        #Some MNXR IDS are assigned to multiple KEGG reaction IDs
-        #e.g., MNXR56731:R02075 & MNXR56731:R08836
-        #Although this issue was previously handled by taking only KEGG reaction IDs with
-        #'PATHWAY' information, exceptions still exist.
-#        elif rxnid not in options.rxnid_info_dict:
-#            logging.debug("%s absent in 'rxnid_info_dict'" %rxnid)
-
-#        elif not options.rxnid_info_dict[rxnid]:
-#            logging.debug("No values in 'rxnid_info_dict[%s]'" %rxnid)
 
     target_model = copy.deepcopy(modelPrunedGPR)
     return target_model

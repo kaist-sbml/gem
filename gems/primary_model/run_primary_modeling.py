@@ -7,9 +7,7 @@ from augPhase_utils import(
     get_targetGenome_locusTag_ec_nonBBH_dict,
     get_rxnid_info_dict_from_kegg,
     get_mnxr_list_from_modelPrunedGPR,
-    get_rxnid_to_add_list,
     get_mnxr_to_add_list,
-    get_rxnid_mnxm_coeff_dict,
     add_nonBBH_rxn
 )
 from prunPhase_utils import (
@@ -47,11 +45,8 @@ def run_augPhase(modelPrunedGPR, options):
 
     logging.info("Adding the nonBBH gene-associated reactions..")
     logging.info("(time-consuming)")
-    get_rxnid_to_add_list(options)
 
     get_mnxr_to_add_list(options)
-
-    get_rxnid_mnxm_coeff_dict(options)
 
     target_model = add_nonBBH_rxn(modelPrunedGPR, options)
 
