@@ -89,15 +89,17 @@ def get_rxnid_info_dict_from_kegg(options):
             if '-' not in enzymeEC:
                 rxnid_list = get_rxnid_from_ECNumber(enzymeEC, options)
                 for rxnid in rxnid_list:
-                    rxnid_info_dict[rxnid] = get_rxnInfo_from_rxnid(rxnid, options)
+                    rxnid_info = get_rxnInfo_from_rxnid(rxnid, options)
 
-                    if rxnid not in rxnid_locusTag_dict.keys():
-                        rxnid_locusTag_dict[rxnid] = [(locusTag)]
+                    if rxnid_info != None:
+                        rxnid_info_dict[rxnid]
+                    else:
+                        logging.debug('No reaction info available for %s', rxnid)
 
-                    #Appends additional different genes to the same reaction ID
+                    if rxnid not in rxnid_locusTag_dict:
+                        rxnid_locusTag_dict[rxnid] = [locusTag]
                     elif rxnid in rxnid_locusTag_dict.keys():
-                        rxnid_locusTag_dict[rxnid].append((locusTag))
-                    #print locusTag, rxnid, rxnid_info_dict[rxnid], "\n"
+                        rxnid_locusTag_dict[rxnid].append(locusTag)
 
                 logging.debug("EC_number info fetched from KEGG: %s, %s"
                                 %(locusTag, enzymeEC))
@@ -116,7 +118,7 @@ def get_mnxr_list_from_modelPrunedGPR(modelPrunedGPR, options):
     for j in range(len(modelPrunedGPR.reactions)):
         rxn = modelPrunedGPR.reactions[j].id
         if rxn in options.bigg_mnxr_dict:
-            if rxn not in options.modelPrunedGPR_mnxr_list:
+            if rxn not in modelPrunedGPR_mnxr_list:
                 modelPrunedGPR_mnxr_list.append(options.bigg_mnxr_dict[rxn])
         else:
             logging.debug('BiGG reaction %s not available in MNXref', rxn)
@@ -141,14 +143,13 @@ def get_mnxr_to_add_list(options):
                 logging.debug('KEGG reaction %s not available in MNXref', rxnid)
         else:
             logging.debug("No values in 'rxnid_info_dict[%s]'", rxnid)
-    print mnxr_to_add_list
+
     logging.debug('Number of KEGG reactions to be added: %s', len(mnxr_to_add_list))
     options.mnxr_to_add_list = mnxr_to_add_list
 
 
 def add_nonBBH_rxn(modelPrunedGPR, options):
 
-    #for rxnid in options.rxnid_mnxm_coeff_dict.keys():
     for mnxr in options.mnxr_to_add_list:
 
         for k, v in options.kegg_mnxr_dict.iteritems():
@@ -165,9 +166,6 @@ def add_nonBBH_rxn(modelPrunedGPR, options):
         rxn.id = kegg_id
 
         #Re-define Name
-        #Some reaction IDs do not have NAME despite the presence of PATHWAY
-#        if options.rxnid_info_dict[kegg_id]['NAME']:
-        print 'check', options.rxnid_info_dict[kegg_id]
         rxn.name = options.rxnid_info_dict[kegg_id]['NAME']
 
         #GPR association
