@@ -130,19 +130,16 @@ def get_mnxr_to_add_list(options):
 
     mnxr_to_add_list = []
     for rxnid in options.rxnid_info_dict:
-        if options.rxnid_info_dict[rxnid]:
-            if rxnid in options.kegg_mnxr_dict:
-                if rxnid not in options.modelPrunedGPR_mnxr_list:
-                    if rxnid not in mnxr_to_add_list:
-                        # kegg_mnxr_dict[rxnid] is a list
-                        for mnxr in options.kegg_mnxr_dict[rxnid]:
-                            mnxr_to_add_list.append(mnxr)
-                else:
-                    logging.debug('%s (%s) already in the model', rxnid, options.kegg_mnxr_dict[rxnid])
+        if rxnid in options.kegg_mnxr_dict:
+            if rxnid not in options.modelPrunedGPR_mnxr_list:
+                if rxnid not in mnxr_to_add_list:
+                    # kegg_mnxr_dict[rxnid] is a list
+                    for mnxr in options.kegg_mnxr_dict[rxnid]:
+                        mnxr_to_add_list.append(mnxr)
             else:
-                logging.debug('KEGG reaction %s not available in MNXref', rxnid)
+                logging.debug('%s (%s) already in the model', rxnid, options.kegg_mnxr_dict[rxnid])
         else:
-            logging.debug("No values in 'rxnid_info_dict[%s]'", rxnid)
+            logging.debug('KEGG reaction %s not available in MNXref', rxnid)
 
     logging.debug('Number of KEGG reactions to be added: %s', len(mnxr_to_add_list))
     options.mnxr_to_add_list = mnxr_to_add_list
