@@ -103,6 +103,7 @@ class ParseMNXref(object):
         # KEGG reaction IDs are unique, whereas MNXR IDs have duplicates.
         # Therefore, KEGG IDs become keys in this dict data.
         kegg_mnxr_dict = {}
+        mnxr_kegg_dict = {}
 
         f = open(filename,'r')
         f.readline()
@@ -130,6 +131,11 @@ class ParseMNXref(object):
                     elif xref_id in kegg_mnxr_dict:
                         kegg_mnxr_dict[xref_id].append(mnxr)
 
+                    if mnxr not in mnxr_kegg_dict:
+                        mnxr_kegg_dict[mnxr] = [xref_id]
+                    elif mnxr in mnxr_kegg_dict:
+                        mnxr_kegg_dict[mnxr].append(xref_id)
+
                 logging.debug('%s; %s; %s' %(xref_db, xref_id, mnxr))
             except:
                 logging.debug('Cannot parse MNXM: %s' %line)
@@ -137,7 +143,7 @@ class ParseMNXref(object):
         f.close()
         self.mnxr_xref_dict = mnxr_xref_dict
 
-        return kegg_mnxr_dict
+        return kegg_mnxr_dict, mnxr_kegg_dict
 
 
     def parse_equation(self, equation):
@@ -372,7 +378,7 @@ def run_ParseMNXref():
 
     mnx_parser.read_chem_xref(join(mnxref_dir, 'chem_xref.tsv'))
     mnx_parser.read_chem_prop(join(mnxref_dir, 'chem_prop.tsv'))
-    kegg_mnxr_dict = mnx_parser.read_reac_xref(join(mnxref_dir, 'reac_xref.tsv'))
+    kegg_mnxr_dict, mnxr_kegg_dict = mnx_parser.read_reac_xref(join(mnxref_dir, 'reac_xref.tsv'))
     cobra_model = mnx_parser.make_cobra_model(join(mnxref_dir, 'reac_prop.tsv'))
 
     # Write SBML file
@@ -383,9 +389,16 @@ def run_ParseMNXref():
     with open(join(mnxref_dir, 'kegg_mnxr_dict.p'), 'wb') as f:
         pickle.dump(kegg_mnxr_dict, f, protocol=pickle.HIGHEST_PROTOCOL)
 
+    with open(join(mnxref_dir, 'mnxr_kegg_dict.p'), 'wb') as f:
+        pickle.dump(mnxr_kegg_dict, f, protocol=pickle.HIGHEST_PROTOCOL)
+
     with open(join(mnxref_dir, 'kegg_mnxr_dict.txt'), 'w') as f:
         for k, v in kegg_mnxr_dict.iteritems():
             print >>f, '%s\t%s' %(k, v[0])
+
+    with open(join(mnxref_dir, 'mnxr_kegg_dict.txt'), 'w') as f:
+        for k, v in mnxr_kegg_dict.iteritems():
+            print >>f, '%s\t%s' %(k, v)
 
     with open(join(mnxref_dir, 'MNXref.p'), 'wb') as f:
         pickle.dump(cobra_model, f, protocol=pickle.HIGHEST_PROTOCOL)
@@ -393,6 +406,9 @@ def run_ParseMNXref():
     # Copy pickles to the destination
     shutil.copyfile(join(mnxref_dir, 'kegg_mnxr_dict.p'),
             join(os.pardir, 'gems', 'io', 'data', 'input2', 'kegg_mnxr_dict.p'))
+
+    shutil.copyfile(join(mnxref_dir, 'mnxr_kegg_dict.p'),
+            join(os.pardir, 'gems', 'io', 'data', 'input2', 'mnxr_kegg_dict.p'))
 
     shutil.copyfile(join(mnxref_dir, 'MNXref.p'),
             join(os.pardir, 'gems', 'io', 'data', 'input2', 'MNXref.p'))
