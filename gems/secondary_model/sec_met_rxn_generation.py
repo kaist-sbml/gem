@@ -313,10 +313,10 @@ def get_pickles(options):
         mnxref = pickle.load(open('./gems/io/data/input2/MNXref.p','rb'))
         options.mnxref = mnxref
 
-    if not hasattr(options, 'bigg_mnxm_compound_dict'):
-        bigg_mnxm_compound_dict = pickle.load(
-                open('./gems/io/data/input2/bigg_mnxm_compound_dict.p','rb'))
-        options.bigg_mnxm_compound_dict = bigg_mnxm_compound_dict
+#    if not hasattr(options, 'bigg_mnxm_compound_dict'):
+#        bigg_mnxm_compound_dict = pickle.load(
+#                open('./gems/io/data/input2/bigg_mnxm_compound_dict.p','rb'))
+#        options.bigg_mnxm_compound_dict = bigg_mnxm_compound_dict
 
     if not hasattr(options, 'mnxm_compoundInfo_dict'):
         mnxm_compoundInfo_dict = pickle.load(
@@ -342,20 +342,14 @@ def add_sec_met_rxn(target_model, options):
 
             #Adding metabolites already in the model
             if metab_compt in target_model.metabolites:
-                logging.debug("Metabolite %s: Already present in model" %metab_compt)
+                logging.debug('Metabolite %s already present in the model', metab_compt)
                 rxn.add_metabolites({target_model.metabolites.get_by_id(
                     metab_compt):options.metab_coeff_dict[metab]})
 
             #Adding metabolites with bigg compoundID, but not in the model
-            elif metab in options.bigg_mnxm_compound_dict.keys():
-                logging.debug("Metabolite (bigg ID) %s: To be added" %metab)
-                mnxm = options.bigg_mnxm_compound_dict[metab]
-                #Compartment suffix (e.g., '_c') is used when adding a new metabolite
-                #in cobrapy document
-                metab_compt = Metabolite(metab_compt,
-                        formula = options.mnxm_compoundInfo_dict[mnxm][1],
-                        name = options.mnxm_compoundInfo_dict[mnxm][0],
-                        compartment='c')
+            elif metab_compt in options.mnxref.metabolites:
+                logging.debug('Metabolite %s available in the MNXref', metab_compt)
+                metab_compt = options.mnxref.metabolites.get_by_id(metab_compt)
                 rxn.add_metabolites({metab_compt:options.metab_coeff_dict[metab]})
 
             elif 'Cluster' in metab:
