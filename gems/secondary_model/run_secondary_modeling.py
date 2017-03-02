@@ -90,15 +90,7 @@ def get_target_nonprod_monomers_for_gapfilling(target_model, options):
     options.adj_unique_nonprod_monomers_list = adj_unique_nonprod_monomers_list
 
 
-def get_universal_model(target_model, options):
-
-
-    universal_model = pickle.load(open("./gems/io/data/input2/MNXref.p","rb"))
-
-    return universal_model
-
-
-def run_gapfilling(target_model, universal_model, options):
+def run_gapfilling(target_model, options):
 
     gapfill_rxns2 = []
 
@@ -108,7 +100,8 @@ def run_gapfilling(target_model, universal_model, options):
             #TODO: Check downstream functions for 'gapfill_iter' > 1
             gapfill_rxns = cobra.flux_analysis.gapfilling.SMILEY(
                     target_model, '%s_c' %nonprod_monomer,
-                    universal_model, iterations = int(options.cobrapy.gapfill_iter))
+                    options.mnxref,
+                    iterations = int(options.cobrapy.gapfill_iter))
             logging.debug('gapfill_rxns: %s' %gapfill_rxns)
 
             #'gapfill_rxns' is a list of list:
@@ -134,7 +127,7 @@ def run_gapfilling(target_model, universal_model, options):
     #gap_rxns3 = check_gapfill_rxn_biomass_effects(target_model,
     #                           universal_model, gapfill_rxns2, options)
     target_model_complete = add_gapfill_rxn_target_model(target_model,
-                            universal_model, gapfill_rxns2,options)
+                            options.mnxref, gapfill_rxns2,options)
 
     return target_model_complete
 

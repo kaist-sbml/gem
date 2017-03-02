@@ -34,7 +34,6 @@ from gems.primary_model.run_primary_modeling import run_prunPhase, run_augPhase
 from gems.secondary_model.run_secondary_modeling import (
     run_sec_met_rxn_generation,
     get_target_nonprod_monomers_for_gapfilling,
-    get_universal_model,
     run_gapfilling
     )
 
@@ -200,9 +199,7 @@ def main():
 
                 get_target_nonprod_monomers_for_gapfilling(target_model, options)
 
-                universal_model = get_universal_model(target_model, options)
-
-                target_model_complete = run_gapfilling(target_model, universal_model, options)
+                target_model_complete = run_gapfilling(target_model, options)
 
                 #Cleanup of the model
                 prune_unused_metabolites(target_model_complete)
