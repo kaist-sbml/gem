@@ -87,26 +87,35 @@ def get_rxnid_info_dict_from_kegg(options):
 
             #KEGG REST does not accept unspecific EC_number: e.g., 3.2.2.-
             if '-' not in enzymeEC:
+                logging.debug("EC_number info fetched from KEGG: %s, %s", locusTag, enzymeEC)
                 rxnid_list = get_rxnid_from_ECNumber(enzymeEC, options)
                 for rxnid in rxnid_list:
                     rxnid_info = get_rxnInfo_from_rxnid(rxnid, options)
 
+                    # Create 'rxnid_info_dict'
                     if rxnid_info != None:
-                        rxnid_info_dict[rxnid]
+                        rxnid_info_dict[rxnid] = rxnid_info
                     else:
-                        logging.debug('No reaction info available for %s', rxnid)
+                        logging.debug('No reaction info available for %s, %s, %s', locusTag, enzymeEC, rxnid)
 
+                        for mnxr in options.mnxr_kegg_dict.keys():
+
+                            if rxnid in options.mnxr_kegg_dict[mnxr]:
+                                cnt = len(options.mnxr_kegg_dict[mnxr])
+                                options.mnxr_kegg_dict[mnxr].remove(rxnid)
+                                logging.debug('Number of KEGG IDs for %s: %s --> %s', mnxr, cnt, len(options.mnxr_kegg_dict[mnxr]))
+
+                                if len(options.mnxr_kegg_dict[mnxr]) == 0:
+                                    del options.mnxr_kegg_dict[mnxr]
+                                    logging.debug('%s removed', mnxr)
+
+                    # Create 'rxnid_locusTag_dict'
                     if rxnid not in rxnid_locusTag_dict:
                         rxnid_locusTag_dict[rxnid] = [locusTag]
                     elif rxnid in rxnid_locusTag_dict.keys():
                         rxnid_locusTag_dict[rxnid].append(locusTag)
-
-                logging.debug("EC_number info fetched from KEGG: %s, %s"
-                                %(locusTag, enzymeEC))
             else:
-                logging.debug("EC_number NOT submitted to KEGG: %s, %s"
-                                %(locusTag, enzymeEC))
-
+                logging.debug("EC_number NOT submitted to KEGG: %s, %s", locusTag, enzymeEC)
     options.rxnid_info_dict = rxnid_info_dict
     options.rxnid_locusTag_dict = rxnid_locusTag_dict
 
@@ -130,17 +139,19 @@ def get_mnxr_to_add_list(options):
 
     mnxr_to_add_list = []
     for rxnid in options.rxnid_info_dict:
-        if rxnid in options.kegg_mnxr_dict:
-            if rxnid not in options.modelPrunedGPR_mnxr_list:
-                if rxnid not in mnxr_to_add_list:
-                    # kegg_mnxr_dict[rxnid] is a list
-                    for mnxr in options.kegg_mnxr_dict[rxnid]:
-                        mnxr_to_add_list.append(mnxr)
-            else:
-                logging.debug('%s (%s) already in the model', rxnid, options.kegg_mnxr_dict[rxnid])
-        else:
-            logging.debug('KEGG reaction %s not available in MNXref', rxnid)
+        for mnxr, kegg_list in options.mnxr_kegg_dict.iteritems():
+            if rxnid in kegg_list:
+                # Check reaction duplicates
+                if mnxr not in options.modelPrunedGPR_mnxr_list:
+                    if mnxr not in mnxr_to_add_list:
+                        if mnxr in options.mnxref.reactions:
+                            mnxr_to_add_list.append(mnxr)
+                        else:
+                            logging.debug('%s (%s) not available in MNXref', rxnid, mnxr)
+                else:
+                    logging.debug('%s (%s) already in the model', rxnid, mnxr)
 
+    logging.debug(mnxr_to_add_list)
     logging.debug('Number of KEGG reactions to be added: %s', len(mnxr_to_add_list))
     options.mnxr_to_add_list = mnxr_to_add_list
 
@@ -149,9 +160,14 @@ def add_nonBBH_rxn(modelPrunedGPR, options):
 
     for mnxr in options.mnxr_to_add_list:
 
-        for k, v in options.kegg_mnxr_dict.iteritems():
-            if mnxr in v:
-                kegg_id = k
+        # Choose KEGG reaction ID with a greater value for multiple KEGG IDs given to MNXR
+        if len(options.mnxr_kegg_dict[mnxr]) > 1:
+            keggid_list = []
+            keggid_list = options.mnxr_kegg_dict[mnxr]
+            keggid_list.sort()
+            kegg_id = keggid_list[-1]
+        elif len(options.mnxr_kegg_dict[mnxr]) == 1:
+            kegg_id = options.mnxr_kegg_dict[mnxr][0]
 
         logging.debug("--------------------")
         logging.debug("Reaction to be added: %s; %s", mnxr, kegg_id)
@@ -191,16 +207,13 @@ def add_nonBBH_rxn(modelPrunedGPR, options):
         #E.C. number: not available feature in COBRApy
 
         #'add_reaction' requires writing/reloading of the model
-        logging.debug("Number of reactions in model before saving: %s"
-                %len(modelPrunedGPR.reactions))
         write_cobra_model_to_sbml_file(modelPrunedGPR,
                 "./%s/modelPrunedGPR_%s.xml"
                 %(options.outputfolder5, kegg_id), use_fbc_package=False)
         modelPrunedGPR = create_cobra_model_from_sbml_file(
                 "./%s/modelPrunedGPR_%s.xml"
                 %(options.outputfolder5, kegg_id))
-        logging.debug("Number of reactions in model after saving: %s"
-                %len(modelPrunedGPR.reactions))
+        logging.debug("Number of reactions in model: %s", len(modelPrunedGPR.reactions))
 
         #Check model prediction consistency
         target_exrxnid_flux_dict = get_exrxnid_flux(modelPrunedGPR,
