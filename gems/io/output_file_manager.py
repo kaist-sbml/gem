@@ -255,10 +255,6 @@ def write_data_for_debug(options):
     pickle.dump(options.temp_target_BBH_dict,
             open('./%s/temp_target_BBH_dict.p' %options.outputfolder2,'wb'))
 
-    with open('./%s/rxnid_to_add_list.txt' %options.outputfolder5,'w') as f2:
-        for rxnid in options.rxnid_to_add_list:
-            print >>f2, '%s' %rxnid
-
     with open('./%s/mnxr_to_add_list.txt' %options.outputfolder5,'w') as f3:
         for mnxr in options.mnxr_to_add_list:
             print >>f3, '%s' %mnxr
@@ -266,7 +262,3 @@ def write_data_for_debug(options):
     with open('./%s/rxnid_info_dict.txt' %options.outputfolder5,'w') as f4:
         for rxnid in options.rxnid_info_dict.keys():
             print >>f4, '%s' %rxnid
-
-    with open('./%s/rxnid_mnxm_coeff_dict.txt' %options.outputfolder5,'w') as f5:
-        for rxnid in options.rxnid_mnxm_coeff_dict.keys():
-            print >>f5, '%s\t%s' %(rxnid, options.rxnid_mnxm_coeff_dict[rxnid])
