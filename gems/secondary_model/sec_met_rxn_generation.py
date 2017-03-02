@@ -11,7 +11,6 @@ from Bio import SeqIO
 from cobra import Model, Reaction, Metabolite
 from cobra.io.sbml import create_cobra_model_from_sbml_file, write_cobra_model_to_sbml_file
 from general_sec_met_info import (
-    get_metab_coeff_dict,
     get_biggid_from_aSid,
     add_sec_met_mnxm_having_no_biggid_to_model
 )
@@ -195,7 +194,7 @@ def get_cluster_monomers(options):
 #Output: e.g., {'mmalcoa': -4, 'malcoa': -7}
 def get_all_metab_coeff(options):
 
-    metab_coeff_dict = get_metab_coeff_dict()
+    metab_coeff_dict = {}
 
     for each_module in options.locustag_monomer_dict.keys():
         #locustag_monomer_dict[each_module] for nrps
@@ -219,7 +218,10 @@ def get_all_metab_coeff(options):
                     biggid_met2 = get_biggid_from_aSid(aSid_met2)
 
                     #In case of non-consensus, NRPSPredictor2 SVM is considered
-                    metab_coeff_dict[biggid_met2] -= 1
+                    if biggid_met2 not in metab_coeff_dict:
+                        metab_coeff_dict[biggid_met2] = -1
+                    else:
+                        metab_coeff_dict[biggid_met2] -= 1
 
                 elif aSid_met2 == 'hydrophobic-aliphatic' \
                         or aSid_met2 == 'hydrophilic' \
@@ -233,7 +235,11 @@ def get_all_metab_coeff(options):
                             and aSid_met4 != 'hydrophobic-aromatic' \
                             and aSid_met4 != 'N/A':
                         biggid_met4 = get_biggid_from_aSid(aSid_met4)
-                        metab_coeff_dict[biggid_met4] -= 1
+
+                        if biggid_met4 not in metab_coeff_dict:
+                            metab_coeff_dict[biggid_met4] = -1
+                        else:
+                            metab_coeff_dict[biggid_met4] -= 1
 
                     #If Minowa has invalid monomer, then Stachelhaus code is considered
                     elif aSid_met4 == 'hydrophobic-aliphatic' \
@@ -242,14 +248,22 @@ def get_all_metab_coeff(options):
                             or aSid_met4 == 'N/A':
                         aSid_met3 = options.locustag_monomer_dict[each_module][1]
                         biggid_met3 = get_biggid_from_aSid(aSid_met3)
-                        metab_coeff_dict[biggid_met3] -= 1
+
+                        if biggid_met3 not in metab_coeff_dict:
+                            metab_coeff_dict[biggid_met3] = -1
+                        else:
+                            metab_coeff_dict[biggid_met3] -= 1
 
             #In case "consensus" is reached:
             elif options.locustag_monomer_dict[each_module][3] != 'nrp':
                 aSid_met5 = options.locustag_monomer_dict[each_module][3]
                 biggid_met5 = get_biggid_from_aSid(aSid_met5)
                 #print "aSid_met5", aSid_met5, biggid_met5
-                metab_coeff_dict[biggid_met5] -= 1
+
+                if biggid_met5 not in metab_coeff_dict:
+                    metab_coeff_dict[biggid_met5] = -1
+                else:
+                    metab_coeff_dict[biggid_met5] -= 1
 
         #locustag_monomer_dict[each_module] for pks
         #Position [0]: PKS signature
@@ -270,14 +284,21 @@ def get_all_metab_coeff(options):
                     biggid_met6 = get_biggid_from_aSid(aSid_met6)
                     #print "aSid_met6", aSid_met6, biggid_met6
 
-                    metab_coeff_dict[biggid_met6] -= 1
+                    if biggid_met6 not in metab_coeff_dict:
+                        metab_coeff_dict[biggid_met6] = -1
+                    else:
+                        metab_coeff_dict[biggid_met6] -= 1
 
                 #If PKS signature has invalid monomer, then Minowa is considered
                 else:
                     aSid_met7 = options.locustag_monomer_dict[each_module][1]
                     if aSid_met7 != 'inactive':
                         biggid_met7 = get_biggid_from_aSid(aSid_met7)
-                        metab_coeff_dict[biggid_met7] -= 1
+
+                        if biggid_met7 not in metab_coeff_dict:
+                            metab_coeff_dict[biggid_met7] = -1
+                        else:
+                            metab_coeff_dict[biggid_met7] -= 1
 
             #In case "consensus" is reached:
             elif options.locustag_monomer_dict[each_module][2] != 'pk':
@@ -298,7 +319,11 @@ def get_all_metab_coeff(options):
 
                 biggid_met8 = get_biggid_from_aSid(aSid_met8)
                 #print "aSid_met8", aSid_met8, biggid_met8
-                metab_coeff_dict[biggid_met8] -= 1
+
+                if biggid_met8 not in metab_coeff_dict:
+                    metab_coeff_dict[biggid_met8] = -1
+                else:
+                    metab_coeff_dict[biggid_met8] -= 1
 
     #Add secondary metabolite product to the reaction
     metab_coeff_dict[options.product] = 1
@@ -312,11 +337,6 @@ def get_pickles(options):
     if not hasattr(options, 'mnxref'):
         mnxref = pickle.load(open('./gems/io/data/input2/MNXref.p','rb'))
         options.mnxref = mnxref
-
-#    if not hasattr(options, 'bigg_mnxm_compound_dict'):
-#        bigg_mnxm_compound_dict = pickle.load(
-#                open('./gems/io/data/input2/bigg_mnxm_compound_dict.p','rb'))
-#        options.bigg_mnxm_compound_dict = bigg_mnxm_compound_dict
 
     if not hasattr(options, 'mnxm_compoundInfo_dict'):
         mnxm_compoundInfo_dict = pickle.load(
