@@ -2,8 +2,6 @@
 #Copyright 2014-2016 BioInformatics Research Center, KAIST
 #Copyright 2014-2016 Novo Nordisk Foundation Center for Biosustainability, DTU
 
-#This file generates metabolic reactions for the genes newly annotated to be present in the secondary metabolite-biosynthetic gene cluster from antiSMASH.
-
 import logging
 import os
 import pickle
@@ -24,6 +22,7 @@ def get_cluster_location(cluster_nr, options):
             if options.cluster_number in feature.qualifiers.get('note'):
                 options.cluster_loc1 = feature.location.start
                 options.cluster_loc2 = feature.location.end
+
 
 #Exract all the information associated with a particular locus_tag for the selected cluster
 def get_cluster_info_from_seq_record(options):
@@ -64,86 +63,6 @@ def get_cluster_product(cluster_nr, options):
 
     #print product, "\n"
     options.product = product3
-
-
-#TODO: Check how this information can be used in future
-# Addition of currency metabolites for each domain
-#rather than previous way of domain combinations
-
-# domain information(nrps) :
-# Condensation    Condensation domain
-# Condensation_DCL    Condensation domain that links L-amino acid to peptide ending with D    -amino acid
-# Condensation_LCL    Condensation domain that links L-amino acid to peptide ending with L    -amino acid
-# Condensation_Dual     Dual condensation / epimerization domain
-# Condensation_Starter    Starter condensation domain
-# CXglyc    Putatively inactive glycopeptide condensation-like domain
-# Cglyc    Glycopeptide condensation domain
-# Heterocyclization    Heterocyclization domain
-# Epimerization    Epimerization domain
-# AMP-binding    Adenylation domain
-# A-OX     Adenylation domain with integrated oxidase
-# PCP     Peptidyl-carrier protein domain
-# ACP    4'-phosphopantetheinyl transferase
-# NRPS-COM_Nterm    NRPS COM domain Nterminal
-# NRPS-COM_Cterm    NRPS COM domain Cterminal
-
-# domain information(pks) :
-# AT    acyltransferase
-# KS    ketosynthase
-# ACP    acyl carrier protein
-# KR    ketoreductase
-# DH    dehydratase
-# ER    enolase
-# cMT    methyltransferase
-# TD    thiolesterase domain
-def get_cluster_domain(options):
-
-    locustag_domain_dict = {}
-    locustag_kr_dict = {}
-
-    for each_gene in options.cluster_info_dict.keys():
-
-        domain_count = 0
-        sec_met_domain_list = []
-        kr_domain_info_dict = {}
-
-        for sec_met_info in options.cluster_info_dict[each_gene]:
-
-            if "NRPS/PKS Domain" in sec_met_info:
-                #e.g., 'NRPS/PKS Domain: Condensation_LCL (36-335)'
-                domain_info1 = sec_met_info.split('. ')[0]
-
-                #e.g., 'Condensation_LCL (36-335)'
-                domain_info2 = domain_info1.split(':')[1]
-
-                #e.g., 'Condensation_LCL'
-                each_sec_met_domain = domain_info2.split()[0]
-
-                # Count the number of domains
-                if float(domain_count) < 10:
-                    domain_number = "_D0" + str(domain_count)
-                else:
-                    domain_number = "_D" + str(domain_count)
-
-                domain_number = each_sec_met_domain + domain_number
-                sec_met_domain_list.append(domain_number)
-                domain_count += 1
-
-                #Collects KR activity information
-                if each_sec_met_domain == "PKS_KR":
-                    sec_met_info_list = sec_met_info.split('; ')
-                    for kr_chars in sec_met_info_list:
-                        if 'Predicted KR activity' in kr_chars:
-                            kr_info_list = kr_chars.split(': ')
-                    dm_kr_activity = kr_info_list[1]
-                    kr_domain_info_dict[domain_number] = dm_kr_activity
-
-        locustag_domain_dict[each_gene] = sec_met_domain_list
-        locustag_kr_dict[each_gene] = kr_domain_info_dict
-
-    #logging.debug('locustag_domain_dict: %s' %locustag_domain_dict)
-    options.locustag_domain_dict = locustag_domain_dict
-    options.locustag_kr_dict = locustag_kr_dict
 
 
 #Output: e.g., {'SAV_943_M1':['mmal', 'Ethyl_mal', 'pk']}
@@ -357,15 +276,15 @@ def add_sec_met_rxn(target_model, options):
         if options.metab_coeff_dict[metab] != 0:
             metab_compt = '_'.join([metab,'c'])
 
-            #Adding metabolites already in the model
+            #Add  metabolites already in the model
             if metab_compt in target_model.metabolites:
                 logging.debug('Metabolite %s already present in the model', metab_compt)
                 rxn.add_metabolites({target_model.metabolites.get_by_id(
                     metab_compt):options.metab_coeff_dict[metab]})
 
-            #Adding metabolites with bigg compoundID, but not in the model
+            #Add metabolites available in the MNXref sbml
             elif metab_compt in options.mnxref.metabolites:
-                logging.debug('Metabolite %s available in the MNXref', metab_compt)
+                logging.debug('Metabolite %s available in the MNXref sbml', metab_compt)
                 metab_compt = options.mnxref.metabolites.get_by_id(metab_compt)
                 rxn.add_metabolites({metab_compt:options.metab_coeff_dict[metab]})
 
@@ -374,7 +293,7 @@ def add_sec_met_rxn(target_model, options):
                 metab_compt = Metabolite(metab_compt, compartment='c')
                 rxn.add_metabolites({metab_compt:options.metab_coeff_dict[metab]})
 
-            #Add metabolite MNXM having no bigg ID to the model
+            #Add metabolites not available in the MNXref sbml
             else:
                 logging.debug("Metabolite (MNXM ID) %s: To be added" %metab)
                 metab_compt = Metabolite(metab_compt,
@@ -496,3 +415,84 @@ def get_monomers_prod_sec_met(options):
 
     return prod_sec_met_metab_list
 
+'''
+# NOTE: Dead code
+# TODO: Check how this information can be used in future
+# Addition of currency metabolites for each domain
+#rather than previous way of domain combinations
+
+# domain information(nrps) :
+# Condensation    Condensation domain
+# Condensation_DCL    Condensation domain that links L-amino acid to peptide ending with D    -amino acid
+# Condensation_LCL    Condensation domain that links L-amino acid to peptide ending with L    -amino acid
+# Condensation_Dual     Dual condensation / epimerization domain
+# Condensation_Starter    Starter condensation domain
+# CXglyc    Putatively inactive glycopeptide condensation-like domain
+# Cglyc    Glycopeptide condensation domain
+# Heterocyclization    Heterocyclization domain
+# Epimerization    Epimerization domain
+# AMP-binding    Adenylation domain
+# A-OX     Adenylation domain with integrated oxidase
+# PCP     Peptidyl-carrier protein domain
+# ACP    4'-phosphopantetheinyl transferase
+# NRPS-COM_Nterm    NRPS COM domain Nterminal
+# NRPS-COM_Cterm    NRPS COM domain Cterminal
+
+# domain information(pks) :
+# AT    acyltransferase
+# KS    ketosynthase
+# ACP    acyl carrier protein
+# KR    ketoreductase
+# DH    dehydratase
+# ER    enolase
+# cMT    methyltransferase
+# TD    thiolesterase domain
+def get_cluster_domain(options):
+
+    locustag_domain_dict = {}
+    locustag_kr_dict = {}
+
+    for each_gene in options.cluster_info_dict.keys():
+
+        domain_count = 0
+        sec_met_domain_list = []
+        kr_domain_info_dict = {}
+
+        for sec_met_info in options.cluster_info_dict[each_gene]:
+
+            if "NRPS/PKS Domain" in sec_met_info:
+                #e.g., 'NRPS/PKS Domain: Condensation_LCL (36-335)'
+                domain_info1 = sec_met_info.split('. ')[0]
+
+                #e.g., 'Condensation_LCL (36-335)'
+                domain_info2 = domain_info1.split(':')[1]
+
+                #e.g., 'Condensation_LCL'
+                each_sec_met_domain = domain_info2.split()[0]
+
+                # Count the number of domains
+                if float(domain_count) < 10:
+                    domain_number = "_D0" + str(domain_count)
+                else:
+                    domain_number = "_D" + str(domain_count)
+
+                domain_number = each_sec_met_domain + domain_number
+                sec_met_domain_list.append(domain_number)
+                domain_count += 1
+
+                #Collects KR activity information
+                if each_sec_met_domain == "PKS_KR":
+                    sec_met_info_list = sec_met_info.split('; ')
+                    for kr_chars in sec_met_info_list:
+                        if 'Predicted KR activity' in kr_chars:
+                            kr_info_list = kr_chars.split(': ')
+                    dm_kr_activity = kr_info_list[1]
+                    kr_domain_info_dict[domain_number] = dm_kr_activity
+
+        locustag_domain_dict[each_gene] = sec_met_domain_list
+        locustag_kr_dict[each_gene] = kr_domain_info_dict
+
+    #logging.debug('locustag_domain_dict: %s' %locustag_domain_dict)
+    options.locustag_domain_dict = locustag_domain_dict
+    options.locustag_kr_dict = locustag_kr_dict
+'''
