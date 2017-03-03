@@ -11,7 +11,7 @@ from Bio import SeqIO
 from cobra import Model, Reaction, Metabolite
 from cobra.io.sbml import create_cobra_model_from_sbml_file, write_cobra_model_to_sbml_file
 from general_sec_met_info import (
-    get_biggid_from_aSid,
+    get_std_id_from_antismash_id,
     add_sec_met_mnxm_having_no_biggid_to_model
 )
 
@@ -215,7 +215,7 @@ def get_all_metab_coeff(options):
                         and aSid_met2 != 'hydrophobic-aromatic' \
                         and aSid_met2 != 'N/A' \
                         and ',' not in aSid_met2:
-                    biggid_met2 = get_biggid_from_aSid(aSid_met2)
+                    biggid_met2 = get_std_id_from_antismash_id(aSid_met2)
 
                     #In case of non-consensus, NRPSPredictor2 SVM is considered
                     if biggid_met2 not in metab_coeff_dict:
@@ -234,7 +234,7 @@ def get_all_metab_coeff(options):
                             and aSid_met4 != 'hydrophilic' \
                             and aSid_met4 != 'hydrophobic-aromatic' \
                             and aSid_met4 != 'N/A':
-                        biggid_met4 = get_biggid_from_aSid(aSid_met4)
+                        biggid_met4 = get_std_id_from_antismash_id(aSid_met4)
 
                         if biggid_met4 not in metab_coeff_dict:
                             metab_coeff_dict[biggid_met4] = -1
@@ -247,7 +247,7 @@ def get_all_metab_coeff(options):
                             or aSid_met4 == 'hydrophobic-aromatic' \
                             or aSid_met4 == 'N/A':
                         aSid_met3 = options.locustag_monomer_dict[each_module][1]
-                        biggid_met3 = get_biggid_from_aSid(aSid_met3)
+                        biggid_met3 = get_std_id_from_antismash_id(aSid_met3)
 
                         if biggid_met3 not in metab_coeff_dict:
                             metab_coeff_dict[biggid_met3] = -1
@@ -257,7 +257,7 @@ def get_all_metab_coeff(options):
             #In case "consensus" is reached:
             elif options.locustag_monomer_dict[each_module][3] != 'nrp':
                 aSid_met5 = options.locustag_monomer_dict[each_module][3]
-                biggid_met5 = get_biggid_from_aSid(aSid_met5)
+                biggid_met5 = get_std_id_from_antismash_id(aSid_met5)
                 #print "aSid_met5", aSid_met5, biggid_met5
 
                 if biggid_met5 not in metab_coeff_dict:
@@ -281,7 +281,7 @@ def get_all_metab_coeff(options):
                 #In case of non-consensus, PKS signature is considered
                 aSid_met6 = options.locustag_monomer_dict[each_module][0]
                 if aSid_met6 != 'N/A' and aSid_met6 != 'mal_or_prop':
-                    biggid_met6 = get_biggid_from_aSid(aSid_met6)
+                    biggid_met6 = get_std_id_from_antismash_id(aSid_met6)
                     #print "aSid_met6", aSid_met6, biggid_met6
 
                     if biggid_met6 not in metab_coeff_dict:
@@ -293,7 +293,7 @@ def get_all_metab_coeff(options):
                 else:
                     aSid_met7 = options.locustag_monomer_dict[each_module][1]
                     if aSid_met7 != 'inactive':
-                        biggid_met7 = get_biggid_from_aSid(aSid_met7)
+                        biggid_met7 = get_std_id_from_antismash_id(aSid_met7)
 
                         if biggid_met7 not in metab_coeff_dict:
                             metab_coeff_dict[biggid_met7] = -1
@@ -317,7 +317,7 @@ def get_all_metab_coeff(options):
                         or aSid_met8 == 'redemal':
                     aSid_met8 = 'emal'
 
-                biggid_met8 = get_biggid_from_aSid(aSid_met8)
+                biggid_met8 = get_std_id_from_antismash_id(aSid_met8)
                 #print "aSid_met8", aSid_met8, biggid_met8
 
                 if biggid_met8 not in metab_coeff_dict:

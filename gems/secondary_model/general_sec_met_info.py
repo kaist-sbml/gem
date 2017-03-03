@@ -5,253 +5,262 @@
 import logging
 from cobra import Metabolite
 
-def get_biggid_from_aSid(each_substrate):
 
-    #'L-alanine', 'C00041', 'MNXM32'
-    if each_substrate == 'ala':
+# Metabolite ID priority: bigg > MNXM
+# KEGG IDs are not used in the modeling
+# Abbreviations in antiSMASH gbk file are used if standard IDs are not available
+def get_std_id_from_antismash_id(each_substrate):
+
+    # ===================================================
+    # NOTE: BiGG IDs available both in MNXref and iMK1208
+    # ===================================================
+
+    # Acetyl-CoA: MNXM21; C00024
+    if each_substrate == 'ace':
+        met_name = 'accoa'
+
+    # L-alanine: MNXM32; C00041
+    elif each_substrate == 'ala':
         met_name = 'ala_DASH_L'
 
-    #'L-Arginine', 'C00062', 'MNXM70'
-    elif each_substrate == 'arg':
-        met_name = 'arg_DASH_L'
-
-    #'L-asparagine', 'C00152', 'MNXM147'
-    elif each_substrate == 'asn':
-        met_name ='asn_DASH_L'
-
-    #'L-Aspartate', 'C00049', 'MNXM42'
-    elif each_substrate == 'asp':
-        met_name = 'asp_DASH_L'
-
-    #'L-Cysteine', 'C00097', 'MNXM55'
-    elif each_substrate == 'cys':
-        met_name = 'cys_DASH_L'
-
-    #'L-Glutamine', 'C00064', 'MNXM37'
-    elif each_substrate == 'gln':
-        met_name = 'gln_DASH_L'
-
-    #'L-Glutamate', 'C00025', 'MNXM89557'
-    elif each_substrate == 'glu':
-        met_name = 'glu_DASH_L'
-
-    #'glycine', 'C00037', 'MNXM29'
-    elif each_substrate == 'gly':
-        met_name = 'gly'
-
-    #'L-Histidine', 'C00135', 'MNXM134'
-    elif each_substrate == 'his':
-        met_name = 'his_DASH_L'
-
-    #'L-Leucine', 'C00123', 'MNXM140'
-    elif each_substrate == 'leu':
-        met_name = 'leu_DASH_L'
-
-    #'L-Lysine', 'C00047 ', 'MNXM78'
-    elif each_substrate == 'lys':
-        met_name = 'lys_DASH_L'
-
-    #'L-Methionine', 'C00073', 'MNXM61'
-    elif each_substrate == 'met':
-        met_name = 'met_DASH_L'
-
-    #'L-Phenylalanine', 'C00079', 'MNXM97'
-    elif each_substrate == 'phe':
-        met_name = 'phe_DASH_L'
-
-    #'L-Proline', 'C00148', 'MNXM114'
-    elif each_substrate == 'pro':
-        met_name = 'pro_DASH_L'
-
-    #'L-Serine', 'C00065', 'MNXM53'
-    elif each_substrate == 'ser':
-        met_name = 'ser_DASH_L'
-
-    #'L-Threonine', 'C00188', 'MNXM142'
-    elif each_substrate == 'thr':
-        met_name = 'thr_DASH_L'
-
-    #'L-Tryptophan', 'C00078', 'MNXM94'
-    elif each_substrate == 'trp':
-        met_name = 'trp_DASH_L'
-
-    #'L-Tyrosine', 'C00082', 'MNXM76'
-    elif each_substrate == 'tyr':
-        met_name ='tyr_DASH_L'
-
-    #'L-Valine', 'C00183', 'MNXM199'
-    elif each_substrate == 'val':
-        met_name = 'val_DASH_L'
-
-    #'L-Isoleucine', 'C00407', 'MNXM231'
-    elif each_substrate == 'ile':
-        met_name = 'ile_DASH_L'
-
-    #'phenylglycine', 'C18623', 'MNXM59292'
-    elif each_substrate == 'phg':
-        met_name = 'phg_DASH_L'
-
-    #No MNXM, KEGG ID and bigg ID for "bht"
-    #'beta-hydroxyl-tyrosine', 'N/A', 'N/A'
-    elif each_substrate == 'bht':
-        met_name = 'bht_DASH_L'
-
-    #'Ornithine', 'C01602', 'MNXM89689'
-    elif each_substrate == 'orn':
-        met_name = 'orn'
-
-    #No bigg ID
-    #'abu', 'D-2-Aminobutyric acid', 'C02261', 'MNXM155019'
-    elif each_substrate == 'abu':
-        met_name = 'MNXM155019'
-
-    #No bigg ID
-    #'iva', '2-Amino-2-methylbutanoate', 'C03571', 'MNXM34821'
-    elif each_substrate == 'iva':
-        met_name = 'MNXM34821'
-
-    #'L-2-Aminoadipic acid', 'C00956', 'MNXM268'
-    elif each_substrate == 'aad':
-        met_name = 'L2aadp'
-
-    #No bigg ID
-    #'hpg', 'D-4-Hydroxyphenylglycine', 'C03493', 'MNXM4544'
-    elif each_substrate == 'hpg':
-        met_name = 'MNXM4544'
-
-    #'2,3-Dihydroxybenzoic acid', 'C00196', 'MNXM455'
-    elif each_substrate == 'dhb':
-        met_name = '23dhb'
-
-    #No bigg ID
-    #'dhpg', '3,5-Dihydroxy-phenylglycine', 'C12026', 'MNXM9962'
-    elif each_substrate == 'dhpg':
-        met_name = 'MNXM9962'
-
-    #No bigg ID
-    #'hty', 'L-Homotyrosine', 'C18622', 'MNXM59438'
-    elif each_substrate == 'hty':
-        met_name = 'MNXM59438'
-
-    #'L-citruline', 'C00327', 'MNXM211'
-    elif each_substrate == 'cit':
-        met_name = 'citr_DASH_L'
-
-    #'L-pipecolate', 'C00408', 'MNXM684'
-    elif each_substrate == 'pip':
-        met_name = 'Lpipecol'
-
-    #'beta-alanine zwitterion', 'C00099', 'MNXM144'
+    # NOTE: 'ala_B' without '_DASH_' in MNXref
+    # beta-Alanine; MNXM144; C00099
     elif each_substrate == 'b-ala':
         met_name = 'ala_DASH_B'
 
-    #'L-2,4-diazaniumylbutyrate', 'C03283', 'MNXM840'
-    elif each_substrate == 'dab':
-        met_name = '24dab'
+    # L-Arginine: MNXM70; C00062
+    elif each_substrate == 'arg':
+        met_name = 'arg_DASH_L'
 
-    #'phenylacetate', 'C00548', 'MNXM497'
-    elif each_substrate == 'phenylacetate' or each_substrate == 'Pha':
-        met_name = 'pac'
+    # L-asparagine: MNXM147; C00152
+    elif each_substrate == 'asn':
+        met_name ='asn_DASH_L'
 
-    #'3-aminoalanine zwitterion', 'C06393', 'MNXM91374'
-    elif each_substrate == '2-3-diaminoproprionate':
-        met_name = '23dappa'
+    # L-Aspartate: MNXM42; C00049
+    elif each_substrate == 'asp':
+        met_name = 'asp_DASH_L'
 
-    #'tcl', '4-Chlorothreonine', 'N/A', 'MNXM37380'
-    elif each_substrate == 'thr-4-cl':
-        met_name = 'MNXM37380'
+    # L-Citrulline; MNXM211; C00327
+    elif each_substrate == 'cit':
+        met_name = 'citr_DASH_L'
 
-    #No bigg ID
-    #(4S)-5,5,5-trichloro-leucine', 'N/A','N/A'
-    elif each_substrate == 'tcl':
-        met_name = 'MNXM37380'
+    # L-Cysteine: MNXM55; C00097'
+    elif each_substrate == 'cys':
+        met_name = 'cys_DASH_L'
 
-    #No bigg ID
-    #'qa', 'quinoxaline', 'C18575','MNXM80505'
-    elif each_substrate == 'qa':
-        met_name = 'MNXM80505'
+    # L-Glutamine: MNXM37; C00064
+    elif each_substrate == 'gln':
+        met_name = 'gln_DASH_L'
 
-    #No bigg ID
-    #'Trans-cyclopentane-(1R, 2R)-dicarboxylic acid', 'N/A','N/A'
-    elif each_substrate == 'trans-1,2-CPDA':
-        met_name = '23cpda'
+    # L-Glutamate: MNXM89557; C00025
+    elif each_substrate == 'glu':
+        met_name = 'glu_DASH_L'
 
-    #No bigg ID
-    #'2-Butenyl-4-methyl-threonine', 'C12029','MNXM31446'
-    elif each_substrate == 'bmt':
-        met_name = 'MNXM31446'
+    # glycine: MNXM29; C00037
+    elif each_substrate == 'gly':
+        met_name = 'gly'
 
-    #'salicylate', 'C00805','MNXM378'
-    elif each_substrate == 'sal':
-        met_name = 'salc'
+    # L-Histidine: MNXM134; C00135
+    elif each_substrate == 'his':
+        met_name = 'his_DASH_L'
 
-    #No bigg ID
-    #'L-alaninol', 'N/A','MNXM8817'
-    elif each_substrate == 'alaninol':
-        met_name = 'MNXM8817'
+    # L-Isoleucine: MNXM231; C00407
+    elif each_substrate == 'ile':
+        met_name = 'ile_DASH_L'
 
-    #t1pks substreate
-    #'malonyl-CoA', 'C00083', 'MNXM40'
-    elif each_substrate == 'mal':
-        met_name = 'malcoa'
-
-    #'(S)-methylmalonyl-CoA(5-)','C00683', 'MNXM190'
-    elif each_substrate == 'mmal':
-        met_name = 'mmcoa_DASH_S'
-
-    #'2-methylbutanoyl-CoA', C01033,'MNXM569'
-    elif each_substrate == '2metbut':
-        met_name = '2mbcoa'
-
-    #Not available in bigg, but available in iMK1208
-    #'ethylmalonyl-CoA','C18026', 'MNXM2043'
-    elif each_substrate == 'Ethyl_mal' or each_substrate == 'emal':
-        met_name = 'emcoa_DASH_S'
-
-    #'2-Methylpropanoyl-CoA', 'C00630', 'MNXM470'
+    # Isobutyryl-CoA: MNXM470; C00630
     elif each_substrate == 'isobut':
         met_name = 'ibcoa'
 
-    #'Acetyl-CoA', 'C00024', 'MNXM21'
-    elif each_substrate == 'ace':
-        met_name = 'accoa'
+    # L-Leucine: MNXM140; C00123
+    elif each_substrate == 'leu':
+        met_name = 'leu_DASH_L'
 
-    #'Propionyl-CoA', 'C00100', 'MNXM86'
-    elif each_substrate == 'prop':
-        met_name = 'ppcoa'
+    # L-Lysine: MNXM78; C00047
+    elif each_substrate == 'lys':
+        met_name = 'lys_DASH_L'
 
-    #'3-Methylbutanoyl-CoA', 'C02939', 'MNXM471'
+    # Malonyl-CoA: MNXM40; C00083
+    elif each_substrate == 'mal':
+        met_name = 'malcoa'
+
+    # L-Methionine: MNXM61; C00073
+    elif each_substrate == 'met':
+        met_name = 'met_DASH_L'
+
+    # 2-Methylbutanoyl-CoA: MNXM569; C01033
+    elif each_substrate == '2metbut':
+        met_name = '2mbcoa'
+
+    # 3-Methylbutanoyl-CoA or Isovaleryl-CoA: MNXM471; C02939
     elif each_substrate == '3metbut':
         met_name = 'ivcoa'
 
-    #No bigg ID
-    #'mxmalacp', 'Methoxymalonyl-[acp]', 'C18616', 'MNXM61686'
-    elif each_substrate == 'mxmal':
-        met_name = 'MNXM61686'
+    # (R)-Methylmalonyl-CoA: MNXM608; C01213
+    elif each_substrate == 'mmal':
+        met_name = 'mmcoa_DASH_R'
 
-    #No bigg ID
-    #'chccoa', 'cyclohexane-1-carboxyl-CoA', 'C09823', 'MNXM5111'
-    elif each_substrate == 'CHC-CoA':
-        met_name = 'MNXM5111'
+    # Ornithine: MNXM89689; C01602
+    elif each_substrate == 'orn':
+        met_name = 'orn'
 
-    #'chloroethylmalonyl-CoA','N/A', 'MNXM10927'
+    # Phenylacetic acid: MNXM497; C00548
+    elif each_substrate == 'phenylacetate' or each_substrate == 'Pha':
+        met_name = 'pac'
+
+    # L-Phenylalanine: MNXM97; C00079
+    elif each_substrate == 'phe':
+        met_name = 'phe_DASH_L'
+
+    # L-Proline: MNXM114; C00148
+    elif each_substrate == 'pro':
+        met_name = 'pro_DASH_L'
+
+    # Propanoyl-CoA: MNXM86; C00100
+    elif each_substrate == 'prop':
+        met_name = 'ppcoa'
+
+    # L-Serine: MNXM53; C00065
+    elif each_substrate == 'ser':
+        met_name = 'ser_DASH_L'
+
+    # L-Threonine: MNXM142; C00188
+    elif each_substrate == 'thr':
+        met_name = 'thr_DASH_L'
+
+    # L-Tryptophan: MNXM94; C00078
+    elif each_substrate == 'trp':
+        met_name = 'trp_DASH_L'
+
+    # L-Tyrosine: MNXM76; C00082
+    elif each_substrate == 'tyr':
+        met_name ='tyr_DASH_L'
+
+    # L-Valine: MNXM199; C00183
+    elif each_substrate == 'val':
+        met_name = 'val_DASH_L'
+
+    # ====================================================
+    # NOTE: BiGG IDs available only in MNXref, not iMK1208
+    # ====================================================
+
+    # L-2-Aminoadipic acid: MNXM268; C00956
+    elif each_substrate == 'aad':
+        met_name = 'L2aadp'
+
+    # Benzoyl-CoA: MNXM240; C00512
+    elif each_substrate == 'benz':
+        met_name = 'benzcoa'
+
+    # L-2,4-Diaminobutanoate: MNXM840; C03283
+    elif each_substrate == 'dab':
+        met_name = '24dab'
+
+    # 2,3-Dihydroxybenzoic acid: MNXM455; C00196
+    elif each_substrate == 'dhb':
+        met_name = '23dhb'
+
+    # FIXME: Is this wrong spelling used in antismash?
+    # 2,3-diaminopropionate: MNXM91374; C06393
+    elif each_substrate == '2-3-diaminoproprionate':
+        met_name = '23dappa'
+
+    # L-Pipecolate; MNXM684; C00408
+    elif each_substrate == 'pip':
+        met_name = 'Lpipecol'
+
+    # salicylate: MNXM378; C00805
+    elif each_substrate == 'sal':
+        met_name = 'salc'
+
+    # ================================================================
+    # NOTE: BiGG IDs not available in MNXref, but adopted from iMK1208
+    # ================================================================
+
+    # (2S)-Ethylmalonyl-CoA: MNXM2043; C18026
+    elif each_substrate == 'Ethyl_mal' or each_substrate == 'emal':
+        met_name = 'emcoa_DASH_S'
+
+    # =======================================================
+    # NOTE: BiGG IDs not available both in MNXref and iMK1208
+    # =======================================================
+
+    # D-2-Aminobutyric acid: MNXM155019; C02261; no bigg id
+    elif each_substrate == 'abu':
+        met_name = 'MNXM155019'
+
+    # L-alaninol: MNXM8817; no bigg id; no kegg id
+    elif each_substrate == 'alaninol':
+        met_name = 'MNXM8817'
+
+    # NOTE: bmt is originally defined as `4-Butenyl-4-methylthreonine'
+    # 2-Butenyl-4-methylthreonine: MNXM31446; C12029; no bigg id
+    elif each_substrate == 'bmt':
+        met_name = 'MNXM31446'
+
+    # L-Capreomycidine: MNXM18891, C18472; no bigg id
+    elif each_substrate == 'capreomycidine':
+        met_name = 'MNXM18891'
+
+    # chloroethylmalonyl-CoA: MNXM10927; no bigg id; no kegg id
     elif each_substrate == 'cemal':
         met_name = 'MNXM10927'
 
-    #Taken from Supplementary Table of Minowa et al.
-    #'Quinaldinic acid','C06325', 'MNXM4797'
+    # Cyclohexane-1-carboxyl-CoA or cyclohexylcarbonyl-CoA: MNXM5111; C09823; no bigg id
+    elif each_substrate == 'CHC-CoA':
+        met_name = 'MNXM5111'
+
+    # 3,5-Dihydroxy-phenylglycine; MNXM9962; C12026; no bigg id
+    elif each_substrate == 'dhpg':
+        met_name = 'MNXM9962'
+
+    # D-4-Hydroxyphenylglycine: MNXM4544; C03493; no bigg id
+    elif each_substrate == 'hpg':
+        met_name = 'MNXM4544'
+
+    # L-Homotyrosine; MNXM59438; C18622; no bigg id
+    elif each_substrate == 'hty':
+        met_name = 'MNXM59438'
+
+    # NOTE: iva is originally defined as `isovaline'
+    # NOTE: 2-Amino-2-methylbutanoate is structurally similar to valine,
+    #but a reason for the selection of this compound is not clear
+    # 2-Amino-2-methylbutanoate: MNXM34821; C03571; no bigg id
+    elif each_substrate == 'iva':
+        met_name = 'MNXM34821'
+
+    # (2R)-Methoxymalonyl-[acp]: MNXM61686; C18616; no bigg id
+    elif each_substrate == 'mxmal':
+        met_name = 'MNXM61686'
+
+    # phenylglycine: MNXM59292; C18623
+    elif each_substrate == 'phg':
+        met_name = 'MNXM59292'
+
+    # Quinoxaline: MNXM80501; C18575; no bigg id
+    elif each_substrate == 'qa':
+        met_name = 'MNXM80501'
+
+    # NOTE: Taken from Supplementary Table of Minowa et al.
+    # Quinaldinic acid: MNXM4797; C06325
     elif each_substrate == 'qna':
         met_name = 'MNXM4797'
 
-    #No bigg ID
-    #'Benzoyl-CoA','C00512', 'MNXM240'
-    elif each_substrate == 'benz':
-        met_name = 'MNXM240'
+    # 4-Chlorothreonine or tcl: MNXM37380; no bigg id; no kegg id
+    elif each_substrate == 'thr-4-cl' or each_substrate == 'tcl':
+        met_name = 'MNXM37380'
 
-    #No bigg ID
-    #'L-Capreomycidine', 'C18472', 'MNXM18891'
-    elif each_substrate == 'capreomycidine':
-        met_name = 'MNXM18891'
+    # ==========================================================
+    # NOTE: No standard IDs available both in MNXref and iMK1208
+    # ==========================================================
+
+    # beta-hydroxyl-tyrosine: no mnxm id; no bigg id; no kegg id
+    elif each_substrate == 'bht':
+        met_name = 'bht'
+
+    # Trans-cyclopentane-(1R, 2R)-dicarboxylic acid; no mnxm id; no bigg id; no kegg id
+    elif each_substrate == 'trans-1,2-CPDA':
+        met_name = '12cpda'
 
     return met_name
 
@@ -260,69 +269,17 @@ def get_biggid_from_aSid(each_substrate):
 def add_sec_met_mnxm_having_no_biggid_to_model(
         metab, metab_compt, mnxm_compoundInfo_dict):
 
-    if metab == 'phg_DASH_L':
-        metab2 = options.mnxref.metabolites.get_by_id('_'.join('MNXM59292', 'c'))
-        metab2.id = metab_compt
-
-    #No MNXM, KEGG ID and bigg ID for "bht"
-    elif metab == 'bht_DASH_L':
-        metab_compt = Metabolite(metab_compt, compartment='c')
+    if metab == 'emcoa_DASH_S':
+        metab_compt = Metabolite(metab_compt,
+                formula = mnxm_compoundInfo_dict['MNXM2043'][1],
+                name = mnxm_compoundInfo_dict['MNXM2043'][0],
+                compartment='c')
 
     elif metab == 'MNXM155019': #'abu'
         metab_compt = Metabolite(metab_compt,
                 formula = mnxm_compoundInfo_dict['MNXM155019'][1],
                 name = mnxm_compoundInfo_dict['MNXM155019'][0],
                 compartment='c')
-        #rxn.add_metabolites({metab_compt:metab_coeff_dict[metab]})
-
-    elif metab == 'MNXM34821': #'iva'
-        metab_compt = Metabolite(metab_compt,
-                formula = mnxm_compoundInfo_dict['MNXM34821'][1],
-                name = mnxm_compoundInfo_dict['MNXM34821'][0],
-                compartment='c')
-        #rxn.add_metabolites({metab_compt:metab_coeff_dict[metab]})
-
-    elif metab == 'MNXM4544': #'hpg'
-        metab_compt = Metabolite(metab_compt,
-                formula = mnxm_compoundInfo_dict['MNXM4544'][1],
-                name = mnxm_compoundInfo_dict['MNXM4544'][0],
-                compartment='c')
-        #rxn.add_metabolites({metab_compt:metab_coeff_dict[metab]})
-
-    elif metab == 'MNXM9962': #'dhpg'
-        metab_compt = Metabolite(metab_compt,
-                formula = mnxm_compoundInfo_dict['MNXM9962'][1],
-                name = mnxm_compoundInfo_dict['MNXM9962'][0],
-                compartment='c')
-        #rxn.add_metabolites({metab_compt:metab_coeff_dict[metab]})
-
-    elif metab == 'MNXM59438': #'hty'
-        metab_compt = Metabolite(metab_compt,
-                formula = mnxm_compoundInfo_dict['MNXM59438'][1],
-                name = mnxm_compoundInfo_dict['MNXM59438'][0],
-                compartment='c')
-        #rxn.add_metabolites({metab_compt:metab_coeff_dict[metab]})
-
-    elif metab == 'MNXM37380': #'tcl'
-        metab_compt = Metabolite(metab_compt,
-                formula = mnxm_compoundInfo_dict['MNXM37380'][1],
-                name = mnxm_compoundInfo_dict['MNXM37380'][0],
-                compartment='c')
-        #rxn.add_metabolites({metab_compt:metab_coeff_dict[metab]})
-
-    #No MNXM, KEGG ID and bigg ID for "bht"
-    elif metab == 'tcl':
-        metab_compt = Metabolite(metab_compt, compartment='c')
-
-    elif metab == 'MNXM80505': #'qa'
-        metab_compt = Metabolite(metab_compt,
-                formula = mnxm_compoundInfo_dict['MNXM80505'][1],
-                name = mnxm_compoundInfo_dict['MNXM80505'][0],
-                compartment='c')
-        #rxn.add_metabolites({metab_compt:metab_coeff_dict[metab]})
-
-    elif metab == '23cpda':
-        metab_compt = Metabolite(metab_compt, compartment='c')
 
     elif metab == 'MNXM31446':
         metab_compt = Metabolite(metab_compt,
@@ -330,55 +287,34 @@ def add_sec_met_mnxm_having_no_biggid_to_model(
                 name = mnxm_compoundInfo_dict['MNXM31446'][0],
                 compartment='c')
 
-    elif metab == 'MNXM8817':
+    elif metab == 'MNXM34821': #'iva'
         metab_compt = Metabolite(metab_compt,
-                formula = mnxm_compoundInfo_dict['MNXM8817'][1],
-                name = mnxm_compoundInfo_dict['MNXM8817'][0],
+                formula = mnxm_compoundInfo_dict['MNXM34821'][1],
+                name = mnxm_compoundInfo_dict['MNXM34821'][0],
                 compartment='c')
-
-    elif metab == 'emcoa_DASH_S':
-        metab_compt = Metabolite(metab_compt,
-                formula = mnxm_compoundInfo_dict['MNXM2043'][1],
-                name = mnxm_compoundInfo_dict['MNXM2043'][0],
-                compartment='c')
-        #rxn.add_metabolites({metab_compt:metab_coeff_dict[metab]})
 
     elif metab == 'MNXM61686': #'mxmalacp'
         metab_compt = Metabolite(metab_compt,
                 formula = mnxm_compoundInfo_dict['MNXM61686'][1],
                 name = mnxm_compoundInfo_dict['MNXM61686'][0],
                 compartment='c')
-        #rxn.add_metabolites({metab_compt:metab_coeff_dict[metab]})
 
-    elif metab == 'MNXM5111': #'chccoa'
+    elif metab == 'MNXM80501': #'qa'
         metab_compt = Metabolite(metab_compt,
-                formula = mnxm_compoundInfo_dict['MNXM5111'][1],
-                name = mnxm_compoundInfo_dict['MNXM5111'][0],
-                compartment='c')
-        #rxn.add_metabolites({metab_compt:metab_coeff_dict[metab]})
-
-    elif metab == 'MNXM10927':
-        metab_compt = Metabolite(metab_compt,
-                formula = mnxm_compoundInfo_dict['MNXM10927'][1],
-                name = mnxm_compoundInfo_dict['MNXM10927'][0],
+                formula = mnxm_compoundInfo_dict['MNXM80501'][1],
+                name = mnxm_compoundInfo_dict['MNXM80501'][0],
                 compartment='c')
 
-    elif metab == 'MNXM4797':
+    elif metab == 'MNXM37380': #'tcl'
         metab_compt = Metabolite(metab_compt,
-                formula = mnxm_compoundInfo_dict['MNXM4797'][1],
-                name = mnxm_compoundInfo_dict['MNXM4797'][0],
+                formula = mnxm_compoundInfo_dict['MNXM37380'][1],
+                name = mnxm_compoundInfo_dict['MNXM37380'][0],
                 compartment='c')
 
-    elif metab == 'MNXM240':
-        metab_compt = Metabolite(metab_compt,
-                formula = mnxm_compoundInfo_dict['MNXM240'][1],
-                name = mnxm_compoundInfo_dict['MNXM240'][0],
-                compartment='c')
+    elif metab == 'bht':
+        metab_compt = Metabolite(metab_compt, compartment='c')
 
-    elif metab == 'MNXM18891':
-        metab_compt = Metabolite(metab_compt,
-                formula = mnxm_compoundInfo_dict['MNXM18891'][1],
-                name = mnxm_compoundInfo_dict['MNXM18891'][0],
-                compartment='c')
+    elif metab == '12cpda':
+        metab_compt = Metabolite(metab_compt, compartment='c')
 
     return metab_compt
