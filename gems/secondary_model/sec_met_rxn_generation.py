@@ -10,10 +10,7 @@ import pickle
 from Bio import SeqIO
 from cobra import Model, Reaction, Metabolite
 from cobra.io.sbml import create_cobra_model_from_sbml_file, write_cobra_model_to_sbml_file
-from general_sec_met_info import (
-    get_std_id_from_antismash_id,
-    add_sec_met_mnxm_having_no_biggid_to_model
-)
+from general_sec_met_info import get_std_id_from_antismash_id
 
 
 def get_cluster_location(cluster_nr, options):
@@ -380,8 +377,10 @@ def add_sec_met_rxn(target_model, options):
             #Add metabolite MNXM having no bigg ID to the model
             else:
                 logging.debug("Metabolite (MNXM ID) %s: To be added" %metab)
-                metab_compt = add_sec_met_mnxm_having_no_biggid_to_model(
-                        metab, metab_compt, options.mnxm_compoundInfo_dict)
+                metab_compt = Metabolite(metab_compt,
+                        formula = options.mnxm_compoundInfo_dict[metab][1],
+                        name = options.mnxm_compoundInfo_dict[metab][0],
+                        compartment='c')
                 rxn.add_metabolites({metab_compt:options.metab_coeff_dict[metab]})
 
     #GPR association
