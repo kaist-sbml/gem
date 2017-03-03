@@ -10,7 +10,7 @@ import pickle
 from Bio import SeqIO
 from cobra import Model, Reaction, Metabolite
 from cobra.io.sbml import create_cobra_model_from_sbml_file, write_cobra_model_to_sbml_file
-from general_sec_met_info import get_std_id_from_antismash_id
+from antismash_monomer_info import get_std_id_from_antismash_id
 
 
 def get_cluster_location(cluster_nr, options):
