@@ -11,6 +11,8 @@ from cobra.io import write_sbml_model
 from cobra.io.sbml import fix_legacy_id
 from os.path import join, abspath, dirname
 
+
+input2_dir = join(os.pardir, 'gems', 'io', 'data', 'input2')
 mnxref_dir = join(dirname(abspath(__file__)), 'input2_data')
 
 class ParseMNXref(object):
@@ -55,8 +57,6 @@ class ParseMNXref(object):
                     self.reverse_fix_legacy_id(xref_id)
                     mnxm_bigg_compound_dict[mnxm] = self.biggid
                 elif xref_db == 'kegg':
-#                    mnxm_kegg_compound_dict[mnxm] = xref_id
-
                     # Following conditions give priority to compoundID starting with 'C'
                     if 'D' not in xref_id \
                             and 'E' not in xref_id \
@@ -95,15 +95,14 @@ class ParseMNXref(object):
         f.close()
         self.mnxm_compoundInfo_dict = mnxm_compoundInfo_dict
 
+        return mnxm_compoundInfo_dict
+
 
     def read_reac_xref(self, filename):
 
         mnxr_xref_dict = {}
-
-        # KEGG reaction IDs are unique, whereas MNXR IDs have duplicates.
-        # Therefore, KEGG IDs become keys in this dict data.
-        kegg_mnxr_dict = {}
-        mnxr_kegg_dict = {}
+        mnxr_kegg_dict = {} # 1:n for {key:value}
+        bigg_mnxr_dict = {} # 1:1 for {key:value}
 
         f = open(filename,'r')
         f.readline()
@@ -124,17 +123,14 @@ class ParseMNXref(object):
                     elif mnxr in mnxr_xref_dict:
                         mnxr_xref_dict[mnxr].append(xref_id)
 
-                # For a pickle 'kegg_mnxr_dict' in input2
                 if xref_db == 'kegg':
-                    if xref_id not in kegg_mnxr_dict:
-                        kegg_mnxr_dict[xref_id] = [mnxr]
-                    elif xref_id in kegg_mnxr_dict:
-                        kegg_mnxr_dict[xref_id].append(mnxr)
-
                     if mnxr not in mnxr_kegg_dict:
                         mnxr_kegg_dict[mnxr] = [xref_id]
                     elif mnxr in mnxr_kegg_dict:
                         mnxr_kegg_dict[mnxr].append(xref_id)
+
+                if xref_db == 'bigg':
+                    bigg_mnxr_dict[xref_id] = mnxr
 
                 logging.debug('%s; %s; %s' %(xref_db, xref_id, mnxr))
             except:
@@ -142,8 +138,9 @@ class ParseMNXref(object):
 
         f.close()
         self.mnxr_xref_dict = mnxr_xref_dict
+        self.bigg_mnxr_dict = bigg_mnxr_dict
 
-        return kegg_mnxr_dict, mnxr_kegg_dict
+        return mnxr_kegg_dict, bigg_mnxr_dict
 
 
     def parse_equation(self, equation):
@@ -377,43 +374,42 @@ def run_ParseMNXref():
     mnx_parser = ParseMNXref()
 
     mnx_parser.read_chem_xref(join(mnxref_dir, 'chem_xref.tsv'))
-    mnx_parser.read_chem_prop(join(mnxref_dir, 'chem_prop.tsv'))
-    kegg_mnxr_dict, mnxr_kegg_dict = mnx_parser.read_reac_xref(join(mnxref_dir, 'reac_xref.tsv'))
+    mnxm_compoundInfo_dict = mnx_parser.read_chem_prop(join(mnxref_dir, 'chem_prop.tsv'))
+    mnxr_kegg_dict, bigg_mnxr_dict = mnx_parser.read_reac_xref(join(mnxref_dir, 'reac_xref.tsv'))
     cobra_model = mnx_parser.make_cobra_model(join(mnxref_dir, 'reac_prop.tsv'))
 
     # Write SBML file
     write_sbml_model(cobra_model,
             join(mnxref_dir, 'MNXref.xml'), use_fbc_package=False)
 
-    # Create pickles
-    with open(join(mnxref_dir, 'kegg_mnxr_dict.p'), 'wb') as f:
-        pickle.dump(kegg_mnxr_dict, f, protocol=pickle.HIGHEST_PROTOCOL)
-
-    with open(join(mnxref_dir, 'mnxr_kegg_dict.p'), 'wb') as f:
-        pickle.dump(mnxr_kegg_dict, f, protocol=pickle.HIGHEST_PROTOCOL)
-
-    with open(join(mnxref_dir, 'kegg_mnxr_dict.txt'), 'w') as f:
-        for k, v in kegg_mnxr_dict.iteritems():
-            print >>f, '%s\t%s' %(k, v[0])
+    # Write txt files
+    with open(join(mnxref_dir, 'mnxm_compoundInfo_dict.txt'), 'w') as f:
+        for k, v in mnxm_compoundInfo_dict.iteritems():
+            print >>f, '%s\t%s' %(k, v)
 
     with open(join(mnxref_dir, 'mnxr_kegg_dict.txt'), 'w') as f:
         for k, v in mnxr_kegg_dict.iteritems():
             print >>f, '%s\t%s' %(k, v)
 
-    with open(join(mnxref_dir, 'MNXref.p'), 'wb') as f:
+    with open(join(mnxref_dir, 'bigg_mnxr_dict.txt'), 'w') as f:
+        for k, v in bigg_mnxr_dict.iteritems():
+            print >>f, '%s\t%s' %(k, v)
+
+    # Create pickles in input2
+    with open(join(input2_dir, 'mnxm_compoundInfo_dict.p'), 'wb') as f:
+        pickle.dump(mnxm_compoundInfo_dict, f, protocol=pickle.HIGHEST_PROTOCOL)
+
+    with open(join(input2_dir, 'mnxr_kegg_dict.p'), 'wb') as f:
+        pickle.dump(mnxr_kegg_dict, f, protocol=pickle.HIGHEST_PROTOCOL)
+
+    with open(join(input2_dir, 'bigg_mnxr_dict.p'), 'wb') as f:
+        pickle.dump(bigg_mnxr_dict, f, protocol=pickle.HIGHEST_PROTOCOL)
+
+    with open(join(input2_dir, 'MNXref.p'), 'wb') as f:
         pickle.dump(cobra_model, f, protocol=pickle.HIGHEST_PROTOCOL)
 
     # Copy pickles to the destination
-    shutil.copyfile(join(mnxref_dir, 'kegg_mnxr_dict.p'),
-            join(os.pardir, 'gems', 'io', 'data', 'input2', 'kegg_mnxr_dict.p'))
-
-    shutil.copyfile(join(mnxref_dir, 'mnxr_kegg_dict.p'),
-            join(os.pardir, 'gems', 'io', 'data', 'input2', 'mnxr_kegg_dict.p'))
-
-    shutil.copyfile(join(mnxref_dir, 'MNXref.p'),
-            join(os.pardir, 'gems', 'io', 'data', 'input2', 'MNXref.p'))
-
-    shutil.copyfile(join(mnxref_dir, 'MNXref.p'),
+    shutil.copyfile(join(input2_dir, 'MNXref.p'),
             join(os.pardir, 'gems', 'tests', 'data', 'MNXref.p'))
 
 

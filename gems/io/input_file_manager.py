@@ -42,25 +42,17 @@ def get_pickles_prunPhase(options):
 def get_pickles_augPhase(options):
     logging.info("Loading pickle files necessary for the model augmentation phase..")
 
-    mnxref = pickle.load(open('./gems/io/data/input2/MNXref.p','rb'))
-    options.mnxref = mnxref
-
     bigg_mnxr_dict = pickle.load(open('./gems/io/data/input2/bigg_mnxr_dict.p','rb'))
     options.bigg_mnxr_dict = bigg_mnxr_dict
-    kegg_mnxr_dict = pickle.load(open('./gems/io/data/input2/kegg_mnxr_dict.p','rb'))
-    options.kegg_mnxr_dict = kegg_mnxr_dict
-    mnxr_kegg_dict = pickle.load(open('./gems/io/data/input2/mnxr_kegg_dict.p','rb'))
-    options.mnxr_kegg_dict = mnxr_kegg_dict
-    mnxr_rxn_dict = pickle.load(open('./gems/io/data/input2/mnxr_rxn_dict.p','rb'))
-    options.mnxr_rxn_dict = mnxr_rxn_dict
-
-    bigg_mnxm_compound_dict = pickle.load(open('./gems/io/data/input2/bigg_mnxm_compound_dict.p','rb'))
-    options.bigg_mnxm_compound_dict = bigg_mnxm_compound_dict
-    mnxm_bigg_compound_dict = pickle.load(open('./gems/io/data/input2/mnxm_bigg_compound_dict.p','rb'))
-    options.mnxm_bigg_compound_dict = mnxm_bigg_compound_dict
 
     mnxm_compoundInfo_dict = pickle.load(open('./gems/io/data/input2/mnxm_compoundInfo_dict.p','rb'))
     options.mnxm_compoundInfo_dict = mnxm_compoundInfo_dict
+
+    mnxr_kegg_dict = pickle.load(open('./gems/io/data/input2/mnxr_kegg_dict.p','rb'))
+    options.mnxr_kegg_dict = mnxr_kegg_dict
+
+    mnxref = pickle.load(open('./gems/io/data/input2/MNXref.p','rb'))
+    options.mnxref = mnxref
 
     template_exrxnid_flux_dict = pickle.load(open('%s/tempModel_exrxnid_flux_dict.p' %(options.input1),'rb'))
     options.template_exrxnid_flux_dict = template_exrxnid_flux_dict

@@ -9,7 +9,6 @@ from sec_met_rxn_generation import(
     get_cluster_location,
     get_cluster_info_from_seq_record,
     get_cluster_product,
-    get_cluster_domain,
     get_cluster_monomers,
     get_all_metab_coeff,
     get_pickles,
@@ -37,8 +36,6 @@ def run_sec_met_rxn_generation(cluster_nr, target_model, prod_sec_met_dict,
     get_cluster_product(cluster_nr, options)
 
     if 't1pks' in options.product or 'nrps' in options.product:
-        get_cluster_domain(options)
-
         get_cluster_monomers(options)
 
         get_all_metab_coeff(options)

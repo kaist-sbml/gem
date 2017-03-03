@@ -120,17 +120,18 @@ def get_rxnid_info_dict_from_kegg(options):
     options.rxnid_locusTag_dict = rxnid_locusTag_dict
 
 
-#Output: a list of MNXRs available in the modelPrunedGPR
 def get_mnxr_list_from_modelPrunedGPR(modelPrunedGPR, options):
     modelPrunedGPR_mnxr_list = []
 
     for j in range(len(modelPrunedGPR.reactions)):
-        rxn = modelPrunedGPR.reactions[j].id
-        if rxn in options.bigg_mnxr_dict:
-            if rxn not in modelPrunedGPR_mnxr_list:
-                modelPrunedGPR_mnxr_list.append(options.bigg_mnxr_dict[rxn])
+        biggid = modelPrunedGPR.reactions[j].id
+
+        if biggid in options.bigg_mnxr_dict:
+            mnxr = options.bigg_mnxr_dict[biggid]
+            if mnxr not in modelPrunedGPR_mnxr_list:
+                modelPrunedGPR_mnxr_list.append(mnxr)
         else:
-            logging.debug('BiGG reaction %s not available in MNXref', rxn)
+            logging.debug('BiGG reaction %s NOT in MNXref', biggid)
 
     options.modelPrunedGPR_mnxr_list = modelPrunedGPR_mnxr_list
 
@@ -151,7 +152,6 @@ def get_mnxr_to_add_list(options):
                 else:
                     logging.debug('%s (%s) already in the model', rxnid, mnxr)
 
-    logging.debug(mnxr_to_add_list)
     logging.debug('Number of KEGG reactions to be added: %s', len(mnxr_to_add_list))
     options.mnxr_to_add_list = mnxr_to_add_list
 
@@ -213,7 +213,7 @@ def add_nonBBH_rxn(modelPrunedGPR, options):
         modelPrunedGPR = create_cobra_model_from_sbml_file(
                 "./%s/modelPrunedGPR_%s.xml"
                 %(options.outputfolder5, kegg_id))
-        logging.debug("Number of reactions in model: %s", len(modelPrunedGPR.reactions))
+        logging.debug("Number of reactions in the model: %s", len(modelPrunedGPR.reactions))
 
         #Check model prediction consistency
         target_exrxnid_flux_dict = get_exrxnid_flux(modelPrunedGPR,
