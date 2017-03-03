@@ -34,7 +34,7 @@ class TestPrimary_model:
                 '((( B446_12400 or B446_11440 ) or ( B446_12400 or B446_11440 ) or ( B446_12400 or B446_11440 ) or (SCO1269 and SCO1270)) and (( B446_19415 or B446_19475 ) or ( B446_19415 or B446_19475 )) and (B446_32095 or ( B446_11425 or B446_32095 or B446_23075 ) or ( B446_11425 or B446_23075 )))'
 
 
-    def test_mnxr_to_add_list(self, options):
+    def test_mnxr_to_add_list(self, mnxref, options):
         rxnid_info_dict = {
             'R08926':{
                 'ENZYME': '1.1.1.122',
@@ -44,12 +44,13 @@ class TestPrimary_model:
                 'PATHWAY': 'rn00051 Fructose and mannose metabolism'}
                 }
 
-        kegg_mnxr_dict = {'R08926':'MNXR70727'}
+        mnxr_kegg_dict = {'MNXR70727': ['R08926']}
         modelPrunedGPR_mnxr_list = []
 
         options.rxnid_info_dict = rxnid_info_dict
-        options.kegg_mnxr_dict = kegg_mnxr_dict
+        options.mnxr_kegg_dict = mnxr_kegg_dict
         options.modelPrunedGPR_mnxr_list = modelPrunedGPR_mnxr_list
+        options.mnxref = mnxref
 
         augPhase_utils.get_mnxr_to_add_list(options)
 
@@ -68,7 +69,7 @@ class TestPrimary_model:
                 'NAME': 'L-fucose:NAD+ 1-oxidoreductase',
                 'PATHWAY': 'rn00051 Fructose and mannose metabolism'}
                 }
-        kegg_mnxr_dict = {'R08926':'MNXR70727'}
+        mnxr_kegg_dict = {'MNXR70727': ['R08926']}
         rxnid_locusTag_dict = {'R08926':['STEN_00480']}
         targetGenome_locusTag_prod_dict = {'STEN_00480':'D-threo-aldose 1-dehydrogenase'}
         outputfolder5 = './tmp'
@@ -76,7 +77,7 @@ class TestPrimary_model:
         options.mnxref = mnxref
         options.mnxr_to_add_list = mnxr_to_add_list
         options.rxnid_info_dict = rxnid_info_dict
-        options.kegg_mnxr_dict = kegg_mnxr_dict
+        options.mnxr_kegg_dict = mnxr_kegg_dict
         options.rxnid_locusTag_dict = rxnid_locusTag_dict
         options.targetGenome_locusTag_prod_dict = targetGenome_locusTag_prod_dict
         options.outputfolder5 = outputfolder5
