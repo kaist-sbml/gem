@@ -480,21 +480,7 @@ def get_monomers_nonprod_sec_met(options):
     nonprod_sec_met_metab_list = []
 
     for metab in options.metab_coeff_dict.keys():
-        #Exclude currency metabolites
-        if options.metab_coeff_dict[metab] <0 \
-                and metab != 'atp' \
-                and metab != 'amp' \
-                and metab != 'ppi' \
-                and metab != 'amet' \
-                and metab != 'ahcys' \
-                and metab != 'fmn' \
-                and metab != 'fmnh2' \
-                and metab != 'nadp' \
-                and metab != 'nadph' \
-                and metab != 'h' \
-                and metab != 'h2o' \
-                and metab != 'hco3' \
-                and metab != 'coa':
+        if options.metab_coeff_dict[metab] <0:
             nonprod_sec_met_metab_list.append(metab)
 
     return nonprod_sec_met_metab_list
@@ -505,21 +491,7 @@ def get_monomers_prod_sec_met(options):
     prod_sec_met_metab_list = []
 
     for metab in options.metab_coeff_dict.keys():
-        #Exclude currency metabolites
-        if options.metab_coeff_dict[metab] <0 \
-                and metab != 'atp' \
-                and metab != 'amp' \
-                and metab != 'ppi' \
-                and metab != 'amet' \
-                and metab != 'ahcys' \
-                and metab != 'fmn' \
-                and metab != 'fmnh2' \
-                and metab != 'nadp' \
-                and metab != 'nadph' \
-                and metab != 'h' \
-                and metab != 'h2o' \
-                and metab != 'hco3' \
-                and metab != 'coa':
+        if options.metab_coeff_dict[metab] <0:
             prod_sec_met_metab_list.append(metab)
 
     return prod_sec_met_metab_list

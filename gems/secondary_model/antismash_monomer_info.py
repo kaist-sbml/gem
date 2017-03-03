@@ -1,11 +1,4 @@
 
-#Copyright 2014-2016 BioInformatics Research Center, KAIST
-#Copyright 2014-2016 Novo Nordisk Foundation Center for Biosustainability, DTU
-
-import logging
-from cobra import Metabolite
-
-
 # Metabolite ID priority: bigg > MNXM
 # KEGG IDs are not used in the modeling
 # Abbreviations in antiSMASH gbk file are used if standard IDs are not available
