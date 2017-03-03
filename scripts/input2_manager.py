@@ -55,14 +55,14 @@ class ParseMNXref(object):
                     self.reverse_fix_legacy_id(xref_id)
                     mnxm_bigg_compound_dict[mnxm] = self.biggid
                 elif xref_db == 'kegg':
-                    mnxm_kegg_compound_dict[mnxm] = xref_id
+#                    mnxm_kegg_compound_dict[mnxm] = xref_id
 
                     # Following conditions give priority to compoundID starting with 'C'
-#                    if 'D' not in xref_id \
-#                            and 'E' not in xref_id \
-#                            and 'G' not in xref_id \
-#                            and mnxm not in mnxm_kegg_compound_dict.keys():
-#                        mnxm_kegg_compound_dict[mnxm] = xref_id
+                    if 'D' not in xref_id \
+                            and 'E' not in xref_id \
+                            and 'G' not in xref_id \
+                            and mnxm not in mnxm_kegg_compound_dict.keys():
+                        mnxm_kegg_compound_dict[mnxm] = xref_id
 
                 logging.debug('%s; %s; %s' %(xref_db, xref_id, mnxm))
             except:
