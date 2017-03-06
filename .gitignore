@@ -1,6 +1,7 @@
 # GEMS I/O
 input/
 output/
+kegg_cache/
 
 # Test suite and coverage report
 .cache/
