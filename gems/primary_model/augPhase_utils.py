@@ -2,11 +2,11 @@
 #Copyright 2014-2016 BioInformatics Research Center, KAIST
 #Copyright 2014-2016 Novo Nordisk Foundation Center for Biosustainability, DTU
 
+import cobra
 import copy
 import logging
 import re
 import urllib2
-from cobra.io.sbml import write_cobra_model_to_sbml_file, create_cobra_model_from_sbml_file
 
 
 #Retrieves a list of reaction IDs using their EC numbers from KEGG
@@ -204,10 +204,11 @@ def add_nonBBH_rxn(modelPrunedGPR, options):
         #E.C. number: not available feature in COBRApy
 
         #'add_reaction' requires writing/reloading of the model
-        write_cobra_model_to_sbml_file(modelPrunedGPR,
+        cobra.io.write_sbml_model(modelPrunedGPR,
                 "./%s/modelPrunedGPR_%s.xml"
-                %(options.outputfolder5, kegg_id), use_fbc_package=False)
-        modelPrunedGPR = create_cobra_model_from_sbml_file(
+                %(options.outputfolder5, kegg_id),
+                use_fbc_package=False)
+        modelPrunedGPR = cobra.io.read_sbml_model(
                 "./%s/modelPrunedGPR_%s.xml"
                 %(options.outputfolder5, kegg_id))
         logging.debug("Number of reactions in the model: %s", len(modelPrunedGPR.reactions))
