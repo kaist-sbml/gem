@@ -112,6 +112,13 @@ def main():
 
     logging.basicConfig(format='%(levelname)s: %(message)s', level=log_level)
 
+    if options.debug:
+        logger = logging.getLogger('')
+        fomatter = logging.Formatter('[%(levelname)s|%(filename)s:%(lineno)s] > %(message)s')
+        fh = logging.FileHandler('./gems.log')
+        fh.setFormatter(fomatter)
+        logger.addHandler(fh)
+
     #Warning messages from cobrapy turned off by default
     if not options.warning:
         warnings.filterwarnings("ignore")
