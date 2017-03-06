@@ -65,6 +65,37 @@ def get_rxnInfo_from_rxnid(rxnid, options):
                     'EQUATION':EQUATION, 'ENZYME':ENZYME, 'PATHWAY':PATHWAY}
 
 
+def load_cache(cache_dir, cache_data):
+    try:
+        with open(cache_dir, 'rb') as f:
+            cache_data = pickle.load(f)
+            return cache_data
+    except pickle.UnpicklingError as e:
+        logging.warning("Could not read '%s': %s", cache_dir, e)
+        if '_dict' in cache_data:
+            cache_data = {}
+        elif '_list' in cache_data:
+            cache_data = []
+        return cache_data
+    except IOError as e:
+        logging.warning("Can't open %s in 'rb' mode: %s", cache_dir, e)
+        if '_dict' in cache_data:
+            cache_data = {}
+        elif '_list' in cache_data:
+            cache_data = []
+        return cache_data
+
+
+def create_cache(cache_dir, cache_data):
+    try:
+        with open(cache_dir, 'wb') as f:
+            pickle.dump(cache_data, f, protocol=pickle.HIGHEST_PROTOCOL)
+    except pickle.PicklingError as e:
+        logging.warning("Error in serializing '%s': %s", cache_data, e)
+    except IOError as e:
+        logging.warning("Can't open %s in 'wb' mode: %s", cache_data, e)
+
+
 def get_targetGenome_locusTag_ec_nonBBH_dict(options):
     targetGenome_locusTag_ec_nonBBH_dict = {}
 
@@ -75,11 +106,28 @@ def get_targetGenome_locusTag_ec_nonBBH_dict(options):
     options.targetGenome_locusTag_ec_nonBBH_dict = targetGenome_locusTag_ec_nonBBH_dict
 
 
+def edit_mnxr_kegg_dict(keggid, options):
+    for mnxr in options.mnxr_kegg_dict.keys():
+        # Remove candidate KEGG rxn IDs from consideration
+        if keggid in options.mnxr_kegg_dict[mnxr]:
+            cnt = len(options.mnxr_kegg_dict[mnxr])
+            options.mnxr_kegg_dict[mnxr].remove(keggid)
+            logging.debug('Number of KEGG IDs for %s: %s --> %s',
+                          mnxr, cnt, len(options.mnxr_kegg_dict[mnxr]))
+
+            if len(options.mnxr_kegg_dict[mnxr]) == 0:
+                del options.mnxr_kegg_dict[mnxr]
+                logging.debug('%s removed', mnxr)
+
+
 def get_rxnid_info_dict_from_kegg(options):
     cache_ec_rxn_dict = {}
     cache_rxnid_info_dict = {}
     rxnid_info_dict = {}
     rxnid_locusTag_dict = {}
+
+    cache_dumped_ec_list = []
+    cache_dumped_rxnid_list = []
 
     # Folder for cache files
     primary_model_dir = join(dirname(abspath(__file__)))
@@ -88,26 +136,16 @@ def get_rxnid_info_dict_from_kegg(options):
     if not isdir(kegg_cache_dir):
         os.makedirs(kegg_cache_dir)
 
-    # Access KEGG cache file: cache_ec_rxn_dict
+    # Access KEGG cache files
     cache_ec_rxn_dict_dir = join(kegg_cache_dir, 'cache_ec_rxn_dict.p')
-    try:
-        with open(cache_ec_rxn_dict_dir, 'rb') as f:
-            cache_ec_rxn_dict = pickle.load(f)
-    except pickle.UnpicklingError as e:
-        logging.warning("Could not read '%s': %s", cache_ec_rxn_dict, e)
-    except IOError as e:
-        logging.warning("Can't open %s in 'rb' mode: %s", cache_ec_rxn_dict, e)
-
-    # Access KEGG cache file: cache_rxnid_info_dict
     cache_rxnid_info_dict_dir = join(kegg_cache_dir, 'cache_rxnid_info_dict.p')
-    try:
-        with open(cache_rxnid_info_dict_dir, 'rb') as f:
-            cache_rxnid_info_dict = pickle.load(f)
-    except pickle.UnpicklingError as e:
-        logging.warning("Could not read '%s': %s", cache_rxnid_info_dict, e)
-    except IOError as e:
-        logging.warning("Can't open %s in 'rb' mode: %s", cache_rxnid_info_dict, e)
+    cache_dumped_ec_list_dir = join(kegg_cache_dir, 'cache_dumped_ec_list.p')
+    cache_dumped_rxnid_list_dir = join(kegg_cache_dir, 'cache_dumped_rxnid_list.p')
 
+    cache_ec_rxn_dict = load_cache(cache_ec_rxn_dict_dir, cache_ec_rxn_dict)
+    cache_rxnid_info_dict = load_cache(cache_rxnid_info_dict_dir, cache_rxnid_info_dict)
+    cache_dumped_ec_list = load_cache(cache_dumped_ec_list_dir, cache_dumped_ec_list)
+    cache_dumped_rxnid_list = load_cache(cache_dumped_rxnid_list_dir, cache_dumped_rxnid_list)
 
     for locusTag in options.targetGenome_locusTag_ec_nonBBH_dict.keys():
 	for enzymeEC in options.targetGenome_locusTag_ec_nonBBH_dict[locusTag]:
@@ -121,16 +159,17 @@ def get_rxnid_info_dict_from_kegg(options):
                         rxnid_list = cache_ec_rxn_dict[enzymeEC]
                         logging.debug("EC_number info from a cache file: %s, %s",
                                       locusTag, enzymeEC)
-                    else:
-                        logging.debug('No EC_number info in a cache file: %s, %s',
-                                      locusTag, enzymeEC)
                 else:
-                    rxnid_list = get_rxnid_from_ECNumber(enzymeEC, options)
-                    if rxnid_list:
-                        # Store new info in a cache
-                        cache_ec_rxn_dict[enzymeEC] = rxnid_list
+                    if enzymeEC not in cache_dumped_ec_list:
+                        rxnid_list = get_rxnid_from_ECNumber(enzymeEC, options)
                         logging.debug("EC_number info fetched from KEGG: %s, %s",
-                                      locusTag, enzymeEC)
+                                    locusTag, enzymeEC)
+                        if rxnid_list:
+                            # Store new info in a cache
+                            if enzymeEC not in cache_ec_rxn_dict:
+                                cache_ec_rxn_dict[enzymeEC] = rxnid_list
+                        elif not rxnid_list and enzymeEC not in cache_dumped_ec_list:
+                            cache_dumped_ec_list.append(enzymeEC)
 
                 for rxnid in rxnid_list:
 
@@ -140,58 +179,40 @@ def get_rxnid_info_dict_from_kegg(options):
                         logging.debug('Reaction info from a cache file: %s, %s, %s',
                                       locusTag, enzymeEC, rxnid)
                     else:
-                        rxnid_info = get_rxnInfo_from_rxnid(rxnid, options)
-                        logging.debug('Reaction info fetched from KEGG: %s, %s, %s',
+                        if rxnid not in cache_dumped_rxnid_list:
+                            rxnid_info = get_rxnInfo_from_rxnid(rxnid, options)
+                            logging.debug('Reaction info fetched from KEGG: %s, %s, %s',
                                       locusTag, enzymeEC, rxnid)
 
-                        # Create 'rxnid_info_dict'
-                        if rxnid_info != None:
-                            rxnid_info_dict[rxnid] = rxnid_info
-                            # Store new info in a cache
-                            cache_rxnid_info_dict[rxnid] = rxnid_info
-                        else:
-                            logging.debug('No reaction info available for %s, %s, %s',
+                            # Create 'rxnid_info_dict'
+                            if rxnid_info != None:
+                                rxnid_info_dict[rxnid] = rxnid_info
+                                # Store new info in a cache
+                                if rxnid not in cache_rxnid_info_dict:
+                                    cache_rxnid_info_dict[rxnid] = rxnid_info
+                            else:
+                                logging.debug('No reaction info available for %s, %s, %s',
                                           locusTag, enzymeEC, rxnid)
+                                if rxnid not in cache_dumped_rxnid_list:
+                                    cache_dumped_rxnid_list.append(rxnid)
 
-                            for mnxr in options.mnxr_kegg_dict.keys():
+                                edit_mnxr_kegg_dict(rxnid, options)
+                        else:
+                            edit_mnxr_kegg_dict(rxnid, options)
 
-                                if rxnid in options.mnxr_kegg_dict[mnxr]:
-                                    cnt = len(options.mnxr_kegg_dict[mnxr])
-                                    options.mnxr_kegg_dict[mnxr].remove(rxnid)
-                                    logging.debug('Number of KEGG IDs for %s: %s --> %s',
-                                            mnxr, cnt, len(options.mnxr_kegg_dict[mnxr]))
-
-                                    if len(options.mnxr_kegg_dict[mnxr]) == 0:
-                                        del options.mnxr_kegg_dict[mnxr]
-                                        logging.debug('%s removed', mnxr)
-
-                        # Create 'rxnid_locusTag_dict'
-                        if rxnid not in rxnid_locusTag_dict:
-                            rxnid_locusTag_dict[rxnid] = [locusTag]
-                        elif rxnid in rxnid_locusTag_dict.keys():
-                            rxnid_locusTag_dict[rxnid].append(locusTag)
+                    # Create 'rxnid_locusTag_dict'
+                    if rxnid not in rxnid_locusTag_dict:
+                        rxnid_locusTag_dict[rxnid] = [locusTag]
+                    elif rxnid in rxnid_locusTag_dict.keys():
+                        rxnid_locusTag_dict[rxnid].append(locusTag)
             else:
                 logging.debug("EC_number NOT submitted to KEGG: %s, %s",
                               locusTag, enzymeEC)
 
-    # Write an updated cache file: cache_ec_rxn_dict
-    try:
-        with open(cache_ec_rxn_dict_dir, 'wb') as f:
-            pickle.dump(cache_ec_rxn_dict, f, protocol=pickle.HIGHEST_PROTOCOL)
-    except pickle.PicklingError as e:
-        logging.warning("Error in serializing '%s': %s", cache_ec_rxn_dict, e)
-    except IOError as e:
-        logging.warning("Can't open %s in 'wb' mode: %s", cache_ec_rxn_dict, e)
-
-    # Write an updated cache file: cache_rxnid_info_dict
-    try:
-        with open(cache_rxnid_info_dict_dir, 'wb') as f:
-            pickle.dump(cache_rxnid_info_dict, f, protocol=pickle.HIGHEST_PROTOCOL)
-    except pickle.PicklingError as e:
-        logging.warning("Error in serializing '%s': %s", cache_rxnid_info_dict, e)
-    except IOError as e:
-        logging.warning("Can't open %s in 'wb' mode: %s", cache_rxnid_info_dict, e)
-
+    create_cache(cache_ec_rxn_dict_dir, cache_ec_rxn_dict)
+    create_cache(cache_rxnid_info_dict_dir, cache_rxnid_info_dict)
+    create_cache(cache_dumped_ec_list_dir, cache_dumped_ec_list)
+    create_cache(cache_dumped_rxnid_list_dir, cache_dumped_rxnid_list)
 
     options.rxnid_info_dict = rxnid_info_dict
     options.rxnid_locusTag_dict = rxnid_locusTag_dict
@@ -259,24 +280,25 @@ def add_nonBBH_rxn(modelPrunedGPR, options):
         rxn.name = options.rxnid_info_dict[kegg_id]['NAME']
 
         #GPR association
-        if len(options.rxnid_locusTag_dict[kegg_id]) == 1:
-            gpr = '( %s )' %(options.rxnid_locusTag_dict[kegg_id][0])
-        else:
-            count = 1
-            for locusTag in options.rxnid_locusTag_dict[kegg_id]:
-
-                #Check whether the submitted gbk file contains "/product" for CDS
-                if locusTag in options.targetGenome_locusTag_prod_dict:
-
-                    #Consider "and" relationship in the GPR association
-                    if 'subunit' in options.targetGenome_locusTag_prod_dict[locusTag]:
-                        count += 1
-            if count == len(options.rxnid_locusTag_dict[kegg_id]):
-                gpr = ' and '.join(options.rxnid_locusTag_dict[kegg_id])
+        if kegg_id in options.rxnid_locusTag_dict:
+            if len(options.rxnid_locusTag_dict[kegg_id]) == 1:
+                gpr = '( %s )' %(options.rxnid_locusTag_dict[kegg_id][0])
             else:
-                gpr = ' or '.join(options.rxnid_locusTag_dict[kegg_id])
-            gpr = '( %s )' %(gpr)
-        rxn.gene_reaction_rule = gpr
+                count = 1
+                for locusTag in options.rxnid_locusTag_dict[kegg_id]:
+
+                    #Check whether the submitted gbk file contains "/product" for CDS
+                    if locusTag in options.targetGenome_locusTag_prod_dict:
+
+                        #Consider "and" relationship in the GPR association
+                        if 'subunit' in options.targetGenome_locusTag_prod_dict[locusTag]:
+                            count += 1
+                if count == len(options.rxnid_locusTag_dict[kegg_id]):
+                    gpr = ' and '.join(options.rxnid_locusTag_dict[kegg_id])
+                else:
+                    gpr = ' or '.join(options.rxnid_locusTag_dict[kegg_id])
+                gpr = '( %s )' %(gpr)
+            rxn.gene_reaction_rule = gpr
 
         #Subsystem
         rxn.subsystem = options.rxnid_info_dict[kegg_id]['PATHWAY']
