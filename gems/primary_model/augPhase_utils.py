@@ -4,12 +4,8 @@
 
 import copy
 import logging
-import os
-import pickle
 import re
 import urllib2
-from Bio import SeqIO
-from cobra import Model, Reaction, Metabolite
 from cobra.io.sbml import write_cobra_model_to_sbml_file, create_cobra_model_from_sbml_file
 
 
@@ -77,10 +73,11 @@ def get_targetGenome_locusTag_ec_nonBBH_dict(options):
     options.targetGenome_locusTag_ec_nonBBH_dict = targetGenome_locusTag_ec_nonBBH_dict
 
 
-#Two nested function calling four functions above
 def get_rxnid_info_dict_from_kegg(options):
     rxnid_info_dict = {}
     rxnid_locusTag_dict = {}
+
+    rxnid_info_dictCache = 
 
     for locusTag in options.targetGenome_locusTag_ec_nonBBH_dict.keys():
 	for enzymeEC in options.targetGenome_locusTag_ec_nonBBH_dict[locusTag]:
