@@ -5,9 +5,11 @@
 import cobra
 import copy
 import logging
+import os
+import pickle
 import re
 import urllib2
-
+from os.path import isdir, join, abspath, dirname
 
 #Retrieves a list of reaction IDs using their EC numbers from KEGG
 #Input: E.C number in string form (e.g., 4.1.3.6)
@@ -74,45 +76,123 @@ def get_targetGenome_locusTag_ec_nonBBH_dict(options):
 
 
 def get_rxnid_info_dict_from_kegg(options):
+    cache_ec_rxn_dict = {}
+    cache_rxnid_info_dict = {}
     rxnid_info_dict = {}
     rxnid_locusTag_dict = {}
 
-    rxnid_info_dictCache = 
+    # Folder for cache files
+    primary_model_dir = join(dirname(abspath(__file__)))
+    kegg_cache_dir = join(primary_model_dir, 'kegg_cache')
+
+    if not isdir(kegg_cache_dir):
+        os.makedirs(kegg_cache_dir)
+
+    # Access KEGG cache file: cache_ec_rxn_dict
+    cache_ec_rxn_dict_dir = join(kegg_cache_dir, 'cache_ec_rxn_dict.p')
+    try:
+        with open(cache_ec_rxn_dict_dir, 'rb') as f:
+            cache_ec_rxn_dict = pickle.load(f)
+    except pickle.UnpicklingError as e:
+        logging.warning("Could not read '%s': %s", cache_ec_rxn_dict, e)
+    except IOError as e:
+        logging.warning("Can't open %s in 'rb' mode: %s", cache_ec_rxn_dict, e)
+
+    # Access KEGG cache file: cache_rxnid_info_dict
+    cache_rxnid_info_dict_dir = join(kegg_cache_dir, 'cache_rxnid_info_dict.p')
+    try:
+        with open(cache_rxnid_info_dict_dir, 'rb') as f:
+            cache_rxnid_info_dict = pickle.load(f)
+    except pickle.UnpicklingError as e:
+        logging.warning("Could not read '%s': %s", cache_rxnid_info_dict, e)
+    except IOError as e:
+        logging.warning("Can't open %s in 'rb' mode: %s", cache_rxnid_info_dict, e)
+
 
     for locusTag in options.targetGenome_locusTag_ec_nonBBH_dict.keys():
 	for enzymeEC in options.targetGenome_locusTag_ec_nonBBH_dict[locusTag]:
 
             #KEGG REST does not accept unspecific EC_number: e.g., 3.2.2.-
             if '-' not in enzymeEC:
-                logging.debug("EC_number info fetched from KEGG: %s, %s", locusTag, enzymeEC)
-                rxnid_list = get_rxnid_from_ECNumber(enzymeEC, options)
-                for rxnid in rxnid_list:
-                    rxnid_info = get_rxnInfo_from_rxnid(rxnid, options)
 
-                    # Create 'rxnid_info_dict'
-                    if rxnid_info != None:
-                        rxnid_info_dict[rxnid] = rxnid_info
+                #Check cache file
+                if enzymeEC in cache_ec_rxn_dict:
+                    if cache_ec_rxn_dict[enzymeEC]:
+                        rxnid_list = cache_ec_rxn_dict[enzymeEC]
+                        logging.debug("EC_number info from a cache file: %s, %s",
+                                      locusTag, enzymeEC)
                     else:
-                        logging.debug('No reaction info available for %s, %s, %s', locusTag, enzymeEC, rxnid)
+                        logging.debug('No EC_number info in a cache file: %s, %s',
+                                      locusTag, enzymeEC)
+                else:
+                    rxnid_list = get_rxnid_from_ECNumber(enzymeEC, options)
+                    if rxnid_list:
+                        # Store new info in a cache
+                        cache_ec_rxn_dict[enzymeEC] = rxnid_list
+                        logging.debug("EC_number info fetched from KEGG: %s, %s",
+                                      locusTag, enzymeEC)
 
-                        for mnxr in options.mnxr_kegg_dict.keys():
+                for rxnid in rxnid_list:
 
-                            if rxnid in options.mnxr_kegg_dict[mnxr]:
-                                cnt = len(options.mnxr_kegg_dict[mnxr])
-                                options.mnxr_kegg_dict[mnxr].remove(rxnid)
-                                logging.debug('Number of KEGG IDs for %s: %s --> %s', mnxr, cnt, len(options.mnxr_kegg_dict[mnxr]))
+                    #Check cache file
+                    if rxnid in cache_rxnid_info_dict:
+                        rxnid_info_dict[rxnid] = cache_rxnid_info_dict[rxnid]
+                        logging.debug('Reaction info from a cache file: %s, %s, %s',
+                                      locusTag, enzymeEC, rxnid)
+                    else:
+                        rxnid_info = get_rxnInfo_from_rxnid(rxnid, options)
+                        logging.debug('Reaction info fetched from KEGG: %s, %s, %s',
+                                      locusTag, enzymeEC, rxnid)
 
-                                if len(options.mnxr_kegg_dict[mnxr]) == 0:
-                                    del options.mnxr_kegg_dict[mnxr]
-                                    logging.debug('%s removed', mnxr)
+                        # Create 'rxnid_info_dict'
+                        if rxnid_info != None:
+                            rxnid_info_dict[rxnid] = rxnid_info
+                            # Store new info in a cache
+                            cache_rxnid_info_dict[rxnid] = rxnid_info
+                        else:
+                            logging.debug('No reaction info available for %s, %s, %s',
+                                          locusTag, enzymeEC, rxnid)
 
-                    # Create 'rxnid_locusTag_dict'
-                    if rxnid not in rxnid_locusTag_dict:
-                        rxnid_locusTag_dict[rxnid] = [locusTag]
-                    elif rxnid in rxnid_locusTag_dict.keys():
-                        rxnid_locusTag_dict[rxnid].append(locusTag)
+                            for mnxr in options.mnxr_kegg_dict.keys():
+
+                                if rxnid in options.mnxr_kegg_dict[mnxr]:
+                                    cnt = len(options.mnxr_kegg_dict[mnxr])
+                                    options.mnxr_kegg_dict[mnxr].remove(rxnid)
+                                    logging.debug('Number of KEGG IDs for %s: %s --> %s',
+                                            mnxr, cnt, len(options.mnxr_kegg_dict[mnxr]))
+
+                                    if len(options.mnxr_kegg_dict[mnxr]) == 0:
+                                        del options.mnxr_kegg_dict[mnxr]
+                                        logging.debug('%s removed', mnxr)
+
+                        # Create 'rxnid_locusTag_dict'
+                        if rxnid not in rxnid_locusTag_dict:
+                            rxnid_locusTag_dict[rxnid] = [locusTag]
+                        elif rxnid in rxnid_locusTag_dict.keys():
+                            rxnid_locusTag_dict[rxnid].append(locusTag)
             else:
-                logging.debug("EC_number NOT submitted to KEGG: %s, %s", locusTag, enzymeEC)
+                logging.debug("EC_number NOT submitted to KEGG: %s, %s",
+                              locusTag, enzymeEC)
+
+    # Write an updated cache file: cache_ec_rxn_dict
+    try:
+        with open(cache_ec_rxn_dict_dir, 'wb') as f:
+            pickle.dump(cache_ec_rxn_dict, f, protocol=pickle.HIGHEST_PROTOCOL)
+    except pickle.PicklingError as e:
+        logging.warning("Error in serializing '%s': %s", cache_ec_rxn_dict, e)
+    except IOError as e:
+        logging.warning("Can't open %s in 'wb' mode: %s", cache_ec_rxn_dict, e)
+
+    # Write an updated cache file: cache_rxnid_info_dict
+    try:
+        with open(cache_rxnid_info_dict_dir, 'wb') as f:
+            pickle.dump(cache_rxnid_info_dict, f, protocol=pickle.HIGHEST_PROTOCOL)
+    except pickle.PicklingError as e:
+        logging.warning("Error in serializing '%s': %s", cache_rxnid_info_dict, e)
+    except IOError as e:
+        logging.warning("Can't open %s in 'wb' mode: %s", cache_rxnid_info_dict, e)
+
+
     options.rxnid_info_dict = rxnid_info_dict
     options.rxnid_locusTag_dict = rxnid_locusTag_dict
 
