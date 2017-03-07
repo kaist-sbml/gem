@@ -112,10 +112,15 @@ def main():
 
     logging.basicConfig(format='%(levelname)s: %(message)s', level=log_level)
 
+    if '/' in options.outputfolder:
+        options.outputfolder = options.outputfolder[:-1]
+
     if options.debug:
         logger = logging.getLogger('')
-        fomatter = logging.Formatter('[%(levelname)s|%(filename)s:%(lineno)s] > %(message)s')
-        fh = logging.FileHandler('./gems.log')
+        fomatter = logging.Formatter(
+                '[%(levelname)s|%(filename)s:%(lineno)s] > %(message)s')
+        fh = logging.FileHandler(
+                os.path.join(options.outputfolder, 'gems.log'), mode = 'w')
         fh.setFormatter(fomatter)
         logger.addHandler(fh)
 
@@ -134,9 +139,6 @@ def main():
         #Create output folders
         folders = ['1_EFICAz_results', '2_blastp_results',
                     '3_primary_metabolic_model', '4_complete_model', 'tmp_files']
-
-        if '/' in options.outputfolder:
-            options.outputfolder = options.outputfolder[:-1]
 
         #'1_EFICAz_results'
         options.outputfolder1 = options.outputfolder + os.sep + folders[0]
