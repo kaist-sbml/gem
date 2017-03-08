@@ -68,6 +68,7 @@ def get_rxnInfo_from_rxnid(rxnid, options):
 
 def load_cache(cache_dir, cache_data, options):
 
+    # For regular update of the cache
     time_bomb(cache_dir, options)
 
     try:

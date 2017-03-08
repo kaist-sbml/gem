@@ -3,7 +3,9 @@ import datetime
 import logging
 import os
 
-
+# For regular update of the cache:
+# KEGG updates its EC_number:reaction ID pairs time to time,
+#and old caches can cause an error
 def time_bomb(cache_file, options):
     today = datetime.datetime.today()
     modified_date = datetime.datetime.fromtimestamp(os.path.getmtime(cache_file))
