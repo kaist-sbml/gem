@@ -295,7 +295,7 @@ def add_nonBBH_rxn(modelPrunedGPR, options):
         logging.debug("Reaction to be added: %s; %s", mnxr, kegg_id)
 
         rxn = options.mnxref.reactions.get_by_id(mnxr)
-#        modelPrunedGPR.add_reaction(rxn)
+        modelPrunedGPR.add_reaction(rxn)
 
         #Re-define ID
         rxn.id = kegg_id
@@ -303,11 +303,30 @@ def add_nonBBH_rxn(modelPrunedGPR, options):
         #Re-define Name
         rxn.name = options.rxnid_info_dict[kegg_id]['NAME']
 
+        #'add_reaction' requires writing/reloading of the model
+        cobra.io.write_sbml_model(modelPrunedGPR,
+                "./%s/modelPrunedGPR_%s.xml"
+                %(options.outputfolder5, kegg_id),
+                use_fbc_package=False)
+        modelPrunedGPR = cobra.io.read_sbml_model(
+                "./%s/modelPrunedGPR_%s.xml"
+                %(options.outputfolder5, kegg_id))
+        logging.debug("Number of reactions in the model: %s",
+                len(modelPrunedGPR.reactions))
+
+        rxn = modelPrunedGPR.reactions.get_by_id(kegg_id)
+
+        # NOTE:
+        # Writing the reaction notes (e.g., 'GENE ASSOCIATION' and 'SUBSYSTEM')
+        #seems to be unstable.
+        # The modified reaction notes are missing in resulting SBML file.
+        # This bug appears to happen if the new reaction comes from another SBML file.
+        # Addition of a newly built reaction using Metabolite object does not seem to have
+        #this potential bug.
+
         #GPR association
-        logging.debug('%s\t%s', kegg_id, options.rxnid_locusTag_dict[kegg_id])
         if len(options.rxnid_locusTag_dict[kegg_id]) == 1:
             gpr = '( %s )' %(options.rxnid_locusTag_dict[kegg_id][0])
-            logging.debug('case1: %s', gpr)
         else:
             count = 1
             for locusTag in options.rxnid_locusTag_dict[kegg_id]:
@@ -323,21 +342,12 @@ def add_nonBBH_rxn(modelPrunedGPR, options):
             else:
                 gpr = ' or '.join(options.rxnid_locusTag_dict[kegg_id])
             gpr = '( %s )' %(gpr)
-            logging.debug('case2: %s', gpr)
-        rxn.gene_reaction_rule = gpr
-        logging.debug('rxn.gene_reaction_rule: %s', rxn.gene_reaction_rule)
 
-        #Subsystem
+        rxn.gene_reaction_rule = gpr
+
+        # Subsystem
         rxn.subsystem = options.rxnid_info_dict[kegg_id]['PATHWAY']
 
-        #E.C. number: not available feature in COBRApy
-
-        modelPrunedGPR.add_reaction(rxn)
-        rxn1 = modelPrunedGPR.reactions.get_by_id(rxn.id)
-        logging.debug('rxn1.gene_reaction_rule: %s', rxn1.gene_reaction_rule)
-        logging.debug('rxn1.subsystem: %s', rxn1.subsystem)
-
-        #'add_reaction' requires writing/reloading of the model
         cobra.io.write_sbml_model(modelPrunedGPR,
                 "./%s/modelPrunedGPR_%s.xml"
                 %(options.outputfolder5, kegg_id),
@@ -345,6 +355,8 @@ def add_nonBBH_rxn(modelPrunedGPR, options):
         modelPrunedGPR = cobra.io.read_sbml_model(
                 "./%s/modelPrunedGPR_%s.xml"
                 %(options.outputfolder5, kegg_id))
+        logging.debug("Number of reactions in the model: %s",
+                len(modelPrunedGPR.reactions))
 
         #Check model prediction consistency
         target_exrxnid_flux_dict = get_exrxnid_flux(modelPrunedGPR,
