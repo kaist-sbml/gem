@@ -248,17 +248,25 @@ def get_summary_report(folder, cobra_model, runtime,
 
 def write_data_for_debug(options):
 
-    with open('./%s/temp_target_BBH_dict.txt' %options.outputfolder2,'w') as f1:
+    with open('./%s/temp_target_BBH_dict.txt' %options.outputfolder2,'w') as f:
         for locustag in options.temp_target_BBH_dict.keys():
-            print >> f1, '%s\t%s' %(locustag, options.temp_target_BBH_dict[locustag])
+            print >> f, '%s\t%s' %(locustag, options.temp_target_BBH_dict[locustag])
 
     pickle.dump(options.temp_target_BBH_dict,
             open('./%s/temp_target_BBH_dict.p' %options.outputfolder2,'wb'))
 
-    with open('./%s/mnxr_to_add_list.txt' %options.outputfolder5,'w') as f3:
+    with open('./%s/mnxr_to_add_list.txt' %options.outputfolder5,'w') as f:
         for mnxr in options.mnxr_to_add_list:
-            print >>f3, '%s' %mnxr
+            print >>f, '%s' %mnxr
 
-    with open('./%s/rxnid_info_dict.txt' %options.outputfolder5,'w') as f4:
+    with open('./%s/targetGenome_locusTag_ec_nonBBH_dict.txt' %options.outputfolder5,'w') as f:
+        for rxnid in options.targetGenome_locusTag_ec_nonBBH_dict.keys():
+            print >>f, '%s\t%s' %(rxnid, options.targetGenome_locusTag_ec_nonBBH_dict[rxnid])
+
+    with open('./%s/rxnid_info_dict.txt' %options.outputfolder5,'w') as f:
         for rxnid in options.rxnid_info_dict.keys():
-            print >>f4, '%s' %rxnid
+            print >>f, '%s\t%s' %(rxnid, options.rxnid_info_dict[rxnid])
+
+    with open('./%s/rxnid_locusTag_dict.txt' %options.outputfolder5,'w') as f:
+        for rxnid in options.rxnid_locusTag_dict.keys():
+            print >>f, '%s\t%s' %(rxnid, options.rxnid_locusTag_dict[rxnid])
