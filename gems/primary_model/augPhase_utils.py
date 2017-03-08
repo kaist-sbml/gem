@@ -120,11 +120,22 @@ def edit_mnxr_kegg_dict(keggid, options):
                 logging.debug('%s removed', mnxr)
 
 
+def get_rxnid_locusTag_dict(rxnid, locusTag, options):
+    rxnid_locusTag_dict = {}
+
+    # Create 'rxnid_locusTag_dict'
+    if rxnid not in rxnid_locusTag_dict:
+        rxnid_locusTag_dict[rxnid] = [locusTag]
+    elif rxnid in rxnid_locusTag_dict.keys():
+        rxnid_locusTag_dict[rxnid].append(locusTag)
+
+    options.rxnid_locusTag_dict = rxnid_locusTag_dict
+
+
 def get_rxnid_info_dict_from_kegg(options):
     cache_ec_rxn_dict = {}
     cache_rxnid_info_dict = {}
     rxnid_info_dict = {}
-    rxnid_locusTag_dict = {}
 
     cache_dumped_ec_list = []
     cache_dumped_rxnid_list = []
@@ -199,12 +210,7 @@ def get_rxnid_info_dict_from_kegg(options):
                                 edit_mnxr_kegg_dict(rxnid, options)
                         else:
                             edit_mnxr_kegg_dict(rxnid, options)
-
-                    # Create 'rxnid_locusTag_dict'
-                    if rxnid not in rxnid_locusTag_dict:
-                        rxnid_locusTag_dict[rxnid] = [locusTag]
-                    elif rxnid in rxnid_locusTag_dict.keys():
-                        rxnid_locusTag_dict[rxnid].append(locusTag)
+                    get_rxnid_locusTag_dict(rxnid, locusTag, options)
             else:
                 logging.debug("EC_number NOT submitted to KEGG: %s, %s",
                               locusTag, enzymeEC)
@@ -215,7 +221,6 @@ def get_rxnid_info_dict_from_kegg(options):
     create_cache(cache_dumped_rxnid_list_dir, cache_dumped_rxnid_list)
 
     options.rxnid_info_dict = rxnid_info_dict
-    options.rxnid_locusTag_dict = rxnid_locusTag_dict
 
 
 def get_mnxr_list_from_modelPrunedGPR(modelPrunedGPR, options):
