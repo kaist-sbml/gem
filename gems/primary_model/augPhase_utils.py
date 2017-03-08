@@ -10,6 +10,7 @@ import pickle
 import re
 import urllib2
 from os.path import isdir, join, abspath, dirname
+from gems.util import time_bomb
 
 #Retrieves a list of reaction IDs using their EC numbers from KEGG
 #Input: E.C number in string form (e.g., 4.1.3.6)
@@ -65,7 +66,10 @@ def get_rxnInfo_from_rxnid(rxnid, options):
                     'EQUATION':EQUATION, 'ENZYME':ENZYME, 'PATHWAY':PATHWAY}
 
 
-def load_cache(cache_dir, cache_data):
+def load_cache(cache_dir, cache_data, options):
+
+    time_bomb(cache_dir, options)
+
     try:
         with open(cache_dir, 'rb') as f:
             cache_data = pickle.load(f)
@@ -153,10 +157,14 @@ def get_rxnid_info_dict_from_kegg(options):
     cache_dumped_ec_list_dir = join(kegg_cache_dir, 'cache_dumped_ec_list.p')
     cache_dumped_rxnid_list_dir = join(kegg_cache_dir, 'cache_dumped_rxnid_list.p')
 
-    cache_ec_rxn_dict = load_cache(cache_ec_rxn_dict_dir, cache_ec_rxn_dict)
-    cache_rxnid_info_dict = load_cache(cache_rxnid_info_dict_dir, cache_rxnid_info_dict)
-    cache_dumped_ec_list = load_cache(cache_dumped_ec_list_dir, cache_dumped_ec_list)
-    cache_dumped_rxnid_list = load_cache(cache_dumped_rxnid_list_dir, cache_dumped_rxnid_list)
+    cache_ec_rxn_dict = load_cache(
+            cache_ec_rxn_dict_dir, cache_ec_rxn_dict, options)
+    cache_rxnid_info_dict = load_cache(
+            cache_rxnid_info_dict_dir, cache_rxnid_info_dict, options)
+    cache_dumped_ec_list = load_cache(
+            cache_dumped_ec_list_dir, cache_dumped_ec_list, options)
+    cache_dumped_rxnid_list = load_cache(
+            cache_dumped_rxnid_list_dir, cache_dumped_rxnid_list, options)
 
     for locusTag in options.targetGenome_locusTag_ec_nonBBH_dict.keys():
 	for enzymeEC in options.targetGenome_locusTag_ec_nonBBH_dict[locusTag]:
