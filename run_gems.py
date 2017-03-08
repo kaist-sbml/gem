@@ -103,6 +103,7 @@ def main():
 
     options = parser.parse_args()
 
+    # Set up debugging
     if options.verbose:
         log_level = logging.INFO
     elif options.debug:
@@ -111,18 +112,6 @@ def main():
         log_level = logging.WARNING
 
     logging.basicConfig(format='%(levelname)s: %(message)s', level=log_level)
-
-    if '/' in options.outputfolder:
-        options.outputfolder = options.outputfolder[:-1]
-
-    if options.debug:
-        logger = logging.getLogger('')
-        fomatter = logging.Formatter(
-                '[%(levelname)s|%(filename)s:%(lineno)s] > %(message)s')
-        fh = logging.FileHandler(
-                os.path.join(options.outputfolder, 'gems.log'), mode = 'w')
-        fh.setFormatter(fomatter)
-        logger.addHandler(fh)
 
     #Warning messages from cobrapy turned off by default
     if not options.warning:
@@ -140,6 +129,9 @@ def main():
         folders = ['1_EFICAz_results', '2_blastp_results',
                     '3_primary_metabolic_model', '4_complete_model', 'tmp_files']
 
+        if '/' in options.outputfolder:
+            options.outputfolder = options.outputfolder[:-1]
+
         #'1_EFICAz_results'
         options.outputfolder1 = options.outputfolder + os.sep + folders[0]
         #'2_blastp_results'
@@ -154,6 +146,16 @@ def main():
         for folder in folders:
             if not os.path.isdir(options.outputfolder + os.sep + folder):
                 os.makedirs(options.outputfolder + os.sep + folder)
+
+        # Set up writing debug records
+        if options.debug:
+            logger = logging.getLogger('')
+            fomatter = logging.Formatter(
+                    '[%(levelname)s|%(filename)s:%(lineno)s] > %(message)s')
+            fh = logging.FileHandler(
+                    os.path.join(options.outputfolder, 'gems.log'), mode = 'w')
+            fh.setFormatter(fomatter)
+            logger.addHandler(fh)
 
         get_genome_files(options)
 
