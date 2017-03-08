@@ -33,6 +33,29 @@ class TestPrimary_model:
         assert modelPrunedGPR.reactions.get_by_id('PDH').gene_reaction_rule == \
                 '((( B446_12400 or B446_11440 ) or ( B446_12400 or B446_11440 ) or ( B446_12400 or B446_11440 ) or (SCO1269 and SCO1270)) and (( B446_19415 or B446_19475 ) or ( B446_19415 or B446_19475 )) and (B446_32095 or ( B446_11425 or B446_32095 or B446_23075 ) or ( B446_11425 or B446_23075 )))'
 
+
+    def test_get_rxnid_info_dict_from_kegg(self, options):
+        _cfg_name = 'gems.cfg'
+        load_config(options)
+
+        options.targetGenome_locusTag_ec_nonBBH_dict = {'B446_27575':['2.7.4.9']}
+        augPhase_utils.get_rxnid_info_dict_from_kegg(options)
+        assert 'R02098' in options.rxnid_info_dict
+        assert options.rxnid_info_dict['R02098']['PATHWAY'] == \
+                'rn00240 Pyrimidine metabolism'
+        assert 'R02098' in options.rxnid_locusTag_dict
+        assert 'B446_27575' in options.rxnid_locusTag_dict['R02098']
+
+        options.targetGenome_locusTag_ec_nonBBH_dict = \
+                {'B446_23835':['4.1.1.45', '3.5.2.3']}
+        augPhase_utils.get_rxnid_info_dict_from_kegg(options)
+        assert 'R04323' in options.rxnid_info_dict
+        assert options.rxnid_info_dict['R04323']['NAME'] == \
+                '2-Amino-3-carboxymuconate semialdehyde carboxy-lyase'
+        assert 'R04323' in options.rxnid_locusTag_dict
+        assert 'B446_23835' in options.rxnid_locusTag_dict['R04323']
+
+
     def test_get_mnxr_list_from_modelPrunedGPR(self, sco_tmp_model, options):
         bigg_mnxr_dict = {'MCOATA':'MNXR35619'}
         options.bigg_mnxr_dict = bigg_mnxr_dict
@@ -43,7 +66,7 @@ class TestPrimary_model:
 
 
     def test_mnxr_to_add_list(self, mnxref, options):
-        rxnid_info_dict = {
+        options.rxnid_info_dict = {
             'R08926':{
                 'ENZYME': '1.1.1.122',
                 'DEFINITION': '6-Deoxy-L-galactose + NAD+ <=> L-Fucono-1,5-lactone + NADH + H+',
@@ -52,12 +75,8 @@ class TestPrimary_model:
                 'PATHWAY': 'rn00051 Fructose and mannose metabolism'}
                 }
 
-        mnxr_kegg_dict = {'MNXR70727': ['R08926']}
-        modelPrunedGPR_mnxr_list = []
-
-        options.rxnid_info_dict = rxnid_info_dict
-        options.mnxr_kegg_dict = mnxr_kegg_dict
-        options.modelPrunedGPR_mnxr_list = modelPrunedGPR_mnxr_list
+        options.mnxr_kegg_dict = {'MNXR70727': ['R08926']}
+        options.modelPrunedGPR_mnxr_list = []
         options.mnxref = mnxref
 
         augPhase_utils.get_mnxr_to_add_list(options)
@@ -68,8 +87,8 @@ class TestPrimary_model:
     # Focus on metabolite addition in this test
     # New metabolites: 'MNXM16902' and 'fuc_DASH_L'
     def test_add_nonBBH_rxn(self, sco_tmp_model, mnxref, tmpdir, sco_tmp_model_flux, options):
-        mnxr_to_add_list = ['MNXR70727']
-        rxnid_info_dict = {
+        options.mnxr_to_add_list = ['MNXR70727']
+        options.rxnid_info_dict = {
             'R08926':{
                 'ENZYME': '1.1.1.122',
                 'DEFINITION': '6-Deoxy-L-galactose + NAD+ <=> L-Fucono-1,5-lactone + NADH + H+',
@@ -77,17 +96,11 @@ class TestPrimary_model:
                 'NAME': 'L-fucose:NAD+ 1-oxidoreductase',
                 'PATHWAY': 'rn00051 Fructose and mannose metabolism'}
                 }
-        mnxr_kegg_dict = {'MNXR70727': ['R08926']}
-        rxnid_locusTag_dict = {'R08926':['STEN_00480']}
-        targetGenome_locusTag_prod_dict = {'STEN_00480':'D-threo-aldose 1-dehydrogenase'}
+        options.mnxr_kegg_dict = {'MNXR70727': ['R08926']}
+        options.rxnid_locusTag_dict = {'R08926':['STEN_00480']}
+        options.targetGenome_locusTag_prod_dict = {'STEN_00480':'D-threo-aldose 1-dehydrogenase'}
         outputfolder5 = './tmp'
-
         options.mnxref = mnxref
-        options.mnxr_to_add_list = mnxr_to_add_list
-        options.rxnid_info_dict = rxnid_info_dict
-        options.mnxr_kegg_dict = mnxr_kegg_dict
-        options.rxnid_locusTag_dict = rxnid_locusTag_dict
-        options.targetGenome_locusTag_prod_dict = targetGenome_locusTag_prod_dict
         options.outputfolder5 = outputfolder5
         options.template_exrxnid_flux_dict = sco_tmp_model_flux
 
