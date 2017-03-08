@@ -33,6 +33,14 @@ class TestPrimary_model:
         assert modelPrunedGPR.reactions.get_by_id('PDH').gene_reaction_rule == \
                 '((( B446_12400 or B446_11440 ) or ( B446_12400 or B446_11440 ) or ( B446_12400 or B446_11440 ) or (SCO1269 and SCO1270)) and (( B446_19415 or B446_19475 ) or ( B446_19415 or B446_19475 )) and (B446_32095 or ( B446_11425 or B446_32095 or B446_23075 ) or ( B446_11425 or B446_23075 )))'
 
+    def test_get_mnxr_list_from_modelPrunedGPR(self, sco_tmp_model, options):
+        bigg_mnxr_dict = {'MCOATA':'MNXR35619'}
+        options.bigg_mnxr_dict = bigg_mnxr_dict
+
+        augPhase_utils.get_mnxr_list_from_modelPrunedGPR(sco_tmp_model, options)
+
+        assert 'MNXR35619' in options.modelPrunedGPR_mnxr_list
+
 
     def test_mnxr_to_add_list(self, mnxref, options):
         rxnid_info_dict = {
