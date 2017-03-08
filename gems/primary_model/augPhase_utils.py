@@ -68,22 +68,30 @@ def get_rxnInfo_from_rxnid(rxnid, options):
 
 def load_cache(cache_dir, cache_data, options):
 
-    # For regular update of the cache
-    time_bomb(cache_dir, options)
+    if os.path.isfile(cache_dir):
+        # For regular update of the cache
+        time_bomb(cache_dir, options)
 
-    try:
-        with open(cache_dir, 'rb') as f:
-            cache_data = pickle.load(f)
+        try:
+            with open(cache_dir, 'rb') as f:
+                cache_data = pickle.load(f)
+                return cache_data
+        except pickle.UnpicklingError as e:
+            logging.warning("Could not read '%s': %s", cache_dir, e)
+            if '_dict' in cache_data:
+                cache_data = {}
+            elif '_list' in cache_data:
+                cache_data = []
             return cache_data
-    except pickle.UnpicklingError as e:
-        logging.warning("Could not read '%s': %s", cache_dir, e)
-        if '_dict' in cache_data:
-            cache_data = {}
-        elif '_list' in cache_data:
-            cache_data = []
-        return cache_data
-    except IOError as e:
-        logging.warning("Can't open %s in 'rb' mode: %s", cache_dir, e)
+        except IOError as e:
+            logging.warning("Can't open %s in 'rb' mode: %s", cache_dir, e)
+            if '_dict' in cache_data:
+                cache_data = {}
+            elif '_list' in cache_data:
+                cache_data = []
+            return cache_data
+    else:
+        logging.debug('No cache exists: %s', cache_dir)
         if '_dict' in cache_data:
             cache_data = {}
         elif '_list' in cache_data:
@@ -125,8 +133,7 @@ def edit_mnxr_kegg_dict(keggid, options):
                 logging.debug('%s removed', mnxr)
 
 
-def get_rxnid_locusTag_dict(rxnid, locusTag, options):
-    rxnid_locusTag_dict = {}
+def get_rxnid_locusTag_dict(rxnid_locusTag_dict, rxnid, locusTag):
 
     # Create 'rxnid_locusTag_dict'
     if rxnid not in rxnid_locusTag_dict:
@@ -134,13 +141,14 @@ def get_rxnid_locusTag_dict(rxnid, locusTag, options):
     elif rxnid in rxnid_locusTag_dict.keys():
         rxnid_locusTag_dict[rxnid].append(locusTag)
 
-    options.rxnid_locusTag_dict = rxnid_locusTag_dict
+    return rxnid_locusTag_dict
 
 
 def get_rxnid_info_dict_from_kegg(options):
     cache_ec_rxn_dict = {}
     cache_rxnid_info_dict = {}
     rxnid_info_dict = {}
+    rxnid_locusTag_dict = {}
 
     cache_dumped_ec_list = []
     cache_dumped_rxnid_list = []
@@ -219,7 +227,8 @@ def get_rxnid_info_dict_from_kegg(options):
                                 edit_mnxr_kegg_dict(rxnid, options)
                         else:
                             edit_mnxr_kegg_dict(rxnid, options)
-                    get_rxnid_locusTag_dict(rxnid, locusTag, options)
+                    rxnid_locusTag_dict = get_rxnid_locusTag_dict(
+                            rxnid_locusTag_dict, rxnid, locusTag)
             else:
                 logging.debug("EC_number NOT submitted to KEGG: %s, %s",
                               locusTag, enzymeEC)
@@ -230,6 +239,7 @@ def get_rxnid_info_dict_from_kegg(options):
     create_cache(cache_dumped_rxnid_list_dir, cache_dumped_rxnid_list)
 
     options.rxnid_info_dict = rxnid_info_dict
+    options.rxnid_locusTag_dict = rxnid_locusTag_dict
 
 
 def get_mnxr_list_from_modelPrunedGPR(modelPrunedGPR, options):
@@ -285,7 +295,7 @@ def add_nonBBH_rxn(modelPrunedGPR, options):
         logging.debug("Reaction to be added: %s; %s", mnxr, kegg_id)
 
         rxn = options.mnxref.reactions.get_by_id(mnxr)
-        modelPrunedGPR.add_reaction(rxn)
+#        modelPrunedGPR.add_reaction(rxn)
 
         #Re-define ID
         rxn.id = kegg_id
@@ -294,30 +304,38 @@ def add_nonBBH_rxn(modelPrunedGPR, options):
         rxn.name = options.rxnid_info_dict[kegg_id]['NAME']
 
         #GPR association
-        if kegg_id in options.rxnid_locusTag_dict:
-            if len(options.rxnid_locusTag_dict[kegg_id]) == 1:
-                gpr = '( %s )' %(options.rxnid_locusTag_dict[kegg_id][0])
+        logging.debug('%s\t%s', kegg_id, options.rxnid_locusTag_dict[kegg_id])
+        if len(options.rxnid_locusTag_dict[kegg_id]) == 1:
+            gpr = '( %s )' %(options.rxnid_locusTag_dict[kegg_id][0])
+            logging.debug('case1: %s', gpr)
+        else:
+            count = 1
+            for locusTag in options.rxnid_locusTag_dict[kegg_id]:
+
+                #Check whether the submitted gbk file contains "/product" for CDS
+                if locusTag in options.targetGenome_locusTag_prod_dict:
+
+                    #Consider "and" relationship in the GPR association
+                    if 'subunit' in options.targetGenome_locusTag_prod_dict[locusTag]:
+                        count += 1
+            if count == len(options.rxnid_locusTag_dict[kegg_id]):
+                gpr = ' and '.join(options.rxnid_locusTag_dict[kegg_id])
             else:
-                count = 1
-                for locusTag in options.rxnid_locusTag_dict[kegg_id]:
-
-                    #Check whether the submitted gbk file contains "/product" for CDS
-                    if locusTag in options.targetGenome_locusTag_prod_dict:
-
-                        #Consider "and" relationship in the GPR association
-                        if 'subunit' in options.targetGenome_locusTag_prod_dict[locusTag]:
-                            count += 1
-                if count == len(options.rxnid_locusTag_dict[kegg_id]):
-                    gpr = ' and '.join(options.rxnid_locusTag_dict[kegg_id])
-                else:
-                    gpr = ' or '.join(options.rxnid_locusTag_dict[kegg_id])
-                gpr = '( %s )' %(gpr)
-            rxn.gene_reaction_rule = gpr
+                gpr = ' or '.join(options.rxnid_locusTag_dict[kegg_id])
+            gpr = '( %s )' %(gpr)
+            logging.debug('case2: %s', gpr)
+        rxn.gene_reaction_rule = gpr
+        logging.debug('rxn.gene_reaction_rule: %s', rxn.gene_reaction_rule)
 
         #Subsystem
         rxn.subsystem = options.rxnid_info_dict[kegg_id]['PATHWAY']
 
         #E.C. number: not available feature in COBRApy
+
+        modelPrunedGPR.add_reaction(rxn)
+        rxn1 = modelPrunedGPR.reactions.get_by_id(rxn.id)
+        logging.debug('rxn1.gene_reaction_rule: %s', rxn1.gene_reaction_rule)
+        logging.debug('rxn1.subsystem: %s', rxn1.subsystem)
 
         #'add_reaction' requires writing/reloading of the model
         cobra.io.write_sbml_model(modelPrunedGPR,
@@ -327,7 +345,6 @@ def add_nonBBH_rxn(modelPrunedGPR, options):
         modelPrunedGPR = cobra.io.read_sbml_model(
                 "./%s/modelPrunedGPR_%s.xml"
                 %(options.outputfolder5, kegg_id))
-        logging.debug("Number of reactions in the model: %s", len(modelPrunedGPR.reactions))
 
         #Check model prediction consistency
         target_exrxnid_flux_dict = get_exrxnid_flux(modelPrunedGPR,
