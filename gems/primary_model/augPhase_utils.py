@@ -10,7 +10,7 @@ import pickle
 import re
 import urllib2
 from os.path import isdir, join, abspath, dirname
-from gems.util import time_bomb
+from gems.util import time_bomb, stabilize_model
 
 #Retrieves a list of reaction IDs using their EC numbers from KEGG
 #Input: E.C number in string form (e.g., 4.1.3.6)
@@ -304,15 +304,7 @@ def add_nonBBH_rxn(modelPrunedGPR, options):
         rxn.name = options.rxnid_info_dict[kegg_id]['NAME']
 
         #'add_reaction' requires writing/reloading of the model
-        cobra.io.write_sbml_model(modelPrunedGPR,
-                "./%s/modelPrunedGPR_%s.xml"
-                %(options.outputfolder5, kegg_id),
-                use_fbc_package=False)
-        modelPrunedGPR = cobra.io.read_sbml_model(
-                "./%s/modelPrunedGPR_%s.xml"
-                %(options.outputfolder5, kegg_id))
-        logging.debug("Number of reactions in the model: %s",
-                len(modelPrunedGPR.reactions))
+        modelPrunedGPR = stabilize_model(modelPrunedGPR, kegg_id, options)
 
         rxn = modelPrunedGPR.reactions.get_by_id(kegg_id)
 
@@ -348,13 +340,8 @@ def add_nonBBH_rxn(modelPrunedGPR, options):
         # Subsystem
         rxn.subsystem = options.rxnid_info_dict[kegg_id]['PATHWAY']
 
-        cobra.io.write_sbml_model(modelPrunedGPR,
-                "./%s/modelPrunedGPR_%s.xml"
-                %(options.outputfolder5, kegg_id),
-                use_fbc_package=False)
-        modelPrunedGPR = cobra.io.read_sbml_model(
-                "./%s/modelPrunedGPR_%s.xml"
-                %(options.outputfolder5, kegg_id))
+        modelPrunedGPR = stabilize_model(modelPrunedGPR, kegg_id, options)
+
         logging.debug("Number of reactions in the model: %s",
                 len(modelPrunedGPR.reactions))
 
