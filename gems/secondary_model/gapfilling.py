@@ -4,14 +4,8 @@
 
 import copy
 import logging
-from cobra import Model, Reaction, Metabolite
-from cobra.io.sbml import(
-    create_cobra_model_from_sbml_file,
-    write_cobra_model_to_sbml_file)
-from ..primary_model.augPhase_utils import(
-    get_exrxnid_flux,
-    check_exrxn_flux_direction)
-
+from cobra import Reaction, Metabolite
+from gems import utils
 
 def get_unique_nonprod_monomers_list(options):
 
@@ -70,12 +64,7 @@ def add_transport_exchange_rxn_nonprod_monomer(target_model, nonprod_monomer, op
     target_model_temp.add_reaction(rxn)
 
     #Model reloading and overwrtting are necessary for model stability
-    write_cobra_model_to_sbml_file(target_model_temp,
-            '%s/target_model_temp_%s.xml'
-            %(options.outputfolder5, nonprod_monomer), use_fbc_package=False)
-    target_model_temp = create_cobra_model_from_sbml_file(
-            '%s/target_model_temp_%s.xml'
-            %(options.outputfolder5, nonprod_monomer))
+    utils.stabilize_model(target_model_temp, target_model_temp, options)
 
     return target_model_temp
 
@@ -106,16 +95,11 @@ def check_gapfill_rxn_biomass_effects(target_model, universal_model,
         target_model_gapFilled.add_reaction(
                 universal_model.reactions.get_by_id(gapfill_rxn))
 
-        write_cobra_model_to_sbml_file(target_model_gapFilled,
-                "./%s/target_model_gapFilled.xml"
-                %options.outputfolder5, use_fbc_package=False)
-        target_model_gapFilled = create_cobra_model_from_sbml_file(
-                "./%s/target_model_gapFilled.xml"
-                %options.outputfolder5)
+        utils.stabilize_model(target_model_gapFilled, '', options)
 
-        target_exrxnid_flux_dict = get_exrxnid_flux(
+        target_exrxnid_flux_dict = utils.get_exrxnid_flux(
                 target_model_gapFilled, options.template_exrxnid_flux_dict)
-        exrxn_flux_change_list = check_exrxn_flux_direction(
+        exrxn_flux_change_list = utils.check_exrxn_flux_direction(
                 options.template_exrxnid_flux_dict, target_exrxnid_flux_dict)
 
         #Remove gap-filling reactions
@@ -126,12 +110,8 @@ def check_gapfill_rxn_biomass_effects(target_model, universal_model,
         if 'F' in exrxn_flux_change_list:
             target_model_gapFilled.remove_reactions(
                     universal_model.reactions.get_by_id(gapfill_rxn))
-            write_cobra_model_to_sbml_file(target_model_gapFilled,
-                    "./%s/target_model_gapFilled.xml"
-                    %options.outputfolder5, use_fbc_package=False)
-            target_model_gapFilled = create_cobra_model_from_sbml_file(
-                    "./%s/target_model_gapFilled.xml"
-                    %options.outputfolder5)
+
+            utils.stabilize_model(target_model_gapFilled, '', options)
 
             logging.debug("Gap-filling reaction causing wrong fluxes: %s"
                             %str(gapfill_rxn))

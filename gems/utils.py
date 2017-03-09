@@ -110,3 +110,43 @@ def stabilize_model(model, label, options):
                 join('%s' %options.outputfolder5, 'model_%s.xml' %label)
                 )
     return model
+
+
+#Output: a dictionary file for major Exchange reactions {Exchange reaction ID:flux value}
+def get_exrxnid_flux(model, template_exrxnid_flux_dict):
+
+    target_exrxnid_flux_dict = {}
+    model.optimize()
+
+    for exrxn_id in template_exrxnid_flux_dict.keys():
+        if exrxn_id in model.solution.x_dict:
+            target_exrxnid_flux_dict[exrxn_id] = model.solution.x_dict[exrxn_id]
+        else:
+            continue
+    return target_exrxnid_flux_dict
+
+
+#Output: a list file having either T or F for major Exchange reactions
+def check_exrxn_flux_direction(
+        template_exrxnid_flux_dict, target_exrxnid_flux_dict, options):
+
+    exrxn_flux_change_list = []
+
+    for exrxn_id in template_exrxnid_flux_dict.keys():
+        if exrxn_id in target_exrxnid_flux_dict.keys():
+            template_exrxn_flux = template_exrxnid_flux_dict[exrxn_id]
+            target_exrxn_flux = target_exrxnid_flux_dict[exrxn_id]
+            ratio_exrxn_flux = float(target_exrxn_flux)/float(template_exrxn_flux)
+
+            #Similar species are allowed to uptake nutrients within a decent range
+            if float(target_exrxn_flux)*float(template_exrxn_flux) > float(options.cobrapy.non_zero_flux_cutoff) \
+                    and float(options.cobrapy.nutrient_uptake_rate) < ratio_exrxn_flux \
+                    and ratio_exrxn_flux < float(options.cobrapy.nutrient_uptake_rate):
+                exrxn_flux_change_list.append('T')
+
+            #Cause drastic changes in Exchange reaction fluxes
+            #(direction and/or magnitude)
+            else:
+                exrxn_flux_change_list.append('F')
+
+    return exrxn_flux_change_list

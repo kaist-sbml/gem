@@ -7,7 +7,7 @@ import os
 import pickle
 from antismash_monomer_info import get_std_id_from_antismash_id
 from cobra import Reaction, Metabolite
-from gems.utils import stabilize_model
+from gems import utils
 
 def get_cluster_location(cluster_nr, options):
 
@@ -375,7 +375,7 @@ def check_producibility_sec_met(target_model, options):
 
     #Model reloading and overwrtting are necessary for model stability
     #Without these, model does not produce an accurate prediction
-    target_model = stabilize_model(target_model, options.product, options)
+    target_model = utils.stabilize_model(target_model, options.product, options)
 
     target_model.optimize()
     logging.debug("Flux: %s" %target_model.solution.f)

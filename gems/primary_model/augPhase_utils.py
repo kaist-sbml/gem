@@ -10,7 +10,7 @@ import pickle
 import re
 import urllib2
 from os.path import isdir, join, abspath, dirname
-from gems.utils import time_bomb, stabilize_model
+from gems import utils
 
 #Retrieves a list of reaction IDs using their EC numbers from KEGG
 #Input: E.C number in string form (e.g., 4.1.3.6)
@@ -70,7 +70,7 @@ def load_cache(cache_dir, cache_data, options):
 
     if os.path.isfile(cache_dir):
         # For regular update of the cache
-        time_bomb(cache_dir, options)
+        utils.time_bomb(cache_dir, options)
 
         try:
             with open(cache_dir, 'rb') as f:
@@ -304,7 +304,7 @@ def add_nonBBH_rxn(modelPrunedGPR, options):
         rxn.name = options.rxnid_info_dict[kegg_id]['NAME']
 
         #'add_reaction' requires writing/reloading of the model
-        modelPrunedGPR = stabilize_model(modelPrunedGPR, kegg_id, options)
+        modelPrunedGPR = utils.stabilize_model(modelPrunedGPR, kegg_id, options)
 
         rxn = modelPrunedGPR.reactions.get_by_id(kegg_id)
 
@@ -340,15 +340,15 @@ def add_nonBBH_rxn(modelPrunedGPR, options):
         # Subsystem
         rxn.subsystem = options.rxnid_info_dict[kegg_id]['PATHWAY']
 
-        modelPrunedGPR = stabilize_model(modelPrunedGPR, kegg_id, options)
+        modelPrunedGPR = utils.stabilize_model(modelPrunedGPR, kegg_id, options)
 
         logging.debug("Number of reactions in the model: %s",
                 len(modelPrunedGPR.reactions))
 
         #Check model prediction consistency
-        target_exrxnid_flux_dict = get_exrxnid_flux(modelPrunedGPR,
+        target_exrxnid_flux_dict = utils.get_exrxnid_flux(modelPrunedGPR,
                 options.template_exrxnid_flux_dict)
-        exrxn_flux_change_list = check_exrxn_flux_direction(
+        exrxn_flux_change_list = utils.check_exrxn_flux_direction(
                 options.template_exrxnid_flux_dict,
                 target_exrxnid_flux_dict, options)
 
@@ -360,42 +360,3 @@ def add_nonBBH_rxn(modelPrunedGPR, options):
     target_model = copy.deepcopy(modelPrunedGPR)
     return target_model
 
-
-#Output: a dictionary file for major Exchange reactions {Exchange reaction ID:flux value}
-def get_exrxnid_flux(model, template_exrxnid_flux_dict):
-
-    target_exrxnid_flux_dict = {}
-    model.optimize()
-
-    for exrxn_id in template_exrxnid_flux_dict.keys():
-        if exrxn_id in model.solution.x_dict:
-            target_exrxnid_flux_dict[exrxn_id] = model.solution.x_dict[exrxn_id]
-        else:
-            continue
-    return target_exrxnid_flux_dict
-
-
-#Output: a list file having either T or F for major Exchange reactions
-def check_exrxn_flux_direction(
-        template_exrxnid_flux_dict, target_exrxnid_flux_dict, options):
-
-    exrxn_flux_change_list = []
-
-    for exrxn_id in template_exrxnid_flux_dict.keys():
-        if exrxn_id in target_exrxnid_flux_dict.keys():
-            template_exrxn_flux = template_exrxnid_flux_dict[exrxn_id]
-            target_exrxn_flux = target_exrxnid_flux_dict[exrxn_id]
-            ratio_exrxn_flux = float(target_exrxn_flux)/float(template_exrxn_flux)
-
-            #Similar species are allowed to uptake nutrients within a decent range
-            if float(target_exrxn_flux)*float(template_exrxn_flux) > float(options.cobrapy.non_zero_flux_cutoff) \
-                    and float(options.cobrapy.nutrient_uptake_rate) < ratio_exrxn_flux \
-                    and ratio_exrxn_flux < float(options.cobrapy.nutrient_uptake_rate):
-                exrxn_flux_change_list.append('T')
-
-            #Cause drastic changes in Exchange reaction fluxes
-            #(direction and/or magnitude)
-            else:
-                exrxn_flux_change_list.append('F')
-
-    return exrxn_flux_change_list
