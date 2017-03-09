@@ -5,11 +5,9 @@
 import logging
 import os
 import pickle
-from Bio import SeqIO
-from cobra import Model, Reaction, Metabolite
-from cobra.io.sbml import create_cobra_model_from_sbml_file, write_cobra_model_to_sbml_file
 from antismash_monomer_info import get_std_id_from_antismash_id
-
+from cobra import Reaction, Metabolite
+from gems.util import stabilize_model
 
 def get_cluster_location(cluster_nr, options):
 
@@ -377,12 +375,7 @@ def check_producibility_sec_met(target_model, options):
 
     #Model reloading and overwrtting are necessary for model stability
     #Without these, model does not produce an accurate prediction
-    write_cobra_model_to_sbml_file(target_model,
-            options.outputfolder5 + os.sep + 'target_model_%s.xml'
-            %options.product, use_fbc_package=False)
-    target_model = create_cobra_model_from_sbml_file(
-            options.outputfolder5 + os.sep + 'target_model_%s.xml'
-            %options.product)
+    target_model = stabilize_model(target_model, options.product, options)
 
     target_model.optimize()
     logging.debug("Flux: %s" %target_model.solution.f)
