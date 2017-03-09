@@ -101,14 +101,16 @@ def time_bomb(cache_file, options):
 
 
 #'add_reaction' requires writing/reloading of the model
-def stabilize_model(model, label, options):
-    cobra.io.write_sbml_model(
-                model,
-                join('%s' %options.outputfolder5, 'model_%s.xml' %label),
-                use_fbc_package=False)
-    model = cobra.io.read_sbml_model(
-                join('%s' %options.outputfolder5, 'model_%s.xml' %label)
-                )
+def stabilize_model(model, folder, label):
+
+    if label:
+        model_name = 'model_%s.xml' %label
+    else:
+        model_name = 'model.xml'
+
+    cobra.io.write_sbml_model(model, join('%s' %folder, model_name), use_fbc_package=False)
+    model = cobra.io.read_sbml_model(join('%s' %folder, model_name))
+
     return model
 
 

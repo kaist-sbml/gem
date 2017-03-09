@@ -375,7 +375,8 @@ def check_producibility_sec_met(target_model, options):
 
     #Model reloading and overwrtting are necessary for model stability
     #Without these, model does not produce an accurate prediction
-    target_model = utils.stabilize_model(target_model, options.product, options)
+    target_model = utils.stabilize_model(
+            target_model, options.outputfolder5, options.product)
 
     target_model.optimize()
     logging.debug("Flux: %s" %target_model.solution.f)

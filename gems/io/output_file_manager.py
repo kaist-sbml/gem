@@ -2,12 +2,12 @@
 #Copyright 2014-2016 BioInformatics Research Center, KAIST
 #Copyright 2014-2016 Novo Nordisk Foundation Center for Biosustainability, DTU
 
+import cobra
 import collections
 import logging
 import pickle
 import re
-from cobra.io.sbml import write_cobra_model_to_sbml_file, create_cobra_model_from_sbml_file
-
+from gems import utils
 
 def generate_outputs(folder, runtime, options, **kwargs):
 
@@ -17,12 +17,13 @@ def generate_outputs(folder, runtime, options, **kwargs):
     #Model reloading and overwrtting are necessary for model consistency:
     #e.g., metabolite IDs with correct compartment suffices & accurate model stats
     #This can also mask the effects of model error (e.g., undeclared metabolite ID)
-    write_cobra_model_to_sbml_file(cobra_model,
-            './%s/model.xml' %folder, use_fbc_package=False)
-    cobra_model = create_cobra_model_from_sbml_file(
-            './%s/model.xml' %folder)
-    write_cobra_model_to_sbml_file(cobra_model,
-            './%s/model.xml' %folder, use_fbc_package=False)
+    cobra_model = utils.stabilize_model(cobra_model, folder, '')
+#    cobra.io.write_sbml_model(cobra_model,
+#            './%s/model.xml' %folder, use_fbc_package=False)
+#    cobra_model = create_cobra_model_from_sbml_file(
+#            './%s/model.xml' %folder)
+#    write_cobra_model_to_sbml_file(cobra_model,
+#            './%s/model.xml' %folder, use_fbc_package=False)
 
     num_essen_rxn, num_kegg_rxn, num_cluster_rxn = get_model_reactions(
                        folder, options, **kwargs)
@@ -251,9 +252,6 @@ def write_data_for_debug(options):
     with open('./%s/temp_target_BBH_dict.txt' %options.outputfolder2,'w') as f:
         for locustag in options.temp_target_BBH_dict.keys():
             print >> f, '%s\t%s' %(locustag, options.temp_target_BBH_dict[locustag])
-
-    pickle.dump(options.temp_target_BBH_dict,
-            open('./%s/temp_target_BBH_dict.p' %options.outputfolder2,'wb'))
 
     with open('./%s/mnxr_to_add_list.txt' %options.outputfolder5,'w') as f:
         for mnxr in options.mnxr_to_add_list:

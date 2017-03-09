@@ -304,7 +304,8 @@ def add_nonBBH_rxn(modelPrunedGPR, options):
         rxn.name = options.rxnid_info_dict[kegg_id]['NAME']
 
         #'add_reaction' requires writing/reloading of the model
-        modelPrunedGPR = utils.stabilize_model(modelPrunedGPR, kegg_id, options)
+        modelPrunedGPR = utils.stabilize_model(
+                modelPrunedGPR, options.outputfolder5, kegg_id)
 
         rxn = modelPrunedGPR.reactions.get_by_id(kegg_id)
 
@@ -340,7 +341,8 @@ def add_nonBBH_rxn(modelPrunedGPR, options):
         # Subsystem
         rxn.subsystem = options.rxnid_info_dict[kegg_id]['PATHWAY']
 
-        modelPrunedGPR = utils.stabilize_model(modelPrunedGPR, kegg_id, options)
+        modelPrunedGPR = utils.stabilize_model(
+                modelPrunedGPR, options.outputfolder5, kegg_id)
 
         logging.debug("Number of reactions in the model: %s",
                 len(modelPrunedGPR.reactions))
