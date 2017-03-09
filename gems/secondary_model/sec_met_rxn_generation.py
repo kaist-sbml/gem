@@ -7,7 +7,7 @@ import os
 import pickle
 from antismash_monomer_info import get_std_id_from_antismash_id
 from cobra import Reaction, Metabolite
-from gems.util import stabilize_model
+from gems.utils import stabilize_model
 
 def get_cluster_location(cluster_nr, options):
 

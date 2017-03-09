@@ -22,10 +22,10 @@ import shutil
 import sys
 import tempfile
 import time
-import utils
 from Bio import SeqIO
 from Bio.Alphabet import generic_protein
 from Bio.Seq import Seq
+from gems import utils
 from urllib2 import URLError
 
 
@@ -292,7 +292,7 @@ class EFICAzECPrediction:
                 logging.error("Could not copy eficaz result file %s to destination %s", \
                               self.ChunkFilenames[chunkDir]+".ecpred", self.basedirName)
         # And finally remove temporary directory
-        logging.debug("removing temp dir %s", self.tempdirname)
+        logging.debug("Removing temp dir %s", self.tempdirname)
         shutil.rmtree(self.tempdirname)
 
 

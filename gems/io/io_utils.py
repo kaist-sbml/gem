@@ -5,8 +5,8 @@
 import logging
 import os
 from Bio import SeqIO
-from eficaz.__init__ import getECs
-
+#from eficaz.__init__ import getECs
+from gems.eficaz import getECs
 
 #Look for pre-stored fasta file of the template model
 def get_temp_fasta(options):

@@ -4,7 +4,7 @@
 
 import logging
 import os
-from io.eficaz import utils
+import utils
 
 
 __version__ = '0.1.6'
