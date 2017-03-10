@@ -14,8 +14,7 @@ from sec_met_rxn_generation import(
     get_pickles,
     add_sec_met_rxn,
     check_producibility_sec_met,
-    get_monomers_nonprod_sec_met,
-    get_monomers_prod_sec_met
+    get_sec_met_monomers
 )
 from gapfilling import(
     get_unique_nonprod_monomers_list,
@@ -47,10 +46,12 @@ def run_sec_met_rxn_generation(cluster_nr, target_model, prod_sec_met_dict,
         target_model = check_producibility_sec_met(target_model, options)
 
         if target_model.solution.f < float(options.cobrapy.non_zero_flux_cutoff):
-            nonprod_sec_met_metab_list = get_monomers_nonprod_sec_met(options)
+            nonprod_sec_met_list = []
+            nonprod_sec_met_metab_list = get_sec_met_monomers(nonprod_sec_met_list, options)
             nonprod_sec_met_dict[options.product] = nonprod_sec_met_metab_list
         else:
-            prod_sec_met_metab_list = get_monomers_prod_sec_met(options)
+            prod_sec_met_list = []
+            prod_sec_met_metab_list = get_sec_met_monomers(prod_sec_met_list, options)
             prod_sec_met_dict[options.product] = prod_sec_met_metab_list
 
     else:

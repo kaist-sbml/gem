@@ -388,23 +388,12 @@ def check_producibility_sec_met(target_model, options):
     return target_model
 
 
-def get_monomers_nonprod_sec_met(options):
-
-    nonprod_sec_met_metab_list = []
+def get_sec_met_monomers(sec_met_list, options):
 
     for metab in options.metab_coeff_dict.keys():
         if options.metab_coeff_dict[metab] <0:
-            nonprod_sec_met_metab_list.append(metab)
+            if metab not in sec_met_list:
+                sec_met_list.append(metab)
 
-    return nonprod_sec_met_metab_list
+    return sec_met_list
 
-
-def get_monomers_prod_sec_met(options):
-
-    prod_sec_met_metab_list = []
-
-    for metab in options.metab_coeff_dict.keys():
-        if options.metab_coeff_dict[metab] <0:
-            prod_sec_met_metab_list.append(metab)
-
-    return prod_sec_met_metab_list
