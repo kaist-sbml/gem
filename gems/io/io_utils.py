@@ -5,8 +5,8 @@
 import logging
 import os
 from Bio import SeqIO
-#from eficaz.__init__ import getECs
 from gems.eficaz import getECs
+
 
 #Look for pre-stored fasta file of the template model
 def get_temp_fasta(options):
@@ -16,6 +16,10 @@ def get_temp_fasta(options):
                 tempFasta = os.path.join(root, f)
                 options.input1 = root
                 options.temp_fasta = tempFasta
+
+
+def get_ec_annotations(seq_record, options):
+    getECs(seq_record, options)
 
 
 def get_targetGenomeInfo(options, file_type):
@@ -35,7 +39,7 @@ def get_targetGenomeInfo(options, file_type):
                      file_type).next()
 
     if options.eficaz and options.eficaz_path:
-        getECs(seq_record, options)
+        get_ec_annotations(seq_record, options)
     elif options.eficaz and not options.eficaz_path:
         logging.debug("EFICAz cannot be implemented")
 
