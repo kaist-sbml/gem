@@ -161,25 +161,27 @@ def main():
 
     #Primary metabolic modeling
     if options.pmr_generation:
-        get_homologs(options)
+        if options.targetGenome_locusTag_aaSeq_dict:
+            get_homologs(options)
+            model = get_pickles_prunPhase(options)
+            modelPrunedGPR = run_prunPhase(model, options)
 
-        model = get_pickles_prunPhase(options)
+            if options.targetGenome_locusTag_ec_dict:
+                get_pickles_augPhase(options)
+                target_model = run_augPhase(modelPrunedGPR, options)
+            else:
+                logging.warning("No EC_number found in the submitted gbk file")
 
-        modelPrunedGPR = run_prunPhase(model, options)
+            #Cleanup of the model
+            prune_unused_metabolites(target_model)
 
-        if options.targetGenome_locusTag_ec_dict:
-            get_pickles_augPhase(options)
-            target_model = run_augPhase(modelPrunedGPR, options)
+            runtime1 = time.strftime("Elapsed time %H:%M:%S",
+                    time.gmtime(time.time() - start))
+
+            generate_outputs(options.outputfolder3, runtime1, options,
+                    cobra_model = target_model)
         else:
-            logging.warning("No EC_number found in the submitted gbk file")
-
-        #Cleanup of the model
-        prune_unused_metabolites(target_model)
-
-        runtime1 = time.strftime("Elapsed time %H:%M:%S", time.gmtime(time.time() - start))
-
-        generate_outputs(options.outputfolder3, runtime1, options,
-                cobra_model = target_model)
+            logging.warning("No amino acid sequences found in the submitted gbk file")
 
     #Secondary metabolic modeling
     if options.smr_generation:
@@ -224,8 +226,7 @@ def main():
                         cobra_model = target_model_complete)
 
             else:
-                logging.debug("No cluster information available for secondary metabolic modeling")
-
+                logging.debug("No cluster information found in the submitted gbk file")
         else:
             logging.warning("COBRA-compliant SBML file needed")
 

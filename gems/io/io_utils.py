@@ -102,6 +102,7 @@ def get_targetGenomeInfo(options, file_type):
             "len(targetGenome_locusTag_ec_dict.keys): %s"
             %len(targetGenome_locusTag_ec_dict.keys()))
 
+    options.targetGenome_locusTag_aaSeq_dict = targetGenome_locusTag_aaSeq_dict
     options.targetGenome_locusTag_ec_dict = targetGenome_locusTag_ec_dict
     options.targetGenome_locusTag_prod_dict = targetGenome_locusTag_prod_dict
     options.total_cluster = total_cluster
