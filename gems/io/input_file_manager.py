@@ -2,7 +2,9 @@
 #Copyright 2014-2016 BioInformatics Research Center, KAIST
 #Copyright 2014-2016 Novo Nordisk Foundation Center for Biosustainability, DTU
 
+import glob
 import logging
+import os
 import pickle
 from io_utils import (
     get_temp_fasta,
@@ -11,19 +13,26 @@ from io_utils import (
 )
 
 
-def get_genome_files(options):
+def get_target_gbk(options):
     logging.info("Reading input genome files..")
-
     logging.info("Reading a genbank file of a target genome..")
-    get_targetGenomeInfo(options, 'genbank')
 
+    try:
+        gbk_file = glob.glob(os.path.join(options.outputfolder1, '*.gbk'))
+        seq_record = get_targetGenomeInfo(gbk_file[0], options, 'genbank')
+    except:
+        seq_record = get_targetGenomeInfo(options.input, options, 'genbank')
+
+    return seq_record
+
+
+def get_fasta_files(options):
     #Following data are needed only for primary metabolic modeling
-    if options.pmr_generation:
-        logging.info("Looking for a fasta file of a target genome..")
-        get_target_fasta(options)
+    logging.info("Looking for a fasta file of a target genome..")
+    get_target_fasta(options)
 
-        logging.info("Looking for a fasta file of template model genes..")
-        get_temp_fasta(options)
+    logging.info("Looking for a fasta file of template model genes..")
+    get_temp_fasta(options)
 
 
 #For model pruning phase

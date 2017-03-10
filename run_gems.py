@@ -17,14 +17,16 @@ from cobra.io.sbml import (
     write_cobra_model_to_sbml_file,
     create_cobra_model_from_sbml_file
 )
-# cobrapy >= 0.5.11 should be used, which now has a fixed  function:
+# cobrapy == 0.5.11 should be used, which now has a fixed  function:
 #'cobra.manipulation.delete.prune_unused_metabolites'.
 from cobra.manipulation.delete import prune_unused_metabolites
 from argparse import Namespace
 from gems import check_prereqs
 from gems.config import load_config
+from gems.eficaz import getECs
 from gems.io.input_file_manager import (
-    get_genome_files,
+    get_target_gbk,
+    get_fasta_files,
     get_pickles_prunPhase,
     get_pickles_augPhase
     )
@@ -157,10 +159,23 @@ def main():
             fh.setFormatter(fomatter)
             logger.addHandler(fh)
 
-        get_genome_files(options)
+    # EC number prediction
+    if options.eficaz:
+        seq_record = get_target_gbk(options)
 
-    #Primary metabolic modeling
+        if options.eficaz_path and options.targetGenome_locusTag_aaSeq_dict:
+            getECs(seq_record, options)
+        elif not options.eficaz_path:
+            logging.warning("EFICAz not found")
+        elif not options.targetGenome_locusTag_aaSeq_dict:
+            logging.warning("EFICAz not implemented;")
+            logging.warning("No amino acid sequences found in the submitted gbk file")
+
+    # Primary metabolic modeling
     if options.pmr_generation:
+        seq_record = get_target_gbk(options)
+        get_fasta_files(options)
+
         if options.targetGenome_locusTag_aaSeq_dict:
             get_homologs(options)
             model = get_pickles_prunPhase(options)
@@ -170,9 +185,10 @@ def main():
                 get_pickles_augPhase(options)
                 target_model = run_augPhase(modelPrunedGPR, options)
             else:
-                logging.warning("No EC_number found in the submitted gbk file")
+                logging.warning("Primary metabolic modeling not implemented;")
+                logging.warning("No EC_numbers found in the submitted gbk file")
 
-            #Cleanup of the model
+            # Cleanup of the model
             prune_unused_metabolites(target_model)
 
             runtime1 = time.strftime("Elapsed time %H:%M:%S",
@@ -181,10 +197,14 @@ def main():
             generate_outputs(options.outputfolder3, runtime1, options,
                     cobra_model = target_model)
         else:
+            logging.warning("Primary metabolic modeling not implemented;")
             logging.warning("No amino acid sequences found in the submitted gbk file")
 
-    #Secondary metabolic modeling
+    # Secondary metabolic modeling
     if options.smr_generation:
+        if seq_record is None:
+            seq_record = get_target_gbk(options)
+
         model_file = []
         files = glob.glob(options.outputfolder3 + os.sep + '*.xml')
         model_file = [each_file for each_file in files if '.xml' in each_file]
@@ -204,8 +224,11 @@ def main():
                 cluster_nr = 1
                 while cluster_nr <= options.total_cluster:
                     logging.info("Generating reactions for Cluster %s.." %cluster_nr)
-                    target_model = run_sec_met_rxn_generation(cluster_nr,
-                        target_model, prod_sec_met_dict, nonprod_sec_met_dict, options)
+                    target_model = run_sec_met_rxn_generation(
+                            seq_record, cluster_nr,
+                            target_model,
+                            prod_sec_met_dict, nonprod_sec_met_dict,
+                            options)
                     cluster_nr += 1
 
                 target_model_no_gapsFilled = copy.deepcopy(target_model)
@@ -224,10 +247,11 @@ def main():
                         runtime2, options,
                         cobra_model_no_gapFilled = target_model_no_gapsFilled,
                         cobra_model = target_model_complete)
-
             else:
-                logging.debug("No cluster information found in the submitted gbk file")
+                logging.warning("Secondary metabolic modeling not implemented;")
+                logging.warning("No cluster information found in the submitted gbk file")
         else:
+            logging.warning("Secondary metabolic modeling not implemented;")
             logging.warning("COBRA-compliant SBML file needed")
 
     if not options.eficaz and not options.pmr_generation and not options.smr_generation:

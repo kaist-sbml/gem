@@ -9,9 +9,9 @@ from antismash_monomer_info import get_std_id_from_antismash_id
 from cobra import Reaction, Metabolite
 from gems import utils
 
-def get_cluster_location(cluster_nr, options):
+def get_cluster_location(seq_record, cluster_nr, options):
 
-    for feature in options.seq_record.features:
+    for feature in seq_record.features:
 
         if feature.type == 'cluster':
             cluster_number = 'Cluster number: %s' %cluster_nr
@@ -23,11 +23,11 @@ def get_cluster_location(cluster_nr, options):
 
 
 #Exract all the information associated with a particular locus_tag for the selected cluster
-def get_cluster_info_from_seq_record(options):
+def get_cluster_info_from_seq_record(seq_record, options):
 
     cluster_info_dict = {}
 
-    for feature in options.seq_record.features:
+    for feature in seq_record.features:
 
         if feature.type == 'CDS':
             if feature.location.start >= options.cluster_loc1 \
@@ -41,9 +41,9 @@ def get_cluster_info_from_seq_record(options):
     options.cluster_info_dict = cluster_info_dict
 
 
-def get_cluster_product(cluster_nr, options):
+def get_cluster_product(seq_record, cluster_nr, options):
 
-    for feature in options.seq_record.features:
+    for feature in seq_record.features:
 
         #Retrieving "Cluster number"
         if feature.type == 'cluster':

@@ -5,7 +5,6 @@
 import logging
 import os
 from Bio import SeqIO
-from gems.eficaz import getECs
 
 
 #Look for pre-stored fasta file of the template model
@@ -18,11 +17,7 @@ def get_temp_fasta(options):
                 options.temp_fasta = tempFasta
 
 
-def get_ec_annotations(seq_record, options):
-    getECs(seq_record, options)
-
-
-def get_targetGenomeInfo(options, file_type):
+def get_targetGenomeInfo(data_dir, options, file_type):
 
     fp = open('./%s/targetGenome_locusTag_aaSeq.fa' %options.outputfolder2,'w')
 
@@ -32,16 +27,11 @@ def get_targetGenomeInfo(options, file_type):
 
     #Read GenBank file
     try:
-        seq_record = SeqIO.read(options.input, file_type)
+        seq_record = SeqIO.read(data_dir, file_type)
     except ValueError:
         logging.debug("Warning: ValueError occurred in SeqIo.read")
-        seq_record = SeqIO.parse(options.outputfolder+'/'+options.input,
+        seq_record = SeqIO.parse(options.outputfolder+'/'+data_dir,
                      file_type).next()
-
-    if options.eficaz and options.eficaz_path:
-        get_ec_annotations(seq_record, options)
-    elif options.eficaz and not options.eficaz_path:
-        logging.debug("EFICAz cannot be implemented")
 
     total_cluster = 0
     locus_tag_list = []
@@ -106,9 +96,9 @@ def get_targetGenomeInfo(options, file_type):
     options.targetGenome_locusTag_ec_dict = targetGenome_locusTag_ec_dict
     options.targetGenome_locusTag_prod_dict = targetGenome_locusTag_prod_dict
     options.total_cluster = total_cluster
-    options.seq_record = seq_record
 
     fp.close()
+    return seq_record
 
 
 def get_target_fasta(options):
