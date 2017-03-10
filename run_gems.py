@@ -202,7 +202,7 @@ def main():
 
     # Secondary metabolic modeling
     if options.smr_generation:
-        if seq_record is None:
+        if 'targetGenome_locusTag_aaSeq_dict' not in options:
             seq_record = get_target_gbk(options)
 
         model_file = []
