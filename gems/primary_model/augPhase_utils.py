@@ -282,14 +282,22 @@ def add_nonBBH_rxn(modelPrunedGPR, options):
 
     for mnxr in options.mnxr_to_add_list:
 
+        kegg_id = utils.get_keggid_from_mnxr(mnxr, options)
         # Choose KEGG reaction ID with a greater value for multiple KEGG IDs given to MNXR
-        if len(options.mnxr_kegg_dict[mnxr]) > 1:
-            keggid_list = []
-            keggid_list = options.mnxr_kegg_dict[mnxr]
-            keggid_list.sort()
-            kegg_id = keggid_list[-1]
-        elif len(options.mnxr_kegg_dict[mnxr]) == 1:
-            kegg_id = options.mnxr_kegg_dict[mnxr][0]
+#        if len(options.mnxr_kegg_dict[mnxr]) > 1:
+#            keggid_list = []
+#            keggid_list = options.mnxr_kegg_dict[mnxr]
+
+#            for keggid in options.mnxr_kegg_dict[mnxr]:
+#                if keggid in options.rxnid_info_dict:
+#                    keggid_list.append(keggid)
+#            if len(keggid_list) == 1:
+#                kegg_id = keggid_list[0]
+#            elif len(keggid_list) > 1:
+#                keggid_list.sort()
+#                kegg_id = keggid_list[-1]
+#        elif len(options.mnxr_kegg_dict[mnxr]) == 1:
+#            kegg_id = options.mnxr_kegg_dict[mnxr][0]
 
         logging.debug("--------------------")
         logging.debug("Reaction to be added: %s; %s", mnxr, kegg_id)

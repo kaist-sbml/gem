@@ -100,6 +100,27 @@ def time_bomb(cache_file, options):
                 cache_file, options.utils.time_bomb_duration, file_age.days)
 
 
+def get_keggid_from_mnxr(mnxr, options):
+    if len(options.mnxr_kegg_dict[mnxr]) > 1:
+        keggid_list = []
+
+        for keggid in options.mnxr_kegg_dict[mnxr]:
+            if keggid in options.rxnid_info_dict:
+                keggid_list.append(keggid)
+
+        if len(keggid_list) == 1:
+            kegg_id = keggid_list[0]
+        # Choose KEGG reaction ID with a greater value for multiple KEGG IDs given to MNXR
+        elif len(keggid_list) > 1:
+            keggid_list.sort()
+            kegg_id = keggid_list[-1]
+
+    elif len(options.mnxr_kegg_dict[mnxr]) == 1:
+        kegg_id = options.mnxr_kegg_dict[mnxr][0]
+
+    return kegg_id
+
+
 #'add_reaction' requires writing/reloading of the model
 def stabilize_model(model, folder, label):
 
