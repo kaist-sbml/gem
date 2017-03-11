@@ -7,6 +7,29 @@ import sys
 import subprocess
 from os.path import getmtime, isfile, join, split
 
+
+def setup_logging(options):
+    if options.verbose:
+        log_level = logging.INFO
+    elif options.debug:
+        log_level = logging.DEBUG
+    else:
+        log_level = logging.WARNING
+
+    logging.basicConfig(format='%(levelname)s: %(message)s', level=log_level)
+
+
+def setup_logfile_format(options):
+    if options.debug:
+        logger = logging.getLogger('')
+        fomatter = logging.Formatter(
+                '[%(levelname)s|%(filename)s:%(lineno)s] > %(message)s')
+        fh = logging.FileHandler(
+                os.path.join(options.outputfolder, 'gems.log'), mode = 'w')
+        fh.setFormatter(fomatter)
+        logger.addHandler(fh)
+
+
 # Adopted from antismash.utils
 def locate_executable(name):
     "Find an executable in the path and return the full path"

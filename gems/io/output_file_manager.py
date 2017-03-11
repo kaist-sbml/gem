@@ -253,18 +253,30 @@ def write_data_for_debug(options):
         for locustag in options.temp_target_BBH_dict.keys():
             print >> f, '%s\t%s' %(locustag, options.temp_target_BBH_dict[locustag])
 
-    with open('./%s/mnxr_to_add_list.txt' %options.outputfolder5,'w') as f:
-        for mnxr in options.mnxr_to_add_list:
-            print >>f, '%s' %mnxr
+    try:
+        with open('./%s/mnxr_to_add_list.txt' %options.outputfolder5,'w') as f:
+            for mnxr in options.mnxr_to_add_list:
+                print >>f, '%s' %mnxr
+    except AttributeError, e:
+        logging.warning(e)
 
-    with open('./%s/targetGenome_locusTag_ec_nonBBH_dict.txt' %options.outputfolder5,'w') as f:
-        for rxnid in options.targetGenome_locusTag_ec_nonBBH_dict.keys():
-            print >>f, '%s\t%s' %(rxnid, options.targetGenome_locusTag_ec_nonBBH_dict[rxnid])
+    try:
+        with open('./%s/targetGenome_locusTag_ec_nonBBH_dict.txt' %options.outputfolder5,'w') as f:
+            for rxnid in options.targetGenome_locusTag_ec_nonBBH_dict.keys():
+                print >>f, '%s\t%s' %(rxnid, options.targetGenome_locusTag_ec_nonBBH_dict[rxnid])
+    except AttributeError, e:
+        logging.warning(e)
 
-    with open('./%s/rxnid_info_dict.txt' %options.outputfolder5,'w') as f:
-        for rxnid in options.rxnid_info_dict.keys():
-            print >>f, '%s\t%s' %(rxnid, options.rxnid_info_dict[rxnid])
+    try:
+        with open('./%s/rxnid_info_dict.txt' %options.outputfolder5,'w') as f:
+            for rxnid in options.rxnid_info_dict.keys():
+                print >>f, '%s\t%s' %(rxnid, options.rxnid_info_dict[rxnid])
+    except AttributeError, e:
+        logging.warning(e)
 
-    with open('./%s/rxnid_locusTag_dict.txt' %options.outputfolder5,'w') as f:
-        for rxnid in options.rxnid_locusTag_dict.keys():
-            print >>f, '%s\t%s' %(rxnid, options.rxnid_locusTag_dict[rxnid])
+    try:
+        with open('./%s/rxnid_locusTag_dict.txt' %options.outputfolder5,'w') as f:
+            for rxnid in options.rxnid_locusTag_dict.keys():
+                print >>f, '%s\t%s' %(rxnid, options.rxnid_locusTag_dict[rxnid])
+    except AttributeError, e:
+        logging.warning(e)

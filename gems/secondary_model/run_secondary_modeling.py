@@ -25,14 +25,14 @@ from gapfilling import(
 )
 
 
-def run_sec_met_rxn_generation(cluster_nr, target_model, prod_sec_met_dict,
+def run_sec_met_rxn_generation(seq_record, cluster_nr, target_model, prod_sec_met_dict,
                                 nonprod_sec_met_dict, options):
 
-    get_cluster_location(cluster_nr, options)
+    get_cluster_location(seq_record, cluster_nr, options)
 
-    get_cluster_info_from_seq_record(options)
+    get_cluster_info_from_seq_record(seq_record, options)
 
-    get_cluster_product(cluster_nr, options)
+    get_cluster_product(seq_record, cluster_nr, options)
 
     if 't1pks' in options.product or 'nrps' in options.product:
         get_cluster_monomers(options)

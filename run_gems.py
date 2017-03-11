@@ -4,6 +4,7 @@
 #Copyright 2014-2016 Novo Nordisk Foundation Center for Biosustainability, DTU
 
 import argparse
+import cobra
 import copy
 import glob
 import logging
@@ -13,18 +14,18 @@ import pickle
 import sys
 import time
 import warnings
-from cobra.io.sbml import (
-    write_cobra_model_to_sbml_file,
-    create_cobra_model_from_sbml_file
-)
-# cobrapy >= 0.5.11 should be used, which now has a fixed  function:
+
+# cobrapy == 0.5.11 should be used, which now has a fixed  function:
 #'cobra.manipulation.delete.prune_unused_metabolites'.
 from cobra.manipulation.delete import prune_unused_metabolites
-from argparse import Namespace
-from gems import check_prereqs
+from gems import check_prereqs, utils
 from gems.config import load_config
+from gems.eficaz import getECs
 from gems.io.input_file_manager import (
-    get_genome_files,
+    setup_outputfolders,
+    check_input_filetype,
+    get_target_gbk,
+    get_fasta_files,
     get_pickles_prunPhase,
     get_pickles_augPhase
     )
@@ -103,22 +104,17 @@ def main():
 
     options = parser.parse_args()
 
-    # Set up debugging
-    if options.verbose:
-        log_level = logging.INFO
-    elif options.debug:
-        log_level = logging.DEBUG
-    else:
-        log_level = logging.WARNING
-
-    logging.basicConfig(format='%(levelname)s: %(message)s', level=log_level)
+    utils.setup_logging(options)
 
     #Warning messages from cobrapy turned off by default
     if not options.warning:
         warnings.filterwarnings("ignore")
 
+    check_input_filetype(options)
+
     #Get genome files only if one of functional options is selected
     if options.eficaz or options.pmr_generation or options.smr_generation:
+
         #Load config data
         load_config(options)
 
@@ -126,71 +122,70 @@ def main():
         check_prereqs(options)
 
         #Create output folders
-        folders = ['1_EFICAz_results', '2_blastp_results',
-                    '3_primary_metabolic_model', '4_complete_model', 'tmp_files']
+        setup_outputfolders(options)
 
-        if '/' in options.outputfolder:
-            options.outputfolder = options.outputfolder[:-1]
+        utils.setup_logfile_format(options)
 
-        #'1_EFICAz_results'
-        options.outputfolder1 = options.outputfolder + os.sep + folders[0]
-        #'2_blastp_results'
-        options.outputfolder2 = options.outputfolder + os.sep + folders[1]
-        #'3_primary_metabolic_model'
-        options.outputfolder3 = options.outputfolder + os.sep + folders[2]
-        #'4_complete_model'
-        options.outputfolder4 = options.outputfolder + os.sep + folders[3]
-        #'tmp_files'
-        options.outputfolder5 = options.outputfolder + os.sep + folders[4]
+    # EC number prediction
+    if options.eficaz:
+        seq_record = get_target_gbk(options)
 
-        for folder in folders:
-            if not os.path.isdir(options.outputfolder + os.sep + folder):
-                os.makedirs(options.outputfolder + os.sep + folder)
+        if options.eficaz_path and options.targetGenome_locusTag_aaSeq_dict:
+            getECs(seq_record, options)
+        elif not options.eficaz_path:
+            logging.warning("EFICAz not found")
+        elif not options.targetGenome_locusTag_aaSeq_dict:
+            logging.warning("EFICAz not implemented;")
+            logging.warning("No amino acid sequences found in the submitted gbk file")
 
-        # Set up writing debug records
-        if options.debug:
-            logger = logging.getLogger('')
-            fomatter = logging.Formatter(
-                    '[%(levelname)s|%(filename)s:%(lineno)s] > %(message)s')
-            fh = logging.FileHandler(
-                    os.path.join(options.outputfolder, 'gems.log'), mode = 'w')
-            fh.setFormatter(fomatter)
-            logger.addHandler(fh)
-
-        get_genome_files(options)
-
-    #Primary metabolic modeling
+    # Primary metabolic modeling
     if options.pmr_generation:
-        get_homologs(options)
+        seq_record = get_target_gbk(options)
+        get_fasta_files(options)
 
-        model = get_pickles_prunPhase(options)
+        if options.targetGenome_locusTag_aaSeq_dict:
+            get_homologs(options)
+            model = get_pickles_prunPhase(options)
+            modelPrunedGPR = run_prunPhase(model, options)
 
-        modelPrunedGPR = run_prunPhase(model, options)
+            if options.targetGenome_locusTag_ec_dict:
+                get_pickles_augPhase(options)
+                target_model = run_augPhase(modelPrunedGPR, options)
+            else:
+                logging.warning("Primary metabolic modeling not implemented;")
+                logging.warning("No EC_numbers found in the submitted gbk file")
 
-        if options.targetGenome_locusTag_ec_dict:
-            get_pickles_augPhase(options)
-            target_model = run_augPhase(modelPrunedGPR, options)
+            try:
+                prune_unused_metabolites(target_model)
+            except:
+                prune_unused_metabolites(modelPrunedGPR)
+
+            runtime1 = time.strftime("Elapsed time %H:%M:%S",
+                    time.gmtime(time.time() - start))
+
+            try:
+                generate_outputs(options.outputfolder3, runtime1, options,
+                        cobra_model = target_model)
+            except:
+                generate_outputs(options.outputfolder3, runtime1, options,
+                        cobra_model = modelPrunedGPR)
         else:
-            logging.warning("No EC_number found in the submitted gbk file")
+            logging.warning("Primary metabolic modeling not implemented;")
+            logging.warning("No amino acid sequences found in the submitted gbk file")
 
-        #Cleanup of the model
-        prune_unused_metabolites(target_model)
-
-        runtime1 = time.strftime("Elapsed time %H:%M:%S", time.gmtime(time.time() - start))
-
-        generate_outputs(options.outputfolder3, runtime1, options,
-                cobra_model = target_model)
-
-    #Secondary metabolic modeling
+    # Secondary metabolic modeling
     if options.smr_generation:
+        if 'targetGenome_locusTag_aaSeq_dict' not in options:
+            seq_record = get_target_gbk(options)
+
         model_file = []
         files = glob.glob(options.outputfolder3 + os.sep + '*.xml')
         model_file = [each_file for each_file in files if '.xml' in each_file]
 
         if len(model_file) > 0 and '.xml' in model_file[0]:
             model_file = os.path.basename(model_file[0])
-            target_model = create_cobra_model_from_sbml_file(
-                    options.outputfolder3 + os.sep + model_file)
+            target_model = cobra.io.read_sbml_model(
+                    os.path.join(options.outputfolder3, model_file))
 
             logging.info("Generating secondary metabolite biosynthesizing reactions..")
             logging.debug("Total number of clusters: %s" %options.total_cluster)
@@ -202,8 +197,11 @@ def main():
                 cluster_nr = 1
                 while cluster_nr <= options.total_cluster:
                     logging.info("Generating reactions for Cluster %s.." %cluster_nr)
-                    target_model = run_sec_met_rxn_generation(cluster_nr,
-                        target_model, prod_sec_met_dict, nonprod_sec_met_dict, options)
+                    target_model = run_sec_met_rxn_generation(
+                            seq_record, cluster_nr,
+                            target_model,
+                            prod_sec_met_dict, nonprod_sec_met_dict,
+                            options)
                     cluster_nr += 1
 
                 target_model_no_gapsFilled = copy.deepcopy(target_model)
@@ -212,7 +210,6 @@ def main():
 
                 target_model_complete = run_gapfilling(target_model, options)
 
-                #Cleanup of the model
                 prune_unused_metabolites(target_model_complete)
 
                 runtime2 = time.strftime("Elapsed time %H:%M:%S",
@@ -222,15 +219,15 @@ def main():
                         runtime2, options,
                         cobra_model_no_gapFilled = target_model_no_gapsFilled,
                         cobra_model = target_model_complete)
-
             else:
-                logging.debug("No cluster information available for secondary metabolic modeling")
-
+                logging.warning("Secondary metabolic modeling not implemented;")
+                logging.warning("No cluster information found in the submitted gbk file")
         else:
+            logging.warning("Secondary metabolic modeling not implemented;")
             logging.warning("COBRA-compliant SBML file needed")
 
     if not options.eficaz and not options.pmr_generation and not options.smr_generation:
-        logging.warning("No functional options selected")
+        logging.warning("No functional options enabled")
 
     logging.info(time.strftime("Elapsed time %H:%M:%S", time.gmtime(time.time() - start)))
 

@@ -2,7 +2,9 @@
 #Copyright 2014-2016 BioInformatics Research Center, KAIST
 #Copyright 2014-2016 Novo Nordisk Foundation Center for Biosustainability, DTU
 
+import glob
 import logging
+import os
 import pickle
 from io_utils import (
     get_temp_fasta,
@@ -11,19 +13,75 @@ from io_utils import (
 )
 
 
-def get_genome_files(options):
-    logging.info("Reading input genome files..")
+def make_folder(folder):
+    if not os.path.isdir(folder):
+        os.makedirs(folder)
 
-    logging.info("Reading a genbank file of a target genome..")
-    get_targetGenomeInfo(options, 'genbank')
 
-    #Following data are needed only for primary metabolic modeling
+def setup_outputfolders(options):
+    folders = ['1_EFICAz_results', '2_blastp_results',
+            '3_primary_metabolic_model', '4_complete_model', 'tmp_files']
+
+    if '/' in options.outputfolder:
+        options.outputfolder = options.outputfolder[:-1]
+
+    if options.eficaz:
+        #'1_EFICAz_results'
+        options.outputfolder1 = os.path.join(options.outputfolder, folders[0])
+        make_folder(options.outputfolder1)
     if options.pmr_generation:
-        logging.info("Looking for a fasta file of a target genome..")
-        get_target_fasta(options)
+        #'2_blastp_results'
+        options.outputfolder2 = os.path.join(options.outputfolder, folders[1])
+        make_folder(options.outputfolder2)
+        #'3_primary_metabolic_model'
+        options.outputfolder3 = os.path.join(options.outputfolder, folders[2])
+        make_folder(options.outputfolder3)
+    if options.smr_generation:
+        #'4_complete_model'
+        options.outputfolder4 = os.path.join(options.outputfolder, folders[3])
+        make_folder(options.outputfolder4)
 
-        logging.info("Looking for a fasta file of template model genes..")
-        get_temp_fasta(options)
+    #'tmp_files'
+    options.outputfolder5 = os.path.join(options.outputfolder, folders[4])
+    make_folder(options.outputfolder5)
+
+
+def check_input_filetype(options):
+    logging.info('Input file: %s', options.input)
+    input_ext = os.path.splitext(options.input)[1]
+
+    if input_ext in ('.gbk', '.gb', '.genbank', '.gbff'):
+        logging.debug("GenBank file format is supported")
+    elif input_ext in ('.fa', '.fasta', '.fna', '.faa', '.fas'):
+        logging.warning("FASTA file format is not currently supported")
+        if options.eficaz:
+            options.eficaz = False
+        elif options.pmr_generation:
+            options.pmr_generation = False
+        elif options.smr_generation:
+            options.smr_generation = False
+
+
+def get_target_gbk(options):
+    logging.info("Reading input genome files..")
+    logging.info("Reading a genbank file of a target genome..")
+
+    try:
+        gbk_file = glob.glob(os.path.join(options.outputfolder1, '*.gbk'))
+        seq_record = get_targetGenomeInfo(gbk_file[0], options, 'genbank')
+    except:
+        seq_record = get_targetGenomeInfo(options.input, options, 'genbank')
+
+    return seq_record
+
+
+def get_fasta_files(options):
+    #Following data are needed only for primary metabolic modeling
+    logging.info("Looking for a fasta file of a target genome..")
+    get_target_fasta(options)
+
+    logging.info("Looking for a fasta file of template model genes..")
+    get_temp_fasta(options)
 
 
 #For model pruning phase
