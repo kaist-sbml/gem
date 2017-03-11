@@ -13,6 +13,39 @@ from io_utils import (
 )
 
 
+def make_folder(folder):
+    if not os.path.isdir(folder):
+        os.makedirs(folder)
+
+
+def setup_outputfolders(options):
+    folders = ['1_EFICAz_results', '2_blastp_results',
+            '3_primary_metabolic_model', '4_complete_model', 'tmp_files']
+
+    if '/' in options.outputfolder:
+        options.outputfolder = options.outputfolder[:-1]
+
+    if options.eficaz:
+        #'1_EFICAz_results'
+        options.outputfolder1 = os.path.join(options.outputfolder, folders[0])
+        make_folder(options.outputfolder1)
+    if options.pmr_generation:
+        #'2_blastp_results'
+        options.outputfolder2 = os.path.join(options.outputfolder, folders[1])
+        make_folder(options.outputfolder2)
+        #'3_primary_metabolic_model'
+        options.outputfolder3 = os.path.join(options.outputfolder, folders[2])
+        make_folder(options.outputfolder3)
+    if options.smr_generation:
+        #'4_complete_model'
+        options.outputfolder4 = os.path.join(options.outputfolder, folders[3])
+        make_folder(options.outputfolder4)
+
+    #'tmp_files'
+    options.outputfolder5 = os.path.join(options.outputfolder, folders[4])
+    make_folder(options.outputfolder5)
+
+
 def check_input_filetype(options):
     logging.info('Input file: %s', options.input)
     input_ext = os.path.splitext(options.input)[1]

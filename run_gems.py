@@ -22,6 +22,7 @@ from gems import check_prereqs, utils
 from gems.config import load_config
 from gems.eficaz import getECs
 from gems.io.input_file_manager import (
+    setup_outputfolders,
     check_input_filetype,
     get_target_gbk,
     get_fasta_files,
@@ -121,26 +122,7 @@ def main():
         check_prereqs(options)
 
         #Create output folders
-        folders = ['1_EFICAz_results', '2_blastp_results',
-                    '3_primary_metabolic_model', '4_complete_model', 'tmp_files']
-
-        if '/' in options.outputfolder:
-            options.outputfolder = options.outputfolder[:-1]
-
-        #'1_EFICAz_results'
-        options.outputfolder1 = options.outputfolder + os.sep + folders[0]
-        #'2_blastp_results'
-        options.outputfolder2 = options.outputfolder + os.sep + folders[1]
-        #'3_primary_metabolic_model'
-        options.outputfolder3 = options.outputfolder + os.sep + folders[2]
-        #'4_complete_model'
-        options.outputfolder4 = options.outputfolder + os.sep + folders[3]
-        #'tmp_files'
-        options.outputfolder5 = options.outputfolder + os.sep + folders[4]
-
-        for folder in folders:
-            if not os.path.isdir(options.outputfolder + os.sep + folder):
-                os.makedirs(options.outputfolder + os.sep + folder)
+        setup_outputfolders(options)
 
         utils.setup_logfile_format(options)
 

@@ -6,20 +6,7 @@ import logging
 import os
 from Bio import SeqIO
 
-
-#Look for pre-stored fasta file of the template model
-def get_temp_fasta(options):
-    for root, _, files in os.walk('./gems/io/data/input1/%s/' %(options.orgName)):
-        for f in files:
-            if f.endswith('.fa'):
-                tempFasta = os.path.join(root, f)
-                options.input1 = root
-                options.temp_fasta = tempFasta
-
-
 def get_targetGenomeInfo(data_dir, options, file_type):
-
-    fp = open('./%s/targetGenome_locusTag_aaSeq.fa' %options.outputfolder2,'w')
 
     targetGenome_locusTag_aaSeq_dict = {}
     targetGenome_locusTag_ec_dict = {}
@@ -50,7 +37,6 @@ def get_targetGenomeInfo(data_dir, options, file_type):
             if feature.qualifiers.get('translation'):
                 translation = feature.qualifiers.get('translation')[0]
                 targetGenome_locusTag_aaSeq_dict[locusTag] = translation
-                print >>fp, '>%s\n%s' % (str(locusTag), str(translation))
 
             #Used to find "and" relationship in the GPR association
             if feature.qualifiers.get('product'):
@@ -97,17 +83,30 @@ def get_targetGenomeInfo(data_dir, options, file_type):
     options.targetGenome_locusTag_prod_dict = targetGenome_locusTag_prod_dict
     options.total_cluster = total_cluster
 
-    fp.close()
     return seq_record
 
 
 def get_target_fasta(options):
-    for root, _, files in os.walk('./%s' %options.outputfolder2):
+
+    if options.targetGenome_locusTag_aaSeq_dict:
+
+        target_fasta_dir = os.path.join(
+                options.outputfolder2, 'targetGenome_locusTag_aaSeq.fa')
+        with open(target_fasta_dir,'w') as f:
+            for locusTag in options.targetGenome_locusTag_aaSeq_dict.keys():
+                print >>f, '>%s\n%s' \
+                %(str(locusTag), str(options.targetGenome_locusTag_aaSeq_dict[locusTag]))
+        options.target_fasta = target_fasta_dir
+    else:
+        logging.warning("FASTA file %s for bidirectional blastp hits not found.")
+
+
+#Look for pre-stored fasta file of the template model
+def get_temp_fasta(options):
+    for root, _, files in os.walk('./gems/io/data/input1/%s/' %(options.orgName)):
         for f in files:
             if f.endswith('.fa'):
-                target_fasta = os.path.join(root, f)
-                options.target_fasta = target_fasta
-
-    if not options.target_fasta:
-        logging.warning("FASTA file %s for bidirectional blastp hits not found.")
+                tempFasta = os.path.join(root, f)
+                options.input1 = root
+                options.temp_fasta = tempFasta
 
