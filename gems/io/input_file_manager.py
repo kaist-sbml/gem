@@ -13,6 +13,22 @@ from io_utils import (
 )
 
 
+def check_input_filetype(options):
+    logging.info('Input file: %s', options.input)
+    input_ext = os.path.splitext(options.input)[1]
+
+    if input_ext in ('.gbk', '.gb', '.genbank', '.gbff'):
+        logging.debug("GenBank file format is supported")
+    elif input_ext in ('.fa', '.fasta', '.fna', '.faa', '.fas'):
+        logging.warning("FASTA file format is not currently supported")
+        if options.eficaz:
+            options.eficaz = False
+        elif options.pmr_generation:
+            options.pmr_generation = False
+        elif options.smr_generation:
+            options.smr_generation = False
+
+
 def get_target_gbk(options):
     logging.info("Reading input genome files..")
     logging.info("Reading a genbank file of a target genome..")

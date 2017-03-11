@@ -13,10 +13,7 @@ import pickle
 import sys
 import time
 import warnings
-from cobra.io.sbml import (
-    write_cobra_model_to_sbml_file,
-    create_cobra_model_from_sbml_file
-)
+
 # cobrapy == 0.5.11 should be used, which now has a fixed  function:
 #'cobra.manipulation.delete.prune_unused_metabolites'.
 from cobra.manipulation.delete import prune_unused_metabolites
@@ -25,6 +22,7 @@ from gems import check_prereqs
 from gems.config import load_config
 from gems.eficaz import getECs
 from gems.io.input_file_manager import (
+    check_input_filetype,
     get_target_gbk,
     get_fasta_files,
     get_pickles_prunPhase,
@@ -119,8 +117,11 @@ def main():
     if not options.warning:
         warnings.filterwarnings("ignore")
 
+    check_input_filetype(options)
+
     #Get genome files only if one of functional options is selected
     if options.eficaz or options.pmr_generation or options.smr_generation:
+
         #Load config data
         load_config(options)
 
@@ -255,7 +256,7 @@ def main():
             logging.warning("COBRA-compliant SBML file needed")
 
     if not options.eficaz and not options.pmr_generation and not options.smr_generation:
-        logging.warning("No functional options selected")
+        logging.warning("No functional options enabled")
 
     logging.info(time.strftime("Elapsed time %H:%M:%S", time.gmtime(time.time() - start)))
 
