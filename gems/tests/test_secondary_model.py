@@ -18,15 +18,13 @@ class TestSecondary_model:
 
     def test_get_cluster_info_from_seq_record(self, seq_record, options):
 
-        options.seq_record = seq_record
-
         # Hybrid cluster: nrps-transatpks-t1pks
         # locations: 341017 - 503094
         # Kirromycin biosynthetic gene cluster (81% of genes show similarity)
         cluster_nr = 3
 
-        get_cluster_location(cluster_nr, options)
-        get_cluster_info_from_seq_record(options)
+        get_cluster_location(seq_record, cluster_nr, options)
+        get_cluster_info_from_seq_record(seq_record, options)
 
         # Number of genes for Cluster 3 in Streptomyces collinus Tu 365
         assert len(options.cluster_info_dict) == 22
@@ -37,22 +35,20 @@ class TestSecondary_model:
 
     def test_get_cluster_product(self, seq_record, options):
 
-        options.seq_record = seq_record
         cluster_nr = 3
 
-        get_cluster_location(cluster_nr, options)
-        get_cluster_product(cluster_nr, options)
+        get_cluster_location(seq_record, cluster_nr, options)
+        get_cluster_product(seq_record, cluster_nr, options)
 
         assert options.product == 'Cluster03_nrps_t1pks_transatpks'
 
 
     def test_get_cluster_monomers(self, seq_record, options):
 
-        options.seq_record = seq_record
         cluster_nr = 3
 
-        get_cluster_location(cluster_nr, options)
-        get_cluster_info_from_seq_record(options)
+        get_cluster_location(seq_record, cluster_nr, options)
+        get_cluster_info_from_seq_record(seq_record, options)
         get_cluster_monomers(options)
 
         assert len(options.locustag_monomer_dict.keys()) == 17
@@ -98,7 +94,6 @@ class TestSecondary_model:
     def test_add_sec_met_rxn_cluster3(self,
             seq_record, sci_primary_model, mnxref, tmpdir, options):
 
-        options.seq_record = seq_record
         options.product = 'Cluster03_nrps_t1pks_transatpks'
         options.metab_coeff_dict = {
                 '24dab': -1, 'leu_DASH_L': -1, 'mmcoa_DASH_R': -2, 'malcoa': -3,
@@ -114,8 +109,8 @@ class TestSecondary_model:
         assert 'Cluster03_nrps_t1pks_transatpks_c' not in sci_primary_model.metabolites
 
         cluster_nr = 3
-        get_cluster_location(cluster_nr, options)
-        get_cluster_info_from_seq_record(options)
+        get_cluster_location(seq_record, cluster_nr, options)
+        get_cluster_info_from_seq_record(seq_record, options)
         model = add_sec_met_rxn(sci_primary_model, options)
 
         assert 'Cluster03_nrps_t1pks_transatpks' in model.reactions
@@ -125,7 +120,6 @@ class TestSecondary_model:
     def test_add_sec_met_rxn_cluster7(self,
             seq_record, sci_primary_model, mnxref, tmpdir, options):
 
-        options.seq_record = seq_record
         options.product = 'Cluster07_nrps_t1pks'
         options.metab_coeff_dict = {
                 'mmcoa_DASH_R': -1, 'malcoa': -1, 'Cluster07_nrps_t1pks': 1, '23dhb': -1}
@@ -139,8 +133,8 @@ class TestSecondary_model:
         assert 'Cluster07_nrps_t1pks_c' not in sci_primary_model.metabolites
 
         cluster_nr = 7
-        get_cluster_location(cluster_nr, options)
-        get_cluster_info_from_seq_record(options)
+        get_cluster_location(seq_record, cluster_nr, options)
+        get_cluster_info_from_seq_record(seq_record, options)
         model = add_sec_met_rxn(sci_primary_model, options)
 
         assert 'Cluster07_nrps_t1pks' in model.reactions
