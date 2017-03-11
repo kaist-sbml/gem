@@ -4,6 +4,7 @@
 #Copyright 2014-2016 Novo Nordisk Foundation Center for Biosustainability, DTU
 
 import argparse
+import cobra
 import copy
 import glob
 import logging
@@ -17,7 +18,6 @@ import warnings
 # cobrapy == 0.5.11 should be used, which now has a fixed  function:
 #'cobra.manipulation.delete.prune_unused_metabolites'.
 from cobra.manipulation.delete import prune_unused_metabolites
-from argparse import Namespace
 from gems import check_prereqs, utils
 from gems.config import load_config
 from gems.eficaz import getECs
@@ -155,14 +155,20 @@ def main():
                 logging.warning("Primary metabolic modeling not implemented;")
                 logging.warning("No EC_numbers found in the submitted gbk file")
 
-            # Cleanup of the model
-            prune_unused_metabolites(target_model)
+            try:
+                prune_unused_metabolites(target_model)
+            except:
+                prune_unused_metabolites(modelPrunedGPR)
 
             runtime1 = time.strftime("Elapsed time %H:%M:%S",
                     time.gmtime(time.time() - start))
 
-            generate_outputs(options.outputfolder3, runtime1, options,
-                    cobra_model = target_model)
+            try:
+                generate_outputs(options.outputfolder3, runtime1, options,
+                        cobra_model = target_model)
+            except:
+                generate_outputs(options.outputfolder3, runtime1, options,
+                        cobra_model = modelPrunedGPR)
         else:
             logging.warning("Primary metabolic modeling not implemented;")
             logging.warning("No amino acid sequences found in the submitted gbk file")
@@ -178,8 +184,8 @@ def main():
 
         if len(model_file) > 0 and '.xml' in model_file[0]:
             model_file = os.path.basename(model_file[0])
-            target_model = create_cobra_model_from_sbml_file(
-                    options.outputfolder3 + os.sep + model_file)
+            target_model = cobra.io.read_sbml_model(
+                    os.path.join(options.outputfolder3, model_file))
 
             logging.info("Generating secondary metabolite biosynthesizing reactions..")
             logging.debug("Total number of clusters: %s" %options.total_cluster)
@@ -204,7 +210,6 @@ def main():
 
                 target_model_complete = run_gapfilling(target_model, options)
 
-                #Cleanup of the model
                 prune_unused_metabolites(target_model_complete)
 
                 runtime2 = time.strftime("Elapsed time %H:%M:%S",
