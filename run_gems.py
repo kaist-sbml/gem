@@ -18,7 +18,7 @@ import warnings
 #'cobra.manipulation.delete.prune_unused_metabolites'.
 from cobra.manipulation.delete import prune_unused_metabolites
 from argparse import Namespace
-from gems import check_prereqs
+from gems import check_prereqs, utils
 from gems.config import load_config
 from gems.eficaz import getECs
 from gems.io.input_file_manager import (
@@ -103,15 +103,7 @@ def main():
 
     options = parser.parse_args()
 
-    # Set up debugging
-    if options.verbose:
-        log_level = logging.INFO
-    elif options.debug:
-        log_level = logging.DEBUG
-    else:
-        log_level = logging.WARNING
-
-    logging.basicConfig(format='%(levelname)s: %(message)s', level=log_level)
+    utils.setup_logging(options)
 
     #Warning messages from cobrapy turned off by default
     if not options.warning:
@@ -150,15 +142,7 @@ def main():
             if not os.path.isdir(options.outputfolder + os.sep + folder):
                 os.makedirs(options.outputfolder + os.sep + folder)
 
-        # Set up writing debug records
-        if options.debug:
-            logger = logging.getLogger('')
-            fomatter = logging.Formatter(
-                    '[%(levelname)s|%(filename)s:%(lineno)s] > %(message)s')
-            fh = logging.FileHandler(
-                    os.path.join(options.outputfolder, 'gems.log'), mode = 'w')
-            fh.setFormatter(fomatter)
-            logger.addHandler(fh)
+        utils.setup_logfile_format(options)
 
     # EC number prediction
     if options.eficaz:
