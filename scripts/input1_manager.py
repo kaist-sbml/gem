@@ -1,28 +1,95 @@
 # -*- coding: utf-8 -*-
 
-from Bio import SeqIO
-from cobra import Model, Reaction, Metabolite
-from cobra.io.sbml import create_cobra_model_from_sbml_file, write_cobra_model_to_sbml_file
+import argparse
+import ast
+import cobra
 import os
 import pickle
 import re
 import subprocess
 import sys
 import urllib2
+from Bio import Entrez, SeqIO
+from os.path import join, abspath, dirname
+
+input1_tmp_dir = join(dirname(abspath(__file__)), 'input1_data')
+
+def get_bigg_model_id():
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument('-m', '--model',
+            dest='model',
+            help = "Specify BiGG ID of a metabolic model to prepare as a template model")
+
+    options = parser.parse_args()
+    logging.debug(options)
+
+    return options
+
+
+def download_model_from_biggDB(options):
+    model_file = ''.join([options.model, '.xml'])
+    url = ''.join(['http://bigg.ucsd.edu/static/models/', model_file])
+    logging.debug('URL for downloading a model from the BiGG Models:')
+    logging.debug(url)
+
+    model = urllib2.urlopen(url).read()
+
+    with open(join(input1_tmp_dir, model_file), 'wb') as f:
+        f.write(model)
+
+    model = cobra.io.read_sbml_model(join(input1_tmp_dir, model_file))
+
+    if len(model.reactions) > 1:
+        logging.debug('%s downloaded successfully', options.model)
+    else:
+        logging.debug('%s NOT downloaded successfully', options.model)
+
+
+def get_model_details(options):
+    model_info_dict = {}
+
+    url = ''.join(['http://bigg.ucsd.edu/api/v2/models/', options.model])
+    logging.debug('URL for accessing model details the BiGG Models:')
+    logging.debug(url)
+
+    model_info = urllib2.urlopen(url).read()
+
+    model_info_dict = ast.literal_eval(model_info)
+    logging.debug('%s details:', options.model)
+    logging.debug('model_bigg_id: %s', model_info_dict['model_bigg_id'])
+    logging.debug('organism: %s', model_info_dict['organism'])
+    logging.debug('genome_name: %s', model_info_dict['genome_name'])
+    logging.debug('gene_count: %s', model_info_dict['gene_count'])
+
+    return model_info_dict
+
+
+def download_gbk_from_ncbi(model_info_dict):
+    gbk_file = ''.join([model_info_dict['genome_name'], '.gb'])
+    Entrez.email = "ehukim@kaist.ac.kr"
+
+    handle = Entrez.efetch(db='nucleotide',
+            id=model_info_dict['genome_name'], rettype='gbwithparts', retmode='text')
+
+    seq_record = handle.read()
+
+    with open(join(input1_tmp_dir, gbk_file), 'wb') as f:
+        f.write(seq_record)
 
 
 #Looks for .xml and .gb(k) files in the pre-defined folder
-def get_tempInfo(orgName):
-    for root, dirs, files in os.walk('./input1/%s/' %(orgName)):
-        for file in files:
-            if file.endswith('.gb') or file.endswith('.gbk'):
-		tempGenome = os.path.join(root, file)
-            if file.endswith('.xml'):
-		tempModel = os.path.join(root, file)
-	if tempGenome and tempModel:
-            return root, tempGenome, tempModel
-	else:
-            sys.exit(1)
+#def get_tempInfo(orgName):
+#    for root, dirs, files in os.walk('./input1/%s/' %(orgName)):
+#        for file in files:
+#            if file.endswith('.gb') or file.endswith('.gbk'):
+#		tempGenome = os.path.join(root, file)
+#            if file.endswith('.xml'):
+#		tempModel = os.path.join(root, file)
+#	if tempGenome and tempModel:
+#            return root, tempGenome, tempModel
+#	else:
+#            sys.exit(1)
 
 #Files contents in SBML formatted into Dictionary {key:value} type.
 #Created by Jae Yong Ryu, on 2014. 1. 13.
@@ -114,8 +181,6 @@ def parse_templateModel_gpr(outputFile1, root, cobra_reaction_dic, tempGenome_lo
     fp1 = open(outputFile1, 'w')
     tempModel_biggRxnid_locusTag_dict = {}
     tempModel_locusTag_aaSeq_dict = {} #For reactions with genes and AA seq
-    tempModel_biggRxnid_wo_gene_list = []
-    tempModel_biggRxnidwithGene_woSeq_list = [] #For reactions with genes, but no seq info
 
     #Starts model parsing
     for Reaction_name in cobra_reaction_dic.keys():
@@ -129,24 +194,16 @@ def parse_templateModel_gpr(outputFile1, root, cobra_reaction_dic, tempGenome_lo
         tempModel_biggRxnid_locusTag_dict[Reaction_name] = Genes_list
 
         for Genes_each_list in Genes_list:
-            #Stores reactions without genes
-            if not Genes_each_list:
-                tempModel_biggRxnid_wo_gene_list.append(Reaction_name)
-
             #Checks if the element itself is List.
             #'if type(Genes_each_list) == list' also works.
             #Genes connected with 'AND' come in the List type.
-            elif isinstance(Genes_each_list, list):
+            if isinstance(Genes_each_list, list):
                 for Genes_each2_list in Genes_each_list:
                     if Genes_each2_list in tempGenome_locusTag_aaSeq_dict.keys():
                         #Dictionary - ORF:AA seq
                         #Stores only reactions with genes and their amino acid seq in Dictionary
                         if tempGenome_locusTag_aaSeq_dict[Genes_each2_list]:
                             tempModel_locusTag_aaSeq_dict[Genes_each2_list] = tempGenome_locusTag_aaSeq_dict[Genes_each2_list]
-
-                    #Some reactions do not have seq info despite their presence of genes (e.g., b2092)
-                    else:
-                        tempModel_biggRxnidwithGene_woSeq_list.append(Reaction_name)
 
             #Single genes for a reaction, or genes connected with 'OR'
             else:
@@ -157,16 +214,12 @@ def parse_templateModel_gpr(outputFile1, root, cobra_reaction_dic, tempGenome_lo
                     if tempGenome_locusTag_aaSeq_dict[Genes_each_list]:
                         tempModel_locusTag_aaSeq_dict[Genes_each_list] = tempGenome_locusTag_aaSeq_dict[Genes_each_list]
 
-                #Some reactions in iAF1260 do not have aa seq despite their presence of genes (e.g., b2092)
-                else:
-                    tempModel_biggRxnidwithGene_woSeq_list.append(Reaction_name)
-
     pickle.dump(tempModel_biggRxnid_locusTag_dict, open('%s/tempModel_biggRxnid_locusTag_dict.p' %(root),'wb'))
 
     for key in tempModel_biggRxnid_locusTag_dict.keys():
 	print >>fp1, '%s\t%s' %(key, tempModel_biggRxnid_locusTag_dict[key])
     fp1.close()
-    return tempModel_biggRxnid_locusTag_dict, tempModel_locusTag_aaSeq_dict, tempModel_biggRxnid_wo_gene_list, tempModel_biggRxnidwithGene_woSeq_list
+    return tempModel_biggRxnid_locusTag_dict, tempModel_locusTag_aaSeq_dict
 
 
 #This function was removed, but restored
@@ -210,3 +263,18 @@ def pickle_template_exchange_rxnid_flux_dict():
     pickle.dump(template_exrxnid_flux_dict, open('./input1/eco/tempModel_exrxnid_flux_dict.p','wb'))
     fp1.close()
 
+if __name__ == '__main__':
+    import logging
+    import time
+
+    start = time.time()
+    logging.basicConfig(format='%(levelname)s: %(message)s', level='DEBUG')
+
+    options = get_bigg_model_id()
+    download_model_from_biggDB(options)
+    model_info_dict = get_model_details(options)
+    download_gbk_from_ncbi(model_info_dict)
+
+    logging.info("Make sure to update template model options in 'run_gems.py'!")
+    logging.info("Input files have been created in '/gems/io/data/input1'")
+    logging.info(time.strftime("Elapsed time %H:%M:%S", time.gmtime(time.time() - start)))
