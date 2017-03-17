@@ -18,12 +18,6 @@ def generate_outputs(folder, runtime, options, **kwargs):
     #e.g., metabolite IDs with correct compartment suffices & accurate model stats
     #This can also mask the effects of model error (e.g., undeclared metabolite ID)
     cobra_model = utils.stabilize_model(cobra_model, folder, '')
-#    cobra.io.write_sbml_model(cobra_model,
-#            './%s/model.xml' %folder, use_fbc_package=False)
-#    cobra_model = create_cobra_model_from_sbml_file(
-#            './%s/model.xml' %folder)
-#    write_cobra_model_to_sbml_file(cobra_model,
-#            './%s/model.xml' %folder, use_fbc_package=False)
 
     num_essen_rxn, num_kegg_rxn, num_cluster_rxn = get_model_reactions(
                        folder, options, **kwargs)
