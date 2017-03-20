@@ -32,27 +32,30 @@ class ParseMNXref(object):
         elif not os.path.isfile(pickle_dir):
             bigg_old_new_dict = {}
 
-            file_list = [
-                    'King-etal-2016_fix_legacy_id_metabolites.txt',
-                    'King-etal-2016_fix_legacy_id_reactions.txt']
+            zip = zipfile.ZipFile(join(input2_tmp_dir, 'King-etal-2016_fix_legacy_id.zip'))
+            zip.extractall(input2_tmp_dir)
+
+            # File 1: 'King-etal-2016_fix_legacy_id_metabolites.txt',
+            # File 2: 'King-etal-2016_fix_legacy_id_reactions.txt']
+            file_list = glob.glob(join(input2_tmp_dir, '*.txt'))
 
             for filename in file_list:
-                f = open(join(input2_tmp_dir, filename),'r')
-                f.readline()
+                if 'legacy' in filename:
+                    f = open(join(input2_tmp_dir, filename),'r')
+                    f.readline()
 
-                for line in f:
-                    try:
-                        id_list = line.split('\t')
-                        old_id = id_list[0].strip()
-                        new_id = id_list[1].strip()
-                        bigg_old_new_dict[old_id] = new_id
+                    for line in f:
+                        try:
+                            id_list = line.split('\t')
+                            old_id = id_list[0].strip()
+                            new_id = id_list[1].strip()
+                            bigg_old_new_dict[old_id] = new_id
+                            logging.debug('%s; %s' %(old_id, new_id))
+                        except:
+                            logging.debug('Cannot parse BiGG Models IDs: %s' %line)
 
-                        logging.debug('%s; %s' %(old_id, new_id))
-                    except:
-                        logging.debug('Cannot parse BiGG Models IDs: %s' %line)
-
-                f.close()
-
+                    f.close()
+                    os.remove(join(input2_tmp_dir, filename))
         return bigg_old_new_dict
 
 
