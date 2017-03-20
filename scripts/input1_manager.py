@@ -238,7 +238,7 @@ def generate_output_files(model,
         for k, v in tempModel_biggRxnid_locusTag_dict.iteritems():
             print >>f, '%s\t%s' %(k, v)
 
-    with open(join(input1_tmp_dir, 'tempModel_locusTag_aaSeq_dict.fa'), 'w') as f:
+    with open(join(input1_dir, 'tempModel_locusTag_aaSeq.fa'), 'w') as f:
         for k, v in tempModel_locusTag_aaSeq_dict.iteritems():
             print >>f, '>%s\n%s' %(k, v)
 
@@ -252,13 +252,10 @@ def generate_output_files(model,
     with open(join(input1_dir, 'tempModel_biggRxnid_locusTag_dict.p'), 'wb') as f:
         pickle.dump(tempModel_biggRxnid_locusTag_dict, f, protocol=pickle.HIGHEST_PROTOCOL)
 
-    with open(join(input1_dir, 'tempModel_locusTag_aaSeq_dict.p'), 'wb') as f:
-        pickle.dump(tempModel_locusTag_aaSeq_dict, f, protocol=pickle.HIGHEST_PROTOCOL)
-
 
 def make_blastDB():
     db_dir = join(input1_dir, 'tempBlastDB')
-    query_fasta = join(input1_tmp_dir, 'tempModel_locusTag_aaSeq_dict.fa')
+    query_fasta = join(input1_dir, 'tempModel_locusTag_aaSeq.fa')
 
     try:
         DBprogramName = gems.utils.locate_executable('makeblastdb')
