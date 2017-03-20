@@ -3,6 +3,8 @@
 import argparse
 import ast
 import cobra
+import glob
+import input1_manager
 import os
 import pickle
 import subprocess
@@ -16,13 +18,23 @@ import gems
 
 input1_dir = join(os.pardir, 'gems', 'io', 'data', 'input1')
 input1_tmp_dir = join(dirname(abspath(__file__)), 'input1_data')
+input2_tmp_dir = join(dirname(abspath(__file__)), 'input2_data')
 
-def get_bigg_model_id():
+def get_options():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('-m', '--model',
+    group = parser.add_argument_group(
+        "Provide either:",
+        "1) BiGG Models ID (e.g., iAF1260) or "
+        "2) Genbank accession number (e.g., NC_003888.3). "
+        "For the latter case, place a relevant SBML file in 'scripts/input1_data/'.")
+
+    group.add_argument('-m', '--model',
             dest='model',
             help = "Specify BiGG ID of a metabolic model to prepare as a template model")
+    group.add_argument('-a', '--acc_number',
+            dest='acc_number',
+            help = "Specify a organism's Genbank accession number")
 
     options = parser.parse_args()
     logging.debug(options)
@@ -42,9 +54,7 @@ def download_model_from_biggDB(options):
         f.write(model)
 
     model = cobra.io.read_sbml_model(join(input1_tmp_dir, model_file))
-    cobra.io.write_sbml_model(model,
-            join(input1_tmp_dir, model_file), use_fbc_package=False)
-    model = cobra.io.read_sbml_model(join(input1_tmp_dir, model_file))
+    model = gems.utils.stabilize_model(model, input1_tmp_dir, options.model)
 
     if len(model.reactions) > 1:
         logging.debug('%s downloaded successfully', options.model)
@@ -52,25 +62,6 @@ def download_model_from_biggDB(options):
         logging.debug('%s NOT downloaded successfully', options.model)
 
     return model
-
-
-def get_tempModel_exrxnid_flux_dict(model):
-    tempModel_exrxnid_flux_dict = {}
-
-    model.optimize()
-
-    # NOTE: 'f' and 'x_dict' are deprecated properties in cobra>=0.6.1.
-    # TODO: This function should be upgraded upon use of cobra>=0.6.1.
-    tempModel_exrxnid_flux_dict['EX_pi_e'] = model.solution.x_dict['EX_pi_e']
-    tempModel_exrxnid_flux_dict['EX_co2_e'] = model.solution.x_dict['EX_co2_e']
-    tempModel_exrxnid_flux_dict['EX_glc__D_e'] = model.solution.x_dict['EX_glc__D_e']
-    tempModel_exrxnid_flux_dict['EX_nh4_e'] = model.solution.x_dict['EX_nh4_e']
-    tempModel_exrxnid_flux_dict['EX_h2o_e'] = model.solution.x_dict['EX_h2o_e']
-    tempModel_exrxnid_flux_dict['EX_h_e'] = model.solution.x_dict['EX_h_e']
-    tempModel_exrxnid_flux_dict['EX_o2_e'] = model.solution.x_dict['EX_o2_e']
-    tempModel_exrxnid_flux_dict[str(model.objective.keys()[0])] = model.solution.f
-
-    return tempModel_exrxnid_flux_dict
 
 
 def get_model_details(options):
@@ -90,6 +81,26 @@ def get_model_details(options):
     logging.debug('gene_count: %s', model_info_dict['gene_count'])
 
     return model_info_dict
+
+
+def prepare_nonstd_model(options):
+    bigg_old_new_dict = input1_manager.ParseMNXref.fix_legacy_id_using_BiGGModels()
+
+    sbml_list = glob.glob(join(input1_tmp_dir, '*.xml'))
+    model = cobra.io.read_sbml_model(join(input1_tmp_dir, sbml_list[0]))
+
+    for i in range(len(model.metabolites)):
+        metab = model.metabolites[i]
+
+        if metab.id in bigg_old_new_dict:
+            metab.id = bigg_old_new_dict[metab.id]
+
+    model = gems.utils.stabilize_model(model, input1_tmp_dir, '')
+
+    model_info_dict = {}
+    model_info_dict['genome_name'] = options.acc_number
+
+    return model, model_info_dict
 
 
 def download_gbk_from_ncbi(model_info_dict):
@@ -122,6 +133,25 @@ def get_tempGenome_locusTag_aaSeq_dict(gbk_file):
                 tempGenome_locusTag_aaSeq_dict[locusTag] = translation
 
     return tempGenome_locusTag_aaSeq_dict
+
+
+def get_tempModel_exrxnid_flux_dict(model):
+    tempModel_exrxnid_flux_dict = {}
+
+    model.optimize()
+
+    # NOTE: 'f' and 'x_dict' are deprecated properties in cobra>=0.6.1.
+    # TODO: This function should be upgraded upon use of cobra>=0.6.1.
+    tempModel_exrxnid_flux_dict['EX_pi_e'] = model.solution.x_dict['EX_pi_e']
+    tempModel_exrxnid_flux_dict['EX_co2_e'] = model.solution.x_dict['EX_co2_e']
+    tempModel_exrxnid_flux_dict['EX_glc__D_e'] = model.solution.x_dict['EX_glc__D_e']
+    tempModel_exrxnid_flux_dict['EX_nh4_e'] = model.solution.x_dict['EX_nh4_e']
+    tempModel_exrxnid_flux_dict['EX_h2o_e'] = model.solution.x_dict['EX_h2o_e']
+    tempModel_exrxnid_flux_dict['EX_h_e'] = model.solution.x_dict['EX_h_e']
+    tempModel_exrxnid_flux_dict['EX_o2_e'] = model.solution.x_dict['EX_o2_e']
+    tempModel_exrxnid_flux_dict[str(model.objective.keys()[0])] = model.solution.f
+
+    return tempModel_exrxnid_flux_dict
 
 
 def get_gpr_fromString_toList(line):
@@ -228,19 +258,28 @@ def make_blastDB():
 if __name__ == '__main__':
     import logging
     import time
+    import warnings
+
+    warnings.filterwarnings("ignore")
 
     start = time.time()
     logging.basicConfig(format='%(levelname)s: %(message)s', level='DEBUG')
 
-    options = get_bigg_model_id()
-    model = download_model_from_biggDB(options)
-    tempModel_exrxnid_flux_dict = get_tempModel_exrxnid_flux_dict(model)
-    model_info_dict = get_model_details(options)
+    options = get_options()
+
+    if options.model:
+        model = download_model_from_biggDB(options)
+        model_info_dict = get_model_details(options)
+    elif options.acc_number:
+        model, model_info_dict = prepare_nonstd_model(options)
+
     gbk_file = download_gbk_from_ncbi(model_info_dict)
     tempGenome_locusTag_aaSeq_dict = get_tempGenome_locusTag_aaSeq_dict(gbk_file)
+    tempModel_exrxnid_flux_dict = get_tempModel_exrxnid_flux_dict(model)
     tempModel_biggRxnid_locusTag_dict = get_tempModel_biggRxnid_locusTag_dict(model)
     tempModel_locusTag_aaSeq_dict = \
         get_tempModel_locusTag_aaSeq_dict(model, tempGenome_locusTag_aaSeq_dict, options)
+
     generate_output_files(
             model,
             tempGenome_locusTag_aaSeq_dict,
