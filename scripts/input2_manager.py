@@ -4,6 +4,7 @@
 import cobra
 import copy
 import glob
+import logging
 import os
 import pickle
 import shutil
@@ -466,7 +467,6 @@ def remove_tsv_files():
 
 
 if __name__ == '__main__':
-    import logging
     import time
 
     start = time.time()
