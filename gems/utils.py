@@ -145,12 +145,15 @@ def get_keggid_from_mnxr(mnxr, options):
 
 
 #'add_reaction' requires writing/reloading of the model
-def stabilize_model(model, folder, label):
+def stabilize_model(model, folder, label, diff_name=False):
 
-    if label:
-        model_name = 'model_%s.xml' %label
+    if diff_name:
+        model_name = '%s.xml' %label
     else:
-        model_name = 'model.xml'
+        if label:
+            model_name = 'model_%s.xml' %label
+        else:
+            model_name = 'model.xml'
 
     cobra.io.write_sbml_model(model, join('%s' %folder, model_name), use_fbc_package=False)
     model = cobra.io.read_sbml_model(join('%s' %folder, model_name))
