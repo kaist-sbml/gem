@@ -1,43 +1,63 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import cobra
 import copy
 import glob
 import os
 import pickle
 import shutil
+import sys
 import zipfile
 from cobra import Model, Reaction, Metabolite
-from cobra.io import write_sbml_model
-from cobra.io.sbml import fix_legacy_id
 from os.path import join, abspath, dirname
+
+sys.path.insert(0, abspath(join(dirname(__file__), '..')))
+import gems
 
 
 input2_dir = join(os.pardir, 'gems', 'io', 'data', 'input2')
-mnxref_dir = join(dirname(abspath(__file__)), 'input2_data')
+input2_tmp_dir = join(dirname(abspath(__file__)), 'input2_data')
 
 class ParseMNXref(object):
 
-    # Based on fix_legacy_id(id, use_hyphens=False, fix_compartments=False) of cobrapy:
-    def reverse_fix_legacy_id(self, biggid):
-        biggid = biggid.replace('__', '_DASH_')
-        biggid = biggid.replace('/', '_FSLASH_')
-        biggid = biggid.replace("\\",'_BSLASH_')
-        biggid = biggid.replace('(', '_LPAREN_')
-        biggid = biggid.replace('[', '_LSQBKT_')
-        biggid = biggid.replace(']', '_RSQBKT_')
-        biggid = biggid.replace(')', '_RPAREN_')
-        biggid = biggid.replace(',', '_COMMA_')
-        biggid = biggid.replace('.', '_PERIOD_')
-        biggid = biggid.replace("'", '_APOS_')
-        biggid = biggid.replace('&', '&amp;')
-        biggid = biggid.replace('<', '&lt;')
-        biggid = biggid.replace('>', '&gt;')
-        biggid = biggid.replace('"', '&quot;')
+    # Based on King et al. (2016) in NAR
+    def fix_legacy_id_using_BiGGModels(self):
+        pickle_dir = join(input2_tmp_dir, 'bigg_old_new_dict.p')
 
-        self.biggid = biggid
+        if os.path.isfile(pickle_dir):
+            with open(pickle_dir, 'rb') as f:
+                bigg_old_new_dict = pickle.load(f)
+
+        elif not os.path.isfile(pickle_dir):
+            bigg_old_new_dict = {}
+
+            file_list = [
+                    'King-etal-2016_fix_legacy_id_metabolites.txt',
+                    'King-etal-2016_fix_legacy_id_reactions.txt']
+
+            for filename in file_list:
+                f = open(join(input2_tmp_dir, filename),'r')
+                f.readline()
+
+                for line in f:
+                    try:
+                        id_list = line.split('\t')
+                        old_id = id_list[0].strip()
+                        new_id = id_list[1].strip()
+                        bigg_old_new_dict[old_id] = new_id
+
+                        logging.debug('%s; %s' %(old_id, new_id))
+                    except:
+                        logging.debug('Cannot parse BiGG Models IDs: %s' %line)
+
+                f.close()
+
+        return bigg_old_new_dict
+
 
     # This function cannot parse the initial version of NMXref data
-    def read_chem_xref(self, filename):
+    def read_chem_xref(self, bigg_old_new_dict, filename):
         mnxm_bigg_compound_dict = {}
         mnxm_kegg_compound_dict = {}
 
@@ -54,8 +74,11 @@ class ParseMNXref(object):
                 mnxm = metab_info_list[1].strip()
 
                 if xref_db == 'bigg':
-                    self.reverse_fix_legacy_id(xref_id)
-                    mnxm_bigg_compound_dict[mnxm] = self.biggid
+                    if xref_id in bigg_old_new_dict:
+                        mnxm_bigg_compound_dict[mnxm] = bigg_old_new_dict[xref_id]
+                    else:
+                        mnxm_bigg_compound_dict[mnxm] = xref_id
+
                 elif xref_db == 'kegg':
                     # Following conditions give priority to compoundID starting with 'C'
                     if 'D' not in xref_id \
@@ -72,6 +95,10 @@ class ParseMNXref(object):
         self.mnxm_bigg_compound_dict = mnxm_bigg_compound_dict
         self.mnxm_kegg_compound_dict = mnxm_kegg_compound_dict
 
+        # TODO: To remove
+        with open(join(input2_tmp_dir, 'mnxm_bigg_compound_dict.txt'), 'w') as f:
+            for k, v in mnxm_bigg_compound_dict.iteritems():
+                print >>f, '%s\t%s' %(k, v)
 
     # mnxm_compoundInfo_dict =
     #{'MNXM128019': ['Methyl trans-p-methoxycinnamate', 'C11H12O3']}
@@ -356,6 +383,13 @@ class ParseMNXref(object):
             if each_cobra_reaction.id not in reaction_list:
                 cobra_model.add_reaction(each_cobra_reaction)
 
+        for i in range(len(cobra_model.metabolites)):
+            metab = cobra_model.metabolites[i]
+            metab.id = cobra.io.sbml.fix_legacy_id(metab.id)
+
+        cobra_model = gems.utils.stabilize_model(
+                cobra_model, input2_tmp_dir, 'MNXref', diff_name=True)
+
         logging.debug('%i reactions in model' % len(cobra_model.reactions))
         logging.debug('%i metabolites in model' % len(cobra_model.metabolites))
         logging.debug('%i genes in model' % len(cobra_model.genes))
@@ -364,38 +398,47 @@ class ParseMNXref(object):
 
 
 def unzip_tsv_files():
-    tsv_files = glob.glob(join(mnxref_dir, '*.tsv'))
+    tsv_files = glob.glob(join(input2_tmp_dir, '*.tsv'))
     if len(tsv_files) ==  0:
-        zip = zipfile.ZipFile(join(mnxref_dir, 'mnxref.zip'))
-        zip.extractall(mnxref_dir)
+        zip = zipfile.ZipFile(join(input2_tmp_dir, 'mnxref.zip'))
+        zip.extractall(input2_tmp_dir)
 
 
 def run_ParseMNXref():
     mnx_parser = ParseMNXref()
 
-    mnx_parser.read_chem_xref(join(mnxref_dir, 'chem_xref.tsv'))
-    mnxm_compoundInfo_dict = mnx_parser.read_chem_prop(join(mnxref_dir, 'chem_prop.tsv'))
-    mnxr_kegg_dict, bigg_mnxr_dict = mnx_parser.read_reac_xref(join(mnxref_dir, 'reac_xref.tsv'))
-    cobra_model = mnx_parser.make_cobra_model(join(mnxref_dir, 'reac_prop.tsv'))
+    bigg_old_new_dict = mnx_parser.fix_legacy_id_using_BiGGModels()
+    mnx_parser.read_chem_xref(bigg_old_new_dict, join(input2_tmp_dir, 'chem_xref.tsv'))
+    mnxm_compoundInfo_dict = mnx_parser.read_chem_prop(join(input2_tmp_dir, 'chem_prop.tsv'))
+    mnxr_kegg_dict, bigg_mnxr_dict = mnx_parser.read_reac_xref(join(input2_tmp_dir, 'reac_xref.tsv'))
+    cobra_model = mnx_parser.make_cobra_model(join(input2_tmp_dir, 'reac_prop.tsv'))
 
     # Write SBML file
-    write_sbml_model(cobra_model,
-            join(mnxref_dir, 'MNXref.xml'), use_fbc_package=False)
+    cobra.io.write_sbml_model(cobra_model,
+            join(input2_tmp_dir, 'MNXref.xml'), use_fbc_package=False)
 
     # Write txt files
-    with open(join(mnxref_dir, 'mnxm_compoundInfo_dict.txt'), 'w') as f:
+    with open(join(input2_tmp_dir, 'bigg_old_new_dict.txt'), 'w') as f:
+        for k, v in bigg_old_new_dict.iteritems():
+            print >>f, '%s\t%s' %(k, v)
+
+    with open(join(input2_tmp_dir, 'mnxm_compoundInfo_dict.txt'), 'w') as f:
         for k, v in mnxm_compoundInfo_dict.iteritems():
             print >>f, '%s\t%s' %(k, v)
 
-    with open(join(mnxref_dir, 'mnxr_kegg_dict.txt'), 'w') as f:
+    with open(join(input2_tmp_dir, 'mnxr_kegg_dict.txt'), 'w') as f:
         for k, v in mnxr_kegg_dict.iteritems():
             print >>f, '%s\t%s' %(k, v)
 
-    with open(join(mnxref_dir, 'bigg_mnxr_dict.txt'), 'w') as f:
+    with open(join(input2_tmp_dir, 'bigg_mnxr_dict.txt'), 'w') as f:
         for k, v in bigg_mnxr_dict.iteritems():
             print >>f, '%s\t%s' %(k, v)
 
-    # Create pickles in input2
+    # Create pickles in 'scripts/input2_data' and 'input2'
+    if not os.path.isfile(join(input2_tmp_dir, 'bigg_old_new_dict.p')):
+        with open(join(input2_tmp_dir, 'bigg_old_new_dict.p'), 'wb') as f:
+            pickle.dump(bigg_old_new_dict, f, protocol=pickle.HIGHEST_PROTOCOL)
+
     with open(join(input2_dir, 'mnxm_compoundInfo_dict.p'), 'wb') as f:
         pickle.dump(mnxm_compoundInfo_dict, f, protocol=pickle.HIGHEST_PROTOCOL)
 
@@ -414,7 +457,7 @@ def run_ParseMNXref():
 
 
 def remove_tsv_files():
-    tsv_files = glob.glob(join(mnxref_dir, '*.tsv'))
+    tsv_files = glob.glob(join(input2_tmp_dir, '*.tsv'))
     for tsv_file in tsv_files:
         os.remove(tsv_file)
 
