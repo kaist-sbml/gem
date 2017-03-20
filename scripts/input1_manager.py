@@ -4,13 +4,14 @@ import argparse
 import ast
 import cobra
 import glob
-import input1_manager
 import os
+import logging
 import pickle
 import subprocess
 import sys
 import urllib2
 from Bio import Entrez, SeqIO
+from input2_manager import ParseMNXref
 from os.path import join, abspath, dirname
 
 sys.path.insert(0, abspath(join(dirname(__file__), '..')))
@@ -84,16 +85,26 @@ def get_model_details(options):
 
 
 def prepare_nonstd_model(options):
-    bigg_old_new_dict = input1_manager.ParseMNXref.fix_legacy_id_using_BiGGModels()
+    mnx_parser = ParseMNXref()
+    bigg_old_new_dict = mnx_parser.fix_legacy_id_using_BiGGModels()
 
     sbml_list = glob.glob(join(input1_tmp_dir, '*.xml'))
-    model = cobra.io.read_sbml_model(join(input1_tmp_dir, sbml_list[0]))
+    logging.debug('Model found: %s', sbml_list)
+    # This considers 'fix_legacy_id'
+    model = cobra.io.read_legacy_sbml(join(input1_tmp_dir, sbml_list[0]))
 
     for i in range(len(model.metabolites)):
         metab = model.metabolites[i]
-
         if metab.id in bigg_old_new_dict:
             metab.id = bigg_old_new_dict[metab.id]
+
+    for j in range(len(model.reactions)):
+        rxn = model.reactions[j]
+        if rxn.id in bigg_old_new_dict:
+            # Otherwise a duplicate reaction can be inserted: e.g., ME1 -> ME2
+            if bigg_old_new_dict[rxn.id] not in model.reactions:
+                logging.debug('Reaction: %s -> %s ', rxn.id, bigg_old_new_dict[rxn.id])
+                rxn.id = bigg_old_new_dict[rxn.id]
 
     model = gems.utils.stabilize_model(model, input1_tmp_dir, '')
 
@@ -154,6 +165,7 @@ def get_tempModel_exrxnid_flux_dict(model):
     return tempModel_exrxnid_flux_dict
 
 
+# TODO: Use pyparsing
 def get_gpr_fromString_toList(line):
     calcNewList = []
     line = line.strip()
@@ -198,8 +210,12 @@ def get_tempModel_locusTag_aaSeq_dict(model, tempGenome_locusTag_aaSeq_dict, opt
         else:
             logging.warning('Sequence of following gene NOT available: %s', gene.id)
 
-    logging.debug('Number of genes in %s (total %s genes): %s',
-            options.model, len(model.genes), len(tempModel_locusTag_aaSeq_dict))
+    if options.model:
+        logging.debug('Number of genes in %s (total %s genes): %s',
+                options.model, len(model.genes), len(tempModel_locusTag_aaSeq_dict))
+    elif options.acc_number:
+        logging.debug('Number of genes in the model for %s (total %s genes): %s',
+                options.acc_number, len(model.genes), len(tempModel_locusTag_aaSeq_dict))
 
     return tempModel_locusTag_aaSeq_dict
 
@@ -256,7 +272,6 @@ def make_blastDB():
 
 
 if __name__ == '__main__':
-    import logging
     import time
     import warnings
 
