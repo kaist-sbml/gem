@@ -4,9 +4,13 @@ output/
 kegg_cache/
 scripts/input1_data/*.fa
 scripts/input1_data/*.gb
+scripts/input1_data/*.gbk
 scripts/input1_data/*.txt
 scripts/input1_data/*.xml
-scripts/input1_data/*.gbk
+scripts/input1_data/*/*.gb
+scripts/input1_data/*/*.gbk
+scripts/input1_data/*/*.txt
+scripts/input1_data/*/model.xml
 scripts/input2_data/*.txt
 scripts/input2_data/*.xml
 
