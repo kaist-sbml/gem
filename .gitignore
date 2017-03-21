@@ -1,5 +1,5 @@
 # GEMS I/O
-input/
+input*/
 output/
 kegg_cache/
 scripts/input1_data/*.fa
