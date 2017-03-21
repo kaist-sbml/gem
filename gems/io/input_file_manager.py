@@ -37,6 +37,9 @@ def setup_outputfolders(options):
         options.outputfolder3 = os.path.join(options.outputfolder, folders[2])
         make_folder(options.outputfolder3)
     if options.smr_generation:
+        #'3_primary_metabolic_model'
+        options.outputfolder3 = os.path.join(options.outputfolder, folders[2])
+        make_folder(options.outputfolder3)
         #'4_complete_model'
         options.outputfolder4 = os.path.join(options.outputfolder, folders[3])
         make_folder(options.outputfolder4)
