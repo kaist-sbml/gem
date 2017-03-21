@@ -167,7 +167,7 @@ def get_exrxnid_flux(model, template_exrxnid_flux_dict):
     target_exrxnid_flux_dict = {}
     model.optimize()
 
-    for exrxn_id in template_exrxnid_flux_dict.keys():
+    for exrxn_id in template_exrxnid_flux_dict:
         if exrxn_id in model.solution.x_dict:
             target_exrxnid_flux_dict[exrxn_id] = model.solution.x_dict[exrxn_id]
         else:
@@ -181,8 +181,8 @@ def check_exrxn_flux_direction(
 
     exrxn_flux_change_list = []
 
-    for exrxn_id in template_exrxnid_flux_dict.keys():
-        if exrxn_id in target_exrxnid_flux_dict.keys():
+    for exrxn_id in template_exrxnid_flux_dict:
+        if exrxn_id in target_exrxnid_flux_dict:
             template_exrxn_flux = template_exrxnid_flux_dict[exrxn_id]
             target_exrxn_flux = target_exrxnid_flux_dict[exrxn_id]
             ratio_exrxn_flux = float(target_exrxn_flux)/float(template_exrxn_flux)
