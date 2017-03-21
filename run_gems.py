@@ -42,7 +42,7 @@ from gems.secondary_model.run_secondary_modeling import (
 def main():
     start = time.time()
 
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
 
     #General options
     parser.add_argument('-c', '--cpu',
@@ -61,14 +61,20 @@ def main():
                         default='output',
                         help="Specify output directory")
 
-    group = parser.add_argument_group('GEMS options',
-                        "At least one of the three options should be selected:"
-                        " '-e', '-p-' and '-s'")
+    group = parser.add_argument_group('Template model options',
+                        "Select a biologically close organism")
     group.add_argument('-m', '--model',
                         dest='orgName',
                         default='sco',
                         choices=['eco','sco'],
-                        help="Specify a template model for the target modeling")
+                        help="Specify a template model for the target modeling\n"
+                        "'eco': iAF1260; Escherichia coli str. K-12 substr. MG1655\n"
+                        "'sco': iMK1208; Streptomyces coelicolor A3(2)"
+                        )
+
+    group = parser.add_argument_group('GEMS modeling options',
+                        "At least one of the three options should be selected:"
+                        " '-e', '-p-' and '-s'")
     group.add_argument('-e', '--ec',
                         dest='eficaz',
                         action='store_true',
