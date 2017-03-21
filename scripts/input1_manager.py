@@ -6,6 +6,7 @@ import cobra
 import glob
 import os
 import logging
+import pyparsing
 import pickle
 import subprocess
 import sys
@@ -165,27 +166,18 @@ def get_tempModel_exrxnid_flux_dict(model):
     return tempModel_exrxnid_flux_dict
 
 
-# TODO: Use pyparsing
-def get_gpr_fromString_toList(line):
-    calcNewList = []
-    line = line.strip()
-    calcList = line.split('or')
-    for c in calcList:
-        c = c.replace('(','')
-        c = c.replace(')','')
-        c = c.replace(' ','')
-        c = c.strip()
-        if 'and' in c:
-            newlist = c.split('and')
-            newlist = list(set(newlist))
-            newlist.sort()
-            calcNewList.append(newlist)
-        else:
-            geneid=c.strip()
-            if geneid not in calcNewList:
-                calcNewList.append(geneid)
+def get_gpr_fromString_toList(gpr):
+    gpr_regex = pyparsing.Word(pyparsing.alphanums)
+    and_booleanop = pyparsing.Suppress(pyparsing.oneOf('AND and'))
+    or_booleanop = pyparsing.Suppress(pyparsing.oneOf('OR or'))
+    expr = pyparsing.infixNotation(gpr_regex,
+                                [
+                                (and_booleanop, 2, pyparsing.opAssoc.LEFT),
+                                (or_booleanop, 2, pyparsing.opAssoc.LEFT)
+                                ])
+    gpr_list = expr.parseString(gpr)[0].asList()
 
-    return calcNewList
+    return gpr_list
 
 
 def get_tempModel_biggRxnid_locusTag_dict(model):
