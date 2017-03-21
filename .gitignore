@@ -7,10 +7,15 @@ scripts/input1_data/*.gb
 scripts/input1_data/*.gbk
 scripts/input1_data/*.txt
 scripts/input1_data/*.xml
-scripts/input1_data/*/*.gb
-scripts/input1_data/*/*.gbk
-scripts/input1_data/*/*.txt
-scripts/input1_data/*/model.xml
+
+# Files for the organisms whose data are accessible from BiGG and NCBI are ignored.
+# For an organism not accessible (e.g., sco), its template model is tracked.
+scripts/input1_data/eco/*
+scripts/input1_data/mtu/*
+scripts/input1_data/sco/*.gb
+scripts/input1_data/sco/*.txt
+scripts/input1_data/sco/model.xml
+
 scripts/input2_data/*.txt
 scripts/input2_data/*.xml
 
