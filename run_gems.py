@@ -66,9 +66,10 @@ def main():
     group.add_argument('-m', '--model',
                         dest='orgName',
                         default='sco',
-                        choices=['eco','sco'],
+                        choices=['eco','mtu','sco'],
                         help="Specify a template model for the target modeling\n"
                         "'eco': iAF1260; Escherichia coli str. K-12 substr. MG1655\n"
+                        "'mtu': iNJ661; Mycobacterium tuberculosis H37Rv\n"
                         "'sco': iMK1208; Streptomyces coelicolor A3(2)"
                         )
 
