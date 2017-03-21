@@ -1,4 +1,6 @@
 
+import cobra
+
 # Metabolite ID priority: bigg > MNXM
 # KEGG IDs are not used in the modeling
 # Abbreviations in antiSMASH gbk file are used if standard IDs are not available
@@ -254,6 +256,8 @@ def get_std_id_from_antismash_id(each_substrate):
     # Trans-cyclopentane-(1R, 2R)-dicarboxylic acid; no mnxm id; no bigg id; no kegg id
     elif each_substrate == 'trans-1,2-CPDA':
         met_name = '12cpda'
+
+    met_name = cobra.io.sbml.fix_legacy_id(met_name)
 
     return met_name
 
