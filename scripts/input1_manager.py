@@ -168,8 +168,8 @@ def get_tempModel_exrxnid_flux_dict(model):
 
 def get_gpr_fromString_toList(gpr):
     gpr_regex = pyparsing.Word(pyparsing.alphanums)
-    and_booleanop = pyparsing.Suppress(pyparsing.oneOf('AND and'))
-    or_booleanop = pyparsing.Suppress(pyparsing.oneOf('OR or'))
+    and_booleanop = pyparsing.oneOf('AND and')
+    or_booleanop = pyparsing.oneOf('OR or')
     expr = pyparsing.infixNotation(gpr_regex,
                                 [
                                 (and_booleanop, 2, pyparsing.opAssoc.LEFT),
