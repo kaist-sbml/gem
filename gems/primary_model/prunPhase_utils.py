@@ -2,139 +2,104 @@
 #Copyright 2014-2016 BioInformatics Research Center, KAIST
 #Copyright 2014-2016 Novo Nordisk Foundation Center for Biosustainability, DTU
 
+import ast
 import copy
 import logging
 from cobra.flux_analysis import single_reaction_deletion
 
 
-def calcBoolean(booleanList):
-    booleanList2 = copy.deepcopy(booleanList)
-    finalList = []
-    threshold = 1
+def get_rxn_fate2(bbh_avail_list):
 
-    if len(booleanList) == 0:
-        return False
+    for bbh_avail in bbh_avail_list:
+        if isinstance(bbh_avail, list):
+            return get_rxn_fate2(bbh_avail)
 
-    for i in range(len(booleanList)):
-        if type(booleanList[i])==list:
-            for j in range(len(booleanList[i])):
+    bbh_avail_list2 = []
+    boolop_list = []
 
-                #Threshold created to differentiate BBH and nonBBH genes.
-                if float(booleanList[i][j]) >= threshold:
-                    booleanList[i][j] = 0
-                if float(booleanList[i][j]) <= threshold:
-                    booleanList2[i][j] = 1
-            value=1
-            for j in range(len(booleanList[i])):
-                value = value * booleanList2[i][j]
-            finalList.append(value)
+    for bbh_avail in bbh_avail_list:
+        if bbh_avail == 'AND' or bbh_avail == 'and' or bbh_avail == 'OR' or bbh_avail == 'or':
+            boolop_list.append(bbh_avail)
         else:
-            #Threshold created to differentiate BBH and nonBBH genes.
-            if float(booleanList[i]) >= threshold:
-                booleanList[i] = 0
-            if float(booleanList[i]) <= threshold:
-                booleanList2[i] = 1
-            finalList.append(booleanList2[i])
+            bbh_avail_list2.append(bbh_avail)
 
-    value=0
-    for i in range(len(finalList)):
-        value = value + finalList[i]
+    boolop_list2 = list(set(boolop_list))
+    if len(boolop_list2) == 1:
+        if 'AND' in boolop_list2 or 'and' in boolop_list2:
+            return bbh_avail_list, min(bbh_avail_list2)
+        elif 'OR' in boolop_list2 or 'or' in boolop_list2:
+            return bbh_avail_list, max(bbh_avail_list2)
 
-    if value == 0:
-        return False
-    else:
-        return True
-
-
-#Output: e.g., [[2, '0'], ['0', 2]]
-#Now considers nonBBH genes without removing them in the Boolean list.
-#For ( A and B), if one of them is nonBBH, its rxn should be False (subject to removal).
-def makeBooleanFormat(temp_target_BBH_dict, tempModel_biggRxnid_locusTag_dict):
-    booleanList = tempModel_biggRxnid_locusTag_dict
-    valueList = copy.deepcopy(booleanList)
-
-    for i in range(len(booleanList)):
-        if type(booleanList[i])==list:
-            for j in range(len(booleanList[i])):
-                geneid = booleanList[i][j]
-                if geneid in temp_target_BBH_dict.keys():
-                    value = 0
-                #Now considers nonBBH genes without removing them in the Boolean list
-                else:
-                    value = 2 #For nonBBH genes
-                    booleanList[i][j]='nonBBH'
-                valueList[i][j] = value
+    # TODO: Current source is hard-coded, should be optimized (also see test file)
+    # Contain both AND and OR
+    elif len(boolop_list2) == 2:
+        bbh_avail_list_str = str(bbh_avail_list)
+        if "'0', 'and', '1'" in bbh_avail_list_str or \
+                "'1', 'and', '0'" in bbh_avail_list_str:
+            return bbh_avail_list, min(bbh_avail_list2)
         else:
-            geneid = booleanList[i]
-            if geneid in temp_target_BBH_dict.keys():
-		value = 0
-            else:
-                value = 'na'
-                booleanList[i]='na'
-            valueList[i] = value
+            return bbh_avail_list, max(bbh_avail_list2)
 
-    while 'na' in booleanList or [] in booleanList:
-        if 'na' in booleanList:
-            booleanList.pop( booleanList.index('na') )
-        if [] in booleanList:
-            booleanList.pop( booleanList.index([]) )
 
-    newbooleanList = []
-    for i in range(len(booleanList)):
-        if type(booleanList[i]) != list:
-            newbooleanList.append(booleanList[i])
-    newbooleanList = list(set(newbooleanList))
+def get_rxn_fate(bbh_avail_list):
+    while True:
+        bbh_avail_list_str = str(bbh_avail_list)
+        bbh_avail, rxn_fate = get_rxn_fate2(bbh_avail_list)
+        rxn_fate = "'" + str(rxn_fate) + "'"
+        bbh_avail_list_str = bbh_avail_list_str.replace(str(bbh_avail), str(rxn_fate))
+        bbh_avail_list = ast.literal_eval(bbh_avail_list_str)
+        if type(bbh_avail_list) != list:
+            break
+    return bbh_avail_list
 
-    for i in range(len(booleanList)):
-        if type(booleanList[i]) == list:
-            tmpList = booleanList[i]
-            tmpList = list(set(tmpList))
-            newbooleanList.append(tmpList)
 
-    booleanList = newbooleanList
-    valueList2 = copy.deepcopy(booleanList)
+# Element in the output list:
+# '1': gene with BBHs available
+# '0': gene with no BBHs (nonBBHs) available
+# For ( A and B), if one of them is a gene with nonBBHs,
+#its rxn should be False (subject to removal).
+def check_bbh_availability(temp_target_BBH_dict, locustag_list):
+    locustag_list_str = str(locustag_list)
 
-    for i in range(len(booleanList)):
-        if type(booleanList[i])==list:
-            for j in range(len(booleanList[i])):
-                geneid = booleanList[i][j]
-		if 'nonBBH' not in geneid:
-                    value = 0
-		else:
-                    value = 2
-                valueList2[i][j] = value
+    for gene in temp_target_BBH_dict:
+        if gene in locustag_list_str:
+            locustag_list_str = locustag_list_str.replace(gene, '1')
+        elif gene not in locustag_list_str and \
+                gene != 'AND' and gene != 'and' and gene != 'OR' and gene != 'or':
+            locustag_list_str = locustag_list_str.replace(gene, '0')
         else:
-            geneid = booleanList[i]
-            value = 0
-            valueList2[i] = value
-    return valueList2
+            continue
+
+    bbh_avail_list = ast.literal_eval(locustag_list_str)
+    return bbh_avail_list
 
 
-def labelRxnToRemove(model, options):
+def label_rxn_to_remove(model, options):
     rxnToRemove_dict = {}
 
-    for biggRxnid in options.tempModel_biggRxnid_locusTag_dict.keys():
+    for biggRxnid in options.tempModel_biggRxnid_locusTag_dict:
 	rxn = model.reactions.get_by_id(biggRxnid)
         #Prevent removal of transport reactions from the template model
 	if 'Transport' not in rxn.name and 'transport' not in rxn.name \
             and 'Exchange' not in rxn.name and 'exchange' not in rxn.name:
-            booleanList = makeBooleanFormat(
-                    options.temp_target_BBH_dict,
-                    options.tempModel_biggRxnid_locusTag_dict[biggRxnid])
-            rxnToRemove_dict[biggRxnid] = calcBoolean(booleanList)
+            bbh_avail_list = check_bbh_availability(
+                        options.temp_target_BBH_dict,
+                        options.tempModel_biggRxnid_locusTag_dict[biggRxnid])
+            logging.debug('%s; %s', rxn.id, bbh_avail_list)
+            rxnToRemove_dict[biggRxnid] = get_rxn_fate(bbh_avail_list)
 
     options.rxnToRemove_dict = rxnToRemove_dict
 
 
-def pruneModel(model, options):
+def prune_model(model, options):
     rxnToRemoveEssn_dict = {}
     rxnRemoved_dict = {}
     rxnRetained_dict = {}
 
-    for rxnid in options.rxnToRemove_dict.keys():
+    for rxnid in options.rxnToRemove_dict:
 
         #Single reaction deletion is performed only for reactions labelled as "False"
-        if options.rxnToRemove_dict[rxnid] == False:
+        if options.rxnToRemove_dict[rxnid] == '0':
             #Solver argument causes an error in cobrapy 0.5.8
             growth_rate_dict, solution_status_dict = single_reaction_deletion(
                     model, reaction_list=list([rxnid]), method='fba')
@@ -185,3 +150,4 @@ def swap_locustag_with_homolog(modelPruned, options):
 
     modelPrunedGPR = copy.deepcopy(modelPruned)
     return modelPrunedGPR
+

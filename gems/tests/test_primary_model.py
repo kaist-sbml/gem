@@ -9,6 +9,54 @@ from gems.primary_model import prunPhase_utils, augPhase_utils
 class TestPrimary_model:
     """Test functions in gems.primary_model"""
 
+    def test_get_rxn_fate(self):
+        bbh_avail_list = ['1', 'or', '1']
+        rxn_fate = prunPhase_utils.get_rxn_fate(bbh_avail_list)
+        assert rxn_fate == '1'
+
+        bbh_avail_list = [['1', 'and', '1'], 'and', '0']
+        rxn_fate = prunPhase_utils.get_rxn_fate(bbh_avail_list)
+        assert rxn_fate == '0'
+
+        bbh_avail_list = [['0', 'and', '1'], 'or', '1']
+        rxn_fate = prunPhase_utils.get_rxn_fate(bbh_avail_list)
+        assert rxn_fate == '1'
+
+        # TODO: Make it work
+#        bbh_avail_list = [[['1', 'and', '1'], 'or', ['0', 'and', '1']], 'and', '1']
+#        rxn_fate = prunPhase_utils.handle_complex_nested_genes(bbh_avail_list)
+#        assert rxn_fate == '0'
+
+        bbh_avail_list = [['1', 'and', '0'], 'or', ['0', 'and', '1'], 'and', ['0', 'or', '1']]
+        rxn_fate = prunPhase_utils.get_rxn_fate(bbh_avail_list)
+        assert rxn_fate == '0'
+
+
+    def test_check_bbh_availability(self):
+        temp_target_BBH_dict = {}
+        tempModel_biggRxnid_locusTag_dict = {}
+
+        # PGI
+        temp_target_BBH_dict['SCO1942'] = ['B446_30415', 'B446_10110']
+        temp_target_BBH_dict['SCO6659'] = ['B446_30415', 'B446_10110']
+        tempModel_biggRxnid_locusTag_dict['PGI'] = ['SCO1942', 'or', 'SCO6659']
+
+        bbh_avail_list = prunPhase_utils.check_bbh_availability(
+                temp_target_BBH_dict, tempModel_biggRxnid_locusTag_dict['PGI'])
+        assert bbh_avail_list == ['1', 'or', '1']
+
+        # AKGDH2
+        temp_target_BBH_dict['SCO4594'] = ['B446_21645']
+        temp_target_BBH_dict['SCO4595'] = ['B446_21650']
+        temp_target_BBH_dict['SCO6269'] = ['B446_21645']
+        temp_target_BBH_dict['SCO6270'] = ['B446_21650']
+        temp_target_BBH_dict['SCO0681'] = ['B446_05650']
+        tempModel_biggRxnid_locusTag_dict['AKGDH2'] = \
+                [[['SCO4594', 'and', 'SCO4595'], 'or', ['SCO6269', 'and', 'SCO6270']], 'and', 'SCO0681']
+        bbh_avail_list = prunPhase_utils.check_bbh_availability(
+                temp_target_BBH_dict, tempModel_biggRxnid_locusTag_dict['AKGDH2'])
+        assert bbh_avail_list == [[['1', 'and', '1'], 'or', ['1', 'and', '1']], 'and', '1']
+
 
     def test_swap_locustag_with_homolog(self, sco_tmp_model, bbh_dict, options):
         """

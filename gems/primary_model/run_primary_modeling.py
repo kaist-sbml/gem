@@ -11,17 +11,17 @@ from augPhase_utils import(
     add_nonBBH_rxn
 )
 from prunPhase_utils import (
-    labelRxnToRemove,
-    pruneModel,
+    label_rxn_to_remove,
+    prune_model,
     swap_locustag_with_homolog
 )
 
 def run_prunPhase(model, options):
     logging.info("Pruning phase starting..")
     logging.info("Removing reactions with nonhomologous genes from the template model..")
-    labelRxnToRemove(model, options)
+    label_rxn_to_remove(model, options)
 
-    modelPruned = pruneModel(model, options)
+    modelPruned = prune_model(model, options)
 
     logging.info("Correcting GPR associations in the template model..")
     modelPrunedGPR = swap_locustag_with_homolog(modelPruned, options)
