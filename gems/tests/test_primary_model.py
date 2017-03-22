@@ -85,7 +85,7 @@ class TestPrimary_model:
 
 
     # Focus on metabolite addition in this test
-    # New metabolites: 'MNXM16902' and 'fuc_DASH_L'
+    # New metabolites: 'MNXM16902' and 'fuc__L'
     def test_add_nonBBH_rxn(self, sco_tmp_model, mnxref, tmpdir, sco_tmp_model_flux, options):
         options.mnxr_to_add_list = ['MNXR70727']
         options.rxnid_info_dict = {
@@ -109,7 +109,7 @@ class TestPrimary_model:
 
         assert 'R08926' not in sco_tmp_model.reactions
         assert 'MNXM16902_c' not in sco_tmp_model.metabolites
-        assert 'fuc_DASH_L_c' not in sco_tmp_model.metabolites
+        assert 'fuc__L_c' not in sco_tmp_model.metabolites
         assert 'h_c' in sco_tmp_model.metabolites
         assert 'nadh_c' in sco_tmp_model.metabolites
         assert 'nad_c' in sco_tmp_model.metabolites
@@ -118,7 +118,7 @@ class TestPrimary_model:
 
         assert 'R08926' in model.reactions
         assert 'MNXM16902_c' in model.metabolites
-        assert 'fuc_DASH_L_c' in model.metabolites
+        assert 'fuc__L_c' in model.metabolites
         assert 'h_c' in model.metabolites
         assert 'nadh_c' in model.metabolites
         assert 'nad_c' in model.metabolites

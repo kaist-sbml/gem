@@ -85,9 +85,9 @@ class TestSecondary_model:
         get_all_metab_coeff(options)
 
         assert len(options.metab_coeff_dict) == 11
-        assert options.metab_coeff_dict['mmcoa_DASH_R'] == -2
-        assert options.metab_coeff_dict['ser_DASH_L'] == -2
-        assert options.metab_coeff_dict['val_DASH_L'] == -2
+        assert options.metab_coeff_dict['mmcoa__R'] == -2
+        assert options.metab_coeff_dict['ser__L'] == -2
+        assert options.metab_coeff_dict['val__L'] == -2
         assert options.metab_coeff_dict['Cluster03_nrps_t1pks_transatpks'] == 1
 
 
@@ -96,10 +96,10 @@ class TestSecondary_model:
 
         options.product = 'Cluster03_nrps_t1pks_transatpks'
         options.metab_coeff_dict = {
-                '24dab': -1, 'leu_DASH_L': -1, 'mmcoa_DASH_R': -2, 'malcoa': -3,
-                'arg_DASH_L': -1, 'ser_DASH_L': -2, 'thr_DASH_L': -1,
-                'Cluster03_nrps_t1pks_transatpks': 1, 'val_DASH_L': -2, 'gly': -3,
-                'ala_DASH_L': -1}
+                '24dab': -1, 'leu__L': -1, 'mmcoa__R': -2, 'malcoa': -3,
+                'arg__L': -1, 'ser__L': -2, 'thr__L': -1,
+                'Cluster03_nrps_t1pks_transatpks': 1, 'val__L': -2, 'gly': -3,
+                'ala__L': -1}
 
         # All the monomer for Cluster 3 are already present in model
         options.mnxref = mnxref
@@ -122,7 +122,7 @@ class TestSecondary_model:
 
         options.product = 'Cluster07_nrps_t1pks'
         options.metab_coeff_dict = {
-                'mmcoa_DASH_R': -1, 'malcoa': -1, 'Cluster07_nrps_t1pks': 1, '23dhb': -1}
+                'mmcoa__R': -1, 'malcoa': -1, 'Cluster07_nrps_t1pks': 1, '23dhb': -1}
 
         # Following metabolite is absent in the model
         options.mnxref = mnxref
