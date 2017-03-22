@@ -185,8 +185,20 @@ def get_tempModel_biggRxnid_locusTag_dict(model):
 
     for j in range(len(model.reactions)):
         rxn = model.reactions[j]
-        gene_list = get_gpr_fromString_toList(rxn.gene_reaction_rule)
-        tempModel_biggRxnid_locusTag_dict[rxn.id] = gene_list
+        logging.debug('%s; %s', rxn.id, rxn.gene_reaction_rule)
+
+        if rxn.gene_reaction_rule and \
+                ('and' in rxn.gene_reaction_rule or 'AND' in rxn.gene_reaction_rule \
+                or 'or' in rxn.gene_reaction_rule or 'OR' in rxn.gene_reaction_rule):
+            gene_list = get_gpr_fromString_toList(rxn.gene_reaction_rule)
+            tempModel_biggRxnid_locusTag_dict[rxn.id] = gene_list
+            logging.debug('%s; %s', rxn.id, rxn.gene_reaction_rule)
+        elif rxn.gene_reaction_rule:
+            tempModel_biggRxnid_locusTag_dict[rxn.id] = [rxn.gene_reaction_rule]
+            logging.debug('%s; %s', rxn.id, rxn.gene_reaction_rule)
+        else:
+            logging.debug('%s; %s', rxn.id, rxn.gene_reaction_rule)
+            continue
 
     return tempModel_biggRxnid_locusTag_dict
 
