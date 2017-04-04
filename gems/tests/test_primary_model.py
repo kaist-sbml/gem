@@ -83,6 +83,26 @@ class TestPrimary_model:
         assert options.rxnToRemove_dict['AKGDH2'] == '1'
 
 
+    def test_prune_model(self, sco_tmp_model, options):
+        _cfg_name = 'gems.cfg'
+        load_config(options)
+        options.rxnToRemove_dict = {}
+
+        options.rxnToRemove_dict['PAPA160'] = '0'
+        options.rxnToRemove_dict['COELICHELINR2'] = '0'
+        options.rxnToRemove_dict['ATPHs'] = '0'
+
+        assert 'PAPA160' in sco_tmp_model.reactions
+        assert 'COELICHELINR2' in sco_tmp_model.reactions
+        assert 'ATPHs' in sco_tmp_model.reactions
+
+        modelPruned = prunPhase_utils.prune_model(sco_tmp_model, options)
+
+        assert 'PAPA160' in modelPruned.reactions
+        assert 'COELICHELINR2' not in modelPruned.reactions
+        assert 'ATPHs' not in modelPruned.reactions
+
+
     def test_swap_locustag_with_homolog(self, sco_tmp_model, bbh_dict, options):
         """
         MCOATA
