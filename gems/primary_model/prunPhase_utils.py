@@ -5,8 +5,8 @@
 import ast
 import copy
 import logging
+import pyparsing
 from cobra.flux_analysis import single_reaction_deletion
-
 
 def get_rxn_fate2(bbh_avail_list):
 
@@ -30,15 +30,36 @@ def get_rxn_fate2(bbh_avail_list):
         elif 'OR' in boolop_list2 or 'or' in boolop_list2:
             return bbh_avail_list, max(bbh_avail_list2)
 
-    # TODO: Current source is hard-coded, should be optimized (also see test file)
-    # Contain both AND and OR
-    elif len(boolop_list2) == 2:
-        bbh_avail_list_str = str(bbh_avail_list)
-        if "'0', 'and', '1'" in bbh_avail_list_str or \
-                "'1', 'and', '0'" in bbh_avail_list_str:
-            return bbh_avail_list, min(bbh_avail_list2)
-        else:
-            return bbh_avail_list, max(bbh_avail_list2)
+    # gene_reaction_rule contains both AND and OR within a parenthesis
+    #and without parentheses around AND. This is a bad practise.
+    elif len(boolop_list2) >= 2:
+
+        # NOTE: This issue has not been resolved. OR is returned regardless of the Boolean.
+        #See: test_primary_model.py
+
+        #print '1', bbh_avail_list
+        #print '2', boolop_list2
+        #bbh_avail_list_str = str(bbh_avail_list)
+        #bbh_avail_list_str2 = bbh_avail_list_str.replace("'", "")
+        #bbh_avail_list_str3 = bbh_avail_list_str2.replace(",", "")
+        #bbh_avail_list_str4 = bbh_avail_list_str3.replace("[", "(")
+        #bbh_avail_list_str5 = bbh_avail_list_str4.replace("]", ")")
+        #print '3', bbh_avail_list_str5
+
+        #gpr_regex = pyparsing.Word(pyparsing.alphanums)
+        #and_booleanop = pyparsing.oneOf('AND and')
+        #or_booleanop = pyparsing.oneOf('OR or')
+        #expr = pyparsing.infixNotation(gpr_regex,
+        #        [
+        #            (and_booleanop, 2, pyparsing.opAssoc.LEFT),
+        #            (or_booleanop, 2, pyparsing.opAssoc.LEFT)
+        #        ])
+        #bbh_avail_list = expr.parseString(bbh_avail_list_str5)[0].asList()
+        #print '4', bbh_avail_list
+
+        logging.warning("Bad 'gene_reaction_rule' description", bbh_avail_list)
+        return bbh_avail_list, max(bbh_avail_list2)
+
 
 
 def get_rxn_fate(bbh_avail_list):
