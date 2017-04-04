@@ -113,9 +113,6 @@ def label_rxn_to_remove(model, options):
 
 
 def prune_model(model, options):
-    rxnToRemoveEssn_dict = {}
-    rxnRemoved_dict = {}
-    rxnRetained_dict = {}
 
     for rxnid in options.rxnToRemove_dict:
 
@@ -128,28 +125,19 @@ def prune_model(model, options):
             #Check optimality first.
             if str(solution_status_dict.values()[0]) == 'optimal':
 
-                #Full list of reactions and predicted growth rates upon their deletions
-                rxnToRemoveEssn_dict[rxnid] = float(growth_rate_dict.values()[0])
-
                 #Check growth rate upon reaction deletion
                 if float(growth_rate_dict.values()[0]) >= float(options.cobrapy.non_zero_flux_cutoff):
                     model.remove_reactions(rxnid)
-                    #List of reactions removed from the template model
-                    rxnRemoved_dict[rxnid] = float(growth_rate_dict.values()[0])
                     logging.debug("Removed reaction: %s; %s; %s; %s"
                             %(rxnid, growth_rate_dict.values()[0],
                             len(model.reactions), len(model.metabolites)))
                 else:
-                    #List of reactions retained in the template model
-                    rxnRetained_dict[rxnid] = float(growth_rate_dict.values()[0])
                     logging.debug("Retained reaction: %s; %s; %s; %s"
                             %(rxnid, growth_rate_dict.values()[0],
                             len(model.reactions), len(model.metabolites)))
 
     modelPruned = copy.deepcopy(model)
 
-    #rxnToRemoveEssn_dict, rxnRemoved_dict and rxnRetained_dict:
-    #Not used in the downstream of this pipeline
     return modelPruned
 
 
