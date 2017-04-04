@@ -59,6 +59,30 @@ class TestPrimary_model:
         assert bbh_avail_list == [[['1', 'and', '1'], 'or', ['1', 'and', '1']], 'and', '1']
 
 
+    def test_label_rxn_to_remove(self, sco_tmp_model, options):
+        options.temp_target_BBH_dict = {}
+        options.tempModel_biggRxnid_locusTag_dict = {}
+
+        # PGI
+        options.temp_target_BBH_dict['SCO1942'] = ['B446_30415', 'B446_10110']
+        options.temp_target_BBH_dict['SCO6659'] = ['B446_30415', 'B446_10110']
+        options.tempModel_biggRxnid_locusTag_dict['PGI'] = ['SCO1942', 'or', 'SCO6659']
+
+        bbh_avail_list = prunPhase_utils.label_rxn_to_remove(sco_tmp_model, options)
+        assert options.rxnToRemove_dict['PGI'] == '1'
+
+        # AKGDH2
+        options.temp_target_BBH_dict['SCO4594'] = ['B446_21645']
+        options.temp_target_BBH_dict['SCO4595'] = ['B446_21650']
+        options.temp_target_BBH_dict['SCO6269'] = ['B446_21645']
+        options.temp_target_BBH_dict['SCO6270'] = ['B446_21650']
+        options.temp_target_BBH_dict['SCO0681'] = ['B446_05650']
+        options.tempModel_biggRxnid_locusTag_dict['AKGDH2'] = \
+                [[['SCO4594', 'and', 'SCO4595'], 'or', ['SCO6269', 'and', 'SCO6270']], 'and', 'SCO0681']
+        bbh_avail_list = prunPhase_utils.label_rxn_to_remove(sco_tmp_model, options)
+        assert options.rxnToRemove_dict['AKGDH2'] == '1'
+
+
     def test_swap_locustag_with_homolog(self, sco_tmp_model, bbh_dict, options):
         """
         MCOATA
