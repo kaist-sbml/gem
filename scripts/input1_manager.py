@@ -165,7 +165,12 @@ def get_tempModel_exrxnid_flux_dict(model):
 
     return tempModel_exrxnid_flux_dict
 
-
+# NOTE: RJY combined two lines of 'pyparsing.oneOf' into one
+#    booleanop = pyparsing.oneOf('AND and OR or')
+#    expr = pyparsing.infixNotation(gpr_regex,
+#                                [
+#                                (booleanop, 2, pyparsing.opAssoc.LEFT)
+#                                ])
 def get_gpr_fromString_toList(gpr):
     gpr_regex = pyparsing.Word(pyparsing.alphanums)
     and_booleanop = pyparsing.oneOf('AND and')
