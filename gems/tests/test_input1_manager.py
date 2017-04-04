@@ -15,18 +15,18 @@ class TestInput1_manager:
 
         gpr1 = '(A and B)'
         gpr_list = input1_manager.get_gpr_fromString_toList(gpr1)
-        assert gpr_list == ['A','B']
+        assert gpr_list == ['A', 'and', 'B']
 
         gpr1 = '((A and B) or (C and D))'
         gpr_list = input1_manager.get_gpr_fromString_toList(gpr1)
-        assert gpr_list == [['A','B'], ['C','D']]
+        assert gpr_list == [['A', 'and', 'B'], 'or', ['C', 'and', 'D']]
 
         gpr1 = '((A and (B1 and B2)) or (C and D))'
         gpr_list = input1_manager.get_gpr_fromString_toList(gpr1)
-        assert gpr_list == [['A',['B1','B2']], ['C','D']]
+        assert gpr_list == [['A', 'and', ['B1', 'and', 'B2']], 'or', ['C', 'and', 'D']]
 
         # GPR with three nested lists fails
         gpr1 = '((A and (B1 or B2)) or (C and D))'
         gpr_list = input1_manager.get_gpr_fromString_toList(gpr1)
-        assert gpr_list == [['A',['B1','B2']], ['C','D']]
+        assert gpr_list == [['A', 'and', ['B1', 'or', 'B2']], 'or', ['C', 'and', 'D']]
 
