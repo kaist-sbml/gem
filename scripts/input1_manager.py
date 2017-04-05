@@ -101,11 +101,22 @@ def prepare_nonstd_model(options):
 
     for j in range(len(model.reactions)):
         rxn = model.reactions[j]
-        if rxn.id in bigg_old_new_dict:
+
+        # NOTE:
+        #See '\BiGG\170405\nar-02327-data-e-2015-File017_All modifications_KHU_v2'
+        #This is for the 'sco' template model.
+        if rxn.id in bigg_old_new_dict and \
+                rxn.id != 'FACOAL80' and \
+                rxn.id != 'FE3abc':
+
             # Otherwise a duplicate reaction can be inserted: e.g., ME1 -> ME2
             if bigg_old_new_dict[rxn.id] not in model.reactions:
                 logging.debug('Reaction: %s -> %s ', rxn.id, bigg_old_new_dict[rxn.id])
                 rxn.id = bigg_old_new_dict[rxn.id]
+
+        if rxn.id == 'THRPS':
+            rxn.id = 'LTHRK'
+            logging.debug('Reaction: %s -> %s ', 'THRPS', rxn.id)
 
     model = gems.utils.stabilize_model(model, input1_tmp_dir, '')
 
