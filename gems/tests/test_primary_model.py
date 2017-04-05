@@ -10,35 +10,6 @@ class TestPrimary_model:
     """Test functions in gems.primary_model"""
 
     def test_get_rxn_fate(self):
-        bbh_avail_list = ['1']
-        rxn_fate = prunPhase_utils.get_rxn_fate(bbh_avail_list)
-        assert rxn_fate == '1'
-
-
-        bbh_avail_list = ['1', 'or', '1']
-        rxn_fate = prunPhase_utils.get_rxn_fate(bbh_avail_list)
-        assert rxn_fate == '1'
-
-        bbh_avail_list = [['1', 'and', '1'], 'and', '0']
-        rxn_fate = prunPhase_utils.get_rxn_fate(bbh_avail_list)
-        assert rxn_fate == '0'
-
-        bbh_avail_list = [['0', 'and', '1'], 'or', '1']
-        rxn_fate = prunPhase_utils.get_rxn_fate(bbh_avail_list)
-        assert rxn_fate == '1'
-
-        bbh_avail_list = [[['1', 'and', '1'], 'or', ['0', 'and', '1']], 'and', '1']
-        rxn_fate = prunPhase_utils.get_rxn_fate(bbh_avail_list)
-        assert rxn_fate == '1'
-
-        # NOTE: This issue has not been resolved. OR is returned regardless of the Boolean.
-        #If successful, the result should be 'rxn_fate == 0'
-        bbh_avail_list = [['1', 'and', '0'], 'or', ['0', 'and', '1'], 'and', ['0', 'or', '1']]
-        rxn_fate = prunPhase_utils.get_rxn_fate(bbh_avail_list)
-        assert rxn_fate != '0'
-
-
-    def test_check_bbh_availability(self):
         temp_target_BBH_dict = {}
         tempModel_biggRxnid_locusTag_dict = {}
 
@@ -47,9 +18,9 @@ class TestPrimary_model:
         temp_target_BBH_dict['SCO6659'] = ['B446_30415', 'B446_10110']
         tempModel_biggRxnid_locusTag_dict['PGI'] = ['SCO1942', 'or', 'SCO6659']
 
-        bbh_avail_list = prunPhase_utils.check_bbh_availability(
-                temp_target_BBH_dict, tempModel_biggRxnid_locusTag_dict['PGI'])
-        assert bbh_avail_list == ['1', 'or', '1']
+        rxn_fate = prunPhase_utils.get_rxn_fate(
+                tempModel_biggRxnid_locusTag_dict['PGI'], temp_target_BBH_dict)
+        assert rxn_fate == '1'
 
         # AKGDH2
         temp_target_BBH_dict['SCO4594'] = ['B446_21645']
@@ -59,9 +30,32 @@ class TestPrimary_model:
         temp_target_BBH_dict['SCO0681'] = ['B446_05650']
         tempModel_biggRxnid_locusTag_dict['AKGDH2'] = \
                 [[['SCO4594', 'and', 'SCO4595'], 'or', ['SCO6269', 'and', 'SCO6270']], 'and', 'SCO0681']
-        bbh_avail_list = prunPhase_utils.check_bbh_availability(
-                temp_target_BBH_dict, tempModel_biggRxnid_locusTag_dict['AKGDH2'])
-        assert bbh_avail_list == [[['1', 'and', '1'], 'or', ['1', 'and', '1']], 'and', '1']
+        rxn_fate = prunPhase_utils.get_rxn_fate(
+                tempModel_biggRxnid_locusTag_dict['AKGDH2'], temp_target_BBH_dict)
+        assert rxn_fate == '1'
+
+        # LDH_D
+        temp_target_BBH_dict['SCO2118'] = ['B446_25870']
+        tempModel_biggRxnid_locusTag_dict['LDH_D'] = ['SCO2118', 'or', 'SCO3594']
+
+        rxn_fate = prunPhase_utils.get_rxn_fate(
+                tempModel_biggRxnid_locusTag_dict['LDH_D'], temp_target_BBH_dict)
+        assert rxn_fate == '1'
+
+        # TGBPA
+        temp_target_BBH_dict['SCO5852'] = ['B446_05445']
+        tempModel_biggRxnid_locusTag_dict['TGBPA'] = ['SCO5848', 'and', 'SCO5852']
+
+        rxn_fate = prunPhase_utils.get_rxn_fate(
+                tempModel_biggRxnid_locusTag_dict['TGBPA'], temp_target_BBH_dict)
+        assert rxn_fate == '0'
+
+        # NOTE: This issue has not been resolved. OR is returned regardless of the Boolean.
+        #If successful, the result should be 'rxn_fate == 0'.
+        # NOTE: locustags should be given.
+#        bbh_avail_list = [['1', 'and', '0'], 'or', ['0', 'and', '1'], 'and', ['0', 'or', '1']]
+#        rxn_fate = prunPhase_utils.get_rxn_fate(bbh_avail_list)
+#        assert rxn_fate != '0'
 
 
     def test_label_rxn_to_remove(self, sco_tmp_model, options):
@@ -73,7 +67,7 @@ class TestPrimary_model:
         options.temp_target_BBH_dict['SCO6659'] = ['B446_30415', 'B446_10110']
         options.tempModel_biggRxnid_locusTag_dict['PGI'] = ['SCO1942', 'or', 'SCO6659']
 
-        bbh_avail_list = prunPhase_utils.label_rxn_to_remove(sco_tmp_model, options)
+        prunPhase_utils.label_rxn_to_remove(sco_tmp_model, options)
         assert options.rxnToRemove_dict['PGI'] == '1'
 
         # AKGDH2
@@ -84,8 +78,14 @@ class TestPrimary_model:
         options.temp_target_BBH_dict['SCO0681'] = ['B446_05650']
         options.tempModel_biggRxnid_locusTag_dict['AKGDH2'] = \
                 [[['SCO4594', 'and', 'SCO4595'], 'or', ['SCO6269', 'and', 'SCO6270']], 'and', 'SCO0681']
-        bbh_avail_list = prunPhase_utils.label_rxn_to_remove(sco_tmp_model, options)
+        prunPhase_utils.label_rxn_to_remove(sco_tmp_model, options)
         assert options.rxnToRemove_dict['AKGDH2'] == '1'
+
+        # TGBPA
+        options.temp_target_BBH_dict['SCO5852'] = ['B446_05445']
+        options.tempModel_biggRxnid_locusTag_dict['TGBPA'] = ['SCO5848', 'and', 'SCO5852']
+        prunPhase_utils.label_rxn_to_remove(sco_tmp_model, options)
+        assert options.rxnToRemove_dict['TGBPA'] == '0'
 
 
     def test_prune_model(self, sco_tmp_model, options):
