@@ -10,6 +10,11 @@ class TestPrimary_model:
     """Test functions in gems.primary_model"""
 
     def test_get_rxn_fate(self):
+        bbh_avail_list = ['1']
+        rxn_fate = prunPhase_utils.get_rxn_fate(bbh_avail_list)
+        assert rxn_fate == '1'
+
+
         bbh_avail_list = ['1', 'or', '1']
         rxn_fate = prunPhase_utils.get_rxn_fate(bbh_avail_list)
         assert rxn_fate == '1'

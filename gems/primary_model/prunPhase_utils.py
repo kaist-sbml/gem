@@ -24,7 +24,12 @@ def get_rxn_fate2(bbh_avail_list):
             bbh_avail_list2.append(bbh_avail)
 
     boolop_list2 = list(set(boolop_list))
-    if len(boolop_list2) == 1:
+
+    # e.g., bbh_avail_list = ['1']; no Boolean logic
+    if len(boolop_list2) == 0:
+        return bbh_avail_list, bbh_avail_list[0]
+
+    elif len(boolop_list2) == 1:
         if 'AND' in boolop_list2 or 'and' in boolop_list2:
             return bbh_avail_list, min(bbh_avail_list2)
         elif 'OR' in boolop_list2 or 'or' in boolop_list2:
@@ -116,8 +121,12 @@ def prune_model(model, options):
 
     for rxnid in options.rxnToRemove_dict:
 
+        logging.debug("Reaction to be removed: %s; %s",
+                rxnid, options.rxnToRemove_dict[rxnid])
         #Single reaction deletion is performed only for reactions labelled as "False"
         if options.rxnToRemove_dict[rxnid] == '0':
+#            logging.debug("Reaction to be removed: %s", rxnid)
+
             #Solver argument causes an error in cobrapy 0.5.8
             growth_rate_dict, solution_status_dict = single_reaction_deletion(
                     model, reaction_list=list([rxnid]), method='fba')
