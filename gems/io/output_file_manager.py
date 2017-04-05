@@ -68,7 +68,7 @@ def get_model_reactions(folder, options, **kwargs):
         #Remaining essential reactions
         if 'rxnToRemove_dict' in options:
             if rxn.id in options.rxnToRemove_dict.keys():
-                if options.rxnToRemove_dict[rxn.id] == False:
+                if options.rxnToRemove_dict[rxn.id] == '0':
                     num_essen_rxn+=1
                     print >>fp2, '%s\t%s\t%s\t%s\t%s' %(rxn.id, rxn.name, rxn.reaction,
                                             rxn.gene_reaction_rule, rxn.subsystem)
