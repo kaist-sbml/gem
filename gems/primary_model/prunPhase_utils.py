@@ -103,7 +103,6 @@ def label_rxn_to_remove(model, options):
             rxnToRemove_dict[biggRxnid] = get_rxn_fate(
                     options.tempModel_biggRxnid_locusTag_dict[biggRxnid],
                     options.temp_target_BBH_dict)
-            logging.debug('%s; %s', rxn.id, rxnToRemove_dict[biggRxnid])
 
     options.rxnToRemove_dict = rxnToRemove_dict
 
