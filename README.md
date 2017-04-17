@@ -19,19 +19,17 @@ This project was initiated as a research collaboration between [Metabolic & Biom
 
 2. Create and activate virtual environment
 
-    ```bash
-    virtualenv venv
-
-    source venv/bin/activate
-    ```
+        ```
+        virtualenv venv
+        source venv/bin/activate
+        ```
 
 3. Install packages
 
-    ```bash
-    pip install pip --upgrade
-
-    pip install -r requirements.txt
-    ```
+        ```
+        pip install pip --upgrade
+        pip install -r requirements.txt
+        ```
 
     - Installation of `zmq` and `numpy` using `requirements.txt` often causes an error. In this case, just do: `pip install zmq` and `pip install numpy`.
 
