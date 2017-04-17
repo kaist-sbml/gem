@@ -13,13 +13,19 @@ This project was initiated as a research collaboration between [Metabolic & Biom
 #Installation
 ###Procedure
 1. Clone the repository
-    `git clone https://ehukim@bitbucket.org/ehukim/gems.git` (HTTPS) or `git clone git@bitbucket.org:ehukim/gems.git` (SSH)
+
+    `git clone https://ehukim@bitbucket.org/ehukim/gems.git` (HTTPS) or 
+    `git clone git@bitbucket.org:ehukim/gems.git` (SSH)
 2. Create and activate virtual environment
-    `virtualenv venv`
-    `source venv/bin/activate`
+    ```
+    virtualenv venv
+    source venv/bin/activate
+    ```
 3. Install packages
-    `pip install pip --upgrade`
-    `pip install -r requirements.txt`
+    ```
+    pip install pip --upgrade
+    pip install -r requirements.txt
+    ```
     - Installation of `zmq` and `numpy` using `requirements.txt` often causes an error. In this case, just do: `pip install zmq` and `pip install numpy`
 4. `tox` at the root of the repository to test `GEMS`
 5. Place `blastp` and `makeblastdb` downloadable from [NCBI FTP](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.28/) preferably in `venv/bin`: for bidirectional blastp hits
@@ -30,9 +36,9 @@ This project was initiated as a research collaboration between [Metabolic & Biom
     `export PATH="${PATH}:${EFICAz25_PATH}"`
     
 ###Notes
-- Get access to these executables: `blastp` and `makeblastdb`
+- Get access to these executables: `blastp` and `makeblastdb`.
 - `export PATH="/home/edhyunukkim/gems/venv/bin/EFICAz2.5.1/bin/"` causes a system error.
-- When using gurobi, make a symbolic link for the [gurobipy](http://www.gurobi.com/) installed in `root` and a get license for it: for optimization solvers
+- When using gurobi, make a symbolic link for the [gurobipy](http://www.gurobi.com/) installed in `root` and a get license for it: for optimization solvers.
    `ln -s /usr/local/lib/python2.7/dist-packages/gurobipy/ $HOME/gems/venv/lib/python2.7/site-packages/`
 
 #Publication
