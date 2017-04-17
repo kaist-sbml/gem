@@ -35,11 +35,12 @@ This project was initiated as a research collaboration between [Metabolic & Biom
 
 4. Test `GEMS`
 
-    At the root of the repository
+    At the root of the repository,
 
         tox
 
 5. `blastp` and `makeblastdb` for bidirectional blastp hits
+
     Get these executables from [NCBI FTP](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.28/) preferably in `venv/bin`.
     Make sure to get access to these executables.
 
