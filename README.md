@@ -13,12 +13,13 @@ This project was initiated as a research collaboration between [Metabolic & Biom
 #Installation
 ###Procedure
 1. Clone the repository
+
     (HTTPS)
 
-        git clone https://ehukim@bitbucket.org/ehukim/gems.git`
+        git clone https://ehukim@bitbucket.org/ehukim/gems.git
     (SSH)
 
-        git clone git@bitbucket.org:ehukim/gems.git`
+        git clone git@bitbucket.org:ehukim/gems.git
 
 2. Create and activate virtual environment
 
@@ -33,23 +34,28 @@ This project was initiated as a research collaboration between [Metabolic & Biom
     Installation of `zmq` and `numpy` using `requirements.txt` often causes an error. In this case, just do: `pip install zmq` and `pip install numpy`.
 
 4. Test `GEMS`
+
     At the root of the repository
 
         tox
 
-5. Place `blastp` and `makeblastdb` downloadable from [NCBI FTP](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.28/) preferably in `venv/bin`: for bidirectional blastp hits.
+5. `blastp` and `makeblastdb` for bidirectional blastp hits
+    Get these executables from [NCBI FTP](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.28/) preferably in `venv/bin`.
+    Make sure to get access to these executables.
 
-6. Place `eficaz2.5` in a directory and set up `PATH` in `.bashrc`, e.g.:
+6. EFICAz for EC number annotation
+    Place `eficaz2.5` in a directory and set up `PATH` in `.bashrc`, e.g.:
 
     `export EFICAz25_PATH="/home/edhyunukkim/gems/venv/bin/EFICAz2.5.1/bin/`
 
     `export PATH="${PATH}:${EFICAz25_PATH}"`
+
+    Note: Following statement causes a system error: `export PATH="/home/edhyunukkim/gems/venv/bin/EFICAz2.5.1/bin/"`.
     
-###Notes
-- Get access to these executables: `blastp` and `makeblastdb`.
-- `export PATH="/home/edhyunukkim/gems/venv/bin/EFICAz2.5.1/bin/"` causes a system error.
+###Gurobi
 - When using gurobi, make a symbolic link for the [gurobipy](http://www.gurobi.com/) installed in `root` and a get license for it: for optimization solvers.
-   `ln -s /usr/local/lib/python2.7/dist-packages/gurobipy/ $HOME/gems/venv/lib/python2.7/site-packages/`
+
+       ln -s /usr/local/lib/python2.7/dist-packages/gurobipy/ $HOME/gems/venv/lib/python2.7/site-packages/
 
 #Publication
 TBD
