@@ -18,15 +18,19 @@ This project was initiated as a research collaboration between [Metabolic & Biom
     `git clone git@bitbucket.org:ehukim/gems.git` (SSH)
 
 2. Create and activate virtual environment
+
     ```
     virtualenv venv
     source venv/bin/activate
     ```
+
 3. Install packages
+
     ```
     pip install pip --upgrade
     pip install -r requirements.txt
     ```
+
     - Installation of `zmq` and `numpy` using `requirements.txt` often causes an error. In this case, just do: `pip install zmq` and `pip install numpy`
 4. `tox` at the root of the repository to test `GEMS`
 5. Place `blastp` and `makeblastdb` downloadable from [NCBI FTP](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.28/) preferably in `venv/bin`: for bidirectional blastp hits
