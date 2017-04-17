@@ -21,6 +21,7 @@ This project was initiated as a research collaboration between [Metabolic & Biom
 
     ```
     virtualenv venv
+
     source venv/bin/activate
     ```
 
@@ -28,12 +29,16 @@ This project was initiated as a research collaboration between [Metabolic & Biom
 
     ```
     pip install pip --upgrade
+
     pip install -r requirements.txt
     ```
 
-    - Installation of `zmq` and `numpy` using `requirements.txt` often causes an error. In this case, just do: `pip install zmq` and `pip install numpy`
+    - Installation of `zmq` and `numpy` using `requirements.txt` often causes an error. In this case, just do: `pip install zmq` and `pip install numpy`.
+
 4. `tox` at the root of the repository to test `GEMS`
-5. Place `blastp` and `makeblastdb` downloadable from [NCBI FTP](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.28/) preferably in `venv/bin`: for bidirectional blastp hits
+
+5. Place `blastp` and `makeblastdb` downloadable from [NCBI FTP](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.28/) preferably in `venv/bin`: for bidirectional blastp hits.
+
 6. Place `eficaz2.5` in a directory and set up `PATH` in `.bashrc`, e.g.:
 
     `export EFICAz25_PATH="/home/edhyunukkim/gems/venv/bin/EFICAz2.5.1/bin/`
