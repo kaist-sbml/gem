@@ -19,7 +19,7 @@ This project was initiated as a research collaboration between [Metabolic & Biom
 
 2. Create and activate virtual environment
 
-    ```
+    ```bash
     virtualenv venv
 
     source venv/bin/activate
@@ -27,7 +27,7 @@ This project was initiated as a research collaboration between [Metabolic & Biom
 
 3. Install packages
 
-    ```
+    ```bash
     pip install pip --upgrade
 
     pip install -r requirements.txt
