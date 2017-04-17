@@ -16,6 +16,7 @@ This project was initiated as a research collaboration between [Metabolic & Biom
 
     `git clone https://ehukim@bitbucket.org/ehukim/gems.git` (HTTPS) or 
     `git clone git@bitbucket.org:ehukim/gems.git` (SSH)
+
 2. Create and activate virtual environment
     ```
     virtualenv venv
