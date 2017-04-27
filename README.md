@@ -12,7 +12,7 @@ This project was initiated as a research collaboration between [Metabolic & Biom
 
 #Installation
 ###Major dependencies
-1. [`biopython`][http://biopython.org/wiki/Biopython] (version 1.68 tested)
+1. [`biopython`](http://biopython.org/wiki/Biopython) (version 1.68 tested)
 2. [`blastp`](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.28/) and [`makeblastdb`](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.28/)
 3. [`eficaz2.5`](http://cssb.biology.gatech.edu/skolnick/webservice/EFICAz2/index.html) (versions 2.5 and 2.5.1 tested)
 4. [`cobra`](https://opencobra.github.io/cobrapy/) (**MUST** be version 0.5.11 at the moment; [GitHub](https://github.com/opencobra/cobrapy); [Document](https://cobrapy.readthedocs.io/en/latest/))
@@ -76,6 +76,7 @@ This project was initiated as a research collaboration between [Metabolic & Biom
     Create an input directory at root of the `GEMS` directory.
     Input file **MUST** be a standard full GenBank file with sequences.
     antiSMASH-annotated GenBank file **MUST** be provided for secondary metabolic modeling.
+
 - Output directory:
 
     Defining output directory is *optional*.
@@ -86,15 +87,19 @@ This project was initiated as a research collaboration between [Metabolic & Biom
 - Run EC number annotation and modeling of primary and secondary metabolism
 
         run-gems -e -p -s -d -i input/NC_021985.1.final.gbk
+
 - Run modeling of primary and secondary metabolism
 
         run-gems -p -s -d -i input/NC_021985.1.final.gbk
+
 - Run modeling of primary metabolism
 
         run-gems -p -d -i input/NC_021985.1.final.gbk
+
 - Run modeling of secondary metabolism
 
         run-gems -s -d -i input/NC_021985.1.final.gbk
+
 - Run EC number annotation
 
         run-gems -e -d -i input/NC_021985.1.final.gbk
