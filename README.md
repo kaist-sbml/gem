@@ -17,7 +17,7 @@ This project was initiated as a research collaboration between [Metabolic & Biom
 3. [`eficaz2.5`](http://cssb.biology.gatech.edu/skolnick/webservice/EFICAz2/index.html) (versions 2.5 and 2.5.1 tested)
 4. [`cobra`](https://opencobra.github.io/cobrapy/) (**MUST** be version 0.5.11 at the moment; [GitHub](https://github.com/opencobra/cobrapy); [Document](https://cobrapy.readthedocs.io/en/latest/))
 
-###Gurobi
+###Gurobi (optional)
 1. Create a symbolic link for the [gurobipy](http://www.gurobi.com/) installed in `root`. 
 
         ln -s /usr/local/lib/python2.7/dist-packages/gurobipy/ $HOME/gems/venv/lib/python2.7/site-packages/
@@ -63,7 +63,6 @@ This project was initiated as a research collaboration between [Metabolic & Biom
     Place `eficaz2.5` in a directory and set up `PATH` in `.bashrc`, e.g.:
 
     `export EFICAz25_PATH="/home/edhyunukkim/gems/venv/bin/EFICAz2.5.1/bin/`
-
     `export PATH="${PATH}:${EFICAz25_PATH}"`
 
     **Note**: Following statement causes a system error: `export PATH="/home/edhyunukkim/gems/venv/bin/EFICAz2.5.1/bin/"`.
@@ -74,13 +73,17 @@ This project was initiated as a research collaboration between [Metabolic & Biom
 - Input file:
 
     Create an input directory at root of the `GEMS` directory.
+
     Input file **MUST** be a standard full GenBank file with sequences.
+
     antiSMASH-annotated GenBank file **MUST** be provided for secondary metabolic modeling.
 
 - Output directory:
 
     Defining output directory is *optional*.
+
     Create an output directory at root of the `GEMS` directory.
+
     If output directory is not given, result files are automatically stored in a directory `output` at root of the `GEMS` directory. **Note**: New result files will override existing files in the default `output` directory.
     
 ###Examples
