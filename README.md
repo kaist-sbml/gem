@@ -1,4 +1,4 @@
-#**GEMS
+#**GEMS**
 #Project
 ***GE***nome-scale metabolic ***M***odeling with ***S***econdary metabolism (GEMS) automatically generates secondary metabolite biosynthetic reactions in a genome-scale metabolic model (GEM) using antiSMASH output .gbk file. GEMS overall enables high-throughput modeling of primary and secondary metabolism.
 
