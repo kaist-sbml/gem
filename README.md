@@ -1,3 +1,4 @@
+#**GEMS
 #Project
 ***GE***nome-scale metabolic ***M***odeling with ***S***econdary metabolism (GEMS) automatically generates secondary metabolite biosynthetic reactions in a genome-scale metabolic model (GEM) using antiSMASH output .gbk file. GEMS overall enables high-throughput modeling of primary and secondary metabolism.
 
@@ -62,7 +63,7 @@ This project was initiated as a research collaboration between [Metabolic & Biom
 
     Place `eficaz2.5` in a directory and set up `PATH` in `.bashrc`, e.g.:
 
-    	export EFICAz25_PATH="/home/edhyunukkim/gems/venv/bin/EFICAz2.5.1/bin/
+    	export EFICAz25_PATH="/home/edhyunukkim/gems/venv/bin/EFICAz2.5.1/bin/"
     	export PATH="${PATH}:${EFICAz25_PATH}"
 
     **Note**: Following statement causes a system error: `export PATH="/home/edhyunukkim/gems/venv/bin/EFICAz2.5.1/bin/"`.
