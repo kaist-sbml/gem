@@ -18,10 +18,6 @@ from os.path import join, abspath, dirname
 sys.path.insert(0, abspath(join(dirname(__file__), '..')))
 import gems
 
-input1_dir = join(os.pardir, 'gems', 'io', 'data', 'input1')
-input1_tmp_dir = join(dirname(abspath(__file__)), 'input1_data')
-input2_tmp_dir = join(dirname(abspath(__file__)), 'input2_data')
-
 def get_options():
     parser = argparse.ArgumentParser()
 
@@ -37,14 +33,29 @@ def get_options():
     group.add_argument('-a', '--acc_number',
             dest='acc_number',
             help = "Specify a organism's Genbank accession number")
+    group.add_argument('-f', '--folder',
+            dest='folder',
+            help = "Specify an output folder name with the KEGG organism code")
 
     options = parser.parse_args()
     logging.debug(options)
 
     return options
 
+def get_output_dirs(options):
 
-def download_model_from_biggDB(options):
+    if options.folder:
+        input1_dir = join(os.pardir, 'gems', 'io', 'data', 'input1', options.folder)
+        if not os.path.isdir(input1_dir):
+            os.makedirs(input1_dir)
+
+        input1_tmp_dir = join(dirname(abspath(__file__)), 'input1_data', options.folder)
+        if not os.path.isdir(input1_tmp_dir):
+            os.makedirs(input1_tmp_dir)
+
+    return input1_dir, input1_tmp_dir
+
+def download_model_from_biggDB(input1_tmp_dir, options):
     model_file = ''.join([options.model, '.xml'])
     url = ''.join(['http://bigg.ucsd.edu/static/models/', model_file])
     logging.debug('URL for downloading a model from the BiGG Models:')
@@ -85,7 +96,7 @@ def get_model_details(options):
     return model_info_dict
 
 
-def prepare_nonstd_model(options):
+def prepare_nonstd_model(input1_tmp_dir, options):
     mnx_parser = ParseMNXref()
     bigg_old_new_dict = mnx_parser.fix_legacy_id_using_BiGGModels()
 
@@ -126,7 +137,7 @@ def prepare_nonstd_model(options):
     return model, model_info_dict
 
 
-def download_gbk_from_ncbi(model_info_dict):
+def download_gbk_from_ncbi(input1_tmp_dir, model_info_dict):
     gbk_file = ''.join([model_info_dict['genome_name'], '.gb'])
     Entrez.email = "ehukim@kaist.ac.kr"
 
@@ -141,7 +152,7 @@ def download_gbk_from_ncbi(model_info_dict):
     return gbk_file
 
 
-def get_tempGenome_locusTag_aaSeq_dict(gbk_file):
+def get_tempGenome_locusTag_aaSeq_dict(input1_tmp_dir, gbk_file):
 
     tempGenome_locusTag_aaSeq_dict = {}
 
@@ -241,7 +252,10 @@ def get_tempModel_locusTag_aaSeq_dict(model, tempGenome_locusTag_aaSeq_dict, opt
     return tempModel_locusTag_aaSeq_dict
 
 
-def generate_output_files(model,
+def generate_output_files(
+        input1_dir,
+        input1_tmp_dir,
+        model,
         tempGenome_locusTag_aaSeq_dict,
         tempModel_biggRxnid_locusTag_dict,
         tempModel_locusTag_aaSeq_dict):
@@ -274,7 +288,7 @@ def generate_output_files(model,
         pickle.dump(tempModel_biggRxnid_locusTag_dict, f, protocol=pickle.HIGHEST_PROTOCOL)
 
 
-def make_blastDB():
+def make_blastDB(input1_dir):
     db_dir = join(input1_dir, 'tempBlastDB')
     query_fasta = join(input1_dir, 'tempModel_locusTag_aaSeq.fa')
 
@@ -300,26 +314,31 @@ if __name__ == '__main__':
 
     options = get_options()
 
+    input1_dir, input1_tmp_dir = get_output_dirs(options)
+
     if options.model:
-        model = download_model_from_biggDB(options)
+        model = download_model_from_biggDB(input1_tmp_dir, options)
         model_info_dict = get_model_details(options)
     elif options.acc_number:
-        model, model_info_dict = prepare_nonstd_model(options)
+        model, model_info_dict = prepare_nonstd_model(input1_tmp_dir, options)
 
-    gbk_file = download_gbk_from_ncbi(model_info_dict)
-    tempGenome_locusTag_aaSeq_dict = get_tempGenome_locusTag_aaSeq_dict(gbk_file)
+    gbk_file = download_gbk_from_ncbi(input1_tmp_dir, model_info_dict)
+    tempGenome_locusTag_aaSeq_dict = \
+            get_tempGenome_locusTag_aaSeq_dict(input1_tmp_dir, gbk_file)
     tempModel_exrxnid_flux_dict = get_tempModel_exrxnid_flux_dict(model)
     tempModel_biggRxnid_locusTag_dict = get_tempModel_biggRxnid_locusTag_dict(model)
     tempModel_locusTag_aaSeq_dict = \
         get_tempModel_locusTag_aaSeq_dict(model, tempGenome_locusTag_aaSeq_dict, options)
 
     generate_output_files(
+            input1_dir,
+            input1_tmp_dir,
             model,
             tempGenome_locusTag_aaSeq_dict,
             tempModel_biggRxnid_locusTag_dict,
             tempModel_locusTag_aaSeq_dict
             )
-    make_blastDB()
+    make_blastDB(input1_dir)
 
     logging.info("Make sure to update template model options in 'run_gems.py'!")
     logging.info("Input files have been created in '/gems/io/data/input1'")
