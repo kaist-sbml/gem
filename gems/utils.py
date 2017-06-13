@@ -18,6 +18,20 @@ def setup_logging(options):
 
     logging.basicConfig(format='%(levelname)s: %(message)s', level=log_level)
 
+def get_version():
+    import gems
+    version = gems.__version__
+
+    return version
+
+def get_git_log():
+    args = ['git', 'rev-parse', '--short', 'HEAD']
+    try:
+        out, err, retcode = execute(args)
+        return out.strip()
+    except OSError:
+        pass
+    return""
 
 def setup_logfile_format(options):
     if options.debug:

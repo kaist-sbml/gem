@@ -110,10 +110,20 @@ def main():
                         action='store_true',
                         default=False,
                         help="Print UserWarning messages from cobrapy")
+    group.add_argument('-V', '--version',
+                        dest='version',
+                        action='store_true',
+                        default=False,
+                        help="Show the program version")
 
     options = parser.parse_args()
 
     utils.setup_logging(options)
+
+    if options.version:
+        print 'GEMS version %s' %utils.get_version()
+        print 'GEMS git log %s' %utils.get_git_log()
+        sys.exit(0)
 
     #Warning messages from cobrapy turned off by default
     if not options.warning:
