@@ -41,17 +41,25 @@ from gems.secondary_model.run_secondary_modeling import (
 
 def main():
     start = time.time()
-
-    parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
+    usage = \
+            '\rGEMS version {version} ({git_log})\n\nusage: {usage}\n----------------------------------------------------------------------------------'\
+            .format(version=utils.get_version(),
+                    git_log=utils.get_git_log(),
+                    usage='run_gems.py [-h] [Resource management] [Input and output setting] [GEMS modeling options] [Debugging and logging options]')
+    parser = argparse.ArgumentParser(
+            formatter_class=argparse.RawTextHelpFormatter,
+            usage=usage
+            )
 
     #General options
-    parser.add_argument('-c', '--cpu',
+    group = parser.add_argument_group('Resource management')
+    group.add_argument('-c', '--cpu',
                         dest='cpus',
                         default=multiprocessing.cpu_count(),
                         type=int,
                         help="How many CPUs to use in parallel. (default: %(default)s)")
 
-    group = parser.add_argument_group('Input and output options')
+    group = parser.add_argument_group('Input and output setting')
     group.add_argument('-i', '--input',
                         dest='input',
                         default='input',
@@ -59,7 +67,7 @@ def main():
     group.add_argument('-o', '--outputfolder',
                         dest='outputfolder',
                         default='output',
-                        help="Specify output directory")
+                        help="Specify output directory (optional)")
 
     group = parser.add_argument_group('Template model options',
                         "Select a biologically close organism")
@@ -114,20 +122,21 @@ def main():
                         dest='version',
                         action='store_true',
                         default=False,
-                        help="Show the program version")
+                        help="Show the program version and exit")
 
     options = parser.parse_args()
 
     utils.setup_logging(options)
 
     if options.version:
-        print 'GEMS version %s' %utils.get_version()
-        print 'GEMS git log %s' %utils.get_git_log()
+        print 'GEMS version %s (%s)' %(utils.get_version(), utils.get_git_log())
         sys.exit(0)
 
     #Warning messages from cobrapy turned off by default
     if not options.warning:
         warnings.filterwarnings("ignore")
+
+    logging.info('Starting GEMS ver. %s (%s)', utils.get_version(), utils.get_git_log())
 
     check_input_filetype(options)
 
