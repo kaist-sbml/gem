@@ -34,7 +34,7 @@ def get_git_log():
     return""
 
 def setup_logfile_format(options):
-    if options.debug:
+    if options.verbose or options.debug:
         logger = logging.getLogger('')
         fomatter = logging.Formatter(
                 '[%(levelname)s|%(filename)s:%(lineno)s] > %(message)s')

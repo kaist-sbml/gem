@@ -128,6 +128,11 @@ def main():
 
     utils.setup_logging(options)
 
+    #Create output folders
+    setup_outputfolders(options)
+
+    utils.setup_logfile_format(options)
+
     if options.version:
         print 'GEMS version %s (%s)' %(utils.get_version(), utils.get_git_log())
         sys.exit(0)
@@ -150,9 +155,9 @@ def main():
         check_prereqs(options)
 
         #Create output folders
-        setup_outputfolders(options)
+#        setup_outputfolders(options)
 
-        utils.setup_logfile_format(options)
+#        utils.setup_logfile_format(options)
 
     # EC number prediction
     if options.eficaz:
