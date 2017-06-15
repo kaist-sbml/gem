@@ -207,6 +207,8 @@ def get_summary_report(folder, cobra_model, runtime,
     runtime2 = runtime.split()[2]
 
     model_summary_dict = {}
+    model_summary_dict['program version']= 'GEMS version %s (%s)'\
+                                            %(utils.get_version(), utils.get_git_log())
     model_summary_dict['template_model_organism']= options.orgName
     model_summary_dict['input_file']=options.input
     model_summary_dict['outputfolder']=options.outputfolder
