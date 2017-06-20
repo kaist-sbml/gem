@@ -17,8 +17,7 @@ def get_targetGenomeInfo(data_dir, options, file_type):
         seq_record = SeqIO.read(data_dir, file_type)
     except ValueError:
         logging.debug("Warning: ValueError occurred in SeqIo.read")
-        seq_record = SeqIO.parse(options.outputfolder+'/'+data_dir,
-                     file_type).next()
+        seq_record = SeqIO.parse(data_dir, file_type).next()
 
     total_cluster = 0
     locus_tag_list = []
