@@ -154,11 +154,6 @@ def main():
         #Check prerequisites of executables and libraries
         check_prereqs(options)
 
-        #Create output folders
-#        setup_outputfolders(options)
-
-#        utils.setup_logfile_format(options)
-
     # EC number prediction
     if options.eficaz:
         seq_record = get_target_gbk(options)
