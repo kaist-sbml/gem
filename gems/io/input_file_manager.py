@@ -102,6 +102,8 @@ def get_target_genome_from_input(filetype, options):
                 "len(options.targetGenome_locusTag_ec_dict.keys): %s"
                 %len(options.targetGenome_locusTag_ec_dict.keys()))
 
+    return seq_record
+
 
 def get_target_genome_from_eficaz(options):
 
