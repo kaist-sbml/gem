@@ -300,7 +300,7 @@ class EFICAzECPrediction:
         "Runs the EFICAz EC number predictions"
         chunkDirs = self._prepareInput()
         if len(chunkDirs) > 0:
-            logging.debug("split inputs to %s directories; first one is %s" % (len(chunkDirs), chunkDirs[0]))
+            logging.debug("Split inputs to %s directories; first one is %s" % (len(chunkDirs), chunkDirs[0]))
             self._execute_EFICAz_processes(chunkDirs)
             self._parseEFICAzResults(chunkDirs)
             self._copyFiles(chunkDirs)

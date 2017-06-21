@@ -81,6 +81,11 @@ def get_target_genome_from_input(filetype, options):
     # len(seq_records) == 1: e.g., A complete bacterial genome (1 contig)
     # len(seq_records) > 1: e.g., An incomplete bacterial genome (multiple contigs)
     if len(seq_records) >= 1 and filetype == 'genbank':
+        if len(seq_records) == 1:
+            logging.debug("One record is found in genome data")
+        elif len(seq_records) > 1:
+            logging.debug("Multiple records is found in genome data")
+
         for seq_record in seq_records:
             locus_tag_list, number_product_list, number_ec_list = \
                     get_features_from_gbk(seq_record, options)
@@ -109,7 +114,8 @@ def get_target_genome_from_eficaz(options):
 
     #'1_EFICAz_results': following argument should not be changed
     gbk_file = glob.glob(os.path.join(options.outputfolder1, '*.gbk'))
-    seq_record = get_target_genome_data(gbk_file[0], options, 'genbank')
+    options.input = gbk_file[0]
+    seq_record = get_target_genome_from_input('genbank', options)
 
     return seq_record
 
