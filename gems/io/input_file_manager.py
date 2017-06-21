@@ -84,7 +84,7 @@ def get_target_genome_from_input(filetype, options):
         if len(seq_records) == 1:
             logging.debug("One record is found in genome data")
         elif len(seq_records) > 1:
-            logging.debug("Multiple records is found in genome data")
+            logging.debug("Multiple records are found in genome data")
 
         for seq_record in seq_records:
             locus_tag_list, number_product_list, number_ec_list = \
