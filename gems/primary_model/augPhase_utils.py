@@ -1,7 +1,4 @@
 
-#Copyright 2014-2016 BioInformatics Research Center, KAIST
-#Copyright 2014-2016 Novo Nordisk Foundation Center for Biosustainability, DTU
-
 import cobra
 import copy
 import logging
@@ -15,7 +12,7 @@ from gems import utils
 #Retrieves a list of reaction IDs using their EC numbers from KEGG
 #Input: E.C number in string form (e.g., 4.1.3.6)
 #Output: reactionID in list form (e.g., ['R00362'])
-def get_rxnid_from_ECNumber(enzymeEC, options):
+def get_rxnid_from_ECNumber(rxnid_list, enzymeEC, options):
     url = options.urls.kegg_enzyme + '%s' %enzymeEC
     ecinfo_text = urllib2.urlopen(url).read()
 
@@ -23,7 +20,7 @@ def get_rxnid_from_ECNumber(enzymeEC, options):
     #The HTTP error was solved by putting "\\b" only at the end (not at the front)
     #in order to also include reaction ID followed by "other" in KEGG
     rxnid_set = re.findall(r'\s+R[0-9]+[0-9]+[0-9]+[0-9]+[0-9]'+'\\b', ecinfo_text)
-    rxnid_list = []
+
     for each_set in rxnid_set:
         rxnid = re.findall('R[0-9]+[0-9]+[0-9]+[0-9]+[0-9]+', each_set)
         rxnid_list+=rxnid
@@ -177,6 +174,9 @@ def get_rxnid_info_dict_from_kegg(options):
 
     for locusTag in options.targetGenome_locusTag_ec_nonBBH_dict.keys():
 	for enzymeEC in options.targetGenome_locusTag_ec_nonBBH_dict[locusTag]:
+            # This should be declared in case enzymeEC is not available at KEGG: e.g.,
+            #"UnboundLocalError: local variable 'rxnid_list' referenced before assignment"
+            rxnid_list = []
 
             #KEGG REST does not accept unspecific EC_number: e.g., 3.2.2.-
             if '-' not in enzymeEC:
@@ -187,17 +187,21 @@ def get_rxnid_info_dict_from_kegg(options):
                         rxnid_list = cache_ec_rxn_dict[enzymeEC]
                         logging.debug("EC_number info from a cache file: %s, %s",
                                       locusTag, enzymeEC)
+
+                elif enzymeEC not in cache_dumped_ec_list:
+                    rxnid_list = get_rxnid_from_ECNumber(rxnid_list, enzymeEC, options)
+                    logging.debug("EC_number info fetched from KEGG: %s, %s",
+                                  locusTag, enzymeEC)
+                    if rxnid_list:
+                        # Store new info in a cache
+                        if enzymeEC not in cache_ec_rxn_dict:
+                            cache_ec_rxn_dict[enzymeEC] = rxnid_list
+                    elif not rxnid_list and enzymeEC not in cache_dumped_ec_list:
+                        cache_dumped_ec_list.append(enzymeEC)
+
                 else:
-                    if enzymeEC not in cache_dumped_ec_list:
-                        rxnid_list = get_rxnid_from_ECNumber(enzymeEC, options)
-                        logging.debug("EC_number info fetched from KEGG: %s, %s",
-                                    locusTag, enzymeEC)
-                        if rxnid_list:
-                            # Store new info in a cache
-                            if enzymeEC not in cache_ec_rxn_dict:
-                                cache_ec_rxn_dict[enzymeEC] = rxnid_list
-                        elif not rxnid_list and enzymeEC not in cache_dumped_ec_list:
-                            cache_dumped_ec_list.append(enzymeEC)
+                    logging.debug("EC_number NOT available at KEGG: %s, %s",
+                                  locusTag, enzymeEC)
 
                 for rxnid in rxnid_list:
 
@@ -205,12 +209,13 @@ def get_rxnid_info_dict_from_kegg(options):
                     if rxnid in cache_rxnid_info_dict:
                         rxnid_info_dict[rxnid] = cache_rxnid_info_dict[rxnid]
                         logging.debug('Reaction info from a cache file: %s, %s, %s',
-                                      locusTag, enzymeEC, rxnid)
+                                          locusTag, enzymeEC, rxnid)
                     else:
                         if rxnid not in cache_dumped_rxnid_list:
                             rxnid_info = get_rxnInfo_from_rxnid(rxnid, options)
-                            logging.debug('Reaction info fetched from KEGG: %s, %s, %s',
-                                      locusTag, enzymeEC, rxnid)
+                            logging.debug(
+                                         'Reaction info fetched from KEGG: %s, %s, %s',
+                                         locusTag, enzymeEC, rxnid)
 
                             # Create 'rxnid_info_dict'
                             if rxnid_info != None:
@@ -219,19 +224,18 @@ def get_rxnid_info_dict_from_kegg(options):
                                 if rxnid not in cache_rxnid_info_dict:
                                     cache_rxnid_info_dict[rxnid] = rxnid_info
                             else:
-                                logging.debug('No reaction info available for %s, %s, %s',
-                                          locusTag, enzymeEC, rxnid)
+                                logging.debug(
+                                            'No reaction info available for %s, %s, %s',
+                                            locusTag, enzymeEC, rxnid)
                                 if rxnid not in cache_dumped_rxnid_list:
                                     cache_dumped_rxnid_list.append(rxnid)
 
                                 edit_mnxr_kegg_dict(rxnid, options)
                         else:
                             edit_mnxr_kegg_dict(rxnid, options)
+
                     rxnid_locusTag_dict = get_rxnid_locusTag_dict(
-                            rxnid_locusTag_dict, rxnid, locusTag)
-            else:
-                logging.debug("EC_number NOT submitted to KEGG: %s, %s",
-                              locusTag, enzymeEC)
+                                rxnid_locusTag_dict, rxnid, locusTag)
 
     create_cache(cache_ec_rxn_dict_dir, cache_ec_rxn_dict)
     create_cache(cache_rxnid_info_dict_dir, cache_rxnid_info_dict)
