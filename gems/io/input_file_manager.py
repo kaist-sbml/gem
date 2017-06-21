@@ -51,7 +51,7 @@ def check_input_filetype(options):
     logging.info('Input file: %s', options.input)
     input_ext = os.path.splitext(options.input)[1]
 
-    if input_ext in ('.gbk', '.gb', '.genbank', '.gbff'):
+    if input_ext in ('.gbk', '.gb', '.genbank', '.gbf', '.gbff'):
         logging.debug("A GenBank file is found for input")
         return 'genbank'
     elif input_ext in ('.fa', '.fasta', '.fna', '.faa', '.fas'):
@@ -87,29 +87,13 @@ def get_target_genome_from_input(filetype, options):
 
             locus_tag_list2.append(locus_tag_list)
             number_product_list2.append(number_product_list)
-            number_ec_list2.append(number_product_list)
-
-    if len(seq_records) > 1:
-        locus_tag_list = locus_tag_list2
-        number_product_list = number_product_list2
-        number_ec_list = number_product_list2
+            number_ec_list2.append(number_ec_list)
 
     #Number of 'locus_tag's obtained above may be different from
     #the number directly obtained from genbank file
     #because some 'locus_tag's exit in the features 'tRNA' and 'rRNA',
     #which are not considered herein.
-    logging.debug("Number of 'locus_tag's: %s" %len(locus_tag_list))
-
     #Same above comment for 'product's
-    for locus_tag in options.targetGenome_locusTag_prod_dict.keys():
-        number_product_list.append(options.targetGenome_locusTag_prod_dict[locus_tag])
-    logging.debug("Number of 'product's: %s" %len(number_product_list))
-
-    for locus_tag in options.targetGenome_locusTag_ec_dict.keys():
-        for ec in options.targetGenome_locusTag_ec_dict[locus_tag]:
-            number_ec_list.append(ec)
-    logging.debug("Number of 'EC_number's: %s" %len(number_ec_list))
-
     logging.debug(
                 "len(options.targetGenome_locusTag_prod_dict.keys):%s"
                 %len(options.targetGenome_locusTag_prod_dict.keys()))
