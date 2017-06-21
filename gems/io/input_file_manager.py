@@ -1,14 +1,12 @@
 
-#Copyright 2014-2016 BioInformatics Research Center, KAIST
-#Copyright 2014-2016 Novo Nordisk Foundation Center for Biosustainability, DTU
-
 import glob
 import logging
 import os
 import pickle
+from Bio import SeqIO
 from io_utils import (
     get_temp_fasta,
-    get_targetGenomeInfo,
+    get_features_from_gbk,
     get_target_fasta
 )
 
@@ -54,26 +52,78 @@ def check_input_filetype(options):
     input_ext = os.path.splitext(options.input)[1]
 
     if input_ext in ('.gbk', '.gb', '.genbank', '.gbff'):
-        logging.debug("GenBank file format is supported")
+        logging.debug("A GenBank file is found for input")
+        return 'genbank'
     elif input_ext in ('.fa', '.fasta', '.fna', '.faa', '.fas'):
-        logging.warning("FASTA file format is not currently supported")
-        if options.eficaz:
-            options.eficaz = False
-        elif options.pmr_generation:
-            options.pmr_generation = False
-        elif options.smr_generation:
-            options.smr_generation = False
+        logging.debug("A FASTA file is found for input")
+        return 'fasta'
+
+#        if options.eficaz:
+#            options.eficaz = False
+#        elif options.pmr_generation:
+#            options.pmr_generation = False
+#        elif options.smr_generation:
+#            options.smr_generation = False
 
 
-def get_target_gbk(options):
-    logging.info("Reading input genome files..")
-    logging.info("Reading a genbank file of a target genome..")
+def get_target_genome_from_input(filetype, options):
 
-    try:
-        gbk_file = glob.glob(os.path.join(options.outputfolder1, '*.gbk'))
-        seq_record = get_targetGenomeInfo(gbk_file[0], options, 'genbank')
-    except:
-        seq_record = get_targetGenomeInfo(options.input, options, 'genbank')
+    options.targetGenome_locusTag_aaSeq_dict = {}
+    options.targetGenome_locusTag_ec_dict = {}
+    options.targetGenome_locusTag_prod_dict = {}
+    options.total_cluster = 0
+    locus_tag_list2 = []
+    number_product_list2 = []
+    number_ec_list2 = []
+
+    seq_records = list(SeqIO.parse(options.input, filetype))
+
+    # len(seq_records) == 1: e.g., A complete bacterial genome (1 contig)
+    # len(seq_records) > 1: e.g., An incomplete bacterial genome (multiple contigs)
+    if len(seq_records) >= 1 and filetype == 'genbank':
+        for seq_record in seq_records:
+            locus_tag_list, number_product_list, number_ec_list = \
+                    get_features_from_gbk(seq_record, options)
+
+            locus_tag_list2.append(locus_tag_list)
+            number_product_list2.append(number_product_list)
+            number_ec_list2.append(number_product_list)
+
+    if len(seq_records) > 1:
+        locus_tag_list = locus_tag_list2
+        number_product_list = number_product_list2
+        number_ec_list = number_product_list2
+
+    #Number of 'locus_tag's obtained above may be different from
+    #the number directly obtained from genbank file
+    #because some 'locus_tag's exit in the features 'tRNA' and 'rRNA',
+    #which are not considered herein.
+    logging.debug("Number of 'locus_tag's: %s" %len(locus_tag_list))
+
+    #Same above comment for 'product's
+    for locus_tag in options.targetGenome_locusTag_prod_dict.keys():
+        number_product_list.append(options.targetGenome_locusTag_prod_dict[locus_tag])
+    logging.debug("Number of 'product's: %s" %len(number_product_list))
+
+    for locus_tag in options.targetGenome_locusTag_ec_dict.keys():
+        for ec in options.targetGenome_locusTag_ec_dict[locus_tag]:
+            number_ec_list.append(ec)
+    logging.debug("Number of 'EC_number's: %s" %len(number_ec_list))
+
+    logging.debug(
+                "len(options.targetGenome_locusTag_prod_dict.keys):%s"
+                %len(options.targetGenome_locusTag_prod_dict.keys()))
+
+    logging.debug(
+                "len(options.targetGenome_locusTag_ec_dict.keys): %s"
+                %len(options.targetGenome_locusTag_ec_dict.keys()))
+
+
+def get_target_genome_from_eficaz(options):
+
+    #'1_EFICAz_results': following argument should not be changed
+    gbk_file = glob.glob(os.path.join(options.outputfolder1, '*.gbk'))
+    seq_record = get_target_genome_data(gbk_file[0], options, 'genbank')
 
     return seq_record
 

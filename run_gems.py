@@ -24,7 +24,7 @@ from gems.eficaz import getECs
 from gems.io.input_file_manager import (
     setup_outputfolders,
     check_input_filetype,
-    get_target_gbk,
+    get_target_genome_from_input,
     get_fasta_files,
     get_pickles_prunPhase,
     get_pickles_augPhase
@@ -143,7 +143,8 @@ def main():
 
     logging.info('Starting GEMS ver. %s (%s)', utils.get_version(), utils.get_git_log())
 
-    check_input_filetype(options)
+    logging.info("Reading input genome files..")
+    filetype = check_input_filetype(options)
 
     #Get genome files only if one of functional options is selected
     if options.eficaz or options.pmr_generation or options.smr_generation:
@@ -156,7 +157,7 @@ def main():
 
     # EC number prediction
     if options.eficaz:
-        seq_record = get_target_gbk(options)
+        seq_record = get_target_genome_from_input(filetype, options)
 
         if options.eficaz_path and options.targetGenome_locusTag_aaSeq_dict:
             getECs(seq_record, options)
@@ -168,7 +169,9 @@ def main():
 
     # Primary metabolic modeling
     if options.pmr_generation:
-        seq_record = get_target_gbk(options)
+        if 'targetGenome_locusTag_aaSeq_dict' not in options:
+            seq_record = get_target_genome_from_input(filetype, options)
+
         get_fasta_files(options)
 
         if options.targetGenome_locusTag_aaSeq_dict:
@@ -204,7 +207,7 @@ def main():
     # Secondary metabolic modeling
     if options.smr_generation:
         if 'targetGenome_locusTag_aaSeq_dict' not in options:
-            seq_record = get_target_gbk(options)
+                seq_record = get_target_genome_from_input(filetype, options)
 
         model_file = []
         files = glob.glob(options.outputfolder3 + os.sep + '*.xml')
