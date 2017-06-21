@@ -7,7 +7,7 @@ import os
 import utils
 
 
-__version__ = '0.1.12a1'
+__version__ = '0.1.12a2'
 
 
 def check_prereqs(options):
