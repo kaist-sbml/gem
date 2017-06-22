@@ -157,13 +157,23 @@ def main():
     if options.eficaz:
         seq_records = get_target_genome_from_input(filetype, options)
 
-        if options.eficaz_path and options.targetGenome_locusTag_aaSeq_dict:
-            getECs(seq_records, options)
-        elif not options.eficaz_path:
-            logging.warning("EFICAz not found")
-        elif not options.targetGenome_locusTag_aaSeq_dict:
+        if len(seq_records) == 1 and \
+                options.eficaz_path and \
+                options.targetGenome_locusTag_aaSeq_dict:
+
+            seq_record = seq_records[0]
+            getECs(seq_record, options)
+        else:
             logging.warning("EFICAz not implemented;")
-            logging.warning("No amino acid sequences found in the submitted gbk file")
+
+            if len(seq_records) > 1:
+                logging.warning(
+                    "Input genome data with multiple records is currently not supported")
+            elif not options.eficaz_path:
+                logging.warning("EFICAz not found")
+            elif not options.targetGenome_locusTag_aaSeq_dict:
+                logging.warning(
+                        "No amino acid sequences found in input genome data")
 
     # Primary metabolic modeling
     if options.pmr_generation:
@@ -183,7 +193,7 @@ def main():
                 get_pickles_augPhase(options)
                 target_model = run_augPhase(modelPrunedGPR, options)
             else:
-                logging.warning("No EC_numbers found in the submitted gbk file")
+                logging.warning("No EC_numbers found in input genome data")
                 logging.warning("New reactions will NOT be added")
 
             try:
@@ -202,7 +212,7 @@ def main():
                         cobra_model = modelPrunedGPR)
         else:
             logging.warning("Primary metabolic modeling not implemented;")
-            logging.warning("No amino acid sequences found in the submitted gbk file")
+            logging.warning("No amino acid sequences found in input genome data")
 
     # Secondary metabolic modeling
     if options.smr_generation:
@@ -215,7 +225,10 @@ def main():
         files = glob.glob(options.outputfolder3 + os.sep + '*.xml')
         model_file = [each_file for each_file in files if '.xml' in each_file]
 
-        if len(seq_records) == 1 and len(model_file) > 0 and '.xml' in model_file[0] and options.total_cluster > 0:
+        if len(seq_records) == 1 and \
+                len(model_file) > 0 and '.xml' in model_file[0] and \
+                options.total_cluster > 0:
+
             logging.info("Generating secondary metabolite biosynthesizing reactions..")
             logging.debug("Total number of clusters: %s" %options.total_cluster)
 
