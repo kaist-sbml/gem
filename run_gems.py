@@ -157,19 +157,19 @@ def main():
     if options.eficaz:
         seq_records = get_target_genome_from_input(filetype, options)
 
-        if len(seq_records) == 1 and \
-                options.eficaz_path and \
-                options.targetGenome_locusTag_aaSeq_dict:
+        if options.eficaz_path and options.targetGenome_locusTag_aaSeq_dict:
 
-            seq_record = seq_records[0]
-            getECs(seq_record, options)
+            if filetype == 'fasta' or len(seq_records) > 1:
+                logging.info("Input file in FASTA format or with multiple records:")
+                logging.info("EFICAz output will not be available in GenBank format")
+
+            if len(seq_records) == 1:
+                seq_record = seq_records[0]
+                getECs(seq_record, options)
         else:
             logging.warning("EFICAz not implemented;")
 
-            if len(seq_records) > 1:
-                logging.warning(
-                    "Input genome data with multiple records is currently not supported")
-            elif not options.eficaz_path:
+            if not options.eficaz_path:
                 logging.warning("EFICAz not found")
             elif not options.targetGenome_locusTag_aaSeq_dict:
                 logging.warning(

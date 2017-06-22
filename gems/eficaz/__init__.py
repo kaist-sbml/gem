@@ -66,16 +66,18 @@ class EFICAzECPrediction:
         tempdir = tempfile.mkdtemp(prefix='antiSMASH_ECpred')
         self.tempdirname = tempdir
 
-    def _getMultiFastaList(self):
-        features = utils.get_cds_features(self.seq_record)
+    def _getMultiFastaList(self, options):
+#        features = utils.get_cds_features(self.seq_record)
         allFastaList = []
-        for feature in features:
-            gene_id = utils.get_gene_id(feature)
+#        for feature in features:
+#            gene_id = utils.get_gene_id(feature)
 
-            if 'translation' in feature.qualifiers.keys():
-                fasta_seq = feature.qualifiers['translation'][0]
-                if "-" in str(fasta_seq):
-                    fasta_seq = Seq(str(fasta_seq).replace("-",""), generic_protein)
+#            if 'translation' in feature.qualifiers.keys():
+#                fasta_seq = feature.qualifiers['translation'][0]
+
+        for gene_id, fasta_seq in options.targetGenome_locusTag_aaSeq_dict.iteritems():
+            if "-" in str(fasta_seq):
+                fasta_seq = Seq(str(fasta_seq).replace("-",""), generic_protein)
 
             # Never write empty fasta entries
             elif len(fasta_seq) == 0:
@@ -87,14 +89,14 @@ class EFICAzECPrediction:
         return allFastaList
 
 
-    def _prepareInput(self):
+    def _prepareInput(self, options):
         """Generate $options.cpus chunks of multi-Fasta-files; each in it's own subdirectory named "Chunk0000x";
         returns: list of directorynames"""
 
         logging.debug("Preparing input files for EFICAz")
         InputDirList = []
-        allFastaList = self._getMultiFastaList()
-
+        allFastaList = self._getMultiFastaList(options)
+        print 'check', len(allFastaList)
         maxChunks = self.options.cpus
 
 
@@ -296,9 +298,9 @@ class EFICAzECPrediction:
         shutil.rmtree(self.tempdirname)
 
 
-    def runECpred(self):
+    def runECpred(self, options):
         "Runs the EFICAz EC number predictions"
-        chunkDirs = self._prepareInput()
+        chunkDirs = self._prepareInput(options)
         if len(chunkDirs) > 0:
             logging.debug("Split inputs to %s directories; first one is %s" % (len(chunkDirs), chunkDirs[0]))
             self._execute_EFICAz_processes(chunkDirs)
@@ -388,7 +390,7 @@ def getECs(seq_record, options):
         options.cpus = 1
 
     EFICAzECs = EFICAzECPrediction(seq_record, options)
-    EFICAzECs.runECpred()
+    EFICAzECs.runECpred(options)
     logging.debug("Found %s predictions for EC4" % len(EFICAzECs.getEC4Dict().keys()))
 
     for feature in utils.get_cds_features(seq_record):
