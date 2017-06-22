@@ -1,13 +1,10 @@
 
-#Copyright 2014-2016 BioInformatics Research Center, KAIST
-#Copyright 2014-2016 Novo Nordisk Foundation Center for Biosustainability, DTU
-
 import logging
 import os
 import utils
 
 
-__version__ = '0.1.12a2'
+__version__ = '0.2.1'
 
 
 def check_prereqs(options):
