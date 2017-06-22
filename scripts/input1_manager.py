@@ -88,9 +88,24 @@ def get_model_details(options):
 
     # 'null' causes "ValueError: malformed string"
     if 'null' in model_info:
-        model_info = model_info.replace('null', '[]')
+        model_info = model_info.replace('null', '""')
 
     model_info_dict = ast.literal_eval(model_info)
+
+    if not model_info_dict['organism']:
+        model_info_dict['organism'] = raw_input('Organism name?')
+
+        if not model_info_dict['organism']:
+            logging.error("Organism name ('model_info_dict['organism']') is not provided")
+            sys.exit(1)
+
+    if not model_info_dict['genome_name']:
+        model_info_dict['genome_name'] = raw_input('Genome name?')
+
+        if not model_info_dict['genome_name']:
+            logging.error("Genome name ('model_info_dict['genome_name']') is not provided")
+            sys.exit(1)
+
     logging.debug('%s details:', options.model)
     logging.debug('model_bigg_id: %s', model_info_dict['model_bigg_id'])
     logging.debug('organism: %s', model_info_dict['organism'])
