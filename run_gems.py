@@ -1,8 +1,5 @@
 #!/usr/bin/env python
 
-#Copyright 2014-2016 BioInformatics Research Center, KAIST
-#Copyright 2014-2016 Novo Nordisk Foundation Center for Biosustainability, DTU
-
 import argparse
 import cobra
 import copy
@@ -34,7 +31,7 @@ from gems.io.output_file_manager import generate_outputs
 from gems.homology.bidirect_blastp_analysis import get_homologs
 from gems.primary_model.run_primary_modeling import run_prunPhase, run_augPhase
 from gems.secondary_model.run_secondary_modeling import (
-    run_sec_met_rxn_generation,
+    run_secondary_modeling,
     get_target_nonprod_monomers_for_gapfilling,
     run_gapfilling
     )
@@ -158,10 +155,10 @@ def main():
 
     # EC number prediction
     if options.eficaz:
-        seq_record = get_target_genome_from_input(filetype, options)
+        seq_records = get_target_genome_from_input(filetype, options)
 
         if options.eficaz_path and options.targetGenome_locusTag_aaSeq_dict:
-            getECs(seq_record, options)
+            getECs(seq_records, options)
         elif not options.eficaz_path:
             logging.warning("EFICAz not found")
         elif not options.targetGenome_locusTag_aaSeq_dict:
@@ -171,9 +168,9 @@ def main():
     # Primary metabolic modeling
     if options.pmr_generation:
         if options.eficaz:
-            seq_record = get_target_genome_from_eficaz(options)
+            seq_records = get_target_genome_from_eficaz(options)
         else:
-            seq_record = get_target_genome_from_input(filetype, options)
+            seq_records = get_target_genome_from_input(filetype, options)
 
         get_fasta_files(options)
 
@@ -210,9 +207,11 @@ def main():
     # Secondary metabolic modeling
     if options.smr_generation:
         if options.eficaz:
-            seq_record = get_target_genome_from_eficaz(options)
+            seq_records = get_target_genome_from_eficaz(options)
         else:
-            seq_record = get_target_genome_from_input(filetype, options)
+            seq_records = get_target_genome_from_input(filetype, options)
+
+        seq_record = seq_records[0]
 
         model_file = []
         files = glob.glob(options.outputfolder3 + os.sep + '*.xml')
@@ -227,18 +226,7 @@ def main():
             logging.debug("Total number of clusters: %s" %options.total_cluster)
 
             if options.total_cluster > 0:
-                prod_sec_met_dict = {}
-                nonprod_sec_met_dict = {}
-
-                cluster_nr = 1
-                while cluster_nr <= options.total_cluster:
-                    logging.info("Generating reactions for Cluster %s.." %cluster_nr)
-                    target_model = run_sec_met_rxn_generation(
-                            seq_record, cluster_nr,
-                            target_model,
-                            prod_sec_met_dict, nonprod_sec_met_dict,
-                            options)
-                    cluster_nr += 1
+                target_model = run_secondary_modeling(seq_record, target_model, options)
 
                 target_model_no_gapsFilled = copy.deepcopy(target_model)
 

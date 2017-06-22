@@ -1,7 +1,4 @@
 
-#Copyright 2014-2016 BioInformatics Research Center, KAIST
-#Copyright 2014-2016 Novo Nordisk Foundation Center for Biosustainability, DTU
-
 import cobra
 import logging
 import pickle
@@ -23,6 +20,25 @@ from gapfilling import(
     check_gapfill_rxn_biomass_effects,
     add_gapfill_rxn_target_model
 )
+
+
+def run_secondary_modeling(seq_record, target_model, options):
+    prod_sec_met_dict = {}
+    nonprod_sec_met_dict = {}
+
+    cluster_nr = 1
+
+    while cluster_nr <= options.total_cluster:
+        logging.info("Generating reactions for Cluster %s.." %cluster_nr)
+        target_model = run_sec_met_rxn_generation(
+                 seq_record, cluster_nr,
+                 target_model,
+                 prod_sec_met_dict, nonprod_sec_met_dict,
+                 options)
+
+        cluster_nr += 1
+
+    return target_model
 
 
 def run_sec_met_rxn_generation(seq_record, cluster_nr, target_model, prod_sec_met_dict,
