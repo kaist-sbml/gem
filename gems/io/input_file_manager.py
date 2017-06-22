@@ -7,6 +7,7 @@ from Bio import SeqIO
 from io_utils import (
     get_temp_fasta,
     get_features_from_gbk,
+    get_features_from_fasta,
     get_target_fasta
 )
 
@@ -72,27 +73,25 @@ def get_target_genome_from_input(filetype, options):
     options.targetGenome_locusTag_ec_dict = {}
     options.targetGenome_locusTag_prod_dict = {}
     options.total_cluster = 0
-    locus_tag_list2 = []
-    number_product_list2 = []
-    number_ec_list2 = []
 
     seq_records = list(SeqIO.parse(options.input, filetype))
 
     # len(seq_records) == 1: e.g., A complete bacterial genome (1 contig)
     # len(seq_records) > 1: e.g., An incomplete bacterial genome (multiple contigs)
-    if len(seq_records) >= 1 and filetype == 'genbank':
+    if len(seq_records) >= 1:
         if len(seq_records) == 1:
             logging.debug("One record is found in genome data")
         elif len(seq_records) > 1:
-            logging.debug("Multiple records is found in genome data")
+            logging.debug("Multiple records are found in genome data")
 
-        for seq_record in seq_records:
-            locus_tag_list, number_product_list, number_ec_list = \
-                    get_features_from_gbk(seq_record, options)
+        if filetype == 'genbank':
+            for seq_record in seq_records:
+                get_features_from_gbk(seq_record, options)
 
-            locus_tag_list2.append(locus_tag_list)
-            number_product_list2.append(number_product_list)
-            number_ec_list2.append(number_ec_list)
+        elif filetype == 'fasta':
+            for seq_record in seq_records:
+                get_features_from_fasta(seq_record, options)
+
 
     #Number of 'locus_tag's obtained above may be different from
     #the number directly obtained from genbank file

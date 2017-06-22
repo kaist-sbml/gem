@@ -186,8 +186,8 @@ def main():
                 get_pickles_augPhase(options)
                 target_model = run_augPhase(modelPrunedGPR, options)
             else:
-                logging.warning("Primary metabolic modeling not implemented;")
                 logging.warning("No EC_numbers found in the submitted gbk file")
+                logging.warning("New reactions will NOT be added")
 
             try:
                 prune_unused_metabolites(target_model)

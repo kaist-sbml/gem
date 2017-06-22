@@ -4,16 +4,11 @@ import os
 
 def get_features_from_gbk(seq_record, options):
 
-    locus_tag_list = []
-    number_product_list = []
-    number_ec_list = []
-
     for feature in seq_record.features:
         if feature.type == 'CDS':
 
             #Retrieving "locus_tag (i.e., ORF name)" for each CDS
             locusTag = feature.qualifiers['locus_tag'][0]
-            locus_tag_list.append(locusTag)
 
             #Note that the numbers of CDS and "translation" do not match.
             #Some CDSs do not have "translation".
@@ -37,8 +32,11 @@ def get_features_from_gbk(seq_record, options):
         if feature.type == 'cluster':
             options.total_cluster += 1
 
-    return locus_tag_list, number_product_list, number_ec_list
 
+def get_features_from_fasta(seq_record, options):
+    locusTag = seq_record.id
+    options.targetGenome_locusTag_aaSeq_dict[locusTag] = seq_record.seq
+    options.targetGenome_locusTag_prod_dict[locusTag] = seq_record.description
 
 def get_target_fasta(options):
 
