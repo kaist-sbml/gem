@@ -7,6 +7,7 @@ from Bio import SeqIO
 from io_utils import (
     get_temp_fasta,
     get_features_from_gbk,
+    get_features_from_fasta,
     get_target_fasta
 )
 
@@ -88,6 +89,8 @@ def get_target_genome_from_input(filetype, options):
                 get_features_from_gbk(seq_record, options)
 
         elif filetype == 'fasta':
+            for seq_record in seq_records:
+                get_features_from_fasta(seq_record, options)
 
 
     #Number of 'locus_tag's obtained above may be different from

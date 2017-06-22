@@ -33,6 +33,11 @@ def get_features_from_gbk(seq_record, options):
             options.total_cluster += 1
 
 
+def get_features_from_fasta(seq_record, options):
+    locusTag = seq_record.id
+    options.targetGenome_locusTag_aaSeq_dict[locusTag] = seq_record.seq
+    options.targetGenome_locusTag_prod_dict[locusTag] = seq_record.description
+
 def get_target_fasta(options):
 
     if options.targetGenome_locusTag_aaSeq_dict:
