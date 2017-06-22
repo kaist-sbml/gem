@@ -96,7 +96,9 @@ class EFICAzECPrediction:
         logging.debug("Preparing input files for EFICAz")
         InputDirList = []
         allFastaList = self._getMultiFastaList(options)
-        print 'check', len(allFastaList)
+
+        logging.debug("Number of sequences: %s", len(allFastaList))
+
         maxChunks = self.options.cpus
 
 
