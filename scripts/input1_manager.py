@@ -86,6 +86,9 @@ def get_model_details(options):
 
     model_info = urllib2.urlopen(url).read()
 
+    if 'null' in model_info:
+        model_info = model_info.replace('null', '[]')
+
     model_info_dict = ast.literal_eval(model_info)
     logging.debug('%s details:', options.model)
     logging.debug('model_bigg_id: %s', model_info_dict['model_bigg_id'])
