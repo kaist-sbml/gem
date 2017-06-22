@@ -211,44 +211,49 @@ def main():
         else:
             seq_records = get_target_genome_from_input(filetype, options)
 
-        seq_record = seq_records[0]
+        if len(seq_records) == 1:
+            seq_record = seq_records[0]
 
-        model_file = []
-        files = glob.glob(options.outputfolder3 + os.sep + '*.xml')
-        model_file = [each_file for each_file in files if '.xml' in each_file]
+            model_file = []
+            files = glob.glob(options.outputfolder3 + os.sep + '*.xml')
+            model_file = [each_file for each_file in files if '.xml' in each_file]
 
-        if len(model_file) > 0 and '.xml' in model_file[0]:
-            model_file = os.path.basename(model_file[0])
-            target_model = cobra.io.read_sbml_model(
-                    os.path.join(options.outputfolder3, model_file))
+            if len(model_file) > 0 and '.xml' in model_file[0]:
+                model_file = os.path.basename(model_file[0])
+                target_model = cobra.io.read_sbml_model(
+                        os.path.join(options.outputfolder3, model_file))
 
-            logging.info("Generating secondary metabolite biosynthesizing reactions..")
-            logging.debug("Total number of clusters: %s" %options.total_cluster)
+                logging.info("Generating secondary metabolite biosynthesizing reactions..")
+                logging.debug("Total number of clusters: %s" %options.total_cluster)
 
-            if options.total_cluster > 0:
-                target_model = run_secondary_modeling(seq_record, target_model, options)
+                if options.total_cluster > 0:
+                    target_model = run_secondary_modeling(seq_record, target_model, options)
 
-                target_model_no_gapsFilled = copy.deepcopy(target_model)
+                    target_model_no_gapsFilled = copy.deepcopy(target_model)
 
-                get_target_nonprod_monomers_for_gapfilling(target_model, options)
+                    get_target_nonprod_monomers_for_gapfilling(target_model, options)
 
-                target_model_complete = run_gapfilling(target_model, options)
+                    target_model_complete = run_gapfilling(target_model, options)
 
-                prune_unused_metabolites(target_model_complete)
+                    prune_unused_metabolites(target_model_complete)
 
-                runtime2 = time.strftime("Elapsed time %H:%M:%S",
-                        time.gmtime(time.time() - start))
+                    runtime2 = time.strftime("Elapsed time %H:%M:%S",
+                                             time.gmtime(time.time() - start))
 
-                generate_outputs(options.outputfolder4,
-                        runtime2, options,
-                        cobra_model_no_gapFilled = target_model_no_gapsFilled,
-                        cobra_model = target_model_complete)
+                    generate_outputs(options.outputfolder4,
+                                runtime2, options,
+                                cobra_model_no_gapFilled = target_model_no_gapsFilled,
+                                cobra_model = target_model_complete)
+                else:
+                    logging.warning("Secondary metabolic modeling not implemented;")
+                    logging.warning("No cluster information found in input genome data")
             else:
                 logging.warning("Secondary metabolic modeling not implemented;")
-                logging.warning("No cluster information found in the submitted gbk file")
+                logging.warning("COBRA-compliant SBML file needed")
+
         else:
             logging.warning("Secondary metabolic modeling not implemented;")
-            logging.warning("COBRA-compliant SBML file needed")
+            logging.warning("Input genome data with multiple records is currently not supported")
 
     if not options.eficaz and not options.pmr_generation and not options.smr_generation:
         logging.warning("No functional options enabled")
