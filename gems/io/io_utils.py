@@ -38,6 +38,7 @@ def get_features_from_fasta(seq_record, options):
     options.targetGenome_locusTag_aaSeq_dict[locusTag] = seq_record.seq
     options.targetGenome_locusTag_prod_dict[locusTag] = seq_record.description
 
+
 def get_target_fasta(options):
 
     if options.targetGenome_locusTag_aaSeq_dict:

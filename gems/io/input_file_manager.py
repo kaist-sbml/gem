@@ -59,13 +59,6 @@ def check_input_filetype(options):
         logging.debug("A FASTA file is found for input")
         return 'fasta'
 
-#        if options.eficaz:
-#            options.eficaz = False
-#        elif options.pmr_generation:
-#            options.pmr_generation = False
-#        elif options.smr_generation:
-#            options.smr_generation = False
-
 
 def get_target_genome_from_input(filetype, options):
 
