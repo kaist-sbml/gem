@@ -86,6 +86,7 @@ def get_model_details(options):
 
     model_info = urllib2.urlopen(url).read()
 
+    # 'null' causes "ValueError: malformed string"
     if 'null' in model_info:
         model_info = model_info.replace('null', '[]')
 
