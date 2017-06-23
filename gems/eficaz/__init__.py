@@ -131,10 +131,8 @@ class EFICAzECPrediction:
                     sys.exit(1)
             InputDirList.append(chunkDirName)
 
-            chunkFileName = "{dirname}{sep}{seqid}_{chunk_no:05d}.fasta".format(dirname=chunkDirName, \
-                                                                                      sep=os.sep, \
-                                                                                      seqid=self.inputfile, \
-                                                                                      chunk_no=i+1)
+            chunkFileName = "{dirname}{sep}{seqid}_{chunk_no:05d}.fasta".format(
+                    dirname=chunkDirName, sep=os.sep, seqid=self.inputfile, chunk_no=i+1)
             try:
                 f  = open(chunkFileName, "w")
             except OSError:
@@ -176,9 +174,10 @@ class EFICAzECPrediction:
             try:
                 shutil.copy(os.path.abspath(os.path.join(self.basedirName, ecpredfile)), self.ChunkFilenames[chunkDir]+".ecpred")
             except:
-                logging.exception("Could not copy existing eficaz result file %s to tempfile %s", \
-                                 os.path.isfile(os.path.abspath(self.basedirName, ecpredfile)), \
-                                 self.ChunkFilenames[chunkDir]+".ecpred" )
+                logging.exception(
+                        "Could not copy existing eficaz result file %s to tempfile %s",
+                        os.path.isfile(os.path.abspath(self.basedirName, ecpredfile)),
+                        self.ChunkFilenames[chunkDir]+".ecpred" )
                 sys.exit(1)
 
         os.chdir(cwd)
@@ -274,8 +273,10 @@ class EFICAzECPrediction:
     def _copyFiles(self, chunkDirs):
         "Copy the input and output files into outputfolder"
 
-        logging.debug("Copying the eficaz input/result files from tempdir %s to outputfolder %s", \
-                      self.tempdirname, self.basedirName)
+        logging.debug(
+            "Copying the eficaz input/result files from tempdir %s to outputfolder %s",
+            self.tempdirname, self.basedirName)
+
         for chunkDir in chunkDirs:
             try:
                 # logging.debug("Copying input fasta file from %s to outputfolder", chunkDir)
