@@ -161,7 +161,7 @@ def main():
 
             if filetype == 'fasta' or len(seq_records) > 1:
                 logging.info("Input file in FASTA format or with multiple records:")
-                logging.info("EFICAz output will not be available in GenBank format")
+                logging.info("Raw EFICAz output (.txt)  will be generated, not GenBank")
 
             if len(seq_records) == 1:
                 seq_record = seq_records[0]
