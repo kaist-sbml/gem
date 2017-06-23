@@ -459,6 +459,19 @@ def getECs2(options):
     logging.debug("Found %s predictions for EC4" % len(EFICAzECs.getEC4Dict().keys()))
     logging.debug("Found %s predictions for EC3" % len(EFICAzECs.getEC3Dict().keys()))
 
+    for locustag in options.targetGenome_locusTag_aaSeq_dict:
+        if EFICAzECs.getEC4(locustag):
+            ecnum = EFICAzECs.getEC4(locustag)
+
+            if locustag not in options.targetGenome_locusTag_ec_dict:
+                options.targetGenome_locusTag_ec_dict[locustag] = []
+
+            for ec in ecnum:
+                if ec not in options.targetGenome_locusTag_ec_dict[locustag]:
+                    options.targetGenome_locusTag_ec_dict[locustag].append(ec)
+
+    logging.debug("len(options.targetGenome_locusTag_ec_dict.keys): %s", len(options.targetGenome_locusTag_ec_dict.keys()))
+
     #Write output file
     ecpredfile = inputfile + '_ec.txt'
     outputfiles = glob.glob(os.path.abspath(os.path.join(options.outputfolder1, "EFICAz", '*.ecpred')))
