@@ -51,7 +51,7 @@ def get_target_fasta(options):
                 %(str(locusTag), str(options.targetGenome_locusTag_aaSeq_dict[locusTag]))
         options.target_fasta = target_fasta_dir
     else:
-        logging.warning("FASTA file %s for bidirectional blastp hits not found.")
+        logging.warning("FASTA file 'targetGenome_locusTag_aaSeq.fa' not found")
 
 
 #Look for pre-stored fasta file of the template model
@@ -63,3 +63,7 @@ def get_temp_fasta(options):
                 options.input1 = root
                 options.temp_fasta = tempFasta
 
+    if options.temp_fasta:
+        logging.warning("FASTA file for '%s' found", options.orgName)
+    else:
+        logging.warning("FASTA file for '%s' not found", options.orgName)
