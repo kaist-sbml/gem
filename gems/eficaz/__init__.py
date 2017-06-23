@@ -14,6 +14,7 @@
 Predict EC numbers by EFICAz 2.5a
 """
 
+import glob
 import logging
 import multiprocessing
 import os
@@ -130,7 +131,7 @@ class EFICAzECPrediction:
                     sys.exit(1)
             InputDirList.append(chunkDirName)
 
-            chunkFileName = "{dirname}{sep}input_{seqid}_{chunk_no:05d}.fasta".format(dirname=chunkDirName, \
+            chunkFileName = "{dirname}{sep}{seqid}_{chunk_no:05d}.fasta".format(dirname=chunkDirName, \
                                                                                       sep=os.sep, \
                                                                                       seqid=self.inputfile, \
                                                                                       chunk_no=i+1)
@@ -440,11 +441,8 @@ def getECs1(options, seq_record):
     logging.debug("Finished EC number prediction with EFICAz")
 
     #Write output gbk file
-    input_gbk = os.path.basename(options.input)
-    input_gbk2 = os.path.splitext(input_gbk)[0]
-    output_gbk = input_gbk2 + '_ec.gbk'
-    SeqIO.write(seq_record, os.path.join(
-        options.outputfolder1, output_gbk), 'genbank')
+    output_gbk = inputfile + '_ec.gbk'
+    SeqIO.write(seq_record, os.path.join(options.outputfolder1, output_gbk), 'genbank')
 
 
 def getECs2(options):
@@ -453,7 +451,19 @@ def getECs2(options):
     if not 'cpus' in options:
         options.cpus = 1
 
-    EFICAzECs = EFICAzECPrediction(options)
+    inputfile = os.path.basename(options.input).split('.')[0]
+    EFICAzECs = EFICAzECPrediction(options, inputfile)
     EFICAzECs.runECpred(options)
+
     logging.debug("Found %s predictions for EC4" % len(EFICAzECs.getEC4Dict().keys()))
     logging.debug("Found %s predictions for EC3" % len(EFICAzECs.getEC3Dict().keys()))
+
+    #Write output file
+    ecpredfile = inputfile + '_ec.txt'
+    outputfiles = glob.glob(os.path.abspath(os.path.join(options.outputfolder1, "EFICAz", '*.ecpred')))
+
+    with open(os.path.join(options.outputfolder1, ecpredfile), 'w') as outfile:
+        for outputfile in outputfiles:
+            with open(outputfile) as infile:
+                outfile.write(infile.read())
+
