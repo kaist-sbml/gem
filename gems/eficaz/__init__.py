@@ -379,8 +379,8 @@ class EFICAzECPrediction:
         return self.EC3InfoDict
 
 
-def getECs(seq_record, options):
-    logging.debug("Predicting EC numbers with EFICAz")
+def getECs1(seq_record, options):
+    logging.debug("Predicting EC numbers with EFICAz (getECs1)")
 
     if not 'cpus' in options:
         options.cpus = 1
@@ -388,6 +388,7 @@ def getECs(seq_record, options):
     EFICAzECs = EFICAzECPrediction(seq_record, options)
     EFICAzECs.runECpred(options)
     logging.debug("Found %s predictions for EC4" % len(EFICAzECs.getEC4Dict().keys()))
+    logging.debug("Found %s predictions for EC3" % len(EFICAzECs.getEC3Dict().keys()))
 
     for feature in utils.get_cds_features(seq_record):
         featureID = utils.get_gene_id(feature)
@@ -442,3 +443,15 @@ def getECs(seq_record, options):
     output_gbk = input_gbk2 + '_ec.gbk'
     SeqIO.write(seq_record, os.path.join(
         options.outputfolder1, output_gbk), 'genbank')
+
+
+def getECs2(seq_record, options):
+    logging.debug("Predicting EC numbers with EFICAz (getECs2)")
+
+    if not 'cpus' in options:
+        options.cpus = 1
+
+    EFICAzECs = EFICAzECPrediction(seq_record, options)
+    EFICAzECs.runECpred(options)
+    logging.debug("Found %s predictions for EC4" % len(EFICAzECs.getEC4Dict().keys()))
+    logging.debug("Found %s predictions for EC3" % len(EFICAzECs.getEC3Dict().keys()))

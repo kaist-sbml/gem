@@ -17,7 +17,7 @@ import warnings
 from cobra.manipulation.delete import prune_unused_metabolites
 from gems import check_prereqs, utils
 from gems.config import load_config
-from gems.eficaz import getECs
+from gems.eficaz import getECs1, getECs2
 from gems.io.input_file_manager import (
     setup_outputfolders,
     check_input_filetype,
@@ -165,7 +165,9 @@ def main():
 
             if len(seq_records) == 1:
                 seq_record = seq_records[0]
-                getECs(seq_record, options)
+                getECs1(seq_record, options)
+            elif len(seq_records) > 1:
+                getECs2(seq_record, options)
         else:
             logging.warning("EFICAz not implemented;")
 
