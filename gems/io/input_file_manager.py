@@ -102,16 +102,6 @@ def get_target_genome_from_input(filetype, options):
     return seq_records
 
 
-def get_target_genome_from_eficaz(options):
-
-    #'1_EFICAz_results': following argument should not be changed
-    gbk_file = glob.glob(os.path.join(options.outputfolder1, '*.gbk'))
-    options.input = gbk_file[0]
-    seq_record = get_target_genome_from_input('genbank', options)
-
-    return seq_record
-
-
 def get_fasta_files(options):
     #Following data are needed only for primary metabolic modeling
     logging.info("Looking for a fasta file of a target genome..")
