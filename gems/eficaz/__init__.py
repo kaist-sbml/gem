@@ -67,13 +67,7 @@ class EFICAzECPrediction:
         self.tempdirname = tempdir
 
     def _getMultiFastaList(self, options):
-#        features = utils.get_cds_features(self.seq_record)
         allFastaList = []
-#        for feature in features:
-#            gene_id = utils.get_gene_id(feature)
-
-#            if 'translation' in feature.qualifiers.keys():
-#                fasta_seq = feature.qualifiers['translation'][0]
 
         for gene_id, fasta_seq in options.targetGenome_locusTag_aaSeq_dict.iteritems():
             if "-" in str(fasta_seq):
