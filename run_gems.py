@@ -164,10 +164,9 @@ def main():
                 logging.info("Raw EFICAz output (.txt)  will be generated, not GenBank")
 
             if len(seq_records) == 1:
-                seq_record = seq_records[0]
-                getECs1(seq_record, options)
+                getECs1(options, seq_record = seq_records[0])
             elif len(seq_records) > 1:
-                getECs2(seq_record, options)
+                getECs2(options)
         else:
             logging.warning("EFICAz not implemented;")
 

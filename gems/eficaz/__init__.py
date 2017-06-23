@@ -36,10 +36,10 @@ EFICAzBinary = "eficaz2.5"
 
 class EFICAzECPrediction:
 
-    def __init__(self, seq_record, options):
+    def __init__(self, options, inputfile):
 
         # Assign variables
-        self.seq_record = seq_record
+        self.inputfile = inputfile
         self.options = options
 
         # Variables to store EC prediction
@@ -100,7 +100,7 @@ class EFICAzECPrediction:
             maxChunks = len(allFastaList)
 
         if maxChunks == 0:
-            logging.warn('No input files for %s', self.seq_record.id)
+            logging.warn('No input files for %s', self.inputfile)
             return []
         equalpartsizes = int(len(allFastaList) / maxChunks)
 
@@ -132,7 +132,7 @@ class EFICAzECPrediction:
 
             chunkFileName = "{dirname}{sep}input_{seqid}_{chunk_no:05d}.fasta".format(dirname=chunkDirName, \
                                                                                       sep=os.sep, \
-                                                                                      seqid=self.seq_record.id, \
+                                                                                      seqid=self.inputfile, \
                                                                                       chunk_no=i+1)
             try:
                 f  = open(chunkFileName, "w")
@@ -303,7 +303,7 @@ class EFICAzECPrediction:
             self._parseEFICAzResults(chunkDirs)
             self._copyFiles(chunkDirs)
         else:
-            logging.warn("ECpredictor: No protein coding sequences found for in record: %s" % self.seq_record.id)
+            logging.warn("ECpredictor: No protein coding sequences found for in record: %s" % self.inputfile)
 
     def getEC3(self, antiSMASH_ID):
         """Return list of EC3 numbers for antiSMASH_ID"""
@@ -379,14 +379,16 @@ class EFICAzECPrediction:
         return self.EC3InfoDict
 
 
-def getECs1(seq_record, options):
+def getECs1(options, seq_record):
     logging.debug("Predicting EC numbers with EFICAz (getECs1)")
 
     if not 'cpus' in options:
         options.cpus = 1
 
-    EFICAzECs = EFICAzECPrediction(seq_record, options)
+    inputfile = os.path.basename(options.input).split('.')[0]
+    EFICAzECs = EFICAzECPrediction(options, inputfile)
     EFICAzECs.runECpred(options)
+
     logging.debug("Found %s predictions for EC4" % len(EFICAzECs.getEC4Dict().keys()))
     logging.debug("Found %s predictions for EC3" % len(EFICAzECs.getEC3Dict().keys()))
 
@@ -445,13 +447,13 @@ def getECs1(seq_record, options):
         options.outputfolder1, output_gbk), 'genbank')
 
 
-def getECs2(seq_record, options):
+def getECs2(options):
     logging.debug("Predicting EC numbers with EFICAz (getECs2)")
 
     if not 'cpus' in options:
         options.cpus = 1
 
-    EFICAzECs = EFICAzECPrediction(seq_record, options)
+    EFICAzECs = EFICAzECPrediction(options)
     EFICAzECs.runECpred(options)
     logging.debug("Found %s predictions for EC4" % len(EFICAzECs.getEC4Dict().keys()))
     logging.debug("Found %s predictions for EC3" % len(EFICAzECs.getEC3Dict().keys()))
