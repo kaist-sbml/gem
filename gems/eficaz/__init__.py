@@ -470,7 +470,8 @@ def getECs2(options):
                 if ec not in options.targetGenome_locusTag_ec_dict[locustag]:
                     options.targetGenome_locusTag_ec_dict[locustag].append(ec)
 
-    logging.debug("len(options.targetGenome_locusTag_ec_dict.keys): %s", len(options.targetGenome_locusTag_ec_dict.keys()))
+    logging.debug("len(options.targetGenome_locusTag_ec_dict.keys): %s",
+                  len(options.targetGenome_locusTag_ec_dict.keys()))
 
     #Write output file
     ecpredfile = inputfile + '_ec.txt'

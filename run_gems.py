@@ -22,6 +22,7 @@ from gems.io.input_file_manager import (
     setup_outputfolders,
     check_input_filetype,
     get_target_genome_from_input,
+    get_eficaz_file,
     get_fasta_files,
     get_pickles_prunPhase,
     get_pickles_augPhase

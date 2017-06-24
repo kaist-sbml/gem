@@ -3,6 +3,7 @@ import glob
 import logging
 import os
 import pickle
+import re
 from Bio import SeqIO
 from io_utils import (
     get_temp_fasta,
@@ -100,6 +101,57 @@ def get_target_genome_from_input(filetype, options):
                 %len(options.targetGenome_locusTag_ec_dict.keys()))
 
     return seq_records
+
+
+def get_eficaz_file(options):
+
+#    EC4Info = {}
+#    EC3Info = {}
+
+    try:
+        f = open(options.eficaz_file,"r")
+    except OSError as e:
+         logging.error("No EFICAz output file %s found", options.eficaz_file)
+         #continue
+    except IOError as e:
+         logging.error("No EFICAz output file %s found", options.eficaz_file)
+         #continue
+
+    for line in f.read().splitlines():
+        (locustag, eficazResultString) = line.split(',', 1)
+        eficazResultString = eficazResultString.strip()
+        if eficazResultString == 'No EFICAz EC assignment':
+            continue
+
+        #if eficazResultString.strip().startswith("3EC"):
+        #    r = re.match('3EC: (\d+\.\d+\.\d+), (.*)', eficazResultString)
+        #    if r:
+        #        EC = r.group(1) + ".-"
+        #        #ECDesc = r.group(2)
+        #        if not options.targetGenome_locusTag_ec_dict.has_key(locustag):
+        #            options.targetGenome_locusTag_ec_dict[locustag] = []
+        #            #EC3Info[locustag] = []
+        #        options.targetGenome_locusTag_ec_dict[locustag].append(EC)
+        #        #EC3Info[locustag].append(ECDesc)
+        #        continue
+
+        if eficazResultString.strip().startswith("4EC"):
+            r = re.match('4EC: (\d+\.\d+\.\d+\.\d+), (.*)', eficazResultString)
+            if r:
+                EC = r.group(1)
+                #ECDesc = r.group(2)
+                if not options.targetGenome_locusTag_ec_dict.has_key(locustag):
+                    options.targetGenome_locusTag_ec_dict[locustag] = []
+                    #EC4Info[locustag] = []
+                options.targetGenome_locusTag_ec_dict[locustag].append(EC)
+                #EC4Info[locustag].append(ECDesc)
+                continue
+
+        logging.warn("Could not parse line %s:" % line)
+    f.close()
+
+    logging.debug("len(options.targetGenome_locusTag_ec_dict.keys): %s",
+                  len(options.targetGenome_locusTag_ec_dict.keys()))
 
 
 def get_fasta_files(options):
