@@ -105,6 +105,8 @@ def get_target_genome_from_input(filetype, options):
 
 def get_eficaz_file(options):
 
+    logging.info("Reading EFICAz output file..")
+
 #    EC4Info = {}
 #    EC3Info = {}
 
