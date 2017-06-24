@@ -47,6 +47,26 @@ def get_git_log():
     return""
 
 
+def check_input_options(options):
+    if not options.eficaz and not options.pmr_generation and not options.smr_generation:
+        logging.warning("Select one of the three options: '-e', '-p-' and '-s'")
+        sys.exit(1)
+    else:
+        if not options.input:
+            logging.warning("Provide input file via ('-i')")
+            sys.exit(1)
+
+    if options.eficaz_file:
+        if options.eficaz:
+            logging.warning("EFICAz output file option ('-E') should be removed")
+            sys.exit(1)
+
+        if not options.pmr_generation:
+            logging.warning(
+                    "Primary metabolic modeling option ('-p') should also be selected")
+            sys.exit(1)
+
+
 # Adopted from antismash.utils
 def locate_executable(name):
     "Find an executable in the path and return the full path"

@@ -59,7 +59,7 @@ def main():
     group = parser.add_argument_group('Input and output setting')
     group.add_argument('-i', '--input',
                         dest='input',
-                        default='input',
+                        default=False,
                         help="Specify input file")
     group.add_argument('-o', '--outputfolder',
                         dest='outputfolder',
@@ -82,7 +82,16 @@ def main():
 
     group = parser.add_argument_group('GEMS modeling options',
                         "At least one of the three options should be selected:"
-                        " '-e', '-p-' and '-s'")
+                        " '-e', '-p-' and '-s'\n"
+                        "Use of EFICAz output file (.txt) as input (option '-E'):\n"
+                        " - Cannot be used with EFICAz implementation option ('-e')\n"
+                        " - Can be used only with primary metabolic modeling option ('-p')\n"
+                        " - Examples:\n"
+                        "   '-e -E': NOT acceptable\n"
+                        "   '-p -E': Acceptable\n"
+                        "   '-s -p -E': Acceptable\n"
+                        "   '-s -E': NOT acceptable"
+                        )
     group.add_argument('-e', '--ec',
                         dest='eficaz',
                         action='store_true',
@@ -98,6 +107,10 @@ def main():
                         default=False,
                         action=('store_true'),
                         help="Run secondary metabolic modeling")
+    group.add_argument('-E', '--EFICAz',
+                        dest='eficaz_file',
+                        default=False,
+                        help="Specify EFICAz output file")
 
     group = parser.add_argument_group('Debugging and logging options')
     group.add_argument('-v', '--verbose',
@@ -134,6 +147,8 @@ def main():
         print 'GEMS version %s (%s)' %(utils.get_version(), utils.get_git_log())
         sys.exit(0)
 
+    utils.check_input_options(options)
+
     #Warning messages from cobrapy turned off by default
     if not options.warning:
         warnings.filterwarnings("ignore")
@@ -143,20 +158,19 @@ def main():
     logging.info("Reading input genome files..")
     filetype = check_input_filetype(options)
 
-    #Get genome files only if one of functional options is selected
-    if options.eficaz or options.pmr_generation or options.smr_generation:
+    #Load config data
+    load_config(options)
 
-        #Load config data
-        load_config(options)
-
-        #Check prerequisites of executables and libraries
-        check_prereqs(options)
+    #Check prerequisites of executables and libraries
+    check_prereqs(options)
 
     # EC number prediction
     if options.eficaz:
         seq_records = get_target_genome_from_input(filetype, options)
 
-        if options.eficaz_path and options.targetGenome_locusTag_aaSeq_dict:
+        if options.eficaz_path and \
+                options.targetGenome_locusTag_aaSeq_dict and \
+                not options.eficaz_file:
 
             if filetype == 'fasta' or len(seq_records) > 1:
                 logging.info("Input file in FASTA format or with multiple records:")
@@ -179,6 +193,9 @@ def main():
     if options.pmr_generation:
         if not options.eficaz:
             seq_records = get_target_genome_from_input(filetype, options)
+
+        if options.eficaz_file:
+            get_eficaz_file(options)
 
         get_fasta_files(options)
 
@@ -264,9 +281,6 @@ def main():
                 logging.warning("COBRA-compliant SBML file needed")
             elif options.total_cluster == 0:
                 logging.warning("No cluster information found in input genome data")
-
-    if not options.eficaz and not options.pmr_generation and not options.smr_generation:
-        logging.warning("No functional options enabled")
 
     logging.info(time.strftime("Elapsed time %H:%M:%S", time.gmtime(time.time() - start)))
 
