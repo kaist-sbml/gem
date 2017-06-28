@@ -58,10 +58,10 @@ class CreateBiGGModel(object):
             rxn_info_fixed = rxn_info.replace('false', 'False')
 
             rxn_info_dict = ast.literal_eval(rxn_info_fixed)
-            logging.debug('%s', bigg_id)
-            logging.debug('%s', rxn_info_dict)
+            logging.debug('%s: %s', bigg_id, rxn_info_dict['metabolites'])
 
 
+    #TODO: Should be modified, may be combined with the function above
     def get_bigg_metabolites():
         url = 'http://bigg.ucsd.edu/api/v2/universal/metabolites'
         logging.debug('URL for downloading a model from the BiGG Models:')
@@ -72,169 +72,41 @@ class CreateBiGGModel(object):
         with open(join(input2_tmp_dir, 'bigg_metabs.txt'), 'wb') as f:
             f.write(bigg_metabs)
 
-
-    # mnxm_compoundInfo_dict =
-    #{'MNXM128019': ['Methyl trans-p-methoxycinnamate', 'C11H12O3']}
-    def read_bigg_metabs(self, filename):
-        mnxm_compoundInfo_dict = {}
-
-        f = open(filename,'r')
-        f.readline()
-
-        for line in f:
-            try:
-                metab_prop_list = line.split('\t')
-                mnxm_id = metab_prop_list[0].strip()
-                mnxm_name = metab_prop_list[1].strip()
-                mnxm_formula = metab_prop_list[2].strip()
-                mnxm_compoundInfo_dict[mnxm_id] = [mnxm_name]
-                mnxm_compoundInfo_dict[mnxm_id].append(mnxm_formula)
-            except:
-                logging.debug('Cannot parse MNXM: %s' %line)
-
-        f.close()
-        self.mnxm_compoundInfo_dict = mnxm_compoundInfo_dict
-
-        return mnxm_compoundInfo_dict
-
-
-    def read_bigg_rxns(self, filename):
-
-        mnxr_xref_dict = {}
-        mnxr_kegg_dict = {} # 1:n for {key:value}
-        bigg_mnxr_dict = {} # 1:1 for {key:value}
-
-        f = open(filename,'r')
-        f.readline()
-
-        for line in f:
-            try:
-                rxn_info_list = line.split('\t')
-                xref = rxn_info_list[0].strip()
-                xref_list = xref.split(':')
-                xref_db = xref_list[0].strip()
-                xref_id = xref_list[1].strip()
-                mnxr = rxn_info_list[1].strip()
-
-                # For reaction.name in MNXref.xml
-                if xref_db == 'bigg' or xref_db == 'kegg':
-                    if mnxr not in mnxr_xref_dict:
-                        mnxr_xref_dict[mnxr] = [xref_id]
-                    elif mnxr in mnxr_xref_dict:
-                        mnxr_xref_dict[mnxr].append(xref_id)
-
-                if xref_db == 'kegg':
-                    if mnxr not in mnxr_kegg_dict:
-                        mnxr_kegg_dict[mnxr] = [xref_id]
-                    elif mnxr in mnxr_kegg_dict:
-                        mnxr_kegg_dict[mnxr].append(xref_id)
-
-                if xref_db == 'bigg':
-                    bigg_mnxr_dict[xref_id] = mnxr
-
-                logging.debug('%s; %s; %s' %(xref_db, xref_id, mnxr))
-            except:
-                logging.debug('Cannot parse MNXM: %s' %line)
-
-        f.close()
-        self.mnxr_xref_dict = mnxr_xref_dict
-        self.bigg_mnxr_dict = bigg_mnxr_dict
-
-        return mnxr_kegg_dict, bigg_mnxr_dict
-
-
-    def parse_equation(self, equation):
-        equation = equation.replace('>', '')
-        equation = equation.replace('<', '')
-        spt_equation = equation.split('=')
-        reactant_str = spt_equation[0].strip()
-        product_str = spt_equation[1].strip()
-
-        reactant_info = {}
-        product_info = {}
-        metabolite_info = {}
-        reactant_list = reactant_str.split('+')
-        for each_metabolite in reactant_list:
-            spt_metabolite = each_metabolite.strip().split(' ')
-
-            if len(spt_metabolite) == 1:
-                metabolite_name = spt_metabolite[0].strip()
-                coeff = 1.0
-                reactant_info[metabolite_name] = coeff * -1
-            elif len(spt_metabolite) == 2:
-                coeff = spt_metabolite[0].strip()
-                metabolite_name = spt_metabolite[1].strip()
-                reactant_info[metabolite_name] = float(coeff) * -1
-
-        product_list = product_str.split('+')
-        for each_metabolite in product_list:
-            spt_metabolite = each_metabolite.strip().split(' ')
-
-            if len(spt_metabolite) == 1:
-                metabolite_name = spt_metabolite[0].strip()
-                coeff = 1.0
-                product_info[metabolite_name] = float(coeff)
-            elif len(spt_metabolite) == 2:
-                coeff = spt_metabolite[0].strip()
-                metabolite_name = spt_metabolite[1].strip()
-                product_info[metabolite_name] = float(coeff)
-
-        return reactant_info, product_info
-
-
+    #TODO: Should be fixed
     def read_reac_prop(self, filename):
         reaction_info = {}
-        mass_balance = ''
-        ec_number = ''
 
-        fp = open(filename, 'r')
-        fp.readline()  # dummy line
-        for line in fp:
-            try:
-                sptlist = line.split('\t')
-                reaction_id = sptlist[0].strip()
-                reversibility = True
+        sptlist = line.split('\t')
+        reaction_id = sptlist[0].strip()
+        reversibility = True
 
-                stoich_dict = {}
-                equation = sptlist[1].strip()
+        stoich_dict = {}
+        equation = sptlist[1].strip()
 
-                if sptlist[3].strip() == 'true':
-                    mass_balance = 'balanced'
-                elif sptlist[3].strip() == 'false':
-                    mass_balance = 'unbalanced'
+        reactant_info, product_info = self.parse_equation(equation)
 
-                ec_number = sptlist[4].strip()
+        for metabolite in reactant_info:
+            stoich_dict[metabolite] = reactant_info[metabolite]
+        for metabolite in product_info:
+            stoich_dict[metabolite] = product_info[metabolite]
 
-                reactant_info, product_info = self.parse_equation(equation)
+        flag = True
+        for each_reactant in reactant_info.keys():
+            if each_reactant in product_info.keys():
+                flag = False
+                break
 
-                for metabolite in reactant_info:
-                    stoich_dict[metabolite] = reactant_info[metabolite]
-                for metabolite in product_info:
-                    stoich_dict[metabolite] = product_info[metabolite]
+        if flag == False:
+            continue
 
-                flag = True
-                for each_reactant in reactant_info.keys():
-                    if each_reactant in product_info.keys():
-                        flag = False
-                        break
+        ec_number_list = ec_number.split(';')
 
-                if flag == False:
-                    continue
-
-                ec_number_list = ec_number.split(';')
-
-                if len(ec_number_list) > 0:
-                    reaction_info[reaction_id] = {
+        if len(ec_number_list) > 0:
+            reaction_info[reaction_id] = {
                             'stoichiometry': stoich_dict,
-                            'balance': mass_balance,
-                            'ec': ec_number_list,
                             'reversibility': reversibility}
-            except:
-                logging.debug('Cannot parse MNXR: %s' %line)
 
         self.reaction_info = reaction_info
-        fp.close()
-        return
 
 
     def get_cobra_reactions(self):
@@ -250,8 +122,6 @@ class CreateBiGGModel(object):
                     %(len(self.reaction_info), cnt, each_reaction))
             reaction_name = each_reaction
             metabolites = self.reaction_info[each_reaction]['stoichiometry']
-            mass_balance = self.reaction_info[each_reaction]['balance']
-            ec_number_list = self.reaction_info[each_reaction]['ec']
             reaction_reversibility = self.reaction_info[each_reaction]['reversibility']
 
             compartment_list = ['c']
