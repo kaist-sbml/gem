@@ -17,6 +17,7 @@ from os.path import join, abspath, dirname
 
 sys.path.insert(0, abspath(join(dirname(__file__), '..')))
 import gems
+import gems.io.io_utils as io_utils
 
 def get_options():
     parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
@@ -47,6 +48,7 @@ def get_options():
     logging.debug(options)
 
     return options
+
 
 def get_output_dirs(options):
 
@@ -158,7 +160,9 @@ def prepare_nonstd_model(input1_tmp_dir, options):
     model = gems.utils.stabilize_model(model, input1_tmp_dir, '')
 
     model_info_dict = {}
-    model_info_dict['genome_name'] = options.acc_number
+
+    if options.acc_number:
+        model_info_dict['genome_name'] = options.acc_number
 
     return model, model_info_dict
 
@@ -178,19 +182,38 @@ def download_gbk_from_ncbi(input1_tmp_dir, model_info_dict):
     return gbk_file
 
 
-def get_tempGenome_locusTag_aaSeq_dict(input1_tmp_dir, gbk_file):
+def get_tempGenome_locusTag_aaSeq_dict(input1_tmp_dir, options, **kwargs):
 
     tempGenome_locusTag_aaSeq_dict = {}
+    options.targetGenome_locusTag_aaSeq_dict = {}
+    options.targetGenome_locusTag_prod_dict = {}
+    options.targetGenome_locusTag_ec_dict = {}
+    options.total_cluster = 0
 
-    seq_record = SeqIO.read(join(input1_tmp_dir, gbk_file), 'genbank')
+    if 'gbk_file' in kwargs:
+        gbk_file = kwargs['gbk_file']
+        filetype = 'genbank'
+        seq_records = list(SeqIO.parse(join(input1_tmp_dir, gbk_file), filetype))
 
-    for feature in seq_record.features:
-        if feature.type == 'CDS':
-            locusTag = feature.qualifiers['locus_tag'][0]
+    elif 'gbk_file' not in kwargs and options.genome:
+        input_ext = os.path.splitext(options.genome)[1]
 
-            if feature.qualifiers.get('translation'):
-                translation = feature.qualifiers.get('translation')[0]
-                tempGenome_locusTag_aaSeq_dict[locusTag] = translation
+        if input_ext in ('.gbk', '.gb', '.genbank', '.gbf', '.gbff'):
+            filetype = 'genbank'
+        elif input_ext in ('.fa', '.fasta', '.fna', '.faa', '.fas'):
+            filetype = 'fasta'
+
+        seq_records = list(SeqIO.parse(join(input1_tmp_dir, options.genome), filetype))
+
+    if filetype == 'genbank':
+        for seq_record in seq_records:
+            io_utils.get_features_from_gbk(seq_record, options)
+
+    elif filetype == 'fasta':
+        for seq_record in seq_records:
+            io_utils.get_features_from_fasta(seq_record, options)
+
+    tempGenome_locusTag_aaSeq_dict = options.targetGenome_locusTag_aaSeq_dict
 
     return tempGenome_locusTag_aaSeq_dict
 
@@ -345,12 +368,18 @@ if __name__ == '__main__':
     if options.model:
         model = download_model_from_biggDB(input1_tmp_dir, options)
         model_info_dict = get_model_details(options)
-    elif options.acc_number:
+    elif options.acc_number or options.genome:
         model, model_info_dict = prepare_nonstd_model(input1_tmp_dir, options)
 
-    gbk_file = download_gbk_from_ncbi(input1_tmp_dir, model_info_dict)
-    tempGenome_locusTag_aaSeq_dict = \
-            get_tempGenome_locusTag_aaSeq_dict(input1_tmp_dir, gbk_file)
+    if options.model or options.acc_number:
+        gbk_file = download_gbk_from_ncbi(input1_tmp_dir, model_info_dict)
+        tempGenome_locusTag_aaSeq_dict = \
+            get_tempGenome_locusTag_aaSeq_dict(
+                    input1_tmp_dir, options, gbk_file = gbk_file)
+    elif options.genome:
+        tempGenome_locusTag_aaSeq_dict = \
+                get_tempGenome_locusTag_aaSeq_dict(input1_tmp_dir, options)
+
     tempModel_exrxnid_flux_dict = get_tempModel_exrxnid_flux_dict(model)
     tempModel_biggRxnid_locusTag_dict = get_tempModel_biggRxnid_locusTag_dict(model)
     tempModel_locusTag_aaSeq_dict = \
