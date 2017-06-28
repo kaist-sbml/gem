@@ -75,7 +75,7 @@ def main():
     group.add_argument('-m', '--model',
                         dest='orgName',
                         default='sco',
-                        choices=['bsu', 'eco','mtu','ppu','sco'],
+                        choices=['bsu', 'cre', 'eco','mtu','ppu','sco'],
                         help="Specify a template model for the target modeling\n"
                         "'bsu': iYO844; Bacillus subtilis subsp. subtilis str. 168\n"
                         "'cre': iCre1355; Chlamydomonas reinhardtii\n"
