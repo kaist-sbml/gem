@@ -17,30 +17,38 @@ from os.path import join, abspath, dirname
 
 sys.path.insert(0, abspath(join(dirname(__file__), '..')))
 import gems
+import gems.io.io_utils as io_utils
 
 def get_options():
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
 
     group = parser.add_argument_group(
-        "Provide either:",
-        "1) BiGG Models ID (e.g., iAF1260) or "
-        "2) Genbank accession number (e.g., NC_003888.3). "
-        "For the latter case, place a relevant SBML file in 'scripts/input1_data/'.")
+        "Provide:",
+        "1) BiGG Models ID (e.g., iAF1260) only or "
+        "2) Genbank accession number (e.g., NC_003888.3) with a relevant SBML file or"
+        "3) Genome file (GenBank or FASTA) with a relevant SBML file."
+        "For the options 2) and 3), place files in 'scripts/input1_data/[organism-specific folder'].")
 
     group.add_argument('-m', '--model',
             dest='model',
             help = "Specify BiGG ID of a metabolic model to prepare as a template model")
     group.add_argument('-a', '--acc_number',
             dest='acc_number',
-            help = "Specify a organism's Genbank accession number")
+            help = "Specify an organism's Genbank accession number\n"
+            "Also provide a relevant SBML file")
+    group.add_argument('-g', '--genome',
+            dest='genome',
+            help = "Provide an organism's genome file (Genbank or FASTA)\n"
+            "Also provide a relevant SBML file")
     group.add_argument('-f', '--folder',
             dest='folder',
-            help = "Specify an output folder name with the KEGG organism code")
+            help = "Specify an output folder name with the KEGG organism code\n")
 
     options = parser.parse_args()
     logging.debug(options)
 
     return options
+
 
 def get_output_dirs(options):
 
@@ -54,6 +62,7 @@ def get_output_dirs(options):
             os.makedirs(input1_tmp_dir)
 
     return input1_dir, input1_tmp_dir
+
 
 def download_model_from_biggDB(input1_tmp_dir, options):
     model_file = ''.join([options.model, '.xml'])
@@ -86,7 +95,26 @@ def get_model_details(options):
 
     model_info = urllib2.urlopen(url).read()
 
+    # 'null' causes "ValueError: malformed string"
+    if 'null' in model_info:
+        model_info = model_info.replace('null', '""')
+
     model_info_dict = ast.literal_eval(model_info)
+
+    if not model_info_dict['organism']:
+        model_info_dict['organism'] = raw_input('Organism name?')
+
+        if not model_info_dict['organism']:
+            logging.error("Organism name ('model_info_dict['organism']') is not provided")
+            sys.exit(1)
+
+    if not model_info_dict['genome_name']:
+        model_info_dict['genome_name'] = raw_input('Genome name?')
+
+        if not model_info_dict['genome_name']:
+            logging.error("Genome name ('model_info_dict['genome_name']') is not provided")
+            sys.exit(1)
+
     logging.debug('%s details:', options.model)
     logging.debug('model_bigg_id: %s', model_info_dict['model_bigg_id'])
     logging.debug('organism: %s', model_info_dict['organism'])
@@ -132,7 +160,9 @@ def prepare_nonstd_model(input1_tmp_dir, options):
     model = gems.utils.stabilize_model(model, input1_tmp_dir, '')
 
     model_info_dict = {}
-    model_info_dict['genome_name'] = options.acc_number
+
+    if options.acc_number:
+        model_info_dict['genome_name'] = options.acc_number
 
     return model, model_info_dict
 
@@ -152,19 +182,38 @@ def download_gbk_from_ncbi(input1_tmp_dir, model_info_dict):
     return gbk_file
 
 
-def get_tempGenome_locusTag_aaSeq_dict(input1_tmp_dir, gbk_file):
+def get_tempGenome_locusTag_aaSeq_dict(input1_tmp_dir, options, **kwargs):
 
     tempGenome_locusTag_aaSeq_dict = {}
+    options.targetGenome_locusTag_aaSeq_dict = {}
+    options.targetGenome_locusTag_prod_dict = {}
+    options.targetGenome_locusTag_ec_dict = {}
+    options.total_cluster = 0
 
-    seq_record = SeqIO.read(join(input1_tmp_dir, gbk_file), 'genbank')
+    if 'gbk_file' in kwargs:
+        gbk_file = kwargs['gbk_file']
+        filetype = 'genbank'
+        seq_records = list(SeqIO.parse(join(input1_tmp_dir, gbk_file), filetype))
 
-    for feature in seq_record.features:
-        if feature.type == 'CDS':
-            locusTag = feature.qualifiers['locus_tag'][0]
+    elif 'gbk_file' not in kwargs and options.genome:
+        input_ext = os.path.splitext(options.genome)[1]
 
-            if feature.qualifiers.get('translation'):
-                translation = feature.qualifiers.get('translation')[0]
-                tempGenome_locusTag_aaSeq_dict[locusTag] = translation
+        if input_ext in ('.gbk', '.gb', '.genbank', '.gbf', '.gbff'):
+            filetype = 'genbank'
+        elif input_ext in ('.fa', '.fasta', '.fna', '.faa', '.fas'):
+            filetype = 'fasta'
+
+        seq_records = list(SeqIO.parse(join(input1_tmp_dir, options.genome), filetype))
+
+    if filetype == 'genbank':
+        for seq_record in seq_records:
+            io_utils.get_features_from_gbk(seq_record, options)
+
+    elif filetype == 'fasta':
+        for seq_record in seq_records:
+            io_utils.get_features_from_fasta(seq_record, options)
+
+    tempGenome_locusTag_aaSeq_dict = options.targetGenome_locusTag_aaSeq_dict
 
     return tempGenome_locusTag_aaSeq_dict
 
@@ -176,16 +225,50 @@ def get_tempModel_exrxnid_flux_dict(model):
 
     # NOTE: 'f' and 'x_dict' are deprecated properties in cobra>=0.6.1.
     # TODO: This function should be upgraded upon use of cobra>=0.6.1.
-    tempModel_exrxnid_flux_dict['EX_pi_e'] = model.solution.x_dict['EX_pi_e']
-    tempModel_exrxnid_flux_dict['EX_co2_e'] = model.solution.x_dict['EX_co2_e']
-    tempModel_exrxnid_flux_dict['EX_glc__D_e'] = model.solution.x_dict['EX_glc__D_e']
-    tempModel_exrxnid_flux_dict['EX_nh4_e'] = model.solution.x_dict['EX_nh4_e']
-    tempModel_exrxnid_flux_dict['EX_h2o_e'] = model.solution.x_dict['EX_h2o_e']
-    tempModel_exrxnid_flux_dict['EX_h_e'] = model.solution.x_dict['EX_h_e']
-    tempModel_exrxnid_flux_dict['EX_o2_e'] = model.solution.x_dict['EX_o2_e']
-    tempModel_exrxnid_flux_dict[str(model.objective.keys()[0])] = model.solution.f
+    try:
+        tempModel_exrxnid_flux_dict['EX_pi_e'] = model.solution.x_dict['EX_pi_e']
+    except KeyError as e:
+        logging.error("'EX_pi_e' not available in the model", e)
+
+    try:
+        tempModel_exrxnid_flux_dict['EX_co2_e'] = model.solution.x_dict['EX_co2_e']
+    except KeyError as e:
+        logging.error("'EX_co2_e' not available in the model", e)
+
+    try:
+        tempModel_exrxnid_flux_dict['EX_glc__D_e'] = model.solution.x_dict['EX_glc__D_e']
+    except KeyError as e:
+        logging.error("'EX_glc__D_e' not available in the model", e)
+
+    try:
+        tempModel_exrxnid_flux_dict['EX_nh4_e'] = model.solution.x_dict['EX_nh4_e']
+    except KeyError as e:
+        logging.error("'EX_nh4_e' not available in the model", e)
+
+    try:
+        tempModel_exrxnid_flux_dict['EX_h2o_e'] = model.solution.x_dict['EX_h2o_e']
+    except KeyError as e:
+        logging.error("'EX_h2o_e' not available in the model", e)
+
+    try:
+        tempModel_exrxnid_flux_dict['EX_h_e'] = model.solution.x_dict['EX_h_e']
+    except KeyError as e:
+        logging.error("'EX_h_e' not available in the model", e)
+
+    try:
+        tempModel_exrxnid_flux_dict['EX_o2_e'] = model.solution.x_dict['EX_o2_e']
+    except KeyError as e:
+        logging.error("'EX_o2_e' not available in the model", e)
+
+    try:
+        tempModel_exrxnid_flux_dict[str(model.objective.keys()[0])] = model.solution.f
+    except KeyError as e:
+        logging.error("%s not available in the model", e)
+    except IndexError as e:
+        logging.error("%s", e)
 
     return tempModel_exrxnid_flux_dict
+
 
 # NOTE: RJY combined two lines of 'pyparsing.oneOf' into one
 #    booleanop = pyparsing.oneOf('AND and OR or')
@@ -195,7 +278,8 @@ def get_tempModel_exrxnid_flux_dict(model):
 #                                ])
 def get_gpr_fromString_toList(gpr):
     # Some locus tags contain underscores: Pseudomonas putida KT2440
-    gpr_regex = pyparsing.Word(pyparsing.alphanums + '_')
+    # Some locus tags contain periods ("."): Chlamydomonas reinhardtii
+    gpr_regex = pyparsing.Word(pyparsing.alphanums + '_' + '.')
     and_booleanop = pyparsing.oneOf('AND and')
     or_booleanop = pyparsing.oneOf('OR or')
     expr = pyparsing.infixNotation(gpr_regex,
@@ -319,12 +403,18 @@ if __name__ == '__main__':
     if options.model:
         model = download_model_from_biggDB(input1_tmp_dir, options)
         model_info_dict = get_model_details(options)
-    elif options.acc_number:
+    elif options.acc_number or options.genome:
         model, model_info_dict = prepare_nonstd_model(input1_tmp_dir, options)
 
-    gbk_file = download_gbk_from_ncbi(input1_tmp_dir, model_info_dict)
-    tempGenome_locusTag_aaSeq_dict = \
-            get_tempGenome_locusTag_aaSeq_dict(input1_tmp_dir, gbk_file)
+    if options.model or options.acc_number:
+        gbk_file = download_gbk_from_ncbi(input1_tmp_dir, model_info_dict)
+        tempGenome_locusTag_aaSeq_dict = \
+            get_tempGenome_locusTag_aaSeq_dict(
+                    input1_tmp_dir, options, gbk_file = gbk_file)
+    elif options.genome:
+        tempGenome_locusTag_aaSeq_dict = \
+                get_tempGenome_locusTag_aaSeq_dict(input1_tmp_dir, options)
+
     tempModel_exrxnid_flux_dict = get_tempModel_exrxnid_flux_dict(model)
     tempModel_biggRxnid_locusTag_dict = get_tempModel_biggRxnid_locusTag_dict(model)
     tempModel_locusTag_aaSeq_dict = \
