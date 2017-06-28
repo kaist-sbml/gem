@@ -278,7 +278,8 @@ def get_tempModel_exrxnid_flux_dict(model):
 #                                ])
 def get_gpr_fromString_toList(gpr):
     # Some locus tags contain underscores: Pseudomonas putida KT2440
-    gpr_regex = pyparsing.Word(pyparsing.alphanums + '_')
+    # Some locus tags contain periods ("."): Chlamydomonas reinhardtii
+    gpr_regex = pyparsing.Word(pyparsing.alphanums + '_' + '.')
     and_booleanop = pyparsing.oneOf('AND and')
     or_booleanop = pyparsing.oneOf('OR or')
     expr = pyparsing.infixNotation(gpr_regex,
