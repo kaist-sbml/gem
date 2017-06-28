@@ -19,23 +19,29 @@ sys.path.insert(0, abspath(join(dirname(__file__), '..')))
 import gems
 
 def get_options():
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
 
     group = parser.add_argument_group(
-        "Provide either:",
-        "1) BiGG Models ID (e.g., iAF1260) or "
-        "2) Genbank accession number (e.g., NC_003888.3). "
-        "For the latter case, place a relevant SBML file in 'scripts/input1_data/'.")
+        "Provide:",
+        "1) BiGG Models ID (e.g., iAF1260) only or "
+        "2) Genbank accession number (e.g., NC_003888.3) with a relevant SBML file or"
+        "3) Genome file (GenBank or FASTA) with a relevant SBML file."
+        "For the options 2) and 3), place files in 'scripts/input1_data/[organism-specific folder'].")
 
     group.add_argument('-m', '--model',
             dest='model',
             help = "Specify BiGG ID of a metabolic model to prepare as a template model")
     group.add_argument('-a', '--acc_number',
             dest='acc_number',
-            help = "Specify a organism's Genbank accession number")
+            help = "Specify an organism's Genbank accession number\n"
+            "Also provide a relevant SBML file")
+    group.add_argument('-g', '--genome',
+            dest='genome',
+            help = "Provide an organism's genome file (Genbank or FASTA)\n"
+            "Also provide a relevant SBML file")
     group.add_argument('-f', '--folder',
             dest='folder',
-            help = "Specify an output folder name with the KEGG organism code")
+            help = "Specify an output folder name with the KEGG organism code\n")
 
     options = parser.parse_args()
     logging.debug(options)
@@ -54,6 +60,7 @@ def get_output_dirs(options):
             os.makedirs(input1_tmp_dir)
 
     return input1_dir, input1_tmp_dir
+
 
 def download_model_from_biggDB(input1_tmp_dir, options):
     model_file = ''.join([options.model, '.xml'])
