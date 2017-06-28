@@ -225,16 +225,50 @@ def get_tempModel_exrxnid_flux_dict(model):
 
     # NOTE: 'f' and 'x_dict' are deprecated properties in cobra>=0.6.1.
     # TODO: This function should be upgraded upon use of cobra>=0.6.1.
-    tempModel_exrxnid_flux_dict['EX_pi_e'] = model.solution.x_dict['EX_pi_e']
-    tempModel_exrxnid_flux_dict['EX_co2_e'] = model.solution.x_dict['EX_co2_e']
-    tempModel_exrxnid_flux_dict['EX_glc__D_e'] = model.solution.x_dict['EX_glc__D_e']
-    tempModel_exrxnid_flux_dict['EX_nh4_e'] = model.solution.x_dict['EX_nh4_e']
-    tempModel_exrxnid_flux_dict['EX_h2o_e'] = model.solution.x_dict['EX_h2o_e']
-    tempModel_exrxnid_flux_dict['EX_h_e'] = model.solution.x_dict['EX_h_e']
-    tempModel_exrxnid_flux_dict['EX_o2_e'] = model.solution.x_dict['EX_o2_e']
-    tempModel_exrxnid_flux_dict[str(model.objective.keys()[0])] = model.solution.f
+    try:
+        tempModel_exrxnid_flux_dict['EX_pi_e'] = model.solution.x_dict['EX_pi_e']
+    except KeyError as e:
+        logging.error("'EX_pi_e' not available in the model", e)
+
+    try:
+        tempModel_exrxnid_flux_dict['EX_co2_e'] = model.solution.x_dict['EX_co2_e']
+    except KeyError as e:
+        logging.error("'EX_co2_e' not available in the model", e)
+
+    try:
+        tempModel_exrxnid_flux_dict['EX_glc__D_e'] = model.solution.x_dict['EX_glc__D_e']
+    except KeyError as e:
+        logging.error("'EX_glc__D_e' not available in the model", e)
+
+    try:
+        tempModel_exrxnid_flux_dict['EX_nh4_e'] = model.solution.x_dict['EX_nh4_e']
+    except KeyError as e:
+        logging.error("'EX_nh4_e' not available in the model", e)
+
+    try:
+        tempModel_exrxnid_flux_dict['EX_h2o_e'] = model.solution.x_dict['EX_h2o_e']
+    except KeyError as e:
+        logging.error("'EX_h2o_e' not available in the model", e)
+
+    try:
+        tempModel_exrxnid_flux_dict['EX_h_e'] = model.solution.x_dict['EX_h_e']
+    except KeyError as e:
+        logging.error("'EX_h_e' not available in the model", e)
+
+    try:
+        tempModel_exrxnid_flux_dict['EX_o2_e'] = model.solution.x_dict['EX_o2_e']
+    except KeyError as e:
+        logging.error("'EX_o2_e' not available in the model", e)
+
+    try:
+        tempModel_exrxnid_flux_dict[str(model.objective.keys()[0])] = model.solution.f
+    except KeyError as e:
+        logging.error("%s not available in the model", e)
+    except IndexError as e:
+        logging.error("%s", e)
 
     return tempModel_exrxnid_flux_dict
+
 
 # NOTE: RJY combined two lines of 'pyparsing.oneOf' into one
 #    booleanop = pyparsing.oneOf('AND and OR or')
