@@ -68,18 +68,19 @@ def main():
                         help="Specify output directory (optional)")
 
     group = parser.add_argument_group('Template model options',
-                        "Select a biologically close organism")
+                        "Select a biologically close organism\n"
+                        "(with corresponding PMID in parenthesis next to the model name)")
     group.add_argument('-m', '--model',
                         dest='orgName',
                         default='sco',
                         choices=['bsu', 'cre', 'eco','mtu','ppu','sco'],
                         help="Specify a template model for the target modeling\n"
-                        "'bsu': iYO844; Bacillus subtilis subsp. subtilis str. 168\n"
-                        "'cre': iCre1355; Chlamydomonas reinhardtii\n"
-                        "'eco': iAF1260; Escherichia coli str. K-12 substr. MG1655\n"
-                        "'mtu': iNJ661; Mycobacterium tuberculosis H37Rv\n"
-                        "'ppu': iJN746; Pseudomonas putida KT2440\n"
-                        "'sco': iMK1208; Streptomyces coelicolor A3(2)"
+                        "'bsu': iYO844 (17573341); Bacillus subtilis subsp. subtilis str. 168\n"
+                        "'cre': iCre1355 (26485611); Chlamydomonas reinhardtii\n"
+                        "'eco': iAF1260 (17593909); Escherichia coli str. K-12 substr. MG1655\n"
+                        "'mtu': iNJ661 (17555602); Mycobacterium tuberculosis H37Rv\n"
+                        "'ppu': iJN746 (18793442); Pseudomonas putida KT2440\n"
+                        "'sco': iMK1208 (24623710); Streptomyces coelicolor A3(2)"
                         )
 
     group = parser.add_argument_group('GEMS modeling options',
