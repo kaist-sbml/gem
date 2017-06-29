@@ -1,7 +1,4 @@
 
-# Copyright 2017 BioInformatics Research Center, KAIST
-# Copyright 2017 Novo Nordisk Foundation Center for Biosustainability, DTU
-
 import pickle
 import pytest
 from argparse import Namespace
