@@ -1,7 +1,4 @@
 
-# Copyright 2017 BioInformatics Research Center, KAIST
-# Copyright 2017 Novo Nordisk Foundation Center for Biosustainability, DTU
-
 from os.path import join
 from gems.config import load_config
 from gems.primary_model import prunPhase_utils, augPhase_utils
