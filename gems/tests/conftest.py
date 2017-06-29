@@ -67,6 +67,18 @@ def seq_record():
 
 
 @pytest.fixture(scope="function")
+def eficaz_file():
+    eficaz_file = join(data_model_dir, 'NSK_all_genomes_ec.txt')
+    return eficaz_file
+
+
+@pytest.fixture(scope="function")
+def comp_file():
+    comp_file = join(data_model_dir, 'Nanno_Compartment_result_dic_v3_test.txt')
+    return comp_file
+
+
+@pytest.fixture(scope="function")
 def locustag_domain_dict():
     # Directly copied from raw data - keys not sorted
     locustag_domain_dict = {
