@@ -196,3 +196,38 @@ def get_pickles_augPhase(options):
     template_exrxnid_flux_dict = pickle.load(open('%s/tempModel_exrxnid_flux_dict.p' %(options.input1),'rb'))
     options.template_exrxnid_flux_dict = template_exrxnid_flux_dict
 
+
+def get_locustag_comp_dict(options):
+
+    logging.info("Reading file on subcellular localizations (compartments)..")
+
+    options.locustag_comp_dict = {}
+
+    try:
+        f = open(options.comp,"r")
+    except OSError as e:
+         logging.error("No file %s (subcellular localizations (compartments)) found",
+                        options.comp)
+         #continue
+    except IOError as e:
+         logging.error("No file %s (subcellular localizations (compartments)) found",
+                        options.comp)
+         #continue
+
+    for line in f.read().splitlines():
+        (locustag, comp) = line.split('\t', 1)
+
+        locustag = locustag.strip()
+        comp = comp.strip()
+        logging.debug("Locus tag: %s; Predicted compartment: %s", locustag, comp)
+
+        if locustag not in options.locustag_comp_dict:
+            options.locustag_comp_dict[locustag] = comp
+        else:
+            options.locustag_comp_dict[locustag].append(comp)
+
+    f.close()
+
+    logging.debug("len(options.locustag_comp_dict.keys): %s",
+                  len(options.locustag_comp_dict.keys()))
+
