@@ -13,7 +13,7 @@ class TestInput_file_manager:
         get_eficaz_file(options)
 
         assert len(options.targetGenome_locusTag_ec_dict) == 2
-        assert options.targetGenome_locusTag_ec_dict['NSK_04159-RA'] == ['2.6.1.83']
+        assert options.targetGenome_locusTag_ec_dict['NSK_00005-RA'] == ['2.7.1.83']
 
 
     def test_get_locustag_comp_dict(self, comp_file, options):

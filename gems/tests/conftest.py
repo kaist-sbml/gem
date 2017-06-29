@@ -68,7 +68,7 @@ def seq_record():
 
 @pytest.fixture(scope="function")
 def eficaz_file():
-    eficaz_file = join(data_model_dir, 'NSK_all_genomes_ec.txt')
+    eficaz_file = join(data_model_dir, 'NSK_all_genomes_ec_test.txt')
     return eficaz_file
 
 
