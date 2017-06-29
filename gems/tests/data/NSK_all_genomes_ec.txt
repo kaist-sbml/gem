@@ -1,0 +1,5 @@
+NSK_04159-RA, 3EC: 2.6.1, EFICAz_components: CHIEFc_SVM, MTTSI_bin: 5, Precision (mean; SD): 0.963; 0.168
+NSK_04159-RA, 4EC: 2.6.1.83, EFICAz_components: CHIEFc_SVM; PFAM_SVM, MTTSI_bin: 5, Precision (mean; SD): 0.946; 0.228
+NSK_04174-RA, No EFICAz EC assignment
+NSK_08682-RA, 3EC: 2.6.1, EFICAz_components: CHIEFc_SVM, MTTSI_bin: 4, Precision (mean; SD): 0.921; 0.224
+NSK_08682-RA, 4EC: 2.6.1.42, EFICAz_components: CHIEFc_SVM, MTTSI_bin: 4, Precision (mean; SD): 0.914; 0.266

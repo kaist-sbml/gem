@@ -149,7 +149,8 @@ def get_eficaz_file(options):
                 #EC4Info[locustag].append(ECDesc)
                 continue
 
-        logging.warn("Could not parse line %s:" % line)
+                logging.debugging(
+                        "Locus tag: %s; EC number with 4 digits: %s", locustag, EC)
     f.close()
 
     logging.debug("len(options.targetGenome_locusTag_ec_dict.keys): %s",
