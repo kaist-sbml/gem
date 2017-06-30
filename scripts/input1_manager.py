@@ -394,11 +394,19 @@ if __name__ == '__main__':
     warnings.filterwarnings("ignore")
 
     start = time.time()
+
+    # Logging setup
     logging.basicConfig(format='%(levelname)s: %(message)s', level='DEBUG')
 
     options = get_options()
-
     input1_dir, input1_tmp_dir = get_output_dirs(options)
+
+    # Logfile setup
+    logger = logging.getLogger('')
+    fomatter = logging.Formatter('[%(levelname)s|%(filename)s:%(lineno)s] > %(message)s')
+    fh = logging.FileHandler(join(input1_tmp_dir, '%s.log' %options.folder), mode = 'w')
+    fh.setFormatter(fomatter)
+    logger.addHandler(fh)
 
     if options.model:
         model = download_model_from_biggDB(input1_tmp_dir, options)
