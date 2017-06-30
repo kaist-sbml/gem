@@ -133,10 +133,19 @@ def prepare_nonstd_model(input1_tmp_dir, options):
     # This considers 'fix_legacy_id'
     model = cobra.io.read_legacy_sbml(join(input1_tmp_dir, sbml_list[0]))
 
+    tempModel_exrxnid_flux_dict = get_tempModel_exrxnid_flux_dict(model)
+
     for i in range(len(model.metabolites)):
         metab = model.metabolites[i]
         if metab.id in bigg_old_new_dict:
+            old_id = metab.id
+            logging.debug('Metabolite: %s -> %s ', metab.id, bigg_old_new_dict[metab.id])
             metab.id = bigg_old_new_dict[metab.id]
+
+            model = gems.utils.stabilize_model(model, input1_tmp_dir, '')
+            result = check_model_fluxes(model, tempModel_exrxnid_flux_dict)
+            if result == 'fluxAffected':
+                metab.id = old_id
 
     for j in range(len(model.reactions)):
         rxn = model.reactions[j]
@@ -153,11 +162,19 @@ def prepare_nonstd_model(input1_tmp_dir, options):
                 logging.debug('Reaction: %s -> %s ', rxn.id, bigg_old_new_dict[rxn.id])
                 rxn.id = bigg_old_new_dict[rxn.id]
 
-        if rxn.id == 'THRPS':
-            rxn.id = 'LTHRK'
-            logging.debug('Reaction: %s -> %s ', 'THRPS', rxn.id)
+                model = gems.utils.stabilize_model(model, input1_tmp_dir, '')
+                result = check_model_fluxes(model, tempModel_exrxnid_flux_dict)
+                if result == 'fluxAffected':
+                    rxn.id = old_id
 
-    model = gems.utils.stabilize_model(model, input1_tmp_dir, '')
+        if rxn.id == 'THRPS':
+            logging.debug('Reaction: %s -> %s ', 'THRPS', rxn.id)
+            rxn.id = 'LTHRK'
+
+            model = gems.utils.stabilize_model(model, input1_tmp_dir, '')
+            result = check_model_fluxes(model, tempModel_exrxnid_flux_dict)
+            if result == 'fluxAffected':
+                rxn.id = old_id
 
     model_info_dict = {}
 
@@ -165,6 +182,20 @@ def prepare_nonstd_model(input1_tmp_dir, options):
         model_info_dict['genome_name'] = options.acc_number
 
     return model, model_info_dict
+
+
+def check_model_fluxes(model, tempModel_exrxnid_flux_dict):
+    model.optimize()
+
+    for rxnid in tempModel_exrxnid_flux_dict:
+        if model.solution.x_dict[rxnid] == tempModel_exrxnid_flux_dict[rxnid]:
+            return ''
+        else:
+            logging.debug("Flux affected for %s: %s vs %s",
+                          rxnid,
+                          model.solution.x_dict(rxnid),
+                          tempModel_exrxnid_flux_dict[rxnid])
+            return 'fluxAffected'
 
 
 def download_gbk_from_ncbi(input1_tmp_dir, model_info_dict):
@@ -225,47 +256,45 @@ def get_tempModel_exrxnid_flux_dict(model):
 
     # NOTE: 'f' and 'x_dict' are deprecated properties in cobra>=0.6.1.
     # TODO: This function should be upgraded upon use of cobra>=0.6.1.
-    try:
+    if 'EX_pi_e' in model.reactions:
         tempModel_exrxnid_flux_dict['EX_pi_e'] = model.solution.x_dict['EX_pi_e']
-    except KeyError as e:
-        logging.error("'EX_pi_e' not available in the model", e)
+    else:
+        logging.error("'EX_pi_e' not available in the model")
 
-    try:
+    if 'EX_co2_e' in model.reactions:
         tempModel_exrxnid_flux_dict['EX_co2_e'] = model.solution.x_dict['EX_co2_e']
-    except KeyError as e:
-        logging.error("'EX_co2_e' not available in the model", e)
+    else:
+        logging.error("'EX_co2_e' not available in the model")
 
-    try:
+    if 'EX_glc__D_e' in model.reactions:
         tempModel_exrxnid_flux_dict['EX_glc__D_e'] = model.solution.x_dict['EX_glc__D_e']
-    except KeyError as e:
-        logging.error("'EX_glc__D_e' not available in the model", e)
+    else:
+        logging.error("'EX_glc__D_e' not available in the model")
 
-    try:
+    if 'EX_nh4_e' in model.reactions:
         tempModel_exrxnid_flux_dict['EX_nh4_e'] = model.solution.x_dict['EX_nh4_e']
-    except KeyError as e:
-        logging.error("'EX_nh4_e' not available in the model", e)
+    else:
+        logging.error("'EX_nh4_e' not available in the model")
 
-    try:
+    if 'EX_h2o_e' in model.reactions:
         tempModel_exrxnid_flux_dict['EX_h2o_e'] = model.solution.x_dict['EX_h2o_e']
-    except KeyError as e:
-        logging.error("'EX_h2o_e' not available in the model", e)
+    else:
+        logging.error("'EX_h2o_e' not available in the model")
 
-    try:
+    if 'EX_h_e' in model.reactions:
         tempModel_exrxnid_flux_dict['EX_h_e'] = model.solution.x_dict['EX_h_e']
-    except KeyError as e:
-        logging.error("'EX_h_e' not available in the model", e)
+    else:
+        logging.error("'EX_h_e' not available in the model")
 
-    try:
+    if 'EX_o2_e' in model.reactions:
         tempModel_exrxnid_flux_dict['EX_o2_e'] = model.solution.x_dict['EX_o2_e']
-    except KeyError as e:
-        logging.error("'EX_o2_e' not available in the model", e)
+    else:
+        logging.error("'EX_o2_e' not available in the model")
 
-    try:
+    if str(model.objective.keys()[0]):
         tempModel_exrxnid_flux_dict[str(model.objective.keys()[0])] = model.solution.f
-    except KeyError as e:
-        logging.error("%s not available in the model", e)
-    except IndexError as e:
-        logging.error("%s", e)
+    else:
+        logging.error("Objective function should be designated in the model")
 
     return tempModel_exrxnid_flux_dict
 
