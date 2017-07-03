@@ -377,7 +377,6 @@ def get_rxn_newComp_list_from_model(model, options):
         for j in range(len(model.reactions)):
             rxn = model.reactions[j]
 
-            if locustag in str(rxn.genes):
-#            if locustag in rxn.genes and rxn.id not in rxn_newComp_list:
+            if locustag in str(rxn.genes) and rxn.id not in options.rxn_newComp_list:
                 options.rxn_newComp_list.append(rxn.id)
 
