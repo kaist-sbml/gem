@@ -238,8 +238,9 @@ class TestPrimary_model:
     #    assert options.locusComp_ec_dict['NSK_00004-RA'] == ['3.1.21.1']
         options.locustag_comp_dict = {}
         options.locustag_comp_dict['B446_25420'] = ['c']
-        augPhase_utils.get_rxn_newComp_list_from_model(sci_primary_model, options)
+        rxn_newComp_list = \
+                augPhase_utils.get_rxn_newComp_list_from_model(sci_primary_model, options)
 
-        assert len(options.rxn_newComp_list) == 2
-        assert 'ACKr' in options.rxn_newComp_list
+        assert len(rxn_newComp_list) == 2
+        assert 'ACKr' in rxn_newComp_list
 
