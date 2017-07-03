@@ -1,8 +1,11 @@
 
+import warnings
 from os.path import join
 from gems.config import load_config
 from gems.io.input_file_manager import get_eficaz_file, get_locustag_comp_dict
 from gems.primary_model import prunPhase_utils, augPhase_utils
+
+warnings.filterwarnings("ignore")
 
 class TestPrimary_model:
     """Test functions in gems.primary_model"""
@@ -220,15 +223,23 @@ class TestPrimary_model:
         assert 'nad_c' in model.metabolites
 
 
-    def test_get_locusComp_ec_dict(self, eficaz_file, comp_file, options):
-        options.eficaz_file = eficaz_file
-        options.targetGenome_locusTag_ec_dict = {}
-        get_eficaz_file(options)
+    def test_get_rxn_newComp_list_from_model(self, sci_primary_model, options):
+    #def test_get_locusComp_ec_dict(self, eficaz_file, comp_file, options):
+    #    options.eficaz_file = eficaz_file
+    #    options.targetGenome_locusTag_ec_dict = {}
+    #    get_eficaz_file(options)
 
-        options.comp = comp_file
-        get_locustag_comp_dict(options)
+    #    options.comp = comp_file
+    #    get_locustag_comp_dict(options)
 
-        augPhase_utils.get_locusComp_ec_dict(options)
+    #    augPhase_utils.get_locusComp_ec_dict(options)
 
-        assert len(options.locusComp_ec_dict) == 2
-        assert options.locusComp_ec_dict['NSK_00004-RA'] == ['3.1.21.1']
+    #    assert len(options.locusComp_ec_dict) == 2
+    #    assert options.locusComp_ec_dict['NSK_00004-RA'] == ['3.1.21.1']
+        options.locustag_comp_dict = {}
+        options.locustag_comp_dict['B446_25420'] = ['c']
+        augPhase_utils.get_rxn_newComp_list_from_model(sci_primary_model, options)
+
+        assert len(options.rxn_newComp_list) == 2
+        assert 'ACKr' in options.rxn_newComp_list
+

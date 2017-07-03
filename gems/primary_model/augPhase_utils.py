@@ -360,14 +360,24 @@ def add_nonBBH_rxn(modelPrunedGPR, options):
     return target_model
 
 
-def get_locusComp_ec_dict(options):
+def get_rxn_newComp_list_from_model(model, options):
 
-    options.locusComp_ec_dict = {}
+#    options.locusComp_ec_dict = {}
+
+#    for locustag in options.locustag_comp_dict:
+#        if locustag in options.targetGenome_locusTag_ec_dict:
+#            if locustag not in options.locusComp_ec_dict:
+#                options.locusComp_ec_dict[locustag] = options.targetGenome_locusTag_ec_dict[locustag]
+#            else:
+#                options.locusComp_ec_dict[locustag].append(options.targetGenome_locusTag_ec_dict[locustag])
+
+    options.rxn_newComp_list = []
 
     for locustag in options.locustag_comp_dict:
-        if locustag in options.targetGenome_locusTag_ec_dict:
-            if locustag not in options.locusComp_ec_dict:
-                options.locusComp_ec_dict[locustag] = options.targetGenome_locusTag_ec_dict[locustag]
-            else:
-                options.locusComp_ec_dict[locustag].append(options.targetGenome_locusTag_ec_dict[locustag])
+        for j in range(len(model.reactions)):
+            rxn = model.reactions[j]
+
+            if locustag in str(rxn.genes):
+#            if locustag in rxn.genes and rxn.id not in rxn_newComp_list:
+                options.rxn_newComp_list.append(rxn.id)
 
