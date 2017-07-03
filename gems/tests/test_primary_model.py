@@ -224,18 +224,7 @@ class TestPrimary_model:
 
 
     def test_get_rxn_newComp_list_from_model(self, sci_primary_model, options):
-    #def test_get_locusComp_ec_dict(self, eficaz_file, comp_file, options):
-    #    options.eficaz_file = eficaz_file
-    #    options.targetGenome_locusTag_ec_dict = {}
-    #    get_eficaz_file(options)
 
-    #    options.comp = comp_file
-    #    get_locustag_comp_dict(options)
-
-    #    augPhase_utils.get_locusComp_ec_dict(options)
-
-    #    assert len(options.locusComp_ec_dict) == 2
-    #    assert options.locusComp_ec_dict['NSK_00004-RA'] == ['3.1.21.1']
         options.locustag_comp_dict = {}
         options.locustag_comp_dict['B446_25420'] = ['c']
         rxn_newComp_list = \

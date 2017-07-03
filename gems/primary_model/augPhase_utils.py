@@ -362,15 +362,6 @@ def add_nonBBH_rxn(modelPrunedGPR, options):
 
 def get_rxn_newComp_list_from_model(model, options):
 
-#    options.locusComp_ec_dict = {}
-
-#    for locustag in options.locustag_comp_dict:
-#        if locustag in options.targetGenome_locusTag_ec_dict:
-#            if locustag not in options.locusComp_ec_dict:
-#                options.locusComp_ec_dict[locustag] = options.targetGenome_locusTag_ec_dict[locustag]
-#            else:
-#                options.locusComp_ec_dict[locustag].append(options.targetGenome_locusTag_ec_dict[locustag])
-
     rxn_newComp_list = []
 
     for locustag in options.locustag_comp_dict:
