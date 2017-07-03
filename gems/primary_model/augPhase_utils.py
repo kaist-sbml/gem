@@ -359,3 +359,15 @@ def add_nonBBH_rxn(modelPrunedGPR, options):
     target_model = copy.deepcopy(modelPrunedGPR)
     return target_model
 
+
+def get_locusComp_ec_dict(options):
+
+    options.locusComp_ec_dict = {}
+
+    for locustag in options.locustag_comp_dict:
+        if locustag in options.targetGenome_locusTag_ec_dict:
+            if locustag not in options.locusComp_ec_dict:
+                options.locusComp_ec_dict[locustag] = options.targetGenome_locusTag_ec_dict[locustag]
+            else:
+                options.locusComp_ec_dict[locustag].append(options.targetGenome_locusTag_ec_dict[locustag])
+
