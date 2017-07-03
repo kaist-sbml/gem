@@ -1,0 +1,2 @@
+NSK_00004-RA, 4EC: 3.1.21.1, EFICAz_components: PFAM_FDR, MTTSI_bin: 0, Caution: LOW CONFIDENCE prediction!
+NSK_00005-RA, 4EC: 2.7.1.83, EFICAz_components: PFAM_FDR, MTTSI_bin: 0, Caution: LOW CONFIDENCE prediction!

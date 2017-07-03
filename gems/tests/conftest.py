@@ -1,7 +1,4 @@
 
-# Copyright 2017 BioInformatics Research Center, KAIST
-# Copyright 2017 Novo Nordisk Foundation Center for Biosustainability, DTU
-
 import pickle
 import pytest
 from argparse import Namespace
@@ -67,6 +64,18 @@ def seq_record():
     # Streptomyces collinus Tu 365
     seq_record = SeqIO.read(join(data_antismash_dir, 'NC_021985.1.final.gbk'), 'genbank')
     return seq_record
+
+
+@pytest.fixture(scope="function")
+def eficaz_file():
+    eficaz_file = join(data_model_dir, 'NSK_all_genomes_ec_test.txt')
+    return eficaz_file
+
+
+@pytest.fixture(scope="function")
+def comp_file():
+    comp_file = join(data_model_dir, 'Nanno_Compartment_result_dic_v3_test.txt')
+    return comp_file
 
 
 @pytest.fixture(scope="function")

@@ -25,7 +25,8 @@ from gems.io.input_file_manager import (
     get_eficaz_file,
     get_fasta_files,
     get_pickles_prunPhase,
-    get_pickles_augPhase
+    get_pickles_augPhase,
+    get_locustag_comp_dict
     )
 from gems.io.output_file_manager import generate_outputs
 from gems.homology.bidirect_blastp_analysis import get_homologs
@@ -114,6 +115,10 @@ def main():
                         dest='eficaz_file',
                         default=False,
                         help="Specify EFICAz output file")
+    group.add_argument('-c', '--comp',
+                        dest='comp',
+                        default=False,
+                        help="Specify file on subcellular localizations (compartments)")
 
     group = parser.add_argument_group('Debugging and logging options')
     group.add_argument('-v', '--verbose',
@@ -210,6 +215,7 @@ def main():
             if options.targetGenome_locusTag_ec_dict:
                 get_pickles_augPhase(options)
                 target_model = run_augPhase(modelPrunedGPR, options)
+                get_locustag_comp_dict(options)
             else:
                 logging.warning("No EC_numbers found in input genome data")
                 logging.warning("New reactions will NOT be added")
