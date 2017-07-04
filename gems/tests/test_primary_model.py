@@ -233,3 +233,22 @@ class TestPrimary_model:
         assert len(rxn_newComp_list) == 2
         assert 'ACKr' in rxn_newComp_list
 
+
+    def test_creat_rxn_newComp(self, tmpdir, sci_primary_model, options):
+
+        options.locustag_comp_dict = {}
+        options.locustag_comp_dict['B446_25420'] = ['p']
+        rxn_newComp_list = \
+                augPhase_utils.get_rxn_newComp_list_from_model(sci_primary_model, options)
+
+        assert 'ACKrp' not in sci_primary_model.reactions
+        assert 'PPAKrp' not in sci_primary_model.reactions
+        assert len(sci_primary_model.reactions) == int(1805)
+
+        options.outputfolder5 = './tmp'
+        model = augPhase_utils.creat_rxn_newComp(
+                        rxn_newComp_list, sci_primary_model, options)
+
+        assert 'ACKrp' in model.reactions
+        assert 'PPAKrp' in model.reactions
+        assert len(model.reactions) == int(1807)

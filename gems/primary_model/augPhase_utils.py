@@ -6,6 +6,7 @@ import os
 import pickle
 import re
 import urllib2
+from cobra import Metabolite, Reaction
 from os.path import isdir, join, abspath, dirname
 from gems import utils
 
@@ -372,3 +373,56 @@ def get_rxn_newComp_list_from_model(model, options):
                 rxn_newComp_list.append(rxn.id)
 
     return rxn_newComp_list
+
+
+def creat_rxn_newComp(rxn_newComp_list, model, options):
+
+    for rxnid in rxn_newComp_list:
+        rxn_newCompt_dict = {}
+        rxn = model.reactions.get_by_id(rxnid)
+        print 'check', rxn.id
+
+        for locustag in options.locustag_comp_dict:
+            print 'check', locustag
+            if locustag in str(rxn.genes):
+                print 'check', locustag
+                # Compare the compartment of the first reactant in the reaction
+                if rxn.reactants[0].compartment == options.locustag_comp_dict[locustag]:
+                    logging(
+                        "Reaction for %s with a consistent compartment already exists",
+                        locustag)
+                else:
+                    # rxn.metabolites extracts metabolites and their coeff's
+                    #from the corresponding reaction
+                    for metab in rxn.metabolites:
+                        print 'check1-1', metab.id
+                        if metab.id in model.metabolites:
+#                        if metab.id in model.metabolites and new_metab_id not in model.metabolites:
+                            new_metab_id = '_'.join(
+                                            [metab.id[:-2],
+                                            options.locustag_comp_dict[locustag][0]])
+                            new_metab = Metabolite(
+                                new_metab_id,
+                                name = metab.name,
+                                formula = metab.formula,
+                                compartment = options.locustag_comp_dict[locustag][0]
+                                )
+                            rxn_newCompt_dict[new_metab] = float(rxn.metabolites[metab])
+                    print 'check2', rxn_newCompt_dict
+                    new_rxn_id = ''.join([rxn.id, options.locustag_comp_dict[locustag][0]])
+                    rxn_newComp = Reaction(new_rxn_id)
+                    rxn_newComp.name = rxn.name
+                    rxn_newComp.subsystem = rxn.subsystem
+                    rxn_newComp.lower_bound = rxn.lower_bound
+                    rxn_newComp.upper_bound = rxn.upper_bound
+                    rxn_newComp.objective_coefficient = rxn.objective_coefficient
+                    rxn_newComp.reversibility = rxn.reversibility
+                    rxn_newComp.gene_reaction_rule = rxn.gene_reaction_rule
+                    rxn_newComp.add_metabolites(rxn_newCompt_dict)
+                    print 'check', len(model.reactions)
+                    model.add_reactions(rxn_newComp)
+                    print 'check', len(model.reactions)
+                    model = utils.stabilize_model(
+                            model, options.outputfolder5, rxn_newComp.id)
+                    print 'check', rxn_newComp, rxn_newComp.reaction
+    return model
