@@ -279,7 +279,8 @@ def get_mnxr_to_add_list(options):
                 else:
                     logging.debug('%s (%s) already in the model', rxnid, mnxr)
 
-    logging.debug('Number of KEGG reactions to be added: %s', len(mnxr_to_add_list))
+    logging.debug('Number of KEGG reactions to be added (based on EC numbers): %s',
+                  len(mnxr_to_add_list))
     options.mnxr_to_add_list = mnxr_to_add_list
 
 
@@ -375,7 +376,7 @@ def get_rxn_newComp_list_from_model(model, options):
     return rxn_newComp_list
 
 
-def creat_rxn_newComp(rxn_newComp_list, model, options):
+def create_rxn_newComp(rxn_newComp_list, model, options):
 
     for rxnid in rxn_newComp_list:
         rxn = model.reactions.get_by_id(rxnid)
@@ -387,39 +388,45 @@ def creat_rxn_newComp(rxn_newComp_list, model, options):
                     if rxn.reactants[0].compartment == \
                             options.locustag_comp_dict[locustag][i]:
                         logging.debug(
-                            "Reaction for %s with a consistent compartment already exists",
-                            locustag)
+                        "Reaction %s for %s with the compartment ('%s'): already exists",
+                        rxnid, locustag, options.locustag_comp_dict[locustag][i])
                     else:
-                        # rxn.metabolites extracts metabolites and their coeff's
-                        #from the corresponding reaction
-                        for metab in rxn.metabolites:
-                            if metab.id in model.metabolites:
-                                new_metab_id = '_'.join(
-                                            [metab.id[:-2],
-                                            options.locustag_comp_dict[locustag][i]])
-                                new_metab = Metabolite(
-                                    new_metab_id,
-                                    name = metab.name,
-                                    formula = metab.formula,
-                                    compartment = options.locustag_comp_dict[locustag][i]
-                                    )
-                                rxn_newCompt_dict[new_metab] = \
-                                        float(rxn.metabolites[metab])
-
                         new_rxn_id = \
                                 ''.join([rxn.id, options.locustag_comp_dict[locustag][i]])
-                        rxn_newComp = Reaction(new_rxn_id)
-                        rxn_newComp.name = rxn.name
-                        rxn_newComp.subsystem = rxn.subsystem
-                        rxn_newComp.lower_bound = rxn.lower_bound
-                        rxn_newComp.upper_bound = rxn.upper_bound
-                        rxn_newComp.objective_coefficient = rxn.objective_coefficient
-                        rxn_newComp.reversibility = rxn.reversibility
-                        rxn_newComp.gene_reaction_rule = rxn.gene_reaction_rule
-                        rxn_newComp.add_metabolites(rxn_newCompt_dict)
+                        if new_rxn_id not in model.reactions:
+                            logging.debug(
+                            "Reaction %s for %s with the compartment ('%s'): to be added ",
+                            rxnid, locustag, options.locustag_comp_dict[locustag][i])
+                            # rxn.metabolites extracts metabolites and their coeff's
+                            #from the corresponding reaction
+                            for metab in rxn.metabolites:
+                                if metab.id in model.metabolites:
+                                    new_metab_id = '_'.join(
+                                            [metab.id[:-2],
+                                            options.locustag_comp_dict[locustag][i]])
+                                    new_metab = Metabolite(
+                                        new_metab_id,
+                                        name = metab.name,
+                                        formula = metab.formula,
+                                        compartment = options.locustag_comp_dict[locustag][i]
+                                        )
+                                    rxn_newCompt_dict[new_metab] = \
+                                        float(rxn.metabolites[metab])
 
-                        #'add_reaction' requires writing/reloading of the model
-                        model.add_reactions(rxn_newComp)
-                        model = utils.stabilize_model(
-                                model, options.outputfolder5, rxn_newComp.id)
+                            new_rxn_id = \
+                                ''.join([rxn.id, options.locustag_comp_dict[locustag][i]])
+                            rxn_newComp = Reaction(new_rxn_id)
+                            rxn_newComp.name = rxn.name
+                            rxn_newComp.subsystem = rxn.subsystem
+                            rxn_newComp.lower_bound = rxn.lower_bound
+                            rxn_newComp.upper_bound = rxn.upper_bound
+                            rxn_newComp.objective_coefficient = rxn.objective_coefficient
+                            rxn_newComp.reversibility = rxn.reversibility
+                            rxn_newComp.gene_reaction_rule = rxn.gene_reaction_rule
+                            rxn_newComp.add_metabolites(rxn_newCompt_dict)
+
+                            #'add_reaction' requires writing/reloading of the model
+                            model.add_reactions(rxn_newComp)
+                            model = utils.stabilize_model(
+                                    model, options.outputfolder5, rxn_newComp.id)
     return model

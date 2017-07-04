@@ -115,7 +115,7 @@ def main():
                         dest='eficaz_file',
                         default=False,
                         help="Specify EFICAz output file")
-    group.add_argument('-c', '--comp',
+    group.add_argument('-C', '--comp',
                         dest='comp',
                         default=False,
                         help="Specify file on subcellular localizations (compartments)")
@@ -214,8 +214,11 @@ def main():
 
             if options.targetGenome_locusTag_ec_dict:
                 get_pickles_augPhase(options)
+
+                if options.comp:
+                    get_locustag_comp_dict(options)
+
                 target_model = run_augPhase(modelPrunedGPR, options)
-                get_locustag_comp_dict(options)
             else:
                 logging.warning("No EC_numbers found in input genome data")
                 logging.warning("New reactions will NOT be added")

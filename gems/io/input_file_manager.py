@@ -223,7 +223,7 @@ def get_locustag_comp_dict(options):
         logging.debug("Locus tag: %s; Predicted compartment: %s", locustag, comp)
 
         if locustag not in options.locustag_comp_dict:
-            options.locustag_comp_dict[locustag] = comp
+            options.locustag_comp_dict[locustag] = [comp]
         else:
             options.locustag_comp_dict[locustag].append(comp)
 

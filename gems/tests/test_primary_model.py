@@ -234,7 +234,7 @@ class TestPrimary_model:
         assert 'ACKr' in rxn_newComp_list
 
 
-    def test_creat_rxn_newComp1(self, tmpdir, sci_primary_model, options):
+    def test_create_rxn_newComp1(self, tmpdir, sci_primary_model, options):
 
         options.locustag_comp_dict = {}
         options.locustag_comp_dict['B446_25420'] = ['p']
@@ -246,7 +246,7 @@ class TestPrimary_model:
         assert len(sci_primary_model.reactions) == int(1805)
 
         options.outputfolder5 = './tmp'
-        model = augPhase_utils.creat_rxn_newComp(
+        model = augPhase_utils.create_rxn_newComp(
                         rxn_newComp_list, sci_primary_model, options)
 
         assert 'ACKrp' in model.reactions
@@ -254,7 +254,7 @@ class TestPrimary_model:
         assert len(model.reactions) == int(1807)
 
 
-    def test_creat_rxn_newComp2(self, sci_primary_model, options):
+    def test_create_rxn_newComp2(self, sci_primary_model, options):
 
         options.locustag_comp_dict = {}
         options.locustag_comp_dict['B446_25420'] = ['c']
@@ -262,12 +262,12 @@ class TestPrimary_model:
                 augPhase_utils.get_rxn_newComp_list_from_model(sci_primary_model, options)
 
         options.outputfolder5 = './tmp'
-        model = augPhase_utils.creat_rxn_newComp(
+        model = augPhase_utils.create_rxn_newComp(
                         rxn_newComp_list, sci_primary_model, options)
         assert len(model.reactions) == int(1805)
 
 
-    def test_creat_rxn_newComp3(self, sci_primary_model, options):
+    def test_create_rxn_newComp3(self, sci_primary_model, options):
 
         options.locustag_comp_dict = {}
         options.locustag_comp_dict['B446_25420'] = ['p', 'm']
@@ -288,7 +288,7 @@ class TestPrimary_model:
         assert len(sci_primary_model.metabolites) == int(1582)
 
         options.outputfolder5 = './tmp'
-        model = augPhase_utils.creat_rxn_newComp(
+        model = augPhase_utils.create_rxn_newComp(
                         rxn_newComp_list, sci_primary_model, options)
 
         assert 'ACKrp' in model.reactions

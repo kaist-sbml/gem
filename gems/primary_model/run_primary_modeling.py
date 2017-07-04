@@ -1,14 +1,13 @@
 
-#Copyright 2014-2016 BioInformatics Research Center, KAIST
-#Copyright 2014-2016 Novo Nordisk Foundation Center for Biosustainability, DTU
-
 import logging
 from augPhase_utils import(
     get_targetGenome_locusTag_ec_nonBBH_dict,
     get_rxnid_info_dict_from_kegg,
     get_mnxr_list_from_modelPrunedGPR,
     get_mnxr_to_add_list,
-    add_nonBBH_rxn
+    add_nonBBH_rxn,
+    get_rxn_newComp_list_from_model,
+    create_rxn_newComp
 )
 from prunPhase_utils import (
     label_rxn_to_remove,
@@ -49,5 +48,12 @@ def run_augPhase(modelPrunedGPR, options):
     get_mnxr_to_add_list(options)
 
     target_model = add_nonBBH_rxn(modelPrunedGPR, options)
+
+    if options.comp:
+        logging.info("Adding reactions with the new compartment..")
+        logging.info("(time-consuming)")
+
+        rxn_newComp_list = get_rxn_newComp_list_from_model(target_model, options)
+        target_model = create_rxn_newComp(rxn_newComp_list, target_model, options)
 
     return target_model
