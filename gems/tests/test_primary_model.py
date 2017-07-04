@@ -265,3 +265,41 @@ class TestPrimary_model:
         model = augPhase_utils.creat_rxn_newComp(
                         rxn_newComp_list, sci_primary_model, options)
         assert len(model.reactions) == int(1805)
+
+
+    def test_creat_rxn_newComp3(self, sci_primary_model, options):
+
+        options.locustag_comp_dict = {}
+        options.locustag_comp_dict['B446_25420'] = ['p', 'm']
+        rxn_newComp_list = \
+                augPhase_utils.get_rxn_newComp_list_from_model(sci_primary_model, options)
+
+        assert 'ACKrp' not in sci_primary_model.reactions
+        assert 'PPAKrp' not in sci_primary_model.reactions
+        assert 'ACKrm' not in sci_primary_model.reactions
+        assert 'PPAKrm' not in sci_primary_model.reactions
+
+        assert 'ac_p' not in sci_primary_model.metabolites
+        assert 'ac_m' not in sci_primary_model.metabolites
+        assert 'ppap_p' not in sci_primary_model.metabolites
+        assert 'ppap_m' not in sci_primary_model.metabolites
+
+        assert len(sci_primary_model.reactions) == int(1805)
+        assert len(sci_primary_model.metabolites) == int(1582)
+
+        options.outputfolder5 = './tmp'
+        model = augPhase_utils.creat_rxn_newComp(
+                        rxn_newComp_list, sci_primary_model, options)
+
+        assert 'ACKrp' in model.reactions
+        assert 'PPAKrp' in model.reactions
+        assert 'ACKrm' in model.reactions
+        assert 'PPAKrm' in model.reactions
+
+        assert 'ac_p' in model.metabolites
+        assert 'ac_m' in model.metabolites
+        assert 'ppap_p' in model.metabolites
+        assert 'ppap_m' in model.metabolites
+
+        assert len(model.reactions) == int(1809)
+        assert len(model.metabolites) == int(1594)
