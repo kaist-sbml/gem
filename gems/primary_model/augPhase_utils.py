@@ -380,13 +380,10 @@ def creat_rxn_newComp(rxn_newComp_list, model, options):
     for rxnid in rxn_newComp_list:
         rxn_newCompt_dict = {}
         rxn = model.reactions.get_by_id(rxnid)
-        print 'check', rxn.id
 
         for locustag in options.locustag_comp_dict:
-            print 'check', locustag
             if locustag in str(rxn.genes):
                 print 'check', locustag
-                # Compare the compartment of the first reactant in the reaction
                 if rxn.reactants[0].compartment == options.locustag_comp_dict[locustag]:
                     logging(
                         "Reaction for %s with a consistent compartment already exists",
@@ -395,9 +392,7 @@ def creat_rxn_newComp(rxn_newComp_list, model, options):
                     # rxn.metabolites extracts metabolites and their coeff's
                     #from the corresponding reaction
                     for metab in rxn.metabolites:
-                        print 'check1-1', metab.id
                         if metab.id in model.metabolites:
-#                        if metab.id in model.metabolites and new_metab_id not in model.metabolites:
                             new_metab_id = '_'.join(
                                             [metab.id[:-2],
                                             options.locustag_comp_dict[locustag][0]])
@@ -408,7 +403,7 @@ def creat_rxn_newComp(rxn_newComp_list, model, options):
                                 compartment = options.locustag_comp_dict[locustag][0]
                                 )
                             rxn_newCompt_dict[new_metab] = float(rxn.metabolites[metab])
-                    print 'check2', rxn_newCompt_dict
+
                     new_rxn_id = ''.join([rxn.id, options.locustag_comp_dict[locustag][0]])
                     rxn_newComp = Reaction(new_rxn_id)
                     rxn_newComp.name = rxn.name
@@ -419,10 +414,9 @@ def creat_rxn_newComp(rxn_newComp_list, model, options):
                     rxn_newComp.reversibility = rxn.reversibility
                     rxn_newComp.gene_reaction_rule = rxn.gene_reaction_rule
                     rxn_newComp.add_metabolites(rxn_newCompt_dict)
-                    print 'check', len(model.reactions)
+
+                    #'add_reaction' requires writing/reloading of the model
                     model.add_reactions(rxn_newComp)
-                    print 'check', len(model.reactions)
                     model = utils.stabilize_model(
                             model, options.outputfolder5, rxn_newComp.id)
-                    print 'check', rxn_newComp, rxn_newComp.reaction
     return model
