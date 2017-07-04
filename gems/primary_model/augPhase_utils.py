@@ -383,9 +383,8 @@ def creat_rxn_newComp(rxn_newComp_list, model, options):
 
         for locustag in options.locustag_comp_dict:
             if locustag in str(rxn.genes):
-                print 'check', locustag
-                if rxn.reactants[0].compartment == options.locustag_comp_dict[locustag]:
-                    logging(
+                if rxn.reactants[0].compartment == options.locustag_comp_dict[locustag][0]:
+                    logging.debug(
                         "Reaction for %s with a consistent compartment already exists",
                         locustag)
                 else:
