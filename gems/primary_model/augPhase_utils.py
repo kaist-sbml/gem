@@ -397,11 +397,17 @@ def create_rxn_newComp(rxn_newComp_list, model, options):
                         logging.debug(
                             "Reaction %s for %s has metabolites with multiple compartments ('%s'): manual addition needed", rxnid, locustag, rxn_comp_list)
 
+                        options.rxn_newComp_fate_dict[rxnid] = \
+                                "Locus tag: %s; Exisiting compartment: %s; New comparment: %s; Not added - metabolites with multiple compartments" %(locustag, rxn_comp_list, options.locustag_comp_dict[locustag][i])
+
                     elif len(rxn_comp_list) == 1 and \
                             rxn_comp_list[0] == options.locustag_comp_dict[locustag][i]:
                         logging.debug(
                         "Reaction %s for %s with the compartment ('%s'): already exists",
                         rxnid, locustag, options.locustag_comp_dict[locustag][i])
+
+                        options.rxn_newComp_fate_dict[rxnid] = \
+                                "Locus tag: %s; Exisiting compartment: %s; New comparment: %s; Not added - already exists" %(locustag, rxn_comp_list, options.locustag_comp_dict[locustag][i])
 
                     elif len(rxn_comp_list) == 1 and \
                             rxn_comp_list[0] != options.locustag_comp_dict[locustag][i]:
@@ -411,6 +417,10 @@ def create_rxn_newComp(rxn_newComp_list, model, options):
                             logging.debug(
                             "Reaction %s for %s with the compartment ('%s'): to be added ",
                             rxnid, locustag, options.locustag_comp_dict[locustag][i])
+
+                            options.rxn_newComp_fate_dict[rxnid] = \
+                                "Locus tag: %s; Exisiting compartment: %s; New comparment: %s; Added" %(locustag, rxn_comp_list, options.locustag_comp_dict[locustag][i])
+
                             # rxn.metabolites extracts metabolites and their coeff's
                             #from the corresponding reaction
                             for metab in rxn.metabolites:

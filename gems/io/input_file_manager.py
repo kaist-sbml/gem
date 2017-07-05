@@ -20,7 +20,8 @@ def make_folder(folder):
 
 def setup_outputfolders(options):
     folders = ['1_EFICAz_results', '2_blastp_results',
-            '3_primary_metabolic_model', '4_complete_model', 'tmp_files']
+            '3_primary_metabolic_model', '4_complete_model',
+            'tmp_model_files', 'tmp_data_files']
 
     if '/' in options.outputfolder:
         options.outputfolder = options.outputfolder[:-1]
@@ -44,9 +45,13 @@ def setup_outputfolders(options):
         options.outputfolder4 = os.path.join(options.outputfolder, folders[3])
         make_folder(options.outputfolder4)
 
-    #'tmp_files'
+    #'tmp_model_files'
     options.outputfolder5 = os.path.join(options.outputfolder, folders[4])
     make_folder(options.outputfolder5)
+
+    #'tmp_data_files'
+    options.outputfolder6 = os.path.join(options.outputfolder, folders[5])
+    make_folder(options.outputfolder6)
 
 
 def check_input_filetype(options):

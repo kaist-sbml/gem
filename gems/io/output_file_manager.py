@@ -246,33 +246,40 @@ def get_summary_report(folder, cobra_model, runtime,
 def write_data_for_debug(options):
 
     with open('./%s/temp_target_BBH_dict.txt' %options.outputfolder2,'w') as f:
-        for locustag in options.temp_target_BBH_dict.keys():
+        for locustag in options.temp_target_BBH_dict:
             print >> f, '%s\t%s' %(locustag, options.temp_target_BBH_dict[locustag])
 
     try:
-        with open('./%s/mnxr_to_add_list.txt' %options.outputfolder5,'w') as f:
+        with open('./%s/mnxr_to_add_list.txt' %options.outputfolder6,'w') as f:
             for mnxr in options.mnxr_to_add_list:
                 print >>f, '%s' %mnxr
     except AttributeError, e:
         logging.warning(e)
 
     try:
-        with open('./%s/targetGenome_locusTag_ec_nonBBH_dict.txt' %options.outputfolder5,'w') as f:
-            for rxnid in options.targetGenome_locusTag_ec_nonBBH_dict.keys():
+        with open('./%s/targetGenome_locusTag_ec_nonBBH_dict.txt' %options.outputfolder6,'w') as f:
+            for rxnid in options.targetGenome_locusTag_ec_nonBBH_dict:
                 print >>f, '%s\t%s' %(rxnid, options.targetGenome_locusTag_ec_nonBBH_dict[rxnid])
     except AttributeError, e:
         logging.warning(e)
 
     try:
-        with open('./%s/rxnid_info_dict.txt' %options.outputfolder5,'w') as f:
-            for rxnid in options.rxnid_info_dict.keys():
+        with open('./%s/rxnid_info_dict.txt' %options.outputfolder6,'w') as f:
+            for rxnid in options.rxnid_info_dict:
                 print >>f, '%s\t%s' %(rxnid, options.rxnid_info_dict[rxnid])
     except AttributeError, e:
         logging.warning(e)
 
     try:
-        with open('./%s/rxnid_locusTag_dict.txt' %options.outputfolder5,'w') as f:
-            for rxnid in options.rxnid_locusTag_dict.keys():
+        with open('./%s/rxnid_locusTag_dict.txt' %options.outputfolder6,'w') as f:
+            for rxnid in options.rxnid_locusTag_dict:
                 print >>f, '%s\t%s' %(rxnid, options.rxnid_locusTag_dict[rxnid])
+    except AttributeError, e:
+        logging.warning(e)
+
+    try:
+        with open('./%s/rxn_newComp_fate_dict.txt' %options.outputfolder6,'w') as f:
+            for rxnid in options.rxn_newComp_fate_dict:
+                print >>f, '%s\t%s' %(rxnid, options.rxn_newComp_fate_dict[rxnid])
     except AttributeError, e:
         logging.warning(e)
