@@ -181,6 +181,28 @@ def get_keggid_from_mnxr(mnxr, options):
     return kegg_id
 
 
+def compare_rxns(rxn1, rxn2):
+
+    rxn1_metab_dict = {}
+    for i in range(len(rxn1.metabolites)):
+        rxn1_metab_dict[str(rxn1.metabolites.keys()[i])] = \
+                    float(rxn1.metabolites[rxn1.metabolites.keys()[i]])
+
+    rxn2_metab_dict = {}
+    for i in range(len(rxn2.metabolites)):
+        rxn2_metab_dict[str(rxn2.metabolites.keys()[i])] = \
+                    float(rxn2.metabolites[rxn2.metabolites.keys()[i]])
+
+    if cmp(rxn1_metab_dict, rxn2_metab_dict) == 0:
+
+        if rxn1.reversibility == rxn2.reversibility:
+            return 'same'
+        else:
+            return 'different'
+    else:
+        return 'different'
+
+
 #'add_reaction' requires writing/reloading of the model
 def stabilize_model(model, folder, label, diff_name=False):
 

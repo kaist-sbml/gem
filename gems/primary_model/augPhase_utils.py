@@ -393,6 +393,8 @@ def create_rxn_newComp(rxn_newComp_list, model, options):
                         if metab.compartment not in rxn_comp_list:
                             rxn_comp_list.append(metab.compartment)
 
+                    #TODO: add 'compare_rxns'
+
                     if len(rxn_comp_list) > 1:
                         logging.debug(
                             "Reaction %s for %s has metabolites with multiple compartments ('%s'): manual addition needed", rxnid, locustag, rxn_comp_list)
