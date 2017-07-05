@@ -22,5 +22,5 @@ class TestInput_file_manager:
         get_locustag_comp_dict(options)
 
         assert len(options.locustag_comp_dict) == 8
-        assert options.locustag_comp_dict['NSK_00004-RA'] == 'h'
+        assert options.locustag_comp_dict['NSK_00004-RA'] == ['h']
 
