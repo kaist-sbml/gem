@@ -378,6 +378,8 @@ def get_rxn_newComp_list_from_model(model, options):
 
 def create_rxn_newComp(rxn_newComp_list, model, options):
 
+    options.rxn_newComp_fate_dict = {}
+
     for rxnid in rxn_newComp_list:
         rxn = model.reactions.get_by_id(rxnid)
 
@@ -385,12 +387,24 @@ def create_rxn_newComp(rxn_newComp_list, model, options):
             if locustag in str(rxn.genes):
                 for i in range(len(options.locustag_comp_dict[locustag])):
                     rxn_newCompt_dict = {}
-                    if rxn.reactants[0].compartment == \
-                            options.locustag_comp_dict[locustag][i]:
+                    rxn_comp_list = []
+
+                    for metab in rxn.metabolites:
+                        if metab.compartment not in rxn_comp_list:
+                            rxn_comp_list.append(metab.compartment)
+
+                    if len(rxn_comp_list) > 1:
+                        logging.debug(
+                            "Reaction %s for %s has metabolites with multiple compartments ('%s'): manual addition needed", rxnid, locustag, rxn_comp_list)
+
+                    elif len(rxn_comp_list) == 1 and \
+                            rxn_comp_list[0] == options.locustag_comp_dict[locustag][i]:
                         logging.debug(
                         "Reaction %s for %s with the compartment ('%s'): already exists",
                         rxnid, locustag, options.locustag_comp_dict[locustag][i])
-                    else:
+
+                    elif len(rxn_comp_list) == 1 and \
+                            rxn_comp_list[0] != options.locustag_comp_dict[locustag][i]:
                         new_rxn_id = \
                                 ''.join([rxn.id, options.locustag_comp_dict[locustag][i]])
                         if new_rxn_id not in model.reactions:
