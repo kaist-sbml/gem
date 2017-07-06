@@ -181,6 +181,24 @@ def get_keggid_from_mnxr(mnxr, options):
     return kegg_id
 
 
+def check_duplicate_rxn(model, rxn2):
+
+    duplicate_rxn = []
+
+    for j in range(len(model.reactions)):
+        rxn1 = model.reactions[j]
+
+        comparison = compare_rxns(rxn1, rxn2)
+
+        if comparison == 'same':
+            duplicate_rxn.append(rxn1.id)
+
+    if len(duplicate_rxn) >= 1:
+        return 'duplicate'
+    elif len(duplicate_rxn) == 0:
+        return 'unique'
+
+
 def compare_rxns(rxn1, rxn2):
 
     rxn1_metab_dict = {}
