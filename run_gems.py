@@ -77,6 +77,7 @@ def main():
                         choices=['bsu', 'cre', 'eco','mtu','ppu','sco'],
                         help="Specify a template model for the target modeling\n"
                         "'bsu': iYO844 (17573341); Bacillus subtilis subsp. subtilis str. 168\n"
+                        #NOTE: metabolite compartments (other than 'c') NOT standardized
                         "'cre': iCre1355 (26485611); Chlamydomonas reinhardtii\n"
                         "'eco': iAF1260 (17593909); Escherichia coli str. K-12 substr. MG1655\n"
                         "'mtu': iNJ661 (17555602); Mycobacterium tuberculosis H37Rv\n"
