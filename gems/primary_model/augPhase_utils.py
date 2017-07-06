@@ -393,66 +393,78 @@ def create_rxn_newComp(rxn_newComp_list, model, options):
                         if metab.compartment not in rxn_comp_list:
                             rxn_comp_list.append(metab.compartment)
 
-                    #TODO: add 'compare_rxns'
-
                     if len(rxn_comp_list) > 1:
+
                         logging.debug(
                             "Reaction %s for %s has metabolites with multiple compartments ('%s'): manual addition needed", rxnid, locustag, rxn_comp_list)
 
                         options.rxn_newComp_fate_dict[rxnid] = \
-                                "Locus tag: %s; Exisiting compartment: %s; New comparment: %s; Not added - metabolites with multiple compartments" %(locustag, rxn_comp_list, options.locustag_comp_dict[locustag][i])
+                                "Locus tag: %s; Exisiting compartment: %s; New comparment: %s; Not added - metabolites with multiple compartments" %(locustag, rxn_comp_list, options.locustag_comp_dict[locustag])
 
                     elif len(rxn_comp_list) == 1 and \
                             rxn_comp_list[0] == options.locustag_comp_dict[locustag][i]:
+
                         logging.debug(
                         "Reaction %s for %s with the compartment ('%s'): already exists",
                         rxnid, locustag, options.locustag_comp_dict[locustag][i])
 
                         options.rxn_newComp_fate_dict[rxnid] = \
-                                "Locus tag: %s; Exisiting compartment: %s; New comparment: %s; Not added - already exists" %(locustag, rxn_comp_list, options.locustag_comp_dict[locustag][i])
+                                "Locus tag: %s; Exisiting compartment: %s; New comparment: %s; Not added - already exists" %(locustag, rxn_comp_list, options.locustag_comp_dict[locustag])
 
                     elif len(rxn_comp_list) == 1 and \
                             rxn_comp_list[0] != options.locustag_comp_dict[locustag][i]:
+
                         new_rxn_id = \
                                 ''.join([rxn.id, options.locustag_comp_dict[locustag][i]])
-                        if new_rxn_id not in model.reactions:
-                            logging.debug(
-                            "Reaction %s for %s with the compartment ('%s'): to be added ",
-                            rxnid, locustag, options.locustag_comp_dict[locustag][i])
 
-                            options.rxn_newComp_fate_dict[rxnid] = \
-                                "Locus tag: %s; Exisiting compartment: %s; New comparment: %s; Added" %(locustag, rxn_comp_list, options.locustag_comp_dict[locustag][i])
-
-                            # rxn.metabolites extracts metabolites and their coeff's
-                            #from the corresponding reaction
-                            for metab in rxn.metabolites:
-                                if metab.id in model.metabolites:
-                                    new_metab_id = '_'.join(
+                        # rxn.metabolites extracts metabolites and their coeff's
+                        #from the corresponding reaction
+                        for metab in rxn.metabolites:
+                            if metab.id in model.metabolites:
+                                new_metab_id = '_'.join(
                                             [metab.id[:-2],
                                             options.locustag_comp_dict[locustag][i]])
-                                    new_metab = Metabolite(
+                                new_metab = Metabolite(
                                         new_metab_id,
                                         name = metab.name,
                                         formula = metab.formula,
                                         compartment = options.locustag_comp_dict[locustag][i]
                                         )
-                                    rxn_newCompt_dict[new_metab] = \
+                                rxn_newCompt_dict[new_metab] = \
                                         float(rxn.metabolites[metab])
 
-                            new_rxn_id = \
+                        new_rxn_id = \
                                 ''.join([rxn.id, options.locustag_comp_dict[locustag][i]])
-                            rxn_newComp = Reaction(new_rxn_id)
-                            rxn_newComp.name = rxn.name
-                            rxn_newComp.subsystem = rxn.subsystem
-                            rxn_newComp.lower_bound = rxn.lower_bound
-                            rxn_newComp.upper_bound = rxn.upper_bound
-                            rxn_newComp.objective_coefficient = rxn.objective_coefficient
-                            rxn_newComp.reversibility = rxn.reversibility
-                            rxn_newComp.gene_reaction_rule = rxn.gene_reaction_rule
-                            rxn_newComp.add_metabolites(rxn_newCompt_dict)
+                        rxn_newComp = Reaction(new_rxn_id)
+                        rxn_newComp.name = rxn.name
+                        rxn_newComp.subsystem = rxn.subsystem
+                        rxn_newComp.lower_bound = rxn.lower_bound
+                        rxn_newComp.upper_bound = rxn.upper_bound
+                        rxn_newComp.objective_coefficient = rxn.objective_coefficient
+                        rxn_newComp.reversibility = rxn.reversibility
+                        rxn_newComp.gene_reaction_rule = rxn.gene_reaction_rule
+                        rxn_newComp.add_metabolites(rxn_newCompt_dict)
 
+                        res = utils.check_duplicate_rxn(model, rxn_newComp)
+
+                        if res == 'unique' and rxn_newComp.id not in model.reactions:
                             #'add_reaction' requires writing/reloading of the model
                             model.add_reactions(rxn_newComp)
                             model = utils.stabilize_model(
                                     model, options.outputfolder5, rxn_newComp.id)
+
+                            logging.debug(
+                            "Reaction %s for %s with the compartment ('%s'): added ",
+                            rxnid, locustag, options.locustag_comp_dict[locustag][i])
+
+                            options.rxn_newComp_fate_dict[rxnid] = \
+                                "Locus tag: %s; Exisiting compartment: %s; New comparment: %s; Added" %(locustag, rxn_comp_list, options.locustag_comp_dict[locustag])
+
+                        elif res == 'duplicate' or rxn_newComp.id in model.reactions:
+                            logging.debug(
+                                    "Reaction %s for %s with the compartment ('%s'): already exists", rxnid, locustag, options.locustag_comp_dict[locustag][i])
+
+                            options.rxn_newComp_fate_dict[rxnid] = \
+                                    "Locus tag: %s; Exisiting compartment: %s; New comparment: %s; Not added - already exists" %(locustag, rxn_comp_list, options.locustag_comp_dict[locustag])
+
     return model
