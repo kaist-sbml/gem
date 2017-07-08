@@ -379,6 +379,7 @@ def get_rxn_newComp_list_from_model(model, options):
 def create_rxn_newComp(rxn_newComp_list, model, options):
 
     options.rxn_newComp_fate_dict = {}
+    inactive_rxn_newComp_list = []
 
     for rxnid in rxn_newComp_list:
         rxn = model.reactions.get_by_id(rxnid)
@@ -452,6 +453,7 @@ def create_rxn_newComp(rxn_newComp_list, model, options):
                             model.add_reactions(rxn_newComp)
                             model = utils.stabilize_model(
                                     model, options.outputfolder5, rxn_newComp.id)
+                            inactive_rxn_newComp_list.append(rxn_newComp.id)
 
                             logging.debug(
                             "Reaction %s for %s with the compartment ('%s'): added ",
@@ -467,4 +469,7 @@ def create_rxn_newComp(rxn_newComp_list, model, options):
                             options.rxn_newComp_fate_dict[rxnid] = \
                                     "Locus tag: %s; Exisiting compartment: %s; New comparment: %s; Not added - already exists" %(locustag, rxn_comp_list, options.locustag_comp_dict[locustag])
 
-    return model
+    return model, inactive_rxn_newComp_list
+
+
+#def remove_inactive_rxn_newComp(inactive_rxn_newComp_list, model, options):

@@ -234,27 +234,7 @@ class TestPrimary_model:
         assert 'ACKr' in rxn_newComp_list
 
 
-    def test_create_rxn_newComp1(self, tmpdir, sci_primary_model, options):
-
-        options.locustag_comp_dict = {}
-        options.locustag_comp_dict['B446_25420'] = ['p']
-        rxn_newComp_list = \
-                augPhase_utils.get_rxn_newComp_list_from_model(sci_primary_model, options)
-
-        assert 'ACKrp' not in sci_primary_model.reactions
-        assert 'PPAKrp' not in sci_primary_model.reactions
-        assert len(sci_primary_model.reactions) == int(1805)
-
-        options.outputfolder5 = './tmp'
-        model = augPhase_utils.create_rxn_newComp(
-                        rxn_newComp_list, sci_primary_model, options)
-
-        assert 'ACKrp' in model.reactions
-        assert 'PPAKrp' in model.reactions
-        assert len(model.reactions) == int(1807)
-
-
-    def test_create_rxn_newComp2(self, sci_primary_model, options):
+    def test_create_rxn_newComp1(self, sci_primary_model, options):
 
         options.locustag_comp_dict = {}
         options.locustag_comp_dict['B446_25420'] = ['c']
@@ -262,12 +242,12 @@ class TestPrimary_model:
                 augPhase_utils.get_rxn_newComp_list_from_model(sci_primary_model, options)
 
         options.outputfolder5 = './tmp'
-        model = augPhase_utils.create_rxn_newComp(
-                        rxn_newComp_list, sci_primary_model, options)
+        model, inactive_rxn_newComp_list = augPhase_utils.create_rxn_newComp(
+                                           rxn_newComp_list, sci_primary_model, options)
         assert len(model.reactions) == int(1805)
 
 
-    def test_create_rxn_newComp3(self, sci_primary_model, options):
+    def test_create_rxn_newComp2(self, sci_primary_model, options):
 
         options.locustag_comp_dict = {}
         options.locustag_comp_dict['B446_25420'] = ['p', 'm']
@@ -288,13 +268,17 @@ class TestPrimary_model:
         assert len(sci_primary_model.metabolites) == int(1582)
 
         options.outputfolder5 = './tmp'
-        model = augPhase_utils.create_rxn_newComp(
-                        rxn_newComp_list, sci_primary_model, options)
+        model, inactive_rxn_newComp_list = augPhase_utils.create_rxn_newComp(
+                                           rxn_newComp_list, sci_primary_model, options)
 
         assert 'ACKrp' in model.reactions
         assert 'PPAKrp' in model.reactions
         assert 'ACKrm' in model.reactions
         assert 'PPAKrm' in model.reactions
+        assert 'ACKrp' in inactive_rxn_newComp_list
+        assert 'PPAKrp' in inactive_rxn_newComp_list
+        assert 'ACKrm' in inactive_rxn_newComp_list
+        assert 'PPAKrm' in inactive_rxn_newComp_list
 
         assert 'ac_p' in model.metabolites
         assert 'ac_m' in model.metabolites
@@ -303,3 +287,4 @@ class TestPrimary_model:
 
         assert len(model.reactions) == int(1809)
         assert len(model.metabolites) == int(1594)
+        assert len(inactive_rxn_newComp_list) == 4

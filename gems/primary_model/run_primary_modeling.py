@@ -54,6 +54,7 @@ def run_augPhase(modelPrunedGPR, options):
         logging.info("(time-consuming)")
 
         rxn_newComp_list = get_rxn_newComp_list_from_model(target_model, options)
-        target_model = create_rxn_newComp(rxn_newComp_list, target_model, options)
+        target_model, inactive_rxn_newComp_list = \
+                create_rxn_newComp(rxn_newComp_list, target_model, options)
 
     return target_model
