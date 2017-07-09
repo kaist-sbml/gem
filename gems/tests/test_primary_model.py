@@ -242,7 +242,7 @@ class TestPrimary_model:
                 augPhase_utils.get_rxn_newComp_list_from_model(sci_primary_model, options)
 
         options.outputfolder5 = './tmp'
-        model, inactive_rxn_newComp_list = augPhase_utils.create_rxn_newComp(
+        model, added_rxn_newComp_list = augPhase_utils.create_rxn_newComp(
                                            rxn_newComp_list, sci_primary_model, options)
         assert len(model.reactions) == int(1805)
 
@@ -268,17 +268,17 @@ class TestPrimary_model:
         assert len(sci_primary_model.metabolites) == int(1582)
 
         options.outputfolder5 = './tmp'
-        model, inactive_rxn_newComp_list = augPhase_utils.create_rxn_newComp(
+        model, added_rxn_newComp_list = augPhase_utils.create_rxn_newComp(
                                            rxn_newComp_list, sci_primary_model, options)
 
         assert 'ACKrp' in model.reactions
         assert 'PPAKrp' in model.reactions
         assert 'ACKrm' in model.reactions
         assert 'PPAKrm' in model.reactions
-        assert 'ACKrp' in inactive_rxn_newComp_list
-        assert 'PPAKrp' in inactive_rxn_newComp_list
-        assert 'ACKrm' in inactive_rxn_newComp_list
-        assert 'PPAKrm' in inactive_rxn_newComp_list
+        assert 'ACKrp' in added_rxn_newComp_list
+        assert 'PPAKrp' in added_rxn_newComp_list
+        assert 'ACKrm' in added_rxn_newComp_list
+        assert 'PPAKrm' in added_rxn_newComp_list
 
         assert 'ac_p' in model.metabolites
         assert 'ac_m' in model.metabolites
@@ -287,4 +287,4 @@ class TestPrimary_model:
 
         assert len(model.reactions) == int(1809)
         assert len(model.metabolites) == int(1594)
-        assert len(inactive_rxn_newComp_list) == 4
+        assert len(added_rxn_newComp_list) == 4
