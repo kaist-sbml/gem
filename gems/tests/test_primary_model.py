@@ -292,6 +292,7 @@ class TestPrimary_model:
 
     def test_remove_inactive_rxn_newComp(self, sci_primary_model, options):
 
+        # Reaction 'CSND' is an inactive reaction in 'sci_primary_model'
         added_rxn_newComp_list = ['CSND']
         options.outputfolder5 = './tmp'
 
