@@ -472,4 +472,20 @@ def create_rxn_newComp(rxn_newComp_list, model, options):
     return model, added_rxn_newComp_list
 
 
-#def remove_inactive_rxn_newComp(inactive_rxn_newComp_list, model, options):
+def remove_inactive_rxn_newComp(added_rxn_newComp_list, model, options):
+    rxn_newComp_list2 = []
+    options.inactive_rxn_newComp_list = []
+
+    for rxn in added_rxn_newComp_list:
+        rxn_newComp_list2.append(model.reactions.get_by_id(rxn))
+
+    options.inactive_rxn_newComp_list = \
+            cobra.flux_analysis.variability.find_blocked_reactions(
+                                                        model,
+                                                        reaction_list=rxn_newComp_list2)
+
+    model.remove_reactions(options.inactive_rxn_newComp_list)
+    model = utils.stabilize_model(model, options.outputfolder5, '')
+
+    return model
+

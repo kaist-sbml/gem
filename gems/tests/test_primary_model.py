@@ -288,3 +288,21 @@ class TestPrimary_model:
         assert len(model.reactions) == int(1809)
         assert len(model.metabolites) == int(1594)
         assert len(added_rxn_newComp_list) == 4
+
+
+    def test_remove_inactive_rxn_newComp(self, sci_primary_model, options):
+
+        added_rxn_newComp_list = ['CSND']
+        options.outputfolder5 = './tmp'
+
+        assert len(sci_primary_model.reactions) == int(1805)
+        assert 'CSND' in sci_primary_model.reactions
+
+        model = augPhase_utils.remove_inactive_rxn_newComp(
+                                                            added_rxn_newComp_list,
+                                                            sci_primary_model,
+                                                            options)
+
+        assert len(model.reactions) == 1804
+        assert 'CSND' not in model.reactions
+        assert 'CSND' in options.inactive_rxn_newComp_list
