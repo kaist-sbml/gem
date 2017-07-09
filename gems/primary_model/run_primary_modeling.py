@@ -7,7 +7,8 @@ from augPhase_utils import(
     get_mnxr_to_add_list,
     add_nonBBH_rxn,
     get_rxn_newComp_list_from_model,
-    create_rxn_newComp
+    create_rxn_newComp,
+    remove_inactive_rxn_newComp
 )
 from prunPhase_utils import (
     label_rxn_to_remove,
@@ -58,6 +59,7 @@ def run_augPhase(modelPrunedGPR, options):
         target_model, added_rxn_newComp_list = \
                 create_rxn_newComp(rxn_newComp_list, target_model, options)
 
-        target_model = remove_inactive_rxn_newComp(added_rxn_newComp_list, model, options)
+        target_model = remove_inactive_rxn_newComp(
+                added_rxn_newComp_list, target_model, options)
 
     return target_model
