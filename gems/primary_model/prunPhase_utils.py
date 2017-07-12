@@ -1,7 +1,4 @@
 
-#Copyright 2014-2016 BioInformatics Research Center, KAIST
-#Copyright 2014-2016 Novo Nordisk Foundation Center for Biosustainability, DTU
-
 import ast
 import copy
 import logging
@@ -116,22 +113,27 @@ def prune_model(model, options):
         if options.rxnToRemove_dict[rxnid] == '0':
 
             #Solver argument causes an error in cobrapy 0.5.8
-            growth_rate_dict, solution_status_dict = single_reaction_deletion(
-                    model, reaction_list=list([rxnid]), method='fba')
+            #growth_rate_dict, solution_status_dict = single_reaction_deletion(
+            flux_dist = single_reaction_deletion(
+                        model, reaction_list=list([rxnid]), method='fba')
 
             #Check optimality first.
-            if str(solution_status_dict.values()[0]) == 'optimal':
+            if flux_dist.status[rxnid] == 'optimal':
 
                 #Check growth rate upon reaction deletion
-                if float(growth_rate_dict.values()[0]) >= float(options.cobrapy.non_zero_flux_cutoff):
+                if float(flux_dist.flux[rxnid]) >= \
+                        float(options.cobrapy.non_zero_flux_cutoff):
                     model.remove_reactions(rxnid)
                     logging.debug("Removed reaction: %s; %s; %s; %s"
-                            %(rxnid, growth_rate_dict.values()[0],
+                            %(rxnid, flux_dist.flux[rxnid],
                             len(model.reactions), len(model.metabolites)))
                 else:
                     logging.debug("Retained reaction: %s; %s; %s; %s"
-                            %(rxnid, growth_rate_dict.values()[0],
+                            %(rxnid, flux_dist.flux[rxnid],
                             len(model.reactions), len(model.metabolites)))
+            else:
+                logging.debug("Reaction not optimal: %s; %s",
+                              rxnid, flux_dist.status[rxnid])
 
     modelPruned = copy.deepcopy(model)
 
