@@ -12,6 +12,7 @@ import subprocess
 import sys
 import urllib2
 from Bio import Entrez, SeqIO
+from cobra.util.solver import linear_reaction_coefficients
 from input2_manager import ParseMNXref
 from os.path import join, abspath, dirname
 
@@ -188,12 +189,14 @@ def check_model_fluxes(model, tempModel_exrxnid_flux_dict):
     model.optimize()
 
     for rxnid in tempModel_exrxnid_flux_dict:
-        if model.solution.x_dict[rxnid] == tempModel_exrxnid_flux_dict[rxnid]:
+        rxn = model.reactions.get_by_id(rxnid)
+        print 'check', type(tempModel_exrxnid_flux_dict[rxnid])
+        if rxn.flux == float(tempModel_exrxnid_flux_dict[rxnid]):
             return ''
         else:
             logging.debug("Flux affected for %s: %s vs %s",
                           rxnid,
-                          model.solution.x_dict(rxnid),
+                          rxn.flux,
                           tempModel_exrxnid_flux_dict[rxnid])
             return 'fluxAffected'
 
@@ -252,47 +255,49 @@ def get_tempGenome_locusTag_aaSeq_dict(input1_tmp_dir, options, **kwargs):
 def get_tempModel_exrxnid_flux_dict(model):
     tempModel_exrxnid_flux_dict = {}
 
-    model.optimize()
+    flux_dist = model.optimize()
 
     # NOTE: 'f' and 'x_dict' are deprecated properties in cobra>=0.6.1.
     # TODO: This function should be upgraded upon use of cobra>=0.6.1.
     if 'EX_pi_e' in model.reactions:
-        tempModel_exrxnid_flux_dict['EX_pi_e'] = model.solution.x_dict['EX_pi_e']
+        tempModel_exrxnid_flux_dict['EX_pi_e'] = float(flux_dist.fluxes.EX_pi_e)
     else:
         logging.error("'EX_pi_e' not available in the model")
 
     if 'EX_co2_e' in model.reactions:
-        tempModel_exrxnid_flux_dict['EX_co2_e'] = model.solution.x_dict['EX_co2_e']
+        tempModel_exrxnid_flux_dict['EX_co2_e'] = float(flux_dist.fluxes.EX_co2_e)
     else:
         logging.error("'EX_co2_e' not available in the model")
 
     if 'EX_glc__D_e' in model.reactions:
-        tempModel_exrxnid_flux_dict['EX_glc__D_e'] = model.solution.x_dict['EX_glc__D_e']
+        tempModel_exrxnid_flux_dict['EX_glc__D_e'] = float(flux_dist.fluxes.EX_glc__D_e)
     else:
         logging.error("'EX_glc__D_e' not available in the model")
 
     if 'EX_nh4_e' in model.reactions:
-        tempModel_exrxnid_flux_dict['EX_nh4_e'] = model.solution.x_dict['EX_nh4_e']
+        tempModel_exrxnid_flux_dict['EX_nh4_e'] = float(flux_dist.fluxes.EX_nh4_e)
     else:
         logging.error("'EX_nh4_e' not available in the model")
 
     if 'EX_h2o_e' in model.reactions:
-        tempModel_exrxnid_flux_dict['EX_h2o_e'] = model.solution.x_dict['EX_h2o_e']
+        tempModel_exrxnid_flux_dict['EX_h2o_e'] = float(flux_dist.fluxes.EX_h2o_e)
     else:
         logging.error("'EX_h2o_e' not available in the model")
 
     if 'EX_h_e' in model.reactions:
-        tempModel_exrxnid_flux_dict['EX_h_e'] = model.solution.x_dict['EX_h_e']
+        tempModel_exrxnid_flux_dict['EX_h_e'] = float(flux_dist.fluxes.EX_h_e)
     else:
         logging.error("'EX_h_e' not available in the model")
 
     if 'EX_o2_e' in model.reactions:
-        tempModel_exrxnid_flux_dict['EX_o2_e'] = model.solution.x_dict['EX_o2_e']
+        tempModel_exrxnid_flux_dict['EX_o2_e'] = float(flux_dist.fluxes.EX_o2_e)
     else:
         logging.error("'EX_o2_e' not available in the model")
 
-    if str(model.objective.keys()[0]):
-        tempModel_exrxnid_flux_dict[str(model.objective.keys()[0])] = model.solution.f
+    print linear_reaction_coefficients(model).keys()[0]
+    if str(linear_reaction_coefficients(model).keys()[0]):
+        tempModel_exrxnid_flux_dict[str(linear_reaction_coefficients(model).keys()[0])] = \
+                float(flux_dist.objective_value)
     else:
         logging.error("Objective function should be designated in the model")
 
