@@ -245,8 +245,9 @@ def get_exrxnid_flux(model, template_exrxnid_flux_dict):
     model.optimize()
 
     for exrxn_id in template_exrxnid_flux_dict:
-        if exrxn_id in model.solution.x_dict:
-            target_exrxnid_flux_dict[exrxn_id] = model.solution.x_dict[exrxn_id]
+        if exrxn_id in model.reactions:
+            rxn = model.reactions.get_by_id(exrxn_id)
+            target_exrxnid_flux_dict[exrxn_id] = rxn.flux
         else:
             continue
     return target_exrxnid_flux_dict
