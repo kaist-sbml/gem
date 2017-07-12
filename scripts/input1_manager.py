@@ -257,8 +257,6 @@ def get_tempModel_exrxnid_flux_dict(model):
 
     flux_dist = model.optimize()
 
-    # NOTE: 'f' and 'x_dict' are deprecated properties in cobra>=0.6.1.
-    # TODO: This function should be upgraded upon use of cobra>=0.6.1.
     if 'EX_pi_e' in model.reactions:
         tempModel_exrxnid_flux_dict['EX_pi_e'] = float(flux_dist.fluxes.EX_pi_e)
     else:
