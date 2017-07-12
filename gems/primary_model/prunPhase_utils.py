@@ -112,8 +112,6 @@ def prune_model(model, options):
         #Single reaction deletion is performed only for reactions labelled as "False"
         if options.rxnToRemove_dict[rxnid] == '0':
 
-            #Solver argument causes an error in cobrapy 0.5.8
-            #growth_rate_dict, solution_status_dict = single_reaction_deletion(
             flux_dist = single_reaction_deletion(
                         model, reaction_list=list([rxnid]), method='fba')
 
