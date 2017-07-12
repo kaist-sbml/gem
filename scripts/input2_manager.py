@@ -360,7 +360,6 @@ class ParseMNXref(object):
                     reaction_obj.subsystem = ''
                     reaction_obj.lower_bound = lb
                     reaction_obj.upper_bound = ub
-                    reaction_obj.objective_coefficient = 0
                     reaction_obj.reversibility = rev
                     reaction_obj.gene_reaction_rule = ''
                     reaction_obj.add_metabolites(new_reaction_metabolite_obj)
@@ -386,10 +385,15 @@ class ParseMNXref(object):
         for each_cobra_reaction in self.cobra_reactions:
             if each_cobra_reaction.id not in reaction_list:
                 cobra_model.add_reaction(each_cobra_reaction)
+                logging.debug("Adding reaction %s to 'mnxref_model'",
+                              each_cobra_reaction.id)
 
         for i in range(len(cobra_model.metabolites)):
             metab = cobra_model.metabolites[i]
-            metab.id = cobra.io.sbml.fix_legacy_id(metab.id)
+            old_metab = metab.id
+            metab.id = cobra.io.sbml.fix_legacy_id(old_metab)
+            logging.debug("Fixing metabolite ID in 'mnxref_model': %s -> %s",
+                          old_metab, metab.id) 
 
         cobra_model = gems.utils.stabilize_model(
                 cobra_model, input2_tmp_dir, 'MNXref', diff_name=True)
