@@ -190,7 +190,6 @@ def check_model_fluxes(model, tempModel_exrxnid_flux_dict):
 
     for rxnid in tempModel_exrxnid_flux_dict:
         rxn = model.reactions.get_by_id(rxnid)
-        print 'check', type(tempModel_exrxnid_flux_dict[rxnid])
         if rxn.flux == float(tempModel_exrxnid_flux_dict[rxnid]):
             return ''
         else:
