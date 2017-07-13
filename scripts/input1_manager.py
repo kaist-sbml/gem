@@ -20,6 +20,7 @@ from os.path import join, abspath, dirname
 sys.path.insert(0, abspath(join(dirname(__file__), '..')))
 import gems
 import gems.io.io_utils as io_utils
+from gems.config import load_config
 
 def get_options():
     parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
@@ -32,7 +33,7 @@ def get_options():
         "For the options 2) and 3), place files in 'scripts/input1_data/[organism-specific folder'].")
 
     group.add_argument('-m', '--model',
-            dest='model',
+            dest='bigg',
             help = "Specify BiGG ID of a metabolic model to prepare as a template model")
     group.add_argument('-a', '--acc_number',
             dest='acc_number',
@@ -67,7 +68,7 @@ def get_output_dirs(options):
 
 
 def download_model_from_biggDB(input1_tmp_dir, options):
-    model_file = ''.join([options.model, '.xml'])
+    model_file = ''.join([options.bigg, '.xml'])
     url = ''.join(['http://bigg.ucsd.edu/static/models/', model_file])
     logging.debug('URL for downloading a model from the BiGG Models:')
     logging.debug(url)
@@ -78,12 +79,12 @@ def download_model_from_biggDB(input1_tmp_dir, options):
         f.write(model)
 
     model = cobra.io.read_sbml_model(join(input1_tmp_dir, model_file))
-    model = gems.utils.stabilize_model(model, input1_tmp_dir, options.model)
+    model = gems.utils.stabilize_model(model, input1_tmp_dir, options.bigg)
 
     if len(model.reactions) > 1:
-        logging.debug('%s downloaded successfully', options.model)
+        logging.debug('%s downloaded successfully', options.bigg)
     else:
-        logging.debug('%s NOT downloaded successfully', options.model)
+        logging.debug('%s NOT downloaded successfully', options.bigg)
 
     return model
 
@@ -91,7 +92,7 @@ def download_model_from_biggDB(input1_tmp_dir, options):
 def get_model_details(options):
     model_info_dict = {}
 
-    url = ''.join(['http://bigg.ucsd.edu/api/v2/models/', options.model])
+    url = ''.join(['http://bigg.ucsd.edu/api/v2/models/', options.bigg])
     logging.debug('URL for accessing model details the BiGG Models:')
     logging.debug(url)
 
@@ -117,7 +118,7 @@ def get_model_details(options):
             logging.error("Genome name ('model_info_dict['genome_name']') is not provided")
             sys.exit(1)
 
-    logging.debug('%s details:', options.model)
+    logging.debug('%s details:', options.bigg)
     logging.debug('model_bigg_id: %s', model_info_dict['model_bigg_id'])
     logging.debug('organism: %s', model_info_dict['organism'])
     logging.debug('genome_name: %s', model_info_dict['genome_name'])
@@ -126,14 +127,19 @@ def get_model_details(options):
     return model_info_dict
 
 
-def prepare_nonstd_model(input1_tmp_dir, options):
-    mnx_parser = ParseMNXref()
-    bigg_old_new_dict = mnx_parser.fix_legacy_id_using_BiGGModels()
-
+def get_nonstd_model(input1_tmp_dir, options):
     sbml_list = glob.glob(join(input1_tmp_dir, '*.xml'))
     logging.debug('Model found: %s', sbml_list)
+
     # This considers 'fix_legacy_id'
     model = cobra.io.read_legacy_sbml(join(input1_tmp_dir, sbml_list[0]))
+
+    return model
+
+
+def fix_nonstd_model(input1_tmp_dir, model, options):
+    mnx_parser = ParseMNXref()
+    bigg_old_new_dict = mnx_parser.fix_legacy_id_using_BiGGModels()
 
     tempModel_exrxnid_flux_dict = get_tempModel_exrxnid_flux_dict(model)
 
@@ -141,16 +147,51 @@ def prepare_nonstd_model(input1_tmp_dir, options):
         metab = model.metabolites[i]
         if metab.id in bigg_old_new_dict:
             old_id = metab.id
-            logging.debug('Metabolite: %s -> %s ', metab.id, bigg_old_new_dict[metab.id])
-            metab.id = bigg_old_new_dict[metab.id]
+
+            if metab.compartment == 'c': #cytosol
+                new_id = '_'.join([bigg_old_new_dict[old_id], 'c'])
+
+            elif metab.compartment == 'e': #extra-organism
+                new_id = '_'.join([bigg_old_new_dict[old_id], 'e'])
+
+            elif metab.compartment == 'f': #flagellum
+                new_id = '_'.join([bigg_old_new_dict[old_id], 'f'])
+
+            elif metab.compartment == 'g': #golgi apparatus
+                new_id = '_'.join([bigg_old_new_dict[old_id], 'g'])
+
+            elif metab.compartment == 'h': #chloroplast
+                new_id = '_'.join([bigg_old_new_dict[old_id], 'h'])
+
+            elif metab.compartment == 'm': #mitochondria
+                new_id = '_'.join([bigg_old_new_dict[old_id], 'm'])
+
+            elif metab.compartment == 'n': #nucleus
+                new_id = '_'.join([bigg_old_new_dict[old_id], 'n'])
+
+            elif metab.compartment == 's': #eyespot
+                new_id = '_'.join([bigg_old_new_dict[old_id], 's'])
+
+            elif metab.compartment == 'u': #thylakoid lumen
+                new_id = '_'.join([bigg_old_new_dict[old_id], 'u'])
+
+            elif metab.compartment == 'x': #glyoxysome
+                new_id = '_'.join([bigg_old_new_dict[old_id], 'x'])
+
+            logging.debug('Metabolite: %s -> %s', old_id, new_id)
+            metab.id = new_id
 
             model = gems.utils.stabilize_model(model, input1_tmp_dir, '')
-            result = check_model_fluxes(model, tempModel_exrxnid_flux_dict)
+            result = check_model_fluxes(model, tempModel_exrxnid_flux_dict, options)
             if result == 'fluxAffected':
+                metab = model.metabolites.get_by_id(new_id)
                 metab.id = old_id
+                model = gems.utils.stabilize_model(model, input1_tmp_dir, '')
+                logging.debug('Metabolite: %s -> %s canceled', old_id, new_id)
 
     for j in range(len(model.reactions)):
         rxn = model.reactions[j]
+        old_id = rxn.id
 
         # NOTE:
         #See '\BiGG\170405\nar-02327-data-e-2015-File017_All modifications_KHU_v2'
@@ -159,24 +200,33 @@ def prepare_nonstd_model(input1_tmp_dir, options):
                 rxn.id != 'FACOAL80' and \
                 rxn.id != 'FE3abc':
 
+            new_id = bigg_old_new_dict[old_id]
+
             # Otherwise a duplicate reaction can be inserted: e.g., ME1 -> ME2
-            if bigg_old_new_dict[rxn.id] not in model.reactions:
-                logging.debug('Reaction: %s -> %s ', rxn.id, bigg_old_new_dict[rxn.id])
-                rxn.id = bigg_old_new_dict[rxn.id]
+            if new_id not in model.reactions:
+
+                logging.debug('Reaction: %s -> %s', old_id, new_id)
+                rxn.id = new_id
 
                 model = gems.utils.stabilize_model(model, input1_tmp_dir, '')
-                result = check_model_fluxes(model, tempModel_exrxnid_flux_dict)
+                result = check_model_fluxes(model, tempModel_exrxnid_flux_dict, options)
                 if result == 'fluxAffected':
+                    rxn = model.reactions.get_by_id(new_id)
                     rxn.id = old_id
+                    model = gems.utils.stabilize_model(model, input1_tmp_dir, '')
+                    logging.debug('Reaction: %s -> %s canceled', old_id, new_id)
 
         if rxn.id == 'THRPS':
-            logging.debug('Reaction: %s -> %s ', 'THRPS', rxn.id)
+            logging.debug('Reaction: THRPS -> LTHRK')
             rxn.id = 'LTHRK'
 
             model = gems.utils.stabilize_model(model, input1_tmp_dir, '')
-            result = check_model_fluxes(model, tempModel_exrxnid_flux_dict)
+            result = check_model_fluxes(model, tempModel_exrxnid_flux_dict, options)
             if result == 'fluxAffected':
+                rxn = model.reactions.get_by_id('LTHRK')
                 rxn.id = old_id
+                model = gems.utils.stabilize_model(model, input1_tmp_dir, '')
+                logging.debug('Reaction: THRPS -> LTHRK canceled')
 
     model_info_dict = {}
 
@@ -186,12 +236,17 @@ def prepare_nonstd_model(input1_tmp_dir, options):
     return model, model_info_dict
 
 
-def check_model_fluxes(model, tempModel_exrxnid_flux_dict):
+def check_model_fluxes(model, tempModel_exrxnid_flux_dict, options):
     model.optimize()
 
     for rxnid in tempModel_exrxnid_flux_dict:
         rxn = model.reactions.get_by_id(rxnid)
-        if rxn.flux == float(tempModel_exrxnid_flux_dict[rxnid]):
+
+        tempModel_exrxnid_flux = tempModel_exrxnid_flux_dict[rxnid]
+        nonzero = float(options.cobrapy.non_zero_flux_cutoff)
+
+        if rxn.flux <= (tempModel_exrxnid_flux + nonzero) or \
+                rxn.flux >= (tempModel_exrxnid_flux - nonzero):
             return ''
         else:
             logging.debug("Flux affected for %s: %s vs %s",
@@ -357,9 +412,9 @@ def get_tempModel_locusTag_aaSeq_dict(model, tempGenome_locusTag_aaSeq_dict, opt
         else:
             logging.warning('Sequence of following gene NOT available: %s', gene.id)
 
-    if options.model:
+    if options.bigg:
         logging.debug('Number of genes in %s (total %s genes): %s',
-                options.model, len(model.genes), len(tempModel_locusTag_aaSeq_dict))
+                options.bigg, len(model.genes), len(tempModel_locusTag_aaSeq_dict))
     elif options.acc_number:
         logging.debug('Number of genes in the model for %s (total %s genes): %s',
                 options.acc_number, len(model.genes), len(tempModel_locusTag_aaSeq_dict))
@@ -368,12 +423,12 @@ def get_tempModel_locusTag_aaSeq_dict(model, tempGenome_locusTag_aaSeq_dict, opt
 
 
 def get_input1_tmp_dir_list(options):
-    if options.model:
+    if options.bigg:
         input1_tmp_dir_list = ['tempModel_exrxnid_flux_dict.txt',
                                 'tempGenome_locusTag_aaSeq_dict.txt',
                                 'tempModel_biggRxnid_locusTag_dict.txt',
-                                '%s.xml' %options.model,
-                                'model_%s.xml' %options.model,
+                                '%s.xml' %options.bigg,
+                                'model_%s.xml' %options.bigg,
                                 '%s.gb' %model_info_dict['genome_name'],
                                 '%s.log' %options.folder]
     elif options.acc_number:
@@ -474,6 +529,9 @@ if __name__ == '__main__':
     import time
     import warnings
 
+    sys.path.insert(0, abspath(join(dirname(__file__), '..')))
+    from gems.config import load_config
+
     warnings.filterwarnings("ignore")
 
     start = time.time()
@@ -482,6 +540,7 @@ if __name__ == '__main__':
     logging.basicConfig(format='%(levelname)s: %(message)s', level='DEBUG')
 
     options = get_options()
+    load_config(options)
     input1_dir, input1_tmp_dir = get_output_dirs(options)
 
     # Logfile setup
@@ -491,13 +550,14 @@ if __name__ == '__main__':
     fh.setFormatter(fomatter)
     logger.addHandler(fh)
 
-    if options.model:
+    if options.bigg:
         model = download_model_from_biggDB(input1_tmp_dir, options)
         model_info_dict = get_model_details(options)
     elif options.acc_number or options.genome:
-        model, model_info_dict = prepare_nonstd_model(input1_tmp_dir, options)
+        model = get_nonstd_model(input1_tmp_dir, options)
+        model, model_info_dict = fix_nonstd_model(input1_tmp_dir, model, options)
 
-    if options.model or options.acc_number:
+    if options.bigg or options.acc_number:
         gbk_file = download_gbk_from_ncbi(input1_tmp_dir, model_info_dict)
         tempGenome_locusTag_aaSeq_dict = \
             get_tempGenome_locusTag_aaSeq_dict(
