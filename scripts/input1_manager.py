@@ -368,12 +368,28 @@ def get_tempModel_locusTag_aaSeq_dict(model, tempGenome_locusTag_aaSeq_dict, opt
 
 
 def get_input1_tmp_dir_list(options):
-    input1_tmp_dir_list = ['tempModel_exrxnid_flux_dict.txt',
-                           'tempGenome_locusTag_aaSeq_dict.txt',
-                           'tempModel_biggRxnid_locusTag_dict.txt',
-                           'model.xml',
-                           '%s.gb' %options.acc_number,
-                           '%s.log' %options.folder]
+    if options.model:
+        input1_tmp_dir_list = ['tempModel_exrxnid_flux_dict.txt',
+                                'tempGenome_locusTag_aaSeq_dict.txt',
+                                'tempModel_biggRxnid_locusTag_dict.txt',
+                                '%s.xml' %options.model,
+                                'model_%s.xml' %options.model,
+                                '%s.gb' %model_info_dict['genome_name'],
+                                '%s.log' %options.folder]
+    elif options.acc_number:
+        input1_tmp_dir_list = ['tempModel_exrxnid_flux_dict.txt',
+                                'tempGenome_locusTag_aaSeq_dict.txt',
+                                'tempModel_biggRxnid_locusTag_dict.txt',
+                                'model.xml',
+                                '%s.gb' %options.acc_number,
+                                '%s.log' %options.folder]
+    elif options.genome:
+        input1_tmp_dir_list = ['tempModel_exrxnid_flux_dict.txt',
+                                'tempGenome_locusTag_aaSeq_dict.txt',
+                                'tempModel_biggRxnid_locusTag_dict.txt',
+                                'model.xml',
+                                '%s.gb' %options.genome,
+                                '%s.log' %options.folder]
 
     return input1_tmp_dir_list
 
