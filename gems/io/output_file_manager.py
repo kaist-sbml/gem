@@ -277,9 +277,10 @@ def write_data_for_debug(options):
     except AttributeError, e:
         logging.warning(e)
 
-    try:
-        with open('./%s/rxn_newComp_fate_dict.txt' %options.outputfolder6,'w') as f:
-            for rxnid in options.rxn_newComp_fate_dict:
-                print >>f, '%s\t%s' %(rxnid, options.rxn_newComp_fate_dict[rxnid])
-    except AttributeError, e:
-        logging.warning(e)
+    if options.comp:
+        try:
+            with open('./%s/rxn_newComp_fate_dict.txt' %options.outputfolder6,'w') as f:
+                for rxnid in options.rxn_newComp_fate_dict:
+                    print >>f, '%s\t%s' %(rxnid, options.rxn_newComp_fate_dict[rxnid])
+        except AttributeError, e:
+            logging.warning(e)
