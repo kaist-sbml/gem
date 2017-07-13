@@ -79,7 +79,8 @@ def download_model_from_biggDB(input1_tmp_dir, options):
         f.write(model)
 
     model = cobra.io.read_sbml_model(join(input1_tmp_dir, model_file))
-    model = gems.utils.stabilize_model(model, input1_tmp_dir, options.bigg)
+    model = gems.utils.stabilize_model(
+            model, input1_tmp_dir, '%s_2' %options.bigg, diff_name=True)
 
     if len(model.reactions) > 1:
         logging.debug('%s downloaded successfully', options.bigg)
@@ -428,7 +429,7 @@ def get_input1_tmp_dir_list(options):
                                 'tempGenome_locusTag_aaSeq_dict.txt',
                                 'tempModel_biggRxnid_locusTag_dict.txt',
                                 '%s.xml' %options.bigg,
-                                'model_%s.xml' %options.bigg,
+                                '%s_2.xml' %options.bigg,
                                 '%s.gb' %model_info_dict['genome_name'],
                                 '%s.log' %options.folder]
     elif options.acc_number:
