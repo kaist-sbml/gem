@@ -2,6 +2,7 @@
 input/
 output/
 kegg_cache/
+gems/tests/data/model.xml
 #scripts/input1_data/*.fa
 #scripts/input1_data/*.gb
 #scripts/input1_data/*.gbk
