@@ -57,6 +57,8 @@ class ParseMNXref(object):
 
                     f.close()
                     os.remove(join(input2_tmp_dir, filename))
+
+            zip.close()
         return bigg_old_new_dict
 
 
@@ -410,6 +412,7 @@ def unzip_tsv_files():
     if len(tsv_files) ==  0:
         zip = zipfile.ZipFile(join(input2_tmp_dir, 'mnxref.zip'))
         zip.extractall(input2_tmp_dir)
+        zip.close()
 
 
 def run_ParseMNXref():
@@ -464,10 +467,34 @@ def run_ParseMNXref():
             join(os.pardir, 'gems', 'tests', 'data', 'MNXref.p'))
 
 
-def remove_tsv_files():
+def create_zip_file():
+    input2_tmp_dir_list = glob.glob(join(input2_tmp_dir, '*.*'))
+    input2_tmp_dir_list2 = []
+
+    for output in input2_tmp_dir_list:
+        if '.tsv' not in output and \
+                '.zip' not in output and \
+                'bigg_old_new_dict.p' not in output:
+            input2_tmp_dir_list2.append(output)
+
+    zip = zipfile.ZipFile(join(input2_tmp_dir, 'mnxref_input2_data.zip'),
+                            'w',
+                            zipfile.ZIP_DEFLATED)
+
+    for output in input2_tmp_dir_list2:
+        zip.write(output, os.path.basename(output))
+
+    zip.close()
+    return input2_tmp_dir_list2
+
+
+def remove_tsv_files(input2_tmp_dir_list2):
     tsv_files = glob.glob(join(input2_tmp_dir, '*.tsv'))
     for tsv_file in tsv_files:
         os.remove(tsv_file)
+
+    for output in input2_tmp_dir_list2:
+        os.remove(join(input2_tmp_dir, output))
 
 
 if __name__ == '__main__':
@@ -478,6 +505,7 @@ if __name__ == '__main__':
 
     unzip_tsv_files()
     run_ParseMNXref()
-    remove_tsv_files()
+    input2_tmp_dir_list2 = create_zip_file()
+    remove_tsv_files(input2_tmp_dir_list2)
 
     logging.info(time.strftime("Elapsed time %H:%M:%S", time.gmtime(time.time() - start)))
