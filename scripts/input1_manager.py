@@ -132,8 +132,17 @@ def get_nonstd_model(input1_tmp_dir, options):
     sbml_list = glob.glob(join(input1_tmp_dir, '*.xml'))
     logging.debug('Model found: %s', sbml_list)
 
-    # This considers 'fix_legacy_id'
-    model = cobra.io.read_legacy_sbml(join(input1_tmp_dir, sbml_list[0]))
+    try:
+        # NOTE: cobra 0.6.2 causes an error in reloading the model that is \
+        #initially loaded with 'read_legacy_sbml'
+        # This considers 'fix_legacy_id'
+        model = cobra.io.read_legacy_sbml(join(input1_tmp_dir, sbml_list[0]))
+        model = gems.utils.stabilize_model(model, input1_tmp_dir, '')
+    except TypeError, e:
+        logging.error("Error in reading model with 'read_legacy_sbml'")
+        logging.error(e)
+        logging.error("Reading model with 'read_sbml_model'")
+        model = cobra.io.read_sbml_model(join(input1_tmp_dir, sbml_list[0]))
 
     return model
 
