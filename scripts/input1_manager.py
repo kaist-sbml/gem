@@ -432,33 +432,6 @@ def get_tempModel_locusTag_aaSeq_dict(model, tempGenome_locusTag_aaSeq_dict, opt
     return tempModel_locusTag_aaSeq_dict
 
 
-def get_input1_tmp_dir_list(options):
-    if options.bigg:
-        input1_tmp_dir_list = ['tempModel_exrxnid_flux_dict.txt',
-                                'tempGenome_locusTag_aaSeq_dict.txt',
-                                'tempModel_biggRxnid_locusTag_dict.txt',
-                                '%s.xml' %options.bigg,
-                                '%s_2.xml' %options.bigg,
-                                '%s.gb' %model_info_dict['genome_name'],
-                                '%s.log' %options.folder]
-    elif options.acc_number:
-        input1_tmp_dir_list = ['tempModel_exrxnid_flux_dict.txt',
-                                'tempGenome_locusTag_aaSeq_dict.txt',
-                                'tempModel_biggRxnid_locusTag_dict.txt',
-                                'model.xml',
-                                '%s.gb' %options.acc_number,
-                                '%s.log' %options.folder]
-    elif options.genome:
-        input1_tmp_dir_list = ['tempModel_exrxnid_flux_dict.txt',
-                                'tempGenome_locusTag_aaSeq_dict.txt',
-                                'tempModel_biggRxnid_locusTag_dict.txt',
-                                'model.xml',
-                                '%s.gb' %options.genome,
-                                '%s.log' %options.folder]
-
-    return input1_tmp_dir_list
-
-
 def generate_output_files(
         input1_dir,
         input1_tmp_dir,
@@ -468,18 +441,16 @@ def generate_output_files(
         tempModel_locusTag_aaSeq_dict,
         options):
 
-    input1_tmp_dir_list = get_input1_tmp_dir_list(options)
-
     # Text and FASTA files in tmp folder
-    with open(join(input1_tmp_dir, input1_tmp_dir_list[0]), 'w') as f:
+    with open(join(input1_tmp_dir, 'tempModel_exrxnid_flux_dict.txt'), 'w') as f:
         for k, v in tempModel_exrxnid_flux_dict.iteritems():
             print >>f, '%s\t%s' %(k, v)
 
-    with open(join(input1_tmp_dir, input1_tmp_dir_list[1]), 'w') as f:
+    with open(join(input1_tmp_dir, 'tempGenome_locusTag_aaSeq_dict.txt'), 'w') as f:
         for k, v in tempGenome_locusTag_aaSeq_dict.iteritems():
             print >>f, '%s\t%s' %(k, v)
 
-    with open(join(input1_tmp_dir, input1_tmp_dir_list[2]), 'w') as f:
+    with open(join(input1_tmp_dir, 'tempModel_biggRxnid_locusTag_dict.txt'), 'w') as f:
         for k, v in tempModel_biggRxnid_locusTag_dict.iteritems():
             print >>f, '%s\t%s' %(k, v)
 
@@ -514,22 +485,25 @@ def make_blastDB(input1_dir):
 
 
 def create_zip_file(input1_tmp_dir, options):
+    input1_tmp_dir_list = glob.glob(join(input1_tmp_dir, '*.*'))
+    zip_file = '%s_input1_data.zip' %options.folder
+
+    for output in input1_tmp_dir_list:
+        if zip_file in output:
+            input1_tmp_dir_list.remove(output)
+
     zip = zipfile.ZipFile(join(input1_tmp_dir, '%s_input1_data.zip' %options.folder),
                             'w',
                             zipfile.ZIP_DEFLATED)
 
-    input1_tmp_dir_list = get_input1_tmp_dir_list(options)
-
     for output in input1_tmp_dir_list:
-        output_path = join(input1_tmp_dir, output)
-        zip.write(output_path, os.path.basename(output_path))
+        zip.write(output, os.path.basename(output))
 
     zip.close()
+    return input1_tmp_dir_list
 
 
-def remove_input1_tmp_dir_files(input1_tmp_dir, options):
-
-    input1_tmp_dir_list = get_input1_tmp_dir_list(options)
+def remove_input1_tmp_dir_files(input1_tmp_dir, input1_tmp_dir_list, options):
 
     for output in input1_tmp_dir_list:
         os.remove(join(input1_tmp_dir, output))
@@ -596,5 +570,5 @@ if __name__ == '__main__':
     logging.info("Input files have been created in '/gems/io/data/input1'")
     logging.info(time.strftime("Elapsed time %H:%M:%S", time.gmtime(time.time() - start)))
 
-    create_zip_file(input1_tmp_dir, options)
-    remove_input1_tmp_dir_files(input1_tmp_dir, options)
+    input1_tmp_dir_list = create_zip_file(input1_tmp_dir, options)
+    remove_input1_tmp_dir_files(input1_tmp_dir, input1_tmp_dir_list, options)
