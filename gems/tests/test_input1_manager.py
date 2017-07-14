@@ -7,7 +7,6 @@ from os.path import abspath, dirname, join
 warnings.filterwarnings("ignore")
 
 sys.path.insert(0, abspath(join(dirname(__file__), '..')))
-import scripts
 from scripts import input1_manager
 
 class TestInput1_manager:
@@ -21,7 +20,7 @@ class TestInput1_manager:
         assert 'dad__2_c' not in sco_tmp_model.metabolites
         assert 'dad_2_c' not in sco_tmp_model.metabolites
 
-        input1_tmp_dir = join(dirname(abspath(scripts.__file__)), 'input1_data', 'sco')
+        input1_tmp_dir = join(dirname(abspath(__file__)), 'data')
         model = input1_manager.get_nonstd_model(input1_tmp_dir, options)
 
         assert 'dad_DASH_2_c' not in model.metabolites
@@ -30,7 +29,7 @@ class TestInput1_manager:
 
 
     def test_fix_nonstd_model(self, options):
-        input1_tmp_dir = join(dirname(abspath(scripts.__file__)), 'input1_data', 'sco')
+        input1_tmp_dir = join(dirname(abspath(__file__)), 'data')
         model = input1_manager.get_nonstd_model(input1_tmp_dir, options)
 
         assert 'dad_DASH_2_c' not in model.metabolites
