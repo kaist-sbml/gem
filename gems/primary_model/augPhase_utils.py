@@ -441,7 +441,6 @@ def create_rxn_newComp(rxn_newComp_list, model, options):
                         rxn_newComp.subsystem = rxn.subsystem
                         rxn_newComp.lower_bound = rxn.lower_bound
                         rxn_newComp.upper_bound = rxn.upper_bound
-                        rxn_newComp.objective_coefficient = rxn.objective_coefficient
                         rxn_newComp.reversibility = rxn.reversibility
                         rxn_newComp.gene_reaction_rule = rxn.gene_reaction_rule
                         rxn_newComp.add_metabolites(rxn_newCompt_dict)
