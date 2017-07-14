@@ -384,7 +384,7 @@ def check_producibility_sec_met(target_model, options):
     target_model.reactions.get_by_id('Biomass_SCO').objective_coefficient = 1
     target_model.reactions.get_by_id("Ex_"+options.product).objective_coefficient = 0
 
-    return target_model
+    return target_model, flux_dist
 
 
 def get_sec_met_monomers(sec_met_list, options):

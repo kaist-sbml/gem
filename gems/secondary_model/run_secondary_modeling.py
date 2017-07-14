@@ -59,9 +59,9 @@ def run_sec_met_rxn_generation(seq_record, cluster_nr, target_model, prod_sec_me
 
         target_model = add_sec_met_rxn(target_model, options)
 
-        target_model = check_producibility_sec_met(target_model, options)
+        target_model, flux_dist = check_producibility_sec_met(target_model, options)
 
-        if target_model.solution.f < float(options.cobrapy.non_zero_flux_cutoff):
+        if flux_dist.objective_value < float(options.cobrapy.non_zero_flux_cutoff):
             nonprod_sec_met_list = []
             nonprod_sec_met_metab_list = get_sec_met_monomers(nonprod_sec_met_list, options)
             nonprod_sec_met_dict[options.product] = nonprod_sec_met_metab_list
@@ -92,9 +92,10 @@ def get_target_nonprod_monomers_for_gapfilling(target_model, options):
     for nonprod_monomer in unique_nonprod_monomers_list:
         target_model_monomer = add_transport_exchange_rxn_nonprod_monomer(target_model,
                                nonprod_monomer, options)
-        target_model_monomer = check_producibility_nonprod_monomer(target_model_monomer,
-                               nonprod_monomer)
-        if target_model_monomer.solution.f < float(options.cobrapy.non_zero_flux_cutoff):
+        target_model_monomer, flux_dist = \
+                check_producibility_nonprod_monomer(target_model_monomer,
+                                                    nonprod_monomer)
+        if flux_dist.objective_value < float(options.cobrapy.non_zero_flux_cutoff):
             adj_unique_nonprod_monomers_list.append(nonprod_monomer)
         else:
             continue

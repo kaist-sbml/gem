@@ -74,12 +74,12 @@ def check_producibility_nonprod_monomer(cobra_model, nonprod_monomer):
         rxn.objective_coefficient = 0
 
     cobra_model.reactions.get_by_id("Ex_"+nonprod_monomer).objective_coefficient = 1
-    cobra_model.optimize()
+    flux_dist = cobra_model.optimize()
 
     logging.debug(cobra_model.reactions.get_by_id("Ex_"+nonprod_monomer))
-    logging.debug("Flux: %s" %cobra_model.solution.f)
+    logging.debug("Flux: %s" %flux_dist.objective_value)
 
-    return cobra_model
+    return cobra_model, flux_dist
 
 
 #Find gap-filling reactions that cause large biomass values
