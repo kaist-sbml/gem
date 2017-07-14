@@ -378,13 +378,12 @@ def check_producibility_sec_met(target_model, options):
     target_model = utils.stabilize_model(
             target_model, options.outputfolder5, options.product)
 
-    target_model.optimize()
-    logging.debug("Flux: %s" %target_model.solution.f)
+    flux_dist = target_model.optimize()
+    logging.debug("Flux: %s" %flux_dist.objective_value)
 
     target_model.reactions.get_by_id('Biomass_SCO').objective_coefficient = 1
     target_model.reactions.get_by_id("Ex_"+options.product).objective_coefficient = 0
 
-    #return target_model.solution.f, product
     return target_model
 
 
