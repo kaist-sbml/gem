@@ -128,21 +128,24 @@ def get_model_details(options):
     return model_info_dict
 
 
+# NOTE: Issue #333 was broken again in cobra >= 0.6.2:
+#https://github.com/opencobra/cobrapy/issues/333
+#Following fixation should be manually incorporated before running this code:
+#https://github.com/opencobra/cobrapy/commit/ac2f2e8bd31c982e87d5f385f7a8eea35e7ba811
 def get_nonstd_model(input1_tmp_dir, options):
     sbml_list = glob.glob(join(input1_tmp_dir, '*.xml'))
     logging.debug('Model found: %s', sbml_list)
 
-    try:
-        # NOTE: cobra 0.6.2 causes an error in reloading the model that is \
-        #initially loaded with 'read_legacy_sbml'
-        # This considers 'fix_legacy_id'
-        model = cobra.io.read_legacy_sbml(join(input1_tmp_dir, sbml_list[0]))
-        model = gems.utils.stabilize_model(model, input1_tmp_dir, '')
-    except TypeError, e:
-        logging.error("Error in reading model with 'read_legacy_sbml'")
-        logging.error(e)
-        logging.error("Reading model with 'read_sbml_model'")
-        model = cobra.io.read_sbml_model(join(input1_tmp_dir, sbml_list[0]))
+    # NOTE: cobra 0.6.2 causes an error in reloading the model that is \
+    #initially loaded with 'read_legacy_sbml', which considers 'fix_legacy_id'
+    #model = cobra.io.read_legacy_sbml(join(input1_tmp_dir, sbml_list[0]))
+    #model = gems.utils.stabilize_model(model, input1_tmp_dir, '')
+
+    # NOTE: Reading 'iMK1208Edited4.xml' via 'read_sbml_model' was slightly
+    #more accurate than 'read_legacy_sbml'
+    #Metabolites with consistent BiGG IDs: 1045 vs 1037 (out of 1364)
+    #Reactions with consistent BiGG IDs: 1231 vs 1232 (out of 1768)
+    model = cobra.io.read_sbml_model(join(input1_tmp_dir, sbml_list[0]))
 
     return model
 
@@ -150,6 +153,47 @@ def get_nonstd_model(input1_tmp_dir, options):
 def fix_nonstd_model(input1_tmp_dir, model, options):
     mnx_parser = ParseMNXref()
     bigg_old_new_dict = mnx_parser.fix_legacy_id_using_BiGGModels()
+
+    tempModel_exrxnid_flux_dict = get_tempModel_exrxnid_flux_dict(model)
+
+    for j in range(len(model.reactions)):
+        rxn = model.reactions[j]
+        old_id = rxn.id
+
+        # NOTE:
+        #See '\BiGG\170405\nar-02327-data-e-2015-File017_All modifications_KHU_v2'
+        #This is for the 'sco' template model.
+        if rxn.id in bigg_old_new_dict and \
+                rxn.id != 'FACOAL80' and \
+                rxn.id != 'FE3abc':
+
+            new_id = bigg_old_new_dict[old_id]
+
+            # Otherwise a duplicate reaction can be inserted: e.g., ME1 -> ME2
+            if new_id not in model.reactions:
+
+                logging.debug('Reaction: %s -> %s', old_id, new_id)
+                rxn.id = new_id
+
+                model = gems.utils.stabilize_model(model, input1_tmp_dir, '')
+                result = check_model_fluxes(model, tempModel_exrxnid_flux_dict, options)
+                if result == 'fluxAffected':
+                    rxn = model.reactions.get_by_id(new_id)
+                    rxn.id = old_id
+                    model = gems.utils.stabilize_model(model, input1_tmp_dir, '')
+                    logging.debug('Reaction: %s -> %s canceled', old_id, new_id)
+
+        if rxn.id == 'THRPS':
+            logging.debug('Reaction: THRPS -> LTHRK')
+            rxn.id = 'LTHRK'
+
+            model = gems.utils.stabilize_model(model, input1_tmp_dir, '')
+            result = check_model_fluxes(model, tempModel_exrxnid_flux_dict, options)
+            if result == 'fluxAffected':
+                rxn = model.reactions.get_by_id('LTHRK')
+                rxn.id = old_id
+                model = gems.utils.stabilize_model(model, input1_tmp_dir, '')
+                logging.debug('Reaction: THRPS -> LTHRK canceled')
 
     tempModel_exrxnid_flux_dict = get_tempModel_exrxnid_flux_dict(model)
 
@@ -198,45 +242,6 @@ def fix_nonstd_model(input1_tmp_dir, model, options):
                 metab.id = old_id
                 model = gems.utils.stabilize_model(model, input1_tmp_dir, '')
                 logging.debug('Metabolite: %s -> %s canceled', old_id, new_id)
-
-    for j in range(len(model.reactions)):
-        rxn = model.reactions[j]
-        old_id = rxn.id
-
-        # NOTE:
-        #See '\BiGG\170405\nar-02327-data-e-2015-File017_All modifications_KHU_v2'
-        #This is for the 'sco' template model.
-        if rxn.id in bigg_old_new_dict and \
-                rxn.id != 'FACOAL80' and \
-                rxn.id != 'FE3abc':
-
-            new_id = bigg_old_new_dict[old_id]
-
-            # Otherwise a duplicate reaction can be inserted: e.g., ME1 -> ME2
-            if new_id not in model.reactions:
-
-                logging.debug('Reaction: %s -> %s', old_id, new_id)
-                rxn.id = new_id
-
-                model = gems.utils.stabilize_model(model, input1_tmp_dir, '')
-                result = check_model_fluxes(model, tempModel_exrxnid_flux_dict, options)
-                if result == 'fluxAffected':
-                    rxn = model.reactions.get_by_id(new_id)
-                    rxn.id = old_id
-                    model = gems.utils.stabilize_model(model, input1_tmp_dir, '')
-                    logging.debug('Reaction: %s -> %s canceled', old_id, new_id)
-
-        if rxn.id == 'THRPS':
-            logging.debug('Reaction: THRPS -> LTHRK')
-            rxn.id = 'LTHRK'
-
-            model = gems.utils.stabilize_model(model, input1_tmp_dir, '')
-            result = check_model_fluxes(model, tempModel_exrxnid_flux_dict, options)
-            if result == 'fluxAffected':
-                rxn = model.reactions.get_by_id('LTHRK')
-                rxn.id = old_id
-                model = gems.utils.stabilize_model(model, input1_tmp_dir, '')
-                logging.debug('Reaction: THRPS -> LTHRK canceled')
 
     model_info_dict = {}
 
