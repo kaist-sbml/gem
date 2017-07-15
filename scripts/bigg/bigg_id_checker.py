@@ -1,87 +1,97 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from __future__ import division
 import cobra
-import copy
 import glob
 import logging
 import os
-import pickle
-import shutil
-import sys
 import zipfile
-from cobra import Model, Reaction, Metabolite
 from os.path import join, abspath, dirname
 
-sys.path.insert(0, abspath(join(dirname(__file__), '..')))
-import gems
+bigg_dir = join(dirname(abspath(__file__)))
+
+def unzip_files():
+    zip = zipfile.ZipFile(join(bigg_dir, 'bigg.zip'))
+    zip.extractall(bigg_dir)
+    zip.close()
 
 
-input2_dir = join(os.pardir, 'gems', 'io', 'data', 'input2')
-input2_tmp_dir = join(dirname(abspath(__file__)), 'input2_data')
+def get_txt_files():
+   file_list = glob.glob(join(bigg_dir, '*.txt'))
+   logging.debug("BiGG txt files found: %s", file_list)
+   return file_list
 
 
-# mnxm_compoundInfo_dict =
-#{'MNXM128019': ['Methyl trans-p-methoxycinnamate', 'C11H12O3']}
-def read_chem_prop(self, filename):
-    mnxm_compoundInfo_dict = {}
+def parse_bigg_metab_file(file_list):
+    bigg_metab_list = []
 
-    f = open(filename,'r')
-    f.readline()
+    for filename in file_list:
+        if 'metabolites' in filename:
+            f = open(filename,'r')
+            f.readline()
 
     for line in f:
         try:
-            metab_prop_list = line.split('\t')
-            mnxm_id = metab_prop_list[0].strip()
-            mnxm_name = metab_prop_list[1].strip()
-            mnxm_formula = metab_prop_list[2].strip()
-            mnxm_compoundInfo_dict[mnxm_id] = [mnxm_name]
-            mnxm_compoundInfo_dict[mnxm_id].append(mnxm_formula)
+            metab_id_list = line.split('\t')
+            bigg_metab_id = metab_id_list[0].strip()
+            bigg_metab_list.append(bigg_metab_id)
+            logging.debug("%s added to 'bigg_metab_list'", bigg_metab_id)
         except:
-            logging.debug('Cannot parse MNXM: %s' %line)
+            logging.debug('Cannot parse: %s' %line)
 
     f.close()
-    self.mnxm_compoundInfo_dict = mnxm_compoundInfo_dict
-
-    return mnxm_compoundInfo_dict
+    return bigg_metab_list
 
 
-def unzip_files():
-    tsv_files = glob.glob(join(input2_tmp_dir, '*.tsv'))
-    if len(tsv_files) ==  0:
-        zip = zipfile.ZipFile(join(input2_tmp_dir, 'mnxref.zip'))
-        zip.extractall(input2_tmp_dir)
-        zip.close()
+def parse_bigg_rxn_file(file_list):
+    bigg_rxn_list = []
+
+    for filename in file_list:
+        if 'reactions' in filename:
+            f = open(filename,'r')
+            f.readline()
+
+    for line in f:
+        try:
+            rxn_id_list = line.split('\t')
+            bigg_rxn_id = rxn_id_list[0].strip()
+            bigg_rxn_list.append(bigg_rxn_id)
+            logging.debug("%s added to 'bigg_rxn_list'", bigg_rxn_id)
+        except:
+            logging.debug('Cannot parse: %s' %line)
+
+    f.close()
+    return bigg_rxn_list
 
 
-def create_zip_file():
-    input2_tmp_dir_list = glob.glob(join(input2_tmp_dir, '*.*'))
-    input2_tmp_dir_list2 = []
+def check_bigg_id_consistency(bigg_metab_list, bigg_rxn_list):
+    model = cobra.io.read_sbml_model('model.xml')
 
-    for output in input2_tmp_dir_list:
-        if '.tsv' not in output and \
-                '.zip' not in output and \
-                'bigg_old_new_dict.p' not in output:
-            input2_tmp_dir_list2.append(output)
+    metab_cnt = 0
+    for i in range(len(model.metabolites)):
+        if model.metabolites[i].id in bigg_metab_list:
+            metab_cnt += 1
 
-    zip = zipfile.ZipFile(join(input2_tmp_dir, 'mnxref_input2_data.zip'),
-                            'w',
-                            zipfile.ZIP_DEFLATED)
+    rxn_cnt = 0
+    for i in range(len(model.reactions)):
+        if model.reactions[i].id in bigg_rxn_list:
+            rxn_cnt += 1
 
-    for output in input2_tmp_dir_list2:
-        zip.write(output, os.path.basename(output))
+    consist_metab_ratio = metab_cnt/len(model.metabolites)
+    consist_rxn_ratio = rxn_cnt/len(model.reactions)
 
-    zip.close()
-    return input2_tmp_dir_list2
+    logging.debug("Ratio of metabolites with consistent BiGG IDs: %s (%s / %s)",
+                    consist_metab_ratio, metab_cnt, len(model.metabolites))
+
+    logging.debug("Ratio of reactions with consistent BiGG IDs: %s (%s / %s)",
+                    consist_rxn_ratio, rxn_cnt, len(model.reactions))
 
 
-def remove_tsv_files(input2_tmp_dir_list2):
-    tsv_files = glob.glob(join(input2_tmp_dir, '*.tsv'))
-    for tsv_file in tsv_files:
-        os.remove(tsv_file)
+def remove_files(file_list):
 
-    for output in input2_tmp_dir_list2:
-        os.remove(join(input2_tmp_dir, output))
+    for filename in file_list:
+        os.remove(filename)
 
 
 if __name__ == '__main__':
@@ -90,9 +100,17 @@ if __name__ == '__main__':
     start = time.time()
     logging.basicConfig(format='%(levelname)s: %(message)s', level='DEBUG')
 
-    unzip_tsv_files()
-    run_ParseMNXref()
-    input2_tmp_dir_list2 = create_zip_file()
-    remove_tsv_files(input2_tmp_dir_list2)
+    # Logfile setup
+    logger = logging.getLogger('')
+    fomatter = logging.Formatter('[%(levelname)s|%(filename)s:%(lineno)s] > %(message)s')
+    fh = logging.FileHandler(join(bigg_dir, 'bigg_id_checker.log'), mode = 'w')
+    fh.setFormatter(fomatter)
+    logger.addHandler(fh)
 
+    unzip_files()
+    file_list = get_txt_files()
+    bigg_metab_list = parse_bigg_metab_file(file_list)
+    bigg_rxn_list = parse_bigg_rxn_file(file_list)
+    check_bigg_id_consistency(bigg_metab_list, bigg_rxn_list)
+    remove_files(file_list)
     logging.info(time.strftime("Elapsed time %H:%M:%S", time.gmtime(time.time() - start)))
