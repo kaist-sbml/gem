@@ -266,21 +266,21 @@ def main():
 
             target_model = run_secondary_modeling(seq_record, target_model, options)
 
-            target_model_no_gapsFilled = copy.deepcopy(target_model)
+            #target_model_no_gapsFilled = copy.deepcopy(target_model)
 
             get_target_nonprod_monomers_for_gapfilling(target_model, options)
 
-            target_model_complete = run_gapfilling(target_model, options)
+            #target_model_complete = run_gapfilling(target_model, options)
 
-            prune_unused_metabolites(target_model_complete)
+            prune_unused_metabolites(target_model)
 
             runtime2 = time.strftime("Elapsed time %H:%M:%S",
                                      time.gmtime(time.time() - start))
 
             generate_outputs(options.outputfolder4,
                              runtime2, options,
-                             cobra_model_no_gapFilled = target_model_no_gapsFilled,
-                             cobra_model = target_model_complete)
+#                             cobra_model_no_gapFilled = target_model_no_gapsFilled,
+                             cobra_model = target_model)
 
         else:
             logging.warning("Secondary metabolic modeling not implemented;")
