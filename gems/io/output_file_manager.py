@@ -96,7 +96,7 @@ def get_model_reactions(folder, options, **kwargs):
                         options.model.eco_obj_func).objective_coefficient = 0
 
             cobra_model.reactions.get_by_id(rxn.id).objective_coefficient = 1
-            cobra_model.optimize()
+            flux_dist1 = cobra_model.optimize()
             cobra_model.reactions.get_by_id(rxn.id).objective_coefficient = 0
 
             if 'cobra_model_no_gapFilled' in kwargs:
@@ -111,12 +111,12 @@ def get_model_reactions(folder, options, **kwargs):
 
                 cobra_model_no_gapFilled.reactions.get_by_id(
                         rxn.id).objective_coefficient = 1
-                cobra_model_no_gapFilled.optimize()
+                flux_dist2 = cobra_model_no_gapFilled.optimize()
                 cobra_model_no_gapFilled.reactions.get_by_id(
                         rxn.id).objective_coefficient = 0
 
                 print >>fp4, '%s\t%f\t%f' \
-                %(rxn.id, cobra_model_no_gapFilled.solution.f, cobra_model.solution.f)
+                %(rxn.id, flux_dist2.objective_value, flux_dist.objective_value)
 
 
     fp1.close()
