@@ -1,16 +1,13 @@
 
-# Copyright 2017 BioInformatics Research Center, KAIST
-# Copyright 2017 Novo Nordisk Foundation Center for Biosustainability, DTU
-
 from os.path import join
-from gems.config import load_config
+from gmsm.config import load_config
 
 class TestConfig:
-    """Test functions in gems.config"""
+    """Test functions in gmsm.config"""
 
     def test_load_config(self, options):
 
-        _cfg_name = 'gems.cfg'
+        _cfg_name = 'gmsm.cfg'
         load_config(options)
 
         assert options.blastp
