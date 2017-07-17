@@ -5,7 +5,7 @@
 import copy
 import logging
 from cobra import Reaction, Metabolite
-from gems import utils
+from gmsm import utils
 
 def get_unique_nonprod_monomers_list(options):
 

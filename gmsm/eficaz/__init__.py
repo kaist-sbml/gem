@@ -26,7 +26,7 @@ import time
 from Bio import SeqIO
 from Bio.Alphabet import generic_protein
 from Bio.Seq import Seq
-from gems import utils
+from gmsm import utils
 from urllib2 import URLError
 
 

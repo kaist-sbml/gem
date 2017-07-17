@@ -1,14 +1,14 @@
 
 import warnings
 from os.path import join
-from gems.config import load_config
-from gems.io.input_file_manager import get_eficaz_file, get_locustag_comp_dict
-from gems.primary_model import prunPhase_utils, augPhase_utils
+from gmsm.config import load_config
+from gmsm.io.input_file_manager import get_eficaz_file, get_locustag_comp_dict
+from gmsm.primary_model import prunPhase_utils, augPhase_utils
 
 warnings.filterwarnings("ignore")
 
 class TestPrimary_model:
-    """Test functions in gems.primary_model"""
+    """Test functions in gmsm.primary_model"""
 
     def test_get_rxn_fate(self):
         temp_target_BBH_dict = {}
@@ -90,7 +90,7 @@ class TestPrimary_model:
 
 
     def test_prune_model(self, sco_tmp_model, options):
-        _cfg_name = 'gems.cfg'
+        _cfg_name = 'gmsm.cfg'
         load_config(options)
         options.rxnToRemove_dict = {}
 
@@ -134,7 +134,7 @@ class TestPrimary_model:
 
 
     def test_get_rxnid_info_dict_from_kegg(self, options):
-        _cfg_name = 'gems.cfg'
+        _cfg_name = 'gmsm.cfg'
         load_config(options)
 
         options.targetGenome_locusTag_ec_nonBBH_dict = {'B446_27575':['2.7.4.9']}
@@ -203,7 +203,7 @@ class TestPrimary_model:
         options.outputfolder5 = outputfolder5
         options.template_exrxnid_flux_dict = sco_tmp_model_flux
 
-        _cfg_name = 'gems.cfg'
+        _cfg_name = 'gmsm.cfg'
         load_config(options)
 
         assert 'R08926' not in sco_tmp_model.reactions

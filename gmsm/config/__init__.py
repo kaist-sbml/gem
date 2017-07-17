@@ -6,7 +6,7 @@ import ConfigParser
 from argparse import Namespace
 from os.path import join, abspath, dirname
 
-_cfg_name = 'gems.cfg'
+_cfg_name = 'gmsm.cfg'
 
 def load_config(options):
 

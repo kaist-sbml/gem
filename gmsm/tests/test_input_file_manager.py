@@ -1,10 +1,10 @@
 
 from os.path import join
-from gems.config import load_config
-from gems.io.input_file_manager import get_eficaz_file, get_locustag_comp_dict
+from gmsm.config import load_config
+from gmsm.io.input_file_manager import get_eficaz_file, get_locustag_comp_dict
 
 class TestInput_file_manager:
-    """Test functions in gems.io.input_file_manager"""
+    """Test functions in gmsm.io.input_file_manager"""
 
     def test_get_eficaz_file(self, eficaz_file, options):
 

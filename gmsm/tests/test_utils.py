@@ -1,12 +1,12 @@
 
 import warnings
 from cobra import Reaction, Metabolite
-from gems.utils import check_duplicate_rxn, compare_rxns
+from gmsm.utils import check_duplicate_rxn, compare_rxns
 
 warnings.filterwarnings("ignore")
 
 class TestUtils:
-    """Test functions in gems.utils"""
+    """Test functions in gmsm.utils"""
 
     def test_check_duplicate_rxn1(self, sco_tmp_model, options):
 

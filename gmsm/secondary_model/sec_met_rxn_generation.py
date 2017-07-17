@@ -1,13 +1,10 @@
 
-#Copyright 2014-2016 BioInformatics Research Center, KAIST
-#Copyright 2014-2016 Novo Nordisk Foundation Center for Biosustainability, DTU
-
 import logging
 import os
 import pickle
 from antismash_monomer_info import get_std_id_from_antismash_id
 from cobra import Reaction, Metabolite
-from gems import utils
+from gmsm import utils
 
 def get_cluster_location(seq_record, cluster_nr, options):
 

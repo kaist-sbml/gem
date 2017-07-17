@@ -25,14 +25,14 @@ def setup_logfile_format(options):
         fomatter = logging.Formatter(
                 '[%(levelname)s|%(filename)s:%(lineno)s] > %(message)s')
         fh = logging.FileHandler(
-                os.path.join(options.outputfolder, 'gems.log'), mode = 'w')
+                os.path.join(options.outputfolder, 'gmsm.log'), mode = 'w')
         fh.setFormatter(fomatter)
         logger.addHandler(fh)
 
 
 def get_version():
-    import gems
-    version = gems.__version__
+    import gmsm
+    version = gmsm.__version__
 
     return version
 

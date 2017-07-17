@@ -8,7 +8,7 @@ import re
 import urllib2
 from cobra import Metabolite, Reaction
 from os.path import isdir, join, abspath, dirname
-from gems import utils
+from gmsm import utils
 
 #Retrieves a list of reaction IDs using their EC numbers from KEGG
 #Input: E.C number in string form (e.g., 4.1.3.6)

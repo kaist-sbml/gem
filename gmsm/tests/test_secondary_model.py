@@ -1,10 +1,7 @@
 
-# Copyright 2017 BioInformatics Research Center, KAIST
-# Copyright 2017 Novo Nordisk Foundation Center for Biosustainability, DTU
-
 from argparse import Namespace
 from os.path import join
-from gems.secondary_model.sec_met_rxn_generation import (
+from gmsm.secondary_model.sec_met_rxn_generation import (
         get_cluster_location,
         get_cluster_product,
         get_cluster_info_from_seq_record,
@@ -14,7 +11,7 @@ from gems.secondary_model.sec_met_rxn_generation import (
         )
 
 class TestSecondary_model:
-    """Test functions in gems.secondary_model"""
+    """Test functions in gmsm.secondary_model"""
 
     def test_get_cluster_info_from_seq_record(self, seq_record, options):
 

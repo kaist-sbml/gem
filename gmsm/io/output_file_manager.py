@@ -1,13 +1,10 @@
 
-#Copyright 2014-2016 BioInformatics Research Center, KAIST
-#Copyright 2014-2016 Novo Nordisk Foundation Center for Biosustainability, DTU
-
 import cobra
 import collections
 import logging
 import pickle
 import re
-from gems import utils
+from gmsm import utils
 
 def generate_outputs(folder, runtime, options, **kwargs):
 

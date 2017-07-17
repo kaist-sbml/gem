@@ -56,7 +56,7 @@ def get_target_fasta(options):
 
 #Look for pre-stored fasta file of the template model
 def get_temp_fasta(options):
-    for root, _, files in os.walk('./gems/io/data/input1/%s/' %(options.orgName)):
+    for root, _, files in os.walk('./gmsm/io/data/input1/%s/' %(options.orgName)):
         for f in files:
             if f.endswith('.fa'):
                 tempFasta = os.path.join(root, f)

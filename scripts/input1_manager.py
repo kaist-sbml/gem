@@ -18,9 +18,9 @@ from input2_manager import ParseMNXref
 from os.path import join, abspath, dirname
 
 sys.path.insert(0, abspath(join(dirname(__file__), '..')))
-import gems
-import gems.io.io_utils as io_utils
-from gems.config import load_config
+import gmsm
+import gmsm.io.io_utils as io_utils
+from gmsm.config import load_config
 
 def get_options():
     parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
@@ -56,7 +56,7 @@ def get_options():
 def get_output_dirs(options):
 
     if options.folder:
-        input1_dir = join(os.pardir, 'gems', 'io', 'data', 'input1', options.folder)
+        input1_dir = join(os.pardir, 'gmsm', 'io', 'data', 'input1', options.folder)
         if not os.path.isdir(input1_dir):
             os.makedirs(input1_dir)
 
@@ -79,7 +79,7 @@ def download_model_from_biggDB(input1_tmp_dir, options):
         f.write(model)
 
     model = cobra.io.read_sbml_model(join(input1_tmp_dir, model_file))
-    model = gems.utils.stabilize_model(
+    model = gmsm.utils.stabilize_model(
             model, input1_tmp_dir, '%s_2' %options.bigg, diff_name=True)
 
     if len(model.reactions) > 1:
@@ -139,7 +139,7 @@ def get_nonstd_model(input1_tmp_dir, options):
     # NOTE: cobra 0.6.2 causes an error in reloading the model that is \
     #initially loaded with 'read_legacy_sbml', which considers 'fix_legacy_id'
     #model = cobra.io.read_legacy_sbml(join(input1_tmp_dir, sbml_list[0]))
-    #model = gems.utils.stabilize_model(model, input1_tmp_dir, '')
+    #model = gmsm.utils.stabilize_model(model, input1_tmp_dir, '')
 
     # NOTE: Reading 'iMK1208Edited4.xml' via 'read_sbml_model' was slightly
     #more accurate than 'read_legacy_sbml'
@@ -179,26 +179,26 @@ def fix_nonstd_model(bigg_old_new_dict, input1_tmp_dir, model, options):
                 logging.debug('Reaction: %s -> %s', old_id, new_id)
                 rxn.id = new_id
 
-                model = gems.utils.stabilize_model(model, input1_tmp_dir, '')
+                model = gmsm.utils.stabilize_model(model, input1_tmp_dir, '')
                 result = check_model_fluxes(
                             model, tempModel_exrxnid_flux_dict, bigg_old_new_dict, options)
                 if result == 'fluxAffected':
                     rxn = model.reactions.get_by_id(new_id)
                     rxn.id = old_id
-                    model = gems.utils.stabilize_model(model, input1_tmp_dir, '')
+                    model = gmsm.utils.stabilize_model(model, input1_tmp_dir, '')
                     logging.debug('Reaction: %s -> %s canceled', old_id, new_id)
 
         if rxn.id == 'THRPS':
             logging.debug('Reaction: THRPS -> LTHRK')
             rxn.id = 'LTHRK'
 
-            model = gems.utils.stabilize_model(model, input1_tmp_dir, '')
+            model = gmsm.utils.stabilize_model(model, input1_tmp_dir, '')
             result = check_model_fluxes(
                         model, tempModel_exrxnid_flux_dict, bigg_old_new_dict, options)
             if result == 'fluxAffected':
                 rxn = model.reactions.get_by_id('LTHRK')
                 rxn.id = old_id
-                model = gems.utils.stabilize_model(model, input1_tmp_dir, '')
+                model = gmsm.utils.stabilize_model(model, input1_tmp_dir, '')
                 logging.debug('Reaction: THRPS -> LTHRK canceled')
 
     tempModel_exrxnid_flux_dict = get_tempModel_exrxnid_flux_dict(
@@ -242,13 +242,13 @@ def fix_nonstd_model(bigg_old_new_dict, input1_tmp_dir, model, options):
             logging.debug('Metabolite: %s -> %s', old_id, new_id)
             metab.id = new_id
 
-            model = gems.utils.stabilize_model(model, input1_tmp_dir, '')
+            model = gmsm.utils.stabilize_model(model, input1_tmp_dir, '')
             result = check_model_fluxes(
                         model, tempModel_exrxnid_flux_dict, bigg_old_new_dict, options)
             if result == 'fluxAffected':
                 metab = model.metabolites.get_by_id(new_id)
                 metab.id = old_id
-                model = gems.utils.stabilize_model(model, input1_tmp_dir, '')
+                model = gmsm.utils.stabilize_model(model, input1_tmp_dir, '')
                 logging.debug('Metabolite: %s -> %s canceled', old_id, new_id)
 
     model_info_dict = {}
@@ -530,7 +530,7 @@ def make_blastDB(input1_dir):
     query_fasta = join(input1_dir, 'tempModel_locusTag_aaSeq.fa')
 
     try:
-        DBprogramName = gems.utils.locate_executable('makeblastdb')
+        DBprogramName = gmsm.utils.locate_executable('makeblastdb')
         subprocess.call(
                 [DBprogramName,'-in',
                 query_fasta,'-out',
@@ -570,7 +570,7 @@ if __name__ == '__main__':
     import warnings
 
     sys.path.insert(0, abspath(join(dirname(__file__), '..')))
-    from gems.config import load_config
+    from gmsm.config import load_config
 
     warnings.filterwarnings("ignore")
 
@@ -628,8 +628,8 @@ if __name__ == '__main__':
             )
     make_blastDB(input1_dir)
 
-    logging.info("Make sure to update template model options in 'run_gems.py'!")
-    logging.info("Input files have been created in '/gems/io/data/input1'")
+    logging.info("Make sure to update template model options in 'run_gmsm.py'!")
+    logging.info("Input files have been created in '/gmsm/io/data/input1'")
     logging.info(time.strftime("Elapsed time %H:%M:%S", time.gmtime(time.time() - start)))
 
     input1_tmp_dir_list = create_zip_file(input1_tmp_dir, options)

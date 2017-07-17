@@ -1,7 +1,7 @@
 
 import sys
 import warnings
-from gems.config import load_config
+from gmsm.config import load_config
 from os.path import abspath, dirname, join
 
 warnings.filterwarnings("ignore")
@@ -42,7 +42,7 @@ class TestInput1_manager:
         input1_tmp_dir = './tmp'
         options.acc_number = None
 
-        _cfg_name = 'gems.cfg'
+        _cfg_name = 'gmsm.cfg'
         load_config(options)
 
         bigg_old_new_dict = {}

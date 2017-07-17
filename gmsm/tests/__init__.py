@@ -10,13 +10,13 @@ try:
 except ImportError:
     pytest = None
 
-def test_gems():
+def test_gmsm():
     # Suppress warning messages from cobrapy when tests fail
     # The messages do not help the testing
     warnings.filterwarnings("ignore")
 
     if pytest:
-        # Arguement 'gems' is needed to test only the GEMS files
-        pytest.main(['--pyargs', 'gems', '--basetemp=tmp', '--cov=gems', '-v'])
+        # Arguement 'gmsm' is needed to test only the GEMS files
+        pytest.main(['--pyargs', 'gmsm', '--basetemp=tmp', '--cov=gmsm', '-v'])
     else:
         raise ImportError("pytest is not installed")
