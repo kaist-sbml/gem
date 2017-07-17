@@ -157,7 +157,8 @@ def get_bigg_old_new_dict_for_nonstd_model():
 
 
 def fix_nonstd_model(bigg_old_new_dict, input1_tmp_dir, model, options):
-    tempModel_exrxnid_flux_dict = get_tempModel_exrxnid_flux_dict(model)
+    tempModel_exrxnid_flux_dict = get_tempModel_exrxnid_flux_dict(
+                                                                model, bigg_old_new_dict)
 
     for j in range(len(model.reactions)):
         rxn = model.reactions[j]
@@ -179,7 +180,8 @@ def fix_nonstd_model(bigg_old_new_dict, input1_tmp_dir, model, options):
                 rxn.id = new_id
 
                 model = gems.utils.stabilize_model(model, input1_tmp_dir, '')
-                result = check_model_fluxes(model, tempModel_exrxnid_flux_dict, options)
+                result = check_model_fluxes(
+                            model, tempModel_exrxnid_flux_dict, bigg_old_new_dict, options)
                 if result == 'fluxAffected':
                     rxn = model.reactions.get_by_id(new_id)
                     rxn.id = old_id
@@ -191,14 +193,16 @@ def fix_nonstd_model(bigg_old_new_dict, input1_tmp_dir, model, options):
             rxn.id = 'LTHRK'
 
             model = gems.utils.stabilize_model(model, input1_tmp_dir, '')
-            result = check_model_fluxes(model, tempModel_exrxnid_flux_dict, options)
+            result = check_model_fluxes(
+                        model, tempModel_exrxnid_flux_dict, bigg_old_new_dict, options)
             if result == 'fluxAffected':
                 rxn = model.reactions.get_by_id('LTHRK')
                 rxn.id = old_id
                 model = gems.utils.stabilize_model(model, input1_tmp_dir, '')
                 logging.debug('Reaction: THRPS -> LTHRK canceled')
 
-    tempModel_exrxnid_flux_dict = get_tempModel_exrxnid_flux_dict(model)
+    tempModel_exrxnid_flux_dict = get_tempModel_exrxnid_flux_dict(
+                                                                model, bigg_old_new_dict)
 
     for i in range(len(model.metabolites)):
         metab = model.metabolites[i]
@@ -239,7 +243,8 @@ def fix_nonstd_model(bigg_old_new_dict, input1_tmp_dir, model, options):
             metab.id = new_id
 
             model = gems.utils.stabilize_model(model, input1_tmp_dir, '')
-            result = check_model_fluxes(model, tempModel_exrxnid_flux_dict, options)
+            result = check_model_fluxes(
+                        model, tempModel_exrxnid_flux_dict, bigg_old_new_dict, options)
             if result == 'fluxAffected':
                 metab = model.metabolites.get_by_id(new_id)
                 metab.id = old_id
@@ -254,11 +259,14 @@ def fix_nonstd_model(bigg_old_new_dict, input1_tmp_dir, model, options):
     return model, model_info_dict
 
 
-def check_model_fluxes(model, tempModel_exrxnid_flux_dict, options):
+def check_model_fluxes(model, tempModel_exrxnid_flux_dict, bigg_old_new_dict, options):
     model.optimize()
 
     for rxnid in tempModel_exrxnid_flux_dict:
-        rxn = model.reactions.get_by_id(rxnid)
+        if rxnid in model.reactions:
+            rxn = model.reactions.get_by_id(rxnid)
+        if rxnid not in model.reactions:
+            rxn = model.reactions.get_by_id(bigg_old_new_dict[rxnid])
 
         tempModel_exrxnid_flux = tempModel_exrxnid_flux_dict[rxnid]
         nonzero = float(options.cobrapy.non_zero_flux_cutoff)
@@ -325,43 +333,80 @@ def get_tempGenome_locusTag_aaSeq_dict(input1_tmp_dir, options, **kwargs):
     return tempGenome_locusTag_aaSeq_dict
 
 
-def get_tempModel_exrxnid_flux_dict(model):
+def get_tempModel_exrxnid_flux_dict(model, bigg_old_new_dict):
     tempModel_exrxnid_flux_dict = {}
 
     flux_dist = model.optimize()
 
     if 'EX_pi_e' in model.reactions:
         tempModel_exrxnid_flux_dict['EX_pi_e'] = float(flux_dist.fluxes.EX_pi_e)
+    elif 'EX_pi(e)' in model.reactions:
+        tempModel_exrxnid_flux_dict['EX_pi(e)'] = float(flus_dist.fluxes.EX_pi(e))
+    elif 'EX_pi_LPAREN_e_RPAREN_' in model.reactions:
+        tempModel_exrxnid_flux_dict['EX_pi_LPAREN_e_RPAREN_'] = \
+                float(flux_dist.fluxes.EX_pi_LPAREN_e_RPAREN_)
     else:
         logging.error("'EX_pi_e' not available in the model")
 
     if 'EX_co2_e' in model.reactions:
         tempModel_exrxnid_flux_dict['EX_co2_e'] = float(flux_dist.fluxes.EX_co2_e)
+    elif 'EX_co2(e)' in model.reactions:
+        tempModel_exrxnid_flux_dict['EX_co2(e)'] = float(flux_dist.fluxes.EX_co2(e))
+    elif 'EX_co2_LPAREN_e_RPAREN_' in model.reactions:
+        tempModel_exrxnid_flux_dict['EX_co2_LPAREN_e_RPAREN_'] = \
+                float(flux_dist.fluxes.EX_co2_LPAREN_e_RPAREN_)
     else:
         logging.error("'EX_co2_e' not available in the model")
 
     if 'EX_glc__D_e' in model.reactions:
         tempModel_exrxnid_flux_dict['EX_glc__D_e'] = float(flux_dist.fluxes.EX_glc__D_e)
+    elif 'EX_glc(e)' in model.reactions:
+        tempModel_exrxnid_flux_dict['EX_glc(e)'] = float(flux_dist.fluxes.EX_glc(e))
+    elif 'EX_glc_D_e' in model.reactions:
+        tempModel_exrxnid_flux_dict['EX_glc_D_e'] = float(flux_dist.fluxes.EX_glc_D_e)
+    elif 'EX_glc_e' in model.reactions:
+        tempModel_exrxnid_flux_dict['EX_glc_e'] = float(flux_dist.fluxes.EX_glc_e)
+    elif 'EX_glc_LPAREN_e_RPAREN_' in model.reactions:
+        tempModel_exrxnid_flux_dict['EX_glc_LPAREN_e_RPAREN_'] = \
+                float(flux_dist.fluxes.EX_glc_LPAREN_e_RPAREN_)
     else:
         logging.error("'EX_glc__D_e' not available in the model")
 
     if 'EX_nh4_e' in model.reactions:
         tempModel_exrxnid_flux_dict['EX_nh4_e'] = float(flux_dist.fluxes.EX_nh4_e)
+    elif 'EX_nh4(e)' in model.reactions:
+        tempModel_exrxnid_flux_dict['EX_nh4(e)'] = float(flux_dist.fluxes.EX_nh4(e))
+    elif 'EX_nh4_LPAREN_e_RPAREN_' in model.reactions:
+        tempModel_exrxnid_flux_dict['EX_nh4_LPAREN_e_RPAREN_'] = \
+                float(flux_dist.fluxes.EX_nh4_LPAREN_e_RPAREN_)
     else:
         logging.error("'EX_nh4_e' not available in the model")
 
     if 'EX_h2o_e' in model.reactions:
         tempModel_exrxnid_flux_dict['EX_h2o_e'] = float(flux_dist.fluxes.EX_h2o_e)
+    elif 'EX_h2o(e)' in model.reactions:
+        tempModel_exrxnid_flux_dict['EX_h2o(e)'] = float(flux_dist.fluxes.EX_h2o(e))
+    elif 'EX_h2o_LPAREN_e_RPAREN_' in model.reactions:
+        tempModel_exrxnid_flux_dict['EX_h2o_LPAREN_e_RPAREN_'] = \
+                float(flux_dist.fluxes.EX_h2o_LPAREN_e_RPAREN_)
     else:
         logging.error("'EX_h2o_e' not available in the model")
 
     if 'EX_h_e' in model.reactions:
         tempModel_exrxnid_flux_dict['EX_h_e'] = float(flux_dist.fluxes.EX_h_e)
+    elif 'EX_h(e)' in model.reactions:
+        tempModel_exrxnid_flux_dict['EX_h(e)'] = float(flux_dist.fluxes.EX_h(e))
+    elif 'EX_h_LPAREN_e_RPAREN_' in model.reactions:
+        tempModel_exrxnid_flux_dict['EX_h_LPAREN_e_RPAREN_'] = \
+                float(flux_dist.fluxes.EX_h_LPAREN_e_RPAREN_)
     else:
         logging.error("'EX_h_e' not available in the model")
 
     if 'EX_o2_e' in model.reactions:
         tempModel_exrxnid_flux_dict['EX_o2_e'] = float(flux_dist.fluxes.EX_o2_e)
+    elif 'EX_o2_LPAREN_e_RPAREN_' in model.reactions:
+        tempModel_exrxnid_flux_dict['EX_o2_LPAREN_e_RPAREN_'] = \
+                float(flux_dist.fluxes.EX_o2_LPAREN_e_RPAREN_)
     else:
         logging.error("'EX_o2_e' not available in the model")
 
@@ -370,6 +415,9 @@ def get_tempModel_exrxnid_flux_dict(model):
                 float(flux_dist.objective_value)
     else:
         logging.error("Objective function should be designated in the model")
+
+    for rxn in tempModel_exrxnid_flux_dict:
+        logging.debug("Reaction: %s; Flux: %s", rxn, tempModel_exrxnid_flux_dict[rxn])
 
     return tempModel_exrxnid_flux_dict
 
@@ -547,7 +595,12 @@ if __name__ == '__main__':
         model_info_dict = get_model_details(options)
     elif options.acc_number or options.genome:
         model = get_nonstd_model(input1_tmp_dir, options)
-        model, model_info_dict = fix_nonstd_model(input1_tmp_dir, model, options)
+        bigg_old_new_dict = get_bigg_old_new_dict_for_nonstd_model()
+        model, model_info_dict = fix_nonstd_model(
+                bigg_old_new_dict,
+                input1_tmp_dir,
+                model,
+                options)
 
     if options.bigg or options.acc_number:
         gbk_file = download_gbk_from_ncbi(input1_tmp_dir, model_info_dict)
@@ -558,7 +611,8 @@ if __name__ == '__main__':
         tempGenome_locusTag_aaSeq_dict = \
                 get_tempGenome_locusTag_aaSeq_dict(input1_tmp_dir, options)
 
-    tempModel_exrxnid_flux_dict = get_tempModel_exrxnid_flux_dict(model)
+    tempModel_exrxnid_flux_dict = get_tempModel_exrxnid_flux_dict(
+                                                                model, bigg_old_new_dict)
     tempModel_biggRxnid_locusTag_dict = get_tempModel_biggRxnid_locusTag_dict(model)
     tempModel_locusTag_aaSeq_dict = \
         get_tempModel_locusTag_aaSeq_dict(model, tempGenome_locusTag_aaSeq_dict, options)
