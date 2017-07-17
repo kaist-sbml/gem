@@ -150,10 +150,13 @@ def get_nonstd_model(input1_tmp_dir, options):
     return model
 
 
-def fix_nonstd_model(input1_tmp_dir, model, options):
+def get_bigg_old_new_dict_for_nonstd_model():
     mnx_parser = ParseMNXref()
     bigg_old_new_dict = mnx_parser.fix_legacy_id_using_BiGGModels()
+    return bigg_old_new_dict
 
+
+def fix_nonstd_model(bigg_old_new_dict, input1_tmp_dir, model, options):
     tempModel_exrxnid_flux_dict = get_tempModel_exrxnid_flux_dict(model)
 
     for j in range(len(model.reactions)):
