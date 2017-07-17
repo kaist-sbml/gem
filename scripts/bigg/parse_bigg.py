@@ -16,10 +16,10 @@ from cobra import Model, Reaction, Metabolite
 from os.path import join, abspath, dirname
 
 sys.path.insert(0, abspath(join(dirname(__file__), '..')))
-import gems
+import gmsm
 
 
-input2_dir = join(os.pardir, 'gems', 'io', 'data', 'input2')
+input2_dir = join(os.pardir, 'gmsm', 'io', 'data', 'input2')
 input2_tmp_dir = join(dirname(abspath(__file__)), 'input2_data')
 
 
@@ -230,7 +230,7 @@ class CreateBiGGModel(object):
             metab = cobra_model.metabolites[i]
             metab.id = cobra.io.sbml.fix_legacy_id(metab.id)
 
-        cobra_model = gems.utils.stabilize_model(
+        cobra_model = gmsm.utils.stabilize_model(
                 cobra_model, input2_tmp_dir, 'MNXref', diff_name=True)
 
         logging.debug('%i reactions in model' % len(cobra_model.reactions))
@@ -261,7 +261,7 @@ def run_CreateBiGGModel():
     # Copy pickles to the destination
     # NOTE: Currently disabled as the bigg model is not used for gapfilling in GEMS
     #shutil.copyfile(join(input2_dir, 'MNXref.p'),
-    #        join(os.pardir, 'gems', 'tests', 'data', 'MNXref.p'))
+    #        join(os.pardir, 'gmsm', 'tests', 'data', 'MNXref.p'))
 
 
 def remove_txt_files():

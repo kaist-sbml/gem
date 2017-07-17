@@ -246,12 +246,12 @@ def get_all_metab_coeff(options):
 def get_pickles(options):
 
     if not hasattr(options, 'mnxref'):
-        mnxref = pickle.load(open('./gems/io/data/input2/MNXref.p','rb'))
+        mnxref = pickle.load(open('./gmsm/io/data/input2/MNXref.p','rb'))
         options.mnxref = mnxref
 
     if not hasattr(options, 'mnxm_compoundInfo_dict'):
         mnxm_compoundInfo_dict = pickle.load(
-                open('./gems/io/data/input2/mnxm_compoundInfo_dict.p','rb'))
+                open('./gmsm/io/data/input2/mnxm_compoundInfo_dict.p','rb'))
         options.mnxm_compoundInfo_dict = mnxm_compoundInfo_dict
 
 

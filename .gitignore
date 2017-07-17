@@ -2,7 +2,7 @@
 input/
 output/
 kegg_cache/
-gems/tests/data/model.xml
+gmsm/tests/data/model.xml
 scripts/bigg/model.xml
 #scripts/input1_data/*.fa
 #scripts/input1_data/*.gb
