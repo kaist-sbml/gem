@@ -1,6 +1,6 @@
 # .coveragerc to control coverage.py
 
 [run]
-source = gems
+source = gmsm
 branch = true
-omit = gems/tests/*
+omit = gmsm/tests/*

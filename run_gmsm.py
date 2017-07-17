@@ -15,10 +15,10 @@ import warnings
 # cobrapy == 0.5.11 should be used, which now has a fixed  function:
 #'cobra.manipulation.delete.prune_unused_metabolites'.
 from cobra.manipulation.delete import prune_unused_metabolites
-from gems import check_prereqs, utils
-from gems.config import load_config
-from gems.eficaz import getECs1, getECs2
-from gems.io.input_file_manager import (
+from gmsm import check_prereqs, utils
+from gmsm.config import load_config
+from gmsm.eficaz import getECs1, getECs2
+from gmsm.io.input_file_manager import (
     setup_outputfolders,
     check_input_filetype,
     get_target_genome_from_input,
@@ -28,10 +28,10 @@ from gems.io.input_file_manager import (
     get_pickles_augPhase,
     get_locustag_comp_dict
     )
-from gems.io.output_file_manager import generate_outputs
-from gems.homology.bidirect_blastp_analysis import get_homologs
-from gems.primary_model.run_primary_modeling import run_prunPhase, run_augPhase
-from gems.secondary_model.run_secondary_modeling import (
+from gmsm.io.output_file_manager import generate_outputs
+from gmsm.homology.bidirect_blastp_analysis import get_homologs
+from gmsm.primary_model.run_primary_modeling import run_prunPhase, run_augPhase
+from gmsm.secondary_model.run_secondary_modeling import (
     run_secondary_modeling,
     get_target_nonprod_monomers_for_gapfilling,
     run_gapfilling
@@ -44,7 +44,7 @@ def main():
             '\rGEMS version {version} ({git_log})\n\nusage: {usage}\n----------------------------------------------------------------------------------'\
             .format(version=utils.get_version(),
                     git_log=utils.get_git_log(),
-                    usage='run_gems.py [-h] [Resource management] [Input and output setting] [GEMS modeling options] [Debugging and logging options]')
+                    usage='run_gmsm.py [-h] [Resource management] [Input and output setting] [GEMS modeling options] [Debugging and logging options]')
     parser = argparse.ArgumentParser(
             formatter_class=argparse.RawTextHelpFormatter,
             usage=usage
