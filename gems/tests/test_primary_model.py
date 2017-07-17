@@ -290,7 +290,7 @@ class TestPrimary_model:
         assert len(added_rxn_newComp_list) == 4
 
 
-    def test_remove_inactive_rxn_newComp(self, sci_primary_model, options):
+    def test_remove_inactive_rxn_newComp(self, sci_primary_model, tmpdir, options):
 
         # Reaction 'CSND' is an inactive reaction in 'sci_primary_model'
         added_rxn_newComp_list = ['CSND']

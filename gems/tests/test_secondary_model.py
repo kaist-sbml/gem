@@ -92,7 +92,7 @@ class TestSecondary_model:
 
 
     def test_add_sec_met_rxn_cluster3(self,
-            seq_record, sci_primary_model, mnxref, tmpdir, options):
+            seq_record, sci_primary_model, mnxref, options):
 
         options.product = 'Cluster03_nrps_t1pks_transatpks'
         options.metab_coeff_dict = {
@@ -118,7 +118,7 @@ class TestSecondary_model:
 
 
     def test_add_sec_met_rxn_cluster7(self,
-            seq_record, sci_primary_model, mnxref, tmpdir, options):
+            seq_record, sci_primary_model, mnxref, options):
 
         options.product = 'Cluster07_nrps_t1pks'
         options.metab_coeff_dict = {

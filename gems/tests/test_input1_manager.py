@@ -28,7 +28,7 @@ class TestInput1_manager:
         assert 'dad_2_c' not in model.metabolites
 
 
-    def test_fix_nonstd_model(self, options):
+    def test_fix_nonstd_model(self, tmpdir, options):
 
         input1_tmp_dir = join(dirname(abspath(__file__)), 'data')
         model = input1_manager.get_nonstd_model(input1_tmp_dir, options)
