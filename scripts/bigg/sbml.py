@@ -564,6 +564,8 @@ def get_libsbml_document(cobra_model,
         # they are set to be identical
         note_dict = the_reaction.notes.copy()
         if the_reaction.gene_reaction_rule:
+            if 'GENE ASSOCIATION' in note_dict:
+                del note_dict['GENE ASSOCIATION']
             note_dict['GENE_ASSOCIATION'] = [
                 str(the_reaction.gene_reaction_rule)]
         if the_reaction.subsystem:
