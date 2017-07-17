@@ -81,6 +81,7 @@ def main():
                         "'cre': iCre1355 (26485611); Chlamydomonas reinhardtii\n"
                         "'eco': iAF1260 (17593909); Escherichia coli str. K-12 substr. MG1655\n"
                         "'mtu': iNJ661 (17555602); Mycobacterium tuberculosis H37Rv\n"
+                        "'nsal': iNS934 (28676050); Nannochloropsis salina\n"
                         "'ppu': iJN746 (18793442); Pseudomonas putida KT2440\n"
                         "'sco': iMK1208 (24623710); Streptomyces coelicolor A3(2)"
                         )
