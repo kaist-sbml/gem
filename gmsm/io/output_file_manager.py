@@ -20,10 +20,11 @@ def generate_outputs(folder, runtime, options, **kwargs):
     num_essen_rxn, num_kegg_rxn, num_cluster_rxn = get_model_reactions(
                        folder, options, **kwargs)
     get_model_metabolites(folder, cobra_model, options)
-    template_model_gene_list = get_model_genes(folder, cobra_model, options)
+    template_model_gene_list, duplicate_gene_list = \
+                       get_model_genes(folder, cobra_model, options)
     get_summary_report(folder, cobra_model, runtime,
                        num_essen_rxn, num_kegg_rxn, num_cluster_rxn,
-                       template_model_gene_list, options)
+                       template_model_gene_list, duplicate_gene_list, options)
 
     if '3_primary_metabolic_model'in folder:
         logging.info("'Primary' metabolic model completed")
@@ -166,11 +167,11 @@ def get_model_metabolites(folder, cobra_model, options):
 def get_model_genes(folder, cobra_model, options):
 
     template_model_gene_list = []
+    duplicate_gene_list = []
 
-    fp1 = open('./%s/rmc_remaining_genes_from_template_model.txt' %folder, "w")
+    fp1 = open('./%s/rmc_gpr_associations_from_homology_analysis.txt' %folder, "w")
 
-    fp1.write('remaining_gene_from_template_model'+'\t'+'reaction_ID'+'\t'
-            +'reaction_name'+'\t'+'reaction_equation'+'\t'+'GPR'+'\t'+'pathway'+'\n')
+    fp1.write('gene'+'\t'+'note'+'\t'+'reaction_ID'+'\t'+'reaction_name'+'\t'+'reaction_equation'+'\t'+'GPR'+'\t'+'pathway'+'\n')
 
     if options.orgName == 'bsu':
         locustag_pattern = 'BSU[0-9]+[0-9]+[0-9]+[0-9]'
@@ -190,23 +191,46 @@ def get_model_genes(folder, cobra_model, options):
     for g in range(len(cobra_model.genes)):
         gene = cobra_model.genes[g]
 
-        if re.search(locustag_pattern, str(gene)):
-            template_model_gene_list.append(gene)
+        if re.search(locustag_pattern, gene.id):
+            if gene.id not in template_model_gene_list:
+                template_model_gene_list.append(gene.id)
 
             for j in range(len(cobra_model.reactions)):
                 rxn = cobra_model.reactions[j]
 
-                if str(gene) in rxn.gene_reaction_rule:
-                    print >>fp1, '%s\t%s\t%s\t%s\t%s\t%s' %(str(gene), rxn.id, rxn.name,
-                            rxn.reaction, rxn.gene_reaction_rule, rxn.subsystem)
+                if gene.id in rxn.gene_reaction_rule:
+                    print >>fp1, '%s\t%s\t%s\t%s\t%s\t%s\t%s' %(
+                                                    gene.id,
+                                                    'remaining_gene_from_template_model',
+                                                    rxn.id,
+                                                    rxn.name,
+                                                    rxn.reaction,
+                                                    rxn.gene_reaction_rule,
+                                                    rxn.subsystem)
+
+        for j in range(len(cobra_model.reactions)):
+            rxn = cobra_model.reactions[j]
+
+            if len(re.findall(gene.id, rxn.gene_reaction_rule)) > 1:
+                if gene.id not in duplicate_gene_list:
+                    duplicate_gene_list.append(gene.id)
+                    print >>fp1, '%s\t%s\t%s\t%s\t%s\t%s\t%s' %(
+                                                    gene.id,
+                                                    'duplicate_gene_from_target_model',
+                                                    rxn.id,
+                                                    rxn.name,
+                                                    rxn.reaction,
+                                                    rxn.gene_reaction_rule,
+                                                    rxn.subsystem)
 
     fp1.close()
-    return template_model_gene_list
+    return template_model_gene_list, duplicate_gene_list
 
 
 def get_summary_report(folder, cobra_model, runtime,
                        num_essen_rxn, num_kegg_rxn, num_cluster_rxn,
-                       template_model_gene_list, options):
+                       template_model_gene_list, duplicate_gene_list,
+                       options):
     fp1 = open('./%s/summary_report.txt' %folder, "w")
 
     #log_level
@@ -233,12 +257,14 @@ def get_summary_report(folder, cobra_model, runtime,
     model_summary_dict['number_genes']=len(cobra_model.genes)
     model_summary_dict['number_reactions']=len(cobra_model.reactions)
     model_summary_dict['number_metabolites']=len(cobra_model.metabolites)
-    model_summary_dict['number_remaining_essential_reactions_from_template_model'] \
-        =num_essen_rxn
+    model_summary_dict['number_remaining_essential_reactions_from_template_model'] = \
+            num_essen_rxn
     model_summary_dict['number_reactions_added_from_kegg']=num_kegg_rxn
     model_summary_dict['number_clusters_for_reactions']=num_cluster_rxn
-    model_summary_dict['number_remaining_genes_from_template_model'] \
-        =len(template_model_gene_list)
+    model_summary_dict['number_remaining_genes_from_template_model'] = \
+            len(template_model_gene_list)
+    model_summary_dict['number_duplicate_genes_in_rxn_from_target_model'] = \
+            len(duplicate_gene_list)
 
     if '4_complete_model' in folder:
         model_summary_dict['number_metabolites_for_gapfilling'] \
