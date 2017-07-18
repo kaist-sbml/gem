@@ -37,8 +37,8 @@ def generate_outputs(folder, runtime, options, **kwargs):
 def get_model_reactions(folder, options, **kwargs):
 
     fp1 = open('./%s/model_reactions.txt' %folder, 'w')
-    fp2 = open('./%s/remaining_essential_reactions_from_template_model.txt' %folder, 'w')
-    fp3 = open('./%s/reactions_added_from_kegg.txt' %folder, 'w')
+    fp2 = open('./%s/rmc_remaining_essential_reactions_from_template_model.txt' %folder, 'w')
+    fp3 = open('./%s/rmc_reactions_added_from_kegg.txt' %folder, 'w')
 
     fp1.write('reaction_ID'+'\t'+'reaction_name'+'\t'+'reaction_equation'+'\t'
             +'GPR'+'\t'+'pathway'+'\n')
@@ -134,7 +134,7 @@ def get_model_metabolites(folder, cobra_model, options):
             +'formula'+'\t'+'compartment'+'\n')
 
     if '4_complete_model' in folder:
-        fp2 = open('./%s/metabolites_gapfilling_needed.txt' %folder, "w")
+        fp2 = open('./%s/rmc_metabolites_gapfilling_needed.txt' %folder, "w")
         fp2.write('metabolite_ID'+'\t'+'reaction_ID'+'\t'+'reaction_name'+'\t'
                 +'reaction_equation'+'\t'+'GPR'+'\t'+'pathway'+'\n')
 
@@ -167,7 +167,7 @@ def get_model_genes(folder, cobra_model):
 
     template_model_gene_list = []
 
-    fp1 = open('./%s/remaining_genes_from_template_model.txt' %folder, "w")
+    fp1 = open('./%s/rmc_remaining_genes_from_template_model.txt' %folder, "w")
 
     fp1.write('remaining_gene_from_template_model'+'\t'+'reaction_ID'+'\t'
             +'reaction_name'+'\t'+'reaction_equation'+'\t'+'GPR'+'\t'+'pathway'+'\n')
