@@ -5,6 +5,7 @@ import logging
 import pickle
 import re
 import shutil
+from cobra.util.solver import linear_reaction_coefficients
 from gmsm import utils
 
 def generate_outputs(folder, runtime, options, **kwargs):
@@ -50,8 +51,7 @@ def get_model_reactions(folder, options, **kwargs):
 
     if '4_complete_model' in folder:
         fp4 = open('./%s/cluster_fluxes.txt' %folder, 'w')
-        fp4.write('reaction_ID'+'\t'+'fluxes without gap-filling reactions'+'\t'
-            +'fluxes with gap-filling reactions'+'\n')
+        fp4.write('reaction_ID'+'\t'+'fluxes without gap-filling reactions'+'\n')
 
     if 'cobra_model' in kwargs:
         cobra_model = kwargs['cobra_model']
@@ -87,36 +87,24 @@ def get_model_reactions(folder, options, **kwargs):
 
             #Calculated flux values are inaccurate without
             #manual setting of objective_coefficient to zero
-            if options.orgName == 'sco':
-                cobra_model.reactions.get_by_id(
-                        options.model.sco_obj_func).objective_coefficient = 0
-            elif options.orgName == 'eco':
-                cobra_model.reactions.get_by_id(
-                        options.model.eco_obj_func).objective_coefficient = 0
-
+            obj_rxn = str(linear_reaction_coefficients(cobra_model).keys()[0])
+            cobra_model.reactions.get_by_id(obj_rxn).objective_coefficient = 0
             cobra_model.reactions.get_by_id(rxn.id).objective_coefficient = 1
-            flux_dist1 = cobra_model.optimize()
-            cobra_model.reactions.get_by_id(rxn.id).objective_coefficient = 0
+            flux_dist = cobra_model.optimize()
 
-            if 'cobra_model_no_gapFilled' in kwargs:
-                cobra_model_no_gapFilled = kwargs['cobra_model_no_gapFilled']
+            print >>fp4, '%s\t%f' %(rxn.id, flux_dist.objective_value)
 
-                if options.orgName == 'sco':
-                    cobra_model_no_gapFilled.reactions.get_by_id(
-                            options.model.sco_obj_func).objective_coefficient = 0
-                elif options.orgName == 'eco':
-                    cobra_model_no_gapFilled.reactions.get_by_id(
-                            options.model.eco_obj_func).objective_coefficient = 0
+            # NOTE: Currently disabled due to no gapfilling procedure at the moment
+            #if 'cobra_model_no_gapFilled' in kwargs:
+            #    cobra_model_no_gapFilled = kwargs['cobra_model_no_gapFilled']
 
-                cobra_model_no_gapFilled.reactions.get_by_id(
-                        rxn.id).objective_coefficient = 1
-                flux_dist2 = cobra_model_no_gapFilled.optimize()
-                cobra_model_no_gapFilled.reactions.get_by_id(
-                        rxn.id).objective_coefficient = 0
+            #    obj_rxn = str(linear_reaction_coefficients(cobra_model).keys()[0])
+            #    cobra_model_no_gapFilled.reactions.get_by_id(obj_rxn).objective_coefficient = 0
+            #    cobra_model_no_gapFilled.reactions.get_by_id(rxn.id).objective_coefficient = 1
+            #    flux_dist2 = cobra_model_no_gapFilled.optimize()
 
-                print >>fp4, '%s\t%f\t%f' \
-                %(rxn.id, flux_dist2.objective_value, flux_dist.objective_value)
-
+            #    print >>fp4, '%s\t%f\t%f' \
+            #    %(rxn.id, flux_dist2.objective_value, flux_dist.objective_value)
 
     fp1.close()
     fp2.close()
