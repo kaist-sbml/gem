@@ -20,7 +20,7 @@ def generate_outputs(folder, runtime, options, **kwargs):
     num_essen_rxn, num_kegg_rxn, num_cluster_rxn = get_model_reactions(
                        folder, options, **kwargs)
     get_model_metabolites(folder, cobra_model, options)
-    template_model_gene_list = get_model_genes(folder, cobra_model)
+    template_model_gene_list = get_model_genes(folder, cobra_model, options)
     get_summary_report(folder, cobra_model, runtime,
                        num_essen_rxn, num_kegg_rxn, num_cluster_rxn,
                        template_model_gene_list, options)
@@ -163,7 +163,7 @@ def get_model_metabolites(folder, cobra_model, options):
         fp2.close()
 
 
-def get_model_genes(folder, cobra_model):
+def get_model_genes(folder, cobra_model, options):
 
     template_model_gene_list = []
 
@@ -172,11 +172,25 @@ def get_model_genes(folder, cobra_model):
     fp1.write('remaining_gene_from_template_model'+'\t'+'reaction_ID'+'\t'
             +'reaction_name'+'\t'+'reaction_equation'+'\t'+'GPR'+'\t'+'pathway'+'\n')
 
+    if options.orgName == 'bsu':
+        locustag_pattern = 'BSU[0-9]+[0-9]+[0-9]+[0-9]'
+    elif options.orgName == 'cre':
+        locustag_pattern = 'Cre'
+    elif options.orgName == 'eco':
+        locustag_pattern = 'b[0-9]+[0-9]+[0-9]+[0-9]'
+    elif options.orgName == 'mtu':
+        locustag_pattern = 'Rv[0-9]+[0-9]+[0-9]+[0-9]'
+    elif options.orgName == 'nsal':
+        locustag_pattern = 'NSV'
+    elif options.orgName == 'ppu':
+        locustag_pattern = 'PP_[0-9]+[0-9]+[0-9]+[0-9]'
+    elif options.orgName == 'sco':
+        locustag_pattern = 'SCO[0-9]+[0-9]+[0-9]+[0-9]'
+
     for g in range(len(cobra_model.genes)):
         gene = cobra_model.genes[g]
 
-        if re.search('SCO[0-9]+[0-9]+[0-9]+[0-9]', str(gene)) \
-            or re.search('b[0-9]+[0-9]+[0-9]+[0-9]', str(gene)):
+        if re.search(locustag_pattern, str(gene)):
             template_model_gene_list.append(gene)
 
             for j in range(len(cobra_model.reactions)):
