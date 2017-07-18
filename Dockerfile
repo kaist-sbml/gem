@@ -19,8 +19,6 @@ RUN apt-get install -y ncbi-blast+
 
 # Install major dependent files
 RUN pip install pip --upgrade
-RUN pip install zmq
-RUN pip install numpy
 RUN pip install biopython==1.68
 RUN pip install cobra==0.6.2
 RUN pip install pyparsing==2.2.0

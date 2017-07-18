@@ -271,6 +271,7 @@ def main():
 
             get_target_nonprod_monomers_for_gapfilling(target_model, options)
 
+            # NOTE: Disabled temporarily
             #target_model_complete = run_gapfilling(target_model, options)
 
             prune_unused_metabolites(target_model)
@@ -280,7 +281,7 @@ def main():
 
             generate_outputs(options.outputfolder4,
                              runtime2, options,
-#                             cobra_model_no_gapFilled = target_model_no_gapsFilled,
+                             #cobra_model_no_gapFilled = target_model_no_gapsFilled,
                              cobra_model = target_model)
 
         else:

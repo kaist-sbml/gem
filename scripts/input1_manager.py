@@ -628,8 +628,9 @@ if __name__ == '__main__':
             )
     make_blastDB(input1_dir)
 
-    logging.info("Make sure to update template model options in 'run_gmsm.py'!")
-    logging.info("Input files have been created in '/gmsm/io/data/input1'")
+    logging.info("Make sure to update template model options in 'run_gmsm.py' and 'output_file_manager.py!")
+    logging.info("Input files have been created in '/gmsm/io/data/input1/%s'",
+                    options.folder)
     logging.info(time.strftime("Elapsed time %H:%M:%S", time.gmtime(time.time() - start)))
 
     input1_tmp_dir_list = create_zip_file(input1_tmp_dir, options)
