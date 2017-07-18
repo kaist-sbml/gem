@@ -1,6 +1,6 @@
-#**GEMS**
+#**GMSM**
 #Project
-***GE***nome-scale metabolic ***M***odeling with ***S***econdary metabolism (GEMS) automatically generates secondary metabolite biosynthetic reactions in a genome-scale metabolic model (GEM) using antiSMASH output .gbk file. GEMS overall enables high-throughput modeling of primary and secondary metabolism.
+***G***nome-scale metabolic ***M***odeling with ***S***econdary ***M***etabolism (GMSM) automatically generates secondary metabolite biosynthetic reactions in a genome-scale metabolic model (GEM) using antiSMASH output .gbk file. GMSM overall enables high-throughput modeling of both primary and secondary metabolism.
 
 #Development
 This project was initiated as a research collaboration between [Metabolic & Biomolecular Eng. Nat’l Research Laboratory (MBEL) & BioInformatics Research Center](http://mbel.kaist.ac.kr/) at KAIST and [Novo Nordisk Foundation Center for Biosustainability](http://www.biosustain.dtu.dk/english) at DTU.
@@ -16,24 +16,24 @@ This project was initiated as a research collaboration between [Metabolic & Biom
 1. [`biopython`](http://biopython.org/wiki/Biopython) (version 1.68 tested)
 2. [`blastp`](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.28/) and [`makeblastdb`](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.28/)
 3. [`eficaz2.5`](http://cssb.biology.gatech.edu/skolnick/webservice/EFICAz2/index.html) (versions 2.5 and 2.5.1 tested)
-4. [`cobra`](https://opencobra.github.io/cobrapy/) (**MUST** be version 0.5.11 at the moment; [GitHub](https://github.com/opencobra/cobrapy); [Document](https://cobrapy.readthedocs.io/en/latest/))
+4. [`cobra`](https://opencobra.github.io/cobrapy/) (version 0.6.2 or greater; [GitHub](https://github.com/opencobra/cobrapy); [Document](https://cobrapy.readthedocs.io/en/latest/))
 
 ###Gurobi (optional)
 1. Create a symbolic link for the [gurobipy](http://www.gurobi.com/) installed in `root`. 
 
-        ln -s /usr/local/lib/python2.7/dist-packages/gurobipy/ $HOME/gems/venv/lib/python2.7/site-packages/
+        ln -s /usr/local/lib/python2.7/dist-packages/gurobipy/ $HOME/gmsm/venv/lib/python2.7/site-packages/
 
-2. Get a *Free Academic* license, and place it in a `GEMS` directory.
+2. Get a *Free Academic* license, and place it in a `GMSM` directory.
 
 ###Procedure
 1. Clone the repository
 
     (HTTPS)
 
-        git clone https://ehukim@bitbucket.org/ehukim/gems.git
+        git clone https://ehukim@bitbucket.org/ehukim/gmsm.git
     (SSH)
 
-        git clone git@bitbucket.org:ehukim/gems.git
+        git clone git@bitbucket.org:ehukim/gmsm.git
 
 2. Create and activate virtual environment
 
@@ -47,7 +47,7 @@ This project was initiated as a research collaboration between [Metabolic & Biom
 
     Installation of `zmq` and `numpy` using `requirements.txt` often causes an error. In this case, just do: `pip install zmq` and `pip install numpy`.
 
-4. Test `GEMS`
+4. Test `GMSM`
 
     At the root of the repository,
 
@@ -63,17 +63,17 @@ This project was initiated as a research collaboration between [Metabolic & Biom
 
     Place `eficaz2.5` in a directory and set up `PATH` in `.bashrc`, e.g.:
 
-    	export EFICAz25_PATH="/home/edhyunukkim/gems/venv/bin/EFICAz2.5.1/bin/"
+    	export EFICAz25_PATH="/home/edhyunukkim/gmsm/venv/bin/EFICAz2.5.1/bin/"
     	export PATH="${PATH}:${EFICAz25_PATH}"
 
-    **Note**: Following statement causes a system error: `export PATH="/home/edhyunukkim/gems/venv/bin/EFICAz2.5.1/bin/"`.
+    **Note**: Following statement causes a system error: `export PATH="/home/edhyunukkim/gmsm/venv/bin/EFICAz2.5.1/bin/"`.
     
 #Implementation
 ###General
 - Select one or combination of major implementation options: `-e`, `-p` and/or `-s`
 - Input file:
 
-    Create an input directory at root of the `GEMS` directory.
+    Create an input directory at root of the `GMSM` directory.
 
     Input file **MUST** be a standard full GenBank file with sequences.
 
@@ -83,32 +83,35 @@ This project was initiated as a research collaboration between [Metabolic & Biom
 
     Defining output directory is *optional*.
 
-    Create an output directory at root of the `GEMS` directory.
+    Create an output directory at root of the `GMSM` directory.
 
-    If output directory is not given, result files are automatically stored in a directory `output` at root of the `GEMS` directory. **Note**: New result files will override existing files in the default `output` directory.
+    If output directory is not given, result files are automatically stored in a directory `output` at root of the `GMSM` directory. **Note**: New result files will override existing files in the default `output` directory.
     
 ###Examples
 - Run EC number annotation and modeling of primary and secondary metabolism
 
-        run-gems -e -p -s -d -i input/NC_021985.1.final.gbk
+        run_gmsm.py -e -p -s -d -i input/NC_021985.1.final.gbk
 
 - Run modeling of primary and secondary metabolism
 
-        run-gems -p -s -d -i input/NC_021985.1.final.gbk
+        run_gmsm.py -p -s -d -i input/NC_021985.1.final.gbk
 
 - Run modeling of primary metabolism
 
-        run-gems -p -d -i input/NC_021985.1.final.gbk
+        run_gmsm.py -p -d -i input/NC_021985.1.final.gbk
 
 - Run modeling of secondary metabolism
 
-        run-gems -s -d -i input/NC_021985.1.final.gbk
+        run_gmsm.py -s -d -i input/NC_021985.1.final.gbk
 
 - Run EC number annotation
 
-        run-gems -e -d -i input/NC_021985.1.final.gbk
+        run_gmsm.py -e -d -i input/NC_021985.1.final.gbk
 
 Note: Option `-d` is for displaying debugging statements during program running.
+
+#Model refinement
+Model draft created by GMSM should be refined to ensure its quality. Output files with prefix `rmc_` provide starting points for manual curation. `rmc_` stands for 'resource for manual curation'.
 
 #Publication
 TBD
