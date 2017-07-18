@@ -4,6 +4,7 @@ output/
 kegg_cache/
 gmsm/tests/data/model.xml
 scripts/bigg/model.xml
+EFICAz2.5.1.tar.gz
 #scripts/input1_data/*.fa
 #scripts/input1_data/*.gb
 #scripts/input1_data/*.gbk
