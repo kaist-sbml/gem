@@ -28,7 +28,7 @@ from gmsm.io.input_file_manager import (
     get_pickles_augPhase,
     get_locustag_comp_dict
     )
-from gmsm.io.output_file_manager import generate_outputs
+from gmsm.io.output_file_manager import generate_outputs, remove_tmp_model_files
 from gmsm.homology.bidirect_blastp_analysis import get_homologs
 from gmsm.primary_model.run_primary_modeling import run_prunPhase, run_augPhase
 from gmsm.secondary_model.run_secondary_modeling import (
@@ -297,7 +297,7 @@ def main():
                 logging.warning("No cluster information found in input genome data")
 
     logging.info(time.strftime("Elapsed time %H:%M:%S", time.gmtime(time.time() - start)))
-
+    remove_tmp_model_files(options)
 
 if __name__ == '__main__':
     main()

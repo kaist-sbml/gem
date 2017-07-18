@@ -4,6 +4,7 @@ import collections
 import logging
 import pickle
 import re
+import shutil
 from gmsm import utils
 
 def generate_outputs(folder, runtime, options, **kwargs):
@@ -281,3 +282,8 @@ def write_data_for_debug(options):
                     print >>f, '%s\t%s' %(rxnid, options.rxn_newComp_fate_dict[rxnid])
         except AttributeError, e:
             logging.warning(e)
+
+
+def remove_tmp_model_files(options):
+    shutil.rmtree(options.outputfolder5)
+    logging.info("'tmp_model_files' removed")
