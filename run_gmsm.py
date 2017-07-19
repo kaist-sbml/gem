@@ -297,8 +297,8 @@ def main():
             elif options.total_cluster == 0:
                 logging.warning("No cluster information found in input genome data")
 
-    logging.info(time.strftime("Elapsed time %H:%M:%S", time.gmtime(time.time() - start)))
     remove_tmp_model_files(options)
+    logging.info(time.strftime("Elapsed time %H:%M:%S", time.gmtime(time.time() - start)))
 
 if __name__ == '__main__':
     main()
