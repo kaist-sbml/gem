@@ -1,8 +1,10 @@
 
+import filecmp
 import logging
 import os
+import shutil
 import utils
-
+from os.path import join, abspath, dirname
 
 __version__ = '0.4.2'
 
@@ -38,6 +40,22 @@ def check_prereqs(options):
         import cobra
         version = cobra.__version__
         logging.debug("Found cobra version %s", version)
+
+        gmsm_dir = join(abspath(os.pardir), 'gmsm')
+        good_sbml_dir = join(gmsm_dir, 'scripts', 'bigg', 'sbml.py')
+        bad_sbml_dir = join(dirname(abspath(cobra.__file__)), 'io', 'sbml.py')
+
+        # NOTE: Issue #333 was broken again in cobra >= 0.6.2:
+        #https://github.com/opencobra/cobrapy/issues/333
+        #Following fixation is automatically incorporated before running this code:
+        #https://github.com/opencobra/cobrapy/commit/ac2f2e8bd31c982e87d5f385f7a8eea35e7ba811
+        if filecmp.cmp(good_sbml_dir, bad_sbml_dir) == True:
+            logging.debug("'sbml.py' in cobra is OK")
+        elif filecmp.cmp(good_sbml_dir, bad_sbml_dir) == False:
+            shutil.copyfile(good_sbml_dir, bad_sbml_dir)
+            logging.debug("'sbml.py' in cobra contains an error in SBML file writing.")
+            logging.debug("Good version of 'sbml.py' has been copied in cobra.")
+
     except (ImportError, ImportWarning) as err:
         failure_messages.append(str(err))
 
