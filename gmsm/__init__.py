@@ -7,7 +7,7 @@ import sys
 import utils
 from os.path import join, abspath, dirname
 
-__version__ = '0.4.3'
+__version__ = '0.4.4'
 
 
 def check_prereqs(options):
