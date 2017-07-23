@@ -75,9 +75,11 @@ This project was initiated as a research collaboration between [Metabolic & Biom
 
     Create an input directory at root of the `GMSM` directory.
 
-    Input file **MUST** be a standard full GenBank file with sequences.
+    Input files can be a standard full GenBank file with sequences (recommended) or FASTA file.
 
-    antiSMASH-annotated GenBank file **MUST** be provided for secondary metabolic modeling.
+    antiSMASH-annotated GenBank file **MUST** be provided for secondary metabolism modeling.
+
+    EFICAz output file and subcellular localizations (compartments) can be provided as inputs, with options `-E` and `-C`, respectively.
 
 - Output directory:
 
@@ -110,11 +112,14 @@ This project was initiated as a research collaboration between [Metabolic & Biom
 
 Note: Option `-d` is for displaying debugging statements during program running.
 
+###Docker image
+To appear.
+
 #Model refinement
 Model draft created by GMSM should be refined to ensure its quality. Output files with prefix `rmc_` provide starting points for manual curation. `rmc_` stands for 'resource for manual curation'.
 
 #Publication
-TBD
+Hyun Uk Kim, Jae Yong Ryu, Kyu-Sang Hwang, Tilmann Weber and Sang Yup Lee. GMSM: Genome-scale metabolic Modeling with Secondary Metabolism.
 
 #License
-TBD
+The source code of GMSM is released under the [CC BY-NC-ND  license](https://creativecommons.org/licenses/by-nc-nd/4.0/).
