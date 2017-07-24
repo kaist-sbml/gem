@@ -1,4 +1,5 @@
 
+import warnings
 from argparse import Namespace
 from os.path import join
 from gmsm.secondary_model.sec_met_rxn_generation import (
@@ -9,6 +10,8 @@ from gmsm.secondary_model.sec_met_rxn_generation import (
         get_all_metab_coeff,
         add_sec_met_rxn
         )
+
+warnings.filterwarnings("ignore")
 
 class TestSecondary_model:
     """Test functions in gmsm.secondary_model"""
