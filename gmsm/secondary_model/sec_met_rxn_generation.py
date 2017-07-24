@@ -56,7 +56,6 @@ def get_cluster_product(seq_record, cluster_nr, options):
     else:
         product3 = "Cluster"+str(cluster_nr)+"_"+product2
 
-    #print product, "\n"
     options.product = product3
 
 
@@ -169,7 +168,6 @@ def get_all_metab_coeff(options):
             elif options.locustag_monomer_dict[each_module][3] != 'nrp':
                 aSid_met5 = options.locustag_monomer_dict[each_module][3]
                 biggid_met5 = get_std_id_from_antismash_id(aSid_met5)
-                #print "aSid_met5", aSid_met5, biggid_met5
 
                 if biggid_met5 not in metab_coeff_dict:
                     metab_coeff_dict[biggid_met5] = -1
@@ -193,7 +191,6 @@ def get_all_metab_coeff(options):
                 aSid_met6 = options.locustag_monomer_dict[each_module][0]
                 if aSid_met6 != 'N/A' and aSid_met6 != 'mal_or_prop':
                     biggid_met6 = get_std_id_from_antismash_id(aSid_met6)
-                    #print "aSid_met6", aSid_met6, biggid_met6
 
                     if biggid_met6 not in metab_coeff_dict:
                         metab_coeff_dict[biggid_met6] = -1
@@ -229,7 +226,6 @@ def get_all_metab_coeff(options):
                     aSid_met8 = 'emal'
 
                 biggid_met8 = get_std_id_from_antismash_id(aSid_met8)
-                #print "aSid_met8", aSid_met8, biggid_met8
 
                 if biggid_met8 not in metab_coeff_dict:
                     metab_coeff_dict[biggid_met8] = -1
@@ -310,15 +306,15 @@ def add_sec_met_rxn(target_model, options):
 
     rxn.gene_reaction_rule = gpr_list
 
-    #Adding the new reaction to the model
+    #Add a new reaction to the model
     target_model.add_reaction(rxn)
 
     logging.debug("Secondary metabolite reaction: %s" %rxn)
     logging.debug(rxn.reaction)
 
     ##############################
-    #Creating a transport reaction
-    #Creating reaction ID
+    #Create a transport reaction
+    #Create reaction ID
     rxn = Reaction("Transport_" + options.product)
 
     #Reversibility / Lower and upper bounds
@@ -326,23 +322,22 @@ def add_sec_met_rxn(target_model, options):
     rxn.lower_bound = 0
     rxn.upper_bound = 1000
 
-    #Adding a substrate metabolite
-    #print cobra_model.metabolites.get_by_id(str(product_c))
+    #Add a substrate metabolite
     rxn.add_metabolites({target_model.metabolites.get_by_id(str(options.product+'_c')):-1})
 
-    #Adding product metabolite(s)
+    #Add product metabolite(s)
     product_e = Metabolite(options.product+"_e", name='', compartment='e')
     rxn.add_metabolites({product_e:1})
 
-    #Adding the new reaction to the model
+    #Add the new reaction to the model
     target_model.add_reaction(rxn)
 
     logging.debug("Transport reaction: %s" %rxn)
     logging.debug(rxn.reaction)
 
     ##############################
-    #Creating an exchange reaction
-    #Creating reaction ID
+    #Create an exchange reaction
+    #Create reaction ID
     rxn = Reaction("Ex_"+options.product)
 
     #Reversibility / Lower and upper bounds
@@ -350,11 +345,10 @@ def add_sec_met_rxn(target_model, options):
     rxn.lower_bound = 0
     rxn.upper_bound = 1000
 
-    #Adding a substrate metabolite
-    #print cobra_model.metabolites.get_by_id(str(product_c))
+    #Add a substrate metabolite
     rxn.add_metabolites({target_model.metabolites.get_by_id(str(product_e)):-1})
 
-    #Adding the new reaction to the model
+    #Add a new reaction to the model
     target_model.add_reaction(rxn)
 
     logging.debug("Exchange reaction: %s" %rxn)
