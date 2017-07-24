@@ -10,6 +10,8 @@ def get_std_id_from_antismash_id(each_substrate):
     # NOTE: BiGG IDs available both in MNXref and iMK1208
     # ===================================================
 
+    met_name = ''
+
     # Acetyl-CoA: MNXM21; C00024
     if each_substrate == 'ace':
         met_name = 'accoa'
@@ -257,7 +259,9 @@ def get_std_id_from_antismash_id(each_substrate):
     elif each_substrate == 'trans-1,2-CPDA':
         met_name = '12cpda'
 
-    met_name = cobra.io.sbml.fix_legacy_id(met_name)
-
-    return met_name
+    if met_name:
+        met_name = cobra.io.sbml.fix_legacy_id(met_name)
+        return met_name
+    else:
+        return ''
 
