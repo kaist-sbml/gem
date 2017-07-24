@@ -84,9 +84,9 @@ class TestSecondary_model:
         options.product = 'Cluster03_nrps_t1pks_transatpks'
         get_all_metab_coeff(options)
 
-        assert len(options.metab_coeff_dict) == 11
+        assert len(options.metab_coeff_dict) == 10
         assert options.metab_coeff_dict['mmcoa__R'] == -2
-        assert options.metab_coeff_dict['ser__L'] == -2
+        assert options.metab_coeff_dict['ser__L'] == -3
         assert options.metab_coeff_dict['val__L'] == -2
         assert options.metab_coeff_dict['Cluster03_nrps_t1pks_transatpks'] == 1
 
