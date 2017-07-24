@@ -108,95 +108,101 @@ def get_all_metab_coeff(options):
     for each_module in options.locustag_monomer_dict:
 
         # For gbk output from antiSMASH 3.0
-        #locustag_monomer_dict[each_module] for nrps
-        #Position [0]: NRPSPredictor2 SVM
-        #Position [1]: Stachelhaus code
-        #Position [2]: Minowa
-        #Position [3]: consensus
+        # locustag_monomer_dict[each_module] for nrps
+        # Index [0]: NRPSPredictor2 SVM
+        # Index [1]: Stachelhaus code
+        # Index [2]: Minowa
+        # Index [3]: consensus
+        # Priority: consensus > NRPSPredictor2 SVM > Stachelhaus code > Minowa
         if len(options.locustag_monomer_dict[each_module]) == 4:
 
-            # In case "consensus" is not reached:
-            if options.locustag_monomer_dict[each_module][3] == 'nrp':
+            # "consensus" reached:
+            if options.locustag_monomer_dict[each_module][3] != 'nrp':
+                aSid_met = options.locustag_monomer_dict[each_module][3]
+                biggid_met = get_std_id_from_antismash_id(aSid_met)
 
-                # In case of non-consensus, NRPSPredictor2 SVM is first considered
-                # Not considered: e.g., NRPSPredictor2 SVM: val,leu,ile,abu,iva
+            # "consensus" not reached:
+            elif options.locustag_monomer_dict[each_module][3] == 'nrp':
+
+                # NRPSPredictor2 SVM
                 aSid_met = options.locustag_monomer_dict[each_module][0]
                 biggid_met = get_std_id_from_antismash_id(aSid_met)
 
                 if not biggid_met:
-                    # Minowa is next considered
-                    aSid_met = options.locustag_monomer_dict[each_module][2]
+                    # Stachelhaus code
+                    aSid_met = options.locustag_monomer_dict[each_module][1]
                     biggid_met = get_std_id_from_antismash_id(aSid_met)
 
                     if not biggid_met:
-                        # Stachelhaus code is next considered
-                        aSid_met = options.locustag_monomer_dict[each_module][1]
+                        # Minowa
+                        aSid_met = options.locustag_monomer_dict[each_module][2]
                         biggid_met = get_std_id_from_antismash_id(aSid_met)
 
-            # In case "consensus" is reached:
-            elif options.locustag_monomer_dict[each_module][3] != 'nrp':
-                aSid_met = options.locustag_monomer_dict[each_module][3]
-                biggid_met = get_std_id_from_antismash_id(aSid_met)
+                        if not biggid_met:
+                            logging.debut(
+                                "Monomers predicted for the module %s not considered in a biosynthetic reaction for %s: %s",
+                                each_module,
+                                options.product,
+                                options.locustag_monomer_dict[each_module])
 
         # For gbk output from antiSMASH 4.0
-        #locustag_monomer_dict[each_module] for nrps
-        #Position [0]: Stachelhaus code
-        #Position [1]: NRPSPredictor3 SVM
-        #Position [2]: pHMM
-        #Position [3]: PrediCAT
-        #Position [4]: SANDPUMA ensemble
+        # locustag_monomer_dict[each_module] for nrps
+        # Index [0]: Stachelhaus code
+        # Index [1]: NRPSPredictor3 SVM
+        # Index [2]: pHMM
+        # Index [3]: PrediCAT
+        # Index [4]: SANDPUMA ensemble
+        # Priority: consensus (SANDPUMA ensemble) > NRPSPredictor3 SVM > PrediCAT >
+        #pHMM > Stachelhaus code
         if len(options.locustag_monomer_dict[each_module]) == 5:
 
-            # In case "consensus" (SANDPUMA ensemble) is not reached:
-            if options.locustag_monomer_dict[each_module][4] == 'no_call':
-
-                # In case of non-consensus, NRPSPredictor3 SVM is first considered
-                # Not considered: e.g., NRPSPredictor2 SVM: val,leu,ile,abu,iva
-                aSid_met = options.locustag_monomer_dict[each_module][1]
-                biggid_met = get_std_id_from_antismash_id(aSid_met)
-
-                # Stachelhaus code is considered
-                if not biggid_met:
-                    aSid_met = options.locustag_monomer_dict[each_module][0]
-                    biggid_met = get_std_id_from_antismash_id(aSid_met)
-
-                    # If Stachelhaus code has invalid monomer, then TODO is considered
-                    if not biggid_met:
-                        aSid_met = options.locustag_monomer_dict[each_module][1]
-                        biggid_met = get_std_id_from_antismash_id(aSid_met)
-
-            # In case "consensus" (SANDPUMA ensemble) is reached:
-            elif options.locustag_monomer_dict[each_module][4] != 'no_call':
+            # "consensus" (SANDPUMA ensemble) reached:
+            if options.locustag_monomer_dict[each_module][4] != 'no_call':
                 aSid_met = options.locustag_monomer_dict[each_module][4]
                 biggid_met = get_std_id_from_antismash_id(aSid_met)
 
+            # "consensus" (SANDPUMA ensemble) not reached:
+            elif options.locustag_monomer_dict[each_module][4] == 'no_call':
+
+                # NRPSPredictor3 SVM
+                aSid_met = options.locustag_monomer_dict[each_module][1]
+                biggid_met = get_std_id_from_antismash_id(aSid_met)
+
+                # PrediCAT
+                if not biggid_met:
+                    aSid_met = options.locustag_monomer_dict[each_module][3]
+                    biggid_met = get_std_id_from_antismash_id(aSid_met)
+
+                    # pHMM
+                    if not biggid_met:
+                        aSid_met = options.locustag_monomer_dict[each_module][2]
+                        biggid_met = get_std_id_from_antismash_id(aSid_met)
+
+                        # Stachelhaus code
+                        if not biggid_met:
+                            aSid_met = options.locustag_monomer_dict[each_module][0]
+                            biggid_met = get_std_id_from_antismash_id(aSid_met)
+
+                            if not biggid_met:
+                                logging.debut(
+                                    "Monomers predicted for the module %s not considered in a biosynthetic reaction for %s: %s",
+                                    each_module,
+                                    options.product,
+                                    options.locustag_monomer_dict[each_module])
+
         # For gbk output from antiSMASH 3.0 & 4.0
-        #locustag_monomer_dict[each_module] for pks
-        #Position [0]: PKS signature
-        #Position [1]: Minowa
-        #Position [2]: consensus
+        # locustag_monomer_dict[each_module] for pks
+        # Index [0]: PKS signature
+        # Index [1]: Minowa
+        # Index [2]: consensus
+        # Priority: consensus > PKS signature > Minowa
         elif len(options.locustag_monomer_dict[each_module]) == 3:
 
             if len(options.locustag_monomer_dict[each_module]) < 3:
                 continue
 
-            # In case "consensus" is not reached:
-            if options.locustag_monomer_dict[each_module][2] == 'pk':
-
-                # From PKS signature
-                # In case of non-consensus, PKS signature is considered
-                aSid_met = options.locustag_monomer_dict[each_module][0]
-                if aSid_met != 'N/A' and aSid_met != 'mal_or_prop':
-                    biggid_met = get_std_id_from_antismash_id(aSid_met)
-
-                # If PKS signature has invalid monomer, then Minowa is considered
-                else:
-                    aSid_met = options.locustag_monomer_dict[each_module][1]
-                    if aSid_met != 'inactive':
-                        biggid_met = get_std_id_from_antismash_id(aSid_met)
-
-            # In case "consensus" is reached:
-            elif options.locustag_monomer_dict[each_module][2] != 'pk':
+            # "consensus" reached:
+            if options.locustag_monomer_dict[each_module][2] != 'pk':
                 aSid_met = options.locustag_monomer_dict[each_module][2]
 
                 # Original monomers are considered for those reduced by KR, DH and/or ER
@@ -214,6 +220,28 @@ def get_all_metab_coeff(options):
 
                 biggid_met = get_std_id_from_antismash_id(aSid_met)
 
+            # "consensus" not reached:
+            elif options.locustag_monomer_dict[each_module][2] == 'pk':
+
+                # PKS signature
+                aSid_met = options.locustag_monomer_dict[each_module][0]
+                biggid_met = get_std_id_from_antismash_id(aSid_met)
+
+                # Minowa
+                if not biggid_met:
+                    aSid_met = options.locustag_monomer_dict[each_module][1]
+                    biggid_met = get_std_id_from_antismash_id(aSid_met)
+
+                    if not biggid_met:
+                        logging.debut(
+                            "Monomers predicted for the module %s not considered in a biosynthetic reaction for %s: %s",
+                            each_module,
+                            options.product,
+                            options.locustag_monomer_dict[each_module])
+
+        # Filter modules without 'Substrate specificity predictions'
+        #e.g., 'B446_13275_M0'
+        #{'B446_13415_M0': ['gly,ala,val,leu,ile,abu,iva', 'ile', 'val', 'nrp'], 'B446_13275_M0': [], 'B446_13350_M0': ['leu', 'ala', 'sar', 'nrp'], 'B446_13445_M0': ['pro,pip', 'N/A', 'orn', 'nrp']}
         if options.locustag_monomer_dict[each_module]:
             if biggid_met not in metab_coeff_dict:
                 metab_coeff_dict[biggid_met] = -1
