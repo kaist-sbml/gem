@@ -102,7 +102,7 @@ def get_std_id_from_antismash_id(each_substrate):
         met_name = 'orn'
 
     # Phenylacetic acid: MNXM497; C00548
-    elif each_substrate == 'phenylacetate' or each_substrate == 'Pha':
+    elif each_substrate in ['phenylacetate', 'Pha', 'phe-ac']:
         met_name = 'pac'
 
     # L-Phenylalanine: MNXM97; C00079
