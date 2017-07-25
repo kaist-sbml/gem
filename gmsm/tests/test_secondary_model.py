@@ -59,7 +59,7 @@ class TestSecondary_model:
         assert options.locustag_monomer_dict['B446_01670_M0'][2] == 'ccmmal'
 
 
-    def test_get_all_metab_coeff(self, options):
+    def test_get_all_metab_coeff_antismash3(self, options):
 
         locustag_monomer_dict = {
                 'B446_01480_M0': ['orn,lys,arg', 'lys', 'leu', 'nrp'],
@@ -87,6 +87,39 @@ class TestSecondary_model:
         assert len(options.metab_coeff_dict) == 10
         assert options.metab_coeff_dict['mmcoa__R'] == -2
         assert options.metab_coeff_dict['ser__L'] == -3
+        assert options.metab_coeff_dict['val__L'] == -2
+        assert options.metab_coeff_dict['Cluster03_nrps_t1pks_transatpks'] == 1
+
+
+    def test_get_all_metab_coeff_antismash4(self, options):
+
+        locustag_monomer_dict = {
+                'B446_RS01450_M0': ['no_call', 'N/A', 'trp', 'NA-n/a', 'no_call'],
+                'B446_RS01450_M1': ['dpr|ser', 'ser', 'ser', 'NA-n/a', 'ser'],
+                'B446_RS01455_M0': ['val', 'val', 'val', 'NA-n/a', 'no_call'],
+                'B446_RS01455_M1': ['no_call', 'N/A', 'gly', 'NA-n/a', 'no_call'],
+                'B446_RS01455_M2': ['aoh-gly|gly', 'gly', 'gly', 'NA-n/a', 'gly'],
+                'B446_RS01495_M0': ['no_call', 'N/A', 'gly', 'NA-n/a', 'no_call'],
+                'B446_RS01500_M0': ['dab', 'N/A', 'dab', 'NA-n/a', 'no_call'],
+                'B446_RS01505_M0': ['val', 'val', 'val', 'NA-n/a', 'val'],
+                'B446_RS01535_M0': ['athr|deoxy-thr|dhab|dht|ser|thr', 'thr', 'thr', 'NA-n/a', 'thr'],
+                'B446_RS01535_M1': ['gln|ser', 'ser', 'ser', 'NA-n/a', 'ser'],
+                'B446_RS01600_M0': ['mmal', 'mmal', 'mmal'],
+                'B446_RS01620_M0': ['mal', 'mal', 'mal'],
+                'B446_RS01620_M1': ['mal', 'mal', 'mal'],
+                'B446_RS01625_M0': ['gly', 'gly', 'gly', 'NA-n/a', 'gly'],
+                'B446_RS01635_M0': ['mmal', 'mmal', 'ccmmal'],
+                'B446_RS01635_M1': ['mal', 'mal', 'mal'],
+                'B446_RS01650_M0': ['gly', 'gly', 'gly', 'NA-n/a', 'gly']
+                }
+
+        options.locustag_monomer_dict = locustag_monomer_dict
+        options.product = 'Cluster03_nrps_t1pks_transatpks'
+        get_all_metab_coeff(options)
+
+        assert len(options.metab_coeff_dict) == 9
+        assert options.metab_coeff_dict['mmcoa__R'] == -2
+        assert options.metab_coeff_dict['ser__L'] == -2
         assert options.metab_coeff_dict['val__L'] == -2
         assert options.metab_coeff_dict['Cluster03_nrps_t1pks_transatpks'] == 1
 
