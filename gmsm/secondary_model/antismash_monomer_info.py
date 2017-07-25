@@ -78,7 +78,7 @@ def get_std_id_from_antismash_id(each_substrate):
         met_name = 'lys_DASH_L'
 
     # Malonyl-CoA: MNXM40; C00083
-    elif each_substrate == 'mal':
+    elif each_substrate in ['mal', 'ohmal', 'ccmal', 'redmal']:
         met_name = 'malcoa'
 
     # L-Methionine: MNXM61; C00073
@@ -94,7 +94,7 @@ def get_std_id_from_antismash_id(each_substrate):
         met_name = 'ivcoa'
 
     # (R)-Methylmalonyl-CoA: MNXM608; C01213
-    elif each_substrate == 'mmal':
+    elif each_substrate in ['mmal', 'ohmmal', 'ccmmal', 'redmmal']:
         met_name = 'mmcoa_DASH_R'
 
     # Ornithine: MNXM89689; C01602
@@ -175,7 +175,7 @@ def get_std_id_from_antismash_id(each_substrate):
     # ================================================================
 
     # (2S)-Ethylmalonyl-CoA: MNXM2043; C18026
-    elif each_substrate == 'Ethyl_mal' or each_substrate == 'emal':
+    elif each_substrate in ['Ethyl_mal', 'emal', 'ohemal', 'ccemal', 'redemal']:
         met_name = 'emcoa_DASH_S'
 
     # =======================================================
@@ -227,7 +227,7 @@ def get_std_id_from_antismash_id(each_substrate):
         met_name = 'MNXM34821'
 
     # (2R)-Methoxymalonyl-[acp]: MNXM61686; C18616; no bigg id
-    elif each_substrate == 'mxmal':
+    elif each_substrate in ['mxmal', 'ohmxmal', 'ccmxmal', 'redmxmal']:
         met_name = 'MNXM61686'
 
     # phenylglycine: MNXM59292; C18623
@@ -263,5 +263,5 @@ def get_std_id_from_antismash_id(each_substrate):
         met_name = cobra.io.sbml.fix_legacy_id(met_name)
         return met_name
     else:
-        return ''
+        return
 

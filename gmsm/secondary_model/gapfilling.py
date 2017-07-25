@@ -1,7 +1,4 @@
 
-#Copyright 2014-2016 BioInformatics Research Center, KAIST
-#Copyright 2014-2016 Novo Nordisk Foundation Center for Biosustainability, DTU
-
 import copy
 import logging
 from cobra import Reaction, Metabolite
@@ -12,12 +9,12 @@ def get_unique_nonprod_monomers_list(options):
     unique_prod_monomers_list = []
     unique_nonprod_monomers_list = []
 
-    for prod_monomers_list in options.prod_sec_met_dict.keys():
+    for prod_monomers_list in options.prod_sec_met_dict:
         for prod_monomer in options.prod_sec_met_dict[prod_monomers_list]:
             if prod_monomer not in unique_prod_monomers_list:
                 unique_prod_monomers_list.append(prod_monomer)
 
-    for nonprod_monomers_list in options.nonprod_sec_met_dict.keys():
+    for nonprod_monomers_list in options.nonprod_sec_met_dict:
         for nonprod_monomer in options.nonprod_sec_met_dict[nonprod_monomers_list]:
             if nonprod_monomer not in unique_nonprod_monomers_list \
                 and nonprod_monomer not in unique_prod_monomers_list:
@@ -76,8 +73,9 @@ def check_producibility_nonprod_monomer(cobra_model, nonprod_monomer):
     cobra_model.reactions.get_by_id("Ex_"+nonprod_monomer).objective_coefficient = 1
     flux_dist = cobra_model.optimize()
 
-    logging.debug(cobra_model.reactions.get_by_id("Ex_"+nonprod_monomer))
-    logging.debug("Flux: %s" %flux_dist.objective_value)
+    logging.debug("%s; Flux value: %f",
+                    cobra_model.reactions.get_by_id("Ex_"+nonprod_monomer),
+                    flux_dist.objective_value)
 
     return cobra_model, flux_dist
 

@@ -34,7 +34,6 @@ def get_cluster_info_from_seq_record(seq_record, options):
                     cluster_info_dict[qualifier_locus_tag] = \
                             feature.qualifiers.get('sec_met')
 
-    #logging.debug('cluster_info_dict: %s' %cluster_info_dict)
     options.cluster_info_dict = cluster_info_dict
 
 
@@ -123,7 +122,7 @@ def get_all_metab_coeff(options):
 
     metab_coeff_dict = {}
     for each_module in options.locustag_monomer_dict:
-        logging.debug("Module %s; monomers %s",
+        logging.debug("Module: %s; monomers: %s",
                         each_module, options.locustag_monomer_dict[each_module])
 
         # NRPS analyzed with antiSMASH 3.0
@@ -244,8 +243,7 @@ def add_sec_met_rxn(target_model, options):
     #Add a new reaction to the model
     target_model.add_reaction(rxn)
 
-    logging.debug("Secondary metabolite reaction: %s" %rxn)
-    logging.debug(rxn.reaction)
+    logging.debug("%s: %s", rxn, rxn.reaction)
 
     ##############################
     #Create a transport reaction
@@ -267,8 +265,7 @@ def add_sec_met_rxn(target_model, options):
     #Add the new reaction to the model
     target_model.add_reaction(rxn)
 
-    logging.debug("Transport reaction: %s" %rxn)
-    logging.debug(rxn.reaction)
+    logging.debug("%s: %s", rxn, rxn.reaction)
 
     ##############################
     #Create an exchange reaction
@@ -286,8 +283,7 @@ def add_sec_met_rxn(target_model, options):
     #Add a new reaction to the model
     target_model.add_reaction(rxn)
 
-    logging.debug("Exchange reaction: %s" %rxn)
-    logging.debug(rxn.reaction)
+    logging.debug("%s: %s", rxn, rxn.reaction)
 
     return target_model
 

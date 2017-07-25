@@ -71,7 +71,7 @@ def run_sec_met_rxn_generation(seq_record, cluster_nr, target_model, prod_sec_me
             prod_sec_met_dict[options.product] = prod_sec_met_metab_list
 
     else:
-        logging.debug("Not type I polyketide synthase ('t1pks'), nonribosomal synthetase ('nrps') or their hybird")
+        logging.debug("This BGC does not belong to 't1pks', 'nrps' or their hybird")
 
     if cluster_nr == options.total_cluster:
         options.prod_sec_met_dict = prod_sec_met_dict
@@ -81,7 +81,7 @@ def run_sec_met_rxn_generation(seq_record, cluster_nr, target_model, prod_sec_me
 
 
 def get_target_nonprod_monomers_for_gapfilling(target_model, options):
-    logging.info("Gap-filling for the production of secondary metabolites..")
+    logging.info("Producibility of secondary metabolites (gap-filling needed)..")
 
     unique_nonprod_monomers_list = get_unique_nonprod_monomers_list(options)
 
@@ -100,7 +100,8 @@ def get_target_nonprod_monomers_for_gapfilling(target_model, options):
         else:
             continue
 
-    logging.debug("Adjusted unique_nonprod_monomers_list: %s" %adj_unique_nonprod_monomers_list)
+    logging.debug("Unique set of metabolites for gap-filling: %s",
+                    adj_unique_nonprod_monomers_list)
 
     options.adj_unique_nonprod_monomers_list = adj_unique_nonprod_monomers_list
 
