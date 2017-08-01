@@ -122,4 +122,4 @@ Model draft created by GMSM should be refined to ensure its quality. Output file
 Hyun Uk Kim, Jae Yong Ryu, Kyu-Sang Hwang, Tilmann Weber and Sang Yup Lee. GMSM: Genome-scale metabolic Modeling with Secondary Metabolism.
 
 #License
-The source code of GMSM is released under the [CC BY-NC-ND  license](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+TBD
