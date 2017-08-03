@@ -64,6 +64,6 @@ def get_temp_fasta(options):
                 options.temp_fasta = tempFasta
 
     if options.temp_fasta:
-        logging.warning("FASTA file for '%s' found", options.orgName)
+        logging.debug("FASTA file for '%s' found", options.orgName)
     else:
-        logging.warning("FASTA file for '%s' not found", options.orgName)
+        logging.error("FASTA file for '%s' not found", options.orgName)
