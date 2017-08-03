@@ -33,3 +33,4 @@ VOLUME ["/input", "/output"]
 WORKDIR /gmsm/
 RUN chmod +x run_gmsm.py
 
+ENTRYPOINT ["/bin/bash"]
