@@ -18,11 +18,7 @@ RUN apt-get install -y ncbi-blast+
 
 # Install major dependencies
 RUN pip install pip --upgrade
-RUN pip install biopython==1.68
-RUN pip install cobra>=0.6.2
-RUN pip install pyparsing==2.2.0
-RUN pip install pytest-cov==2.4.0
-RUN pip install python-libsbml
+RUN pip install -r requirements.txt
 
 # Set GMSM implementation
 COPY . /gmsm
