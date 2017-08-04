@@ -486,5 +486,7 @@ def remove_inactive_rxn_newComp(added_rxn_newComp_list, model, options):
     model.remove_reactions(options.inactive_rxn_newComp_list)
     model = utils.stabilize_model(model, options.outputfolder5, '')
 
+    logging.debug("Following reactions with new compartments have been removed from the model as they carry no fluxes: %s", options.inactive_rxn_newComp_list)
+
     return model
 
