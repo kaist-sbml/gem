@@ -74,7 +74,7 @@ def main():
     group.add_argument('-m', '--model',
                         dest='orgName',
                         default='sco',
-                        choices=['bsu', 'cre', 'eco','mtu','ppu','sco'],
+                        choices=['bsu', 'cre', 'eco','mtu','nsal','ppu','sco'],
                         help="Specify a template model for the target modeling\n"
                         "'bsu': iYO844 (17573341); Bacillus subtilis subsp. subtilis str. 168\n"
                         #NOTE: metabolite compartments (other than 'c') NOT standardized
