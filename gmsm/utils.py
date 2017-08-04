@@ -48,7 +48,10 @@ def get_git_log():
 
 
 def check_input_options(options):
-    if not options.eficaz and not options.pmr_generation and not options.smr_generation:
+    if not options.eficaz_file and \
+            not options.eficaz and \
+            not options.pmr_generation and \
+            not options.smr_generation:
         logging.warning("Select one of the three options: '-e', '-p-' and '-s'")
         sys.exit(1)
     else:
@@ -58,7 +61,8 @@ def check_input_options(options):
 
     if options.eficaz_file:
         if options.eficaz:
-            logging.warning("EFICAz output file option ('-E') should be removed")
+            logging.warning(
+    "EFICAz output file option ('-E') or the EFICAz run option ('-e') should be removed")
             sys.exit(1)
 
         if not options.pmr_generation:
