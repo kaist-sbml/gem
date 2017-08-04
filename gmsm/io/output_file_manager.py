@@ -87,7 +87,7 @@ def get_model_reactions(folder, options, **kwargs):
 
             #Calculated flux values are inaccurate without
             #manual setting of objective_coefficient to zero
-            obj_rxn = str(linear_reaction_coefficients(cobra_model).keys()[0])
+            obj_rxn = linear_reaction_coefficients(cobra_model).keys()[0].id
             cobra_model.reactions.get_by_id(obj_rxn).objective_coefficient = 0
             cobra_model.reactions.get_by_id(rxn.id).objective_coefficient = 1
             flux_dist = cobra_model.optimize()
@@ -98,7 +98,7 @@ def get_model_reactions(folder, options, **kwargs):
             #if 'cobra_model_no_gapFilled' in kwargs:
             #    cobra_model_no_gapFilled = kwargs['cobra_model_no_gapFilled']
 
-            #    obj_rxn = str(linear_reaction_coefficients(cobra_model).keys()[0])
+            #    obj_rxn = linear_reaction_coefficients(cobra_model).keys()[0].id
             #    cobra_model_no_gapFilled.reactions.get_by_id(obj_rxn).objective_coefficient = 0
             #    cobra_model_no_gapFilled.reactions.get_by_id(rxn.id).objective_coefficient = 1
             #    flux_dist2 = cobra_model_no_gapFilled.optimize()

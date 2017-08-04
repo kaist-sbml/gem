@@ -410,8 +410,8 @@ def get_tempModel_exrxnid_flux_dict(model, bigg_old_new_dict):
     else:
         logging.error("'EX_o2_e' not available in the model")
 
-    if str(linear_reaction_coefficients(model).keys()[0]):
-        tempModel_exrxnid_flux_dict[str(linear_reaction_coefficients(model).keys()[0])] = \
+    if linear_reaction_coefficients(model).keys()[0].id:
+        tempModel_exrxnid_flux_dict[linear_reaction_coefficients(model).keys()[0].id] = \
                 float(flux_dist.objective_value)
     else:
         logging.error("Objective function should be designated in the model")
