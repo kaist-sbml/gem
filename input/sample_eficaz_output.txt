@@ -1,0 +1,10 @@
+NSK_00001-RA, No EFICAz EC assignment
+NSK_00002-RA, No EFICAz EC assignment
+NSK_00003-RA, No EFICAz EC assignment
+NSK_00003-RB, No EFICAz EC assignment
+NSK_00003-RC, No EFICAz EC assignment
+NSK_00004-RA, 4EC: 3.1.21.1, EFICAz_components: PFAM_FDR, MTTSI_bin: 0, Caution: LOW CONFIDENCE prediction!
+NSK_00005-RA, 4EC: 2.7.1.83, EFICAz_components: PFAM_FDR, MTTSI_bin: 0, Caution: LOW CONFIDENCE prediction!
+NSK_00006-RA, No EFICAz EC assignment
+NSK_00780-RA, 4EC: 6.3.5.5, EFICAz_components: CHIEFc_FDR; CHIEFc_SVM, MTTSI_bin: 0, Precision (mean; SD): 0.737; 0.436
+NSK_01347-RA, 4EC: 2.2.1.2, EFICAz_components: CHIEFc_FDR; CHIEFc_SVM; PFAM_FDR; PFAM_SVM, MTTSI_bin: 0, Precision (mean; SD): 0.737; 0.436
