@@ -89,9 +89,8 @@ def main():
     group = parser.add_argument_group('GEMS modeling options',
                         "At least one of the three options should be selected:"
                         " '-e', '-p-' and '-s'\n"
-                        "Use of EFICAz output file (.txt) as input (option '-E'):\n"
-                        " - Cannot be used with EFICAz implementation option ('-e')\n"
-                        " - Can be used only with primary metabolic modeling option ('-p')\n"
+                        "Primary metabolic modeling option ('-p') should be selected "
+                        "when using '-E' and/or '-C' options\n"
                         " - Examples:\n"
                         "   '-e -E': NOT acceptable\n"
                         "   '-p -E': Acceptable\n"

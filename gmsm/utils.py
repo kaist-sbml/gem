@@ -48,21 +48,28 @@ def get_git_log():
 
 
 def check_input_options(options):
+    if not options.input:
+        logging.warning("Provide input file via ('-i')")
+        sys.exit(1)
+
     if not options.eficaz_file and \
             not options.eficaz and \
             not options.pmr_generation and \
-            not options.smr_generation:
-        logging.warning("Select one of the three options: '-e', '-p-' and '-s'")
-        sys.exit(1)
-    else:
-        if not options.input:
-            logging.warning("Provide input file via ('-i')")
+            not options.smr_generation and \
+            not options.comp:
+                logging.warning("Select one of the options: '-e', '-p-' or '-s'")
+                sys.exit(1)
+
+    if options.comp:
+        if not options.pmr_generation:
+            logging.warning(
+                    "Primary metabolic modeling option ('-p') should also be selected")
             sys.exit(1)
 
     if options.eficaz_file:
         if options.eficaz:
             logging.warning(
-    "EFICAz output file option ('-E') or the EFICAz run option ('-e') should be removed")
+                    "EFICAz output file option ('-E') or the EFICAz run option ('-e') should be removed")
             sys.exit(1)
 
         if not options.pmr_generation:
