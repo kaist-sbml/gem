@@ -12,26 +12,9 @@ from scripts import input1_manager
 class TestInput1_manager:
     """Test functions in scripts/input1_manager.py"""
 
-    def test_get_nonstd_model(self, sco_tmp_model, options):
+    def test_fix_nonstd_model(self, tmpdir, sco_tmp_model, options):
 
-        # Compare model with metabolite IDs not corrected with
-        #the one having metabolite IDs corrected via 'cobra.io.read_legacy_sbml'
-        assert 'dad_DASH_2_c' in sco_tmp_model.metabolites
-        assert 'dad__2_c' not in sco_tmp_model.metabolites
-        assert 'dad_2_c' not in sco_tmp_model.metabolites
-
-        input1_tmp_dir = join(dirname(abspath(__file__)), 'data')
-        model = input1_manager.get_nonstd_model(input1_tmp_dir, options)
-
-        assert 'dad_DASH_2_c' in model.metabolites
-        assert 'dad__2_c' not in model.metabolites
-        assert 'dad_2_c' not in model.metabolites
-
-
-    def test_fix_nonstd_model(self, tmpdir, options):
-
-        input1_tmp_dir = join(dirname(abspath(__file__)), 'data')
-        model = input1_manager.get_nonstd_model(input1_tmp_dir, options)
+        model = sco_tmp_model
 
         assert 'EX_glc_LPAREN_e_RPAREN_' in model.reactions
         assert 'EX_glc__D_e' not in model.reactions
