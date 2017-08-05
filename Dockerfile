@@ -17,11 +17,13 @@ RUN apt-get install -y python-tox
 RUN apt-get install -y ncbi-blast+
 
 # Install major dependencies
+COPY . /gmsm
+WORKDIR /gmsm/
 RUN pip install pip --upgrade
 RUN pip install -r requirements.txt
+RUN run_gmsm.py -p -s -d -i input/sample_input_two_CDS.gb
 
 # Set GMSM implementation
-COPY . /gmsm
 ADD ./EFICAz2.5.1.tar.gz /
 WORKDIR /usr/bin/
 RUN bash "/EFICAz2.5.1/bin/INSTALL"
