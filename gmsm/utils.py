@@ -18,8 +18,6 @@ def setup_logging(options):
 
     logging.basicConfig(format='%(levelname)s: %(message)s', level=log_level)
 
-
-def setup_logfile_format(options):
     if options.verbose or options.debug:
         logger = logging.getLogger('')
         fomatter = logging.Formatter(
@@ -27,6 +25,7 @@ def setup_logfile_format(options):
         fh = logging.FileHandler(
                 os.path.join(options.outputfolder, 'gmsm.log'), mode = 'w')
         fh.setFormatter(fomatter)
+        logger.setLevel(log_level)
         logger.addHandler(fh)
 
 
