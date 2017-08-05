@@ -57,7 +57,7 @@ def check_prereqs(options):
             logging.debug("'sbml.py' in cobra contains an error in SBML file writing.")
             logging.debug("Good version of 'sbml.py' has been copied in %s." %bad_sbml_dir)
             logging.error("Please re-run the program to have this fix to take effect.")
-            sys.exit(1)
+            sys.exit(0)
 
     except (ImportError, ImportWarning) as err:
         failure_messages.append(str(err))
