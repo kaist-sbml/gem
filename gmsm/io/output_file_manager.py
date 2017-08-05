@@ -231,17 +231,18 @@ def get_summary_report(folder, cobra_model, runtime,
     runtime2 = runtime.split()[2]
 
     model_summary_dict = {}
-    model_summary_dict['program version']= 'GEMS version %s (%s)'\
-                                            %(utils.get_version(), utils.get_git_log())
-    model_summary_dict['template_model_organism']= options.orgName
+    model_summary_dict['number_cpu_use']=options.cpus
     model_summary_dict['input_file']=options.input
     model_summary_dict['outputfolder']=options.outputfolder
+    model_summary_dict['template_model_organism']= options.orgName
     model_summary_dict['eficaz']=options.eficaz
-    model_summary_dict['number_cpu_use']=options.cpus
-    model_summary_dict['log_level']=log_level
     model_summary_dict['primary_metabolic_modeling']=options.pmr_generation
     model_summary_dict['secondary_metabolic_modeling']=options.smr_generation
-    model_summary_dict['runtime']=runtime2
+    model_summary_dict['eficaz_file'] = options.eficaz_file
+    model_summary_dict['compartment_file'] = options.comp
+    model_summary_dict['log_level']=log_level
+    model_summary_dict['program version']= 'GEMS version %s (%s)'\
+                                            %(utils.get_version(), utils.get_git_log())
     model_summary_dict['number_genes']=len(cobra_model.genes)
     model_summary_dict['number_reactions']=len(cobra_model.reactions)
     model_summary_dict['number_metabolites']=len(cobra_model.metabolites)
@@ -253,6 +254,7 @@ def get_summary_report(folder, cobra_model, runtime,
             len(template_model_gene_list)
     model_summary_dict['number_duplicate_genes_in_rxn_from_target_model'] = \
             len(duplicate_gene_list)
+    model_summary_dict['runtime']=runtime2
 
     if '4_complete_model' in folder:
         model_summary_dict['number_metabolites_for_gapfilling'] \
