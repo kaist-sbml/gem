@@ -54,8 +54,18 @@ def setup_outputfolders(options):
     make_folder(options.outputfolder6)
 
 
+def show_input_options(options):
+    logging.debug("input_file: %s", options.input)
+    logging.debug("outputfolder: %s", options.outputfolder)
+    logging.debug("template_model_organism: %s", options.orgName)
+    logging.debug("eficaz: %s", options.eficaz)
+    logging.debug("primary_metabolic_modeling: %s", options.pmr_generation)
+    logging.debug("secondary_metabolic_modeling: %s", options.smr_generation)
+    logging.debug("eficaz_file: %s", options.eficaz_file)
+    logging.debug("compartment_file: %s", options.comp)
+
+
 def check_input_filetype(options):
-    logging.info('Input file: %s', options.input)
     input_ext = os.path.splitext(options.input)[1]
 
     if input_ext in ('.gbk', '.gb', '.genbank', '.gbf', '.gbff'):

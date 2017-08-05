@@ -20,6 +20,7 @@ from gmsm.config import load_config
 from gmsm.eficaz import getECs1, getECs2
 from gmsm.io.input_file_manager import (
     setup_outputfolders,
+    show_input_options,
     check_input_filetype,
     get_target_genome_from_input,
     get_eficaz_file,
@@ -163,6 +164,8 @@ def main():
         warnings.filterwarnings("ignore")
 
     logging.info('Starting GEMS ver. %s (%s)', utils.get_version(), utils.get_git_log())
+
+    show_input_options(options)
 
     logging.info("Reading input genome files..")
     filetype = check_input_filetype(options)
