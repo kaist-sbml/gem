@@ -22,6 +22,7 @@ WORKDIR /gmsm/
 RUN pip install pip --upgrade
 RUN pip install -r requirements.txt
 RUN run_gmsm.py -p -s -d -i input/sample_input_two_CDS.gb
+RUN rm -r /gmsm/output
 
 # Set GMSM implementation
 ADD ./EFICAz2.5.1.tar.gz /
