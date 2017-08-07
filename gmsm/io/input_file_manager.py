@@ -23,7 +23,8 @@ def setup_outputfolders(options):
             '3_primary_metabolic_model', '4_complete_model',
             'tmp_model_files', 'tmp_data_files']
 
-    if '/' in options.outputfolder:
+    # Second if statement is to keep "-o ./test" from creating "tes", not "test"
+    if '/' in options.outputfolder and './' not in options.outputfolder:
         options.outputfolder = options.outputfolder[:-1]
 
     if options.eficaz:
