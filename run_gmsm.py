@@ -19,6 +19,7 @@ from gmsm import check_prereqs, utils
 from gmsm.config import load_config
 from gmsm.eficaz import getECs1, getECs2
 from gmsm.io.input_file_manager import (
+    make_folder,
     setup_outputfolders,
     show_input_options,
     check_input_filetype,
@@ -146,9 +147,12 @@ def main():
 
     options = parser.parse_args()
 
+    # Create an output directory for a log file
+    make_folder(options.outputfolder)
+
     utils.setup_logging(options)
 
-    #Create output folders
+    # Create output folders
     setup_outputfolders(options)
 
     if options.version:
@@ -157,7 +161,7 @@ def main():
 
     utils.check_input_options(options)
 
-    #Warning messages from cobrapy turned off by default
+    # Warning messages from cobrapy turned off by default
     if not options.warning:
         warnings.filterwarnings("ignore")
 
@@ -168,10 +172,10 @@ def main():
     logging.info("Reading input genome files..")
     filetype = check_input_filetype(options)
 
-    #Load config data
+    # Load config data
     load_config(options)
 
-    #Check prerequisites of executables and libraries
+    # Check prerequisites of executables and libraries
     check_prereqs(options)
 
     # EC number prediction
