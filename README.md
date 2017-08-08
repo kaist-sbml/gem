@@ -24,10 +24,31 @@ This project was initiated as a research collaboration between [Metabolic & Biom
 
 2. Get a *Free Academic* license, and place it in a `GMSM` directory.
 
-###Procedure
-####Docker image
+###Docker
+Docker image is available, which contains all the major dependencies above and minimizes manutal setup. Currently two versions are available.
 
-####Source code
+1. `gmsm_light`
+
+    This is the version with all the dependencies, including [blastp](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/) and [makeblastdb](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/), but **not** [eficaz2.5](http://cssb.biology.gatech.edu/skolnick/webservice/EFICAz2/index.html).
+
+    This version uses ~1.43 GB for disk space.
+
+    This version can be downloaded as follows (~3 min):
+
+        docker pull mbel/gmsm_light
+
+2. `gmsm_full`
+
+    This is the version with all the dependencies, including [blastp](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/) and [makeblastdb](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/), **and** [eficaz2.5](http://cssb.biology.gatech.edu/skolnick/webservice/EFICAz2/index.html).
+
+    This version uses **~31 GB for disk space**.
+
+    This version can be downloaded as follows **(~40 min)**:
+
+
+        docker pull mbel/gmsm_full
+ 
+###Source
 1. Clone the repository
 
     (HTTPS)
