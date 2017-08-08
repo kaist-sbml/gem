@@ -25,6 +25,9 @@ This project was initiated as a research collaboration between [Metabolic & Biom
 2. Get a *Free Academic* license, and place it in a `GMSM` directory.
 
 ###Procedure
+####Docker image
+
+####Source code
 1. Clone the repository
 
     (HTTPS)
@@ -71,7 +74,7 @@ To appear.
 - Select one or combination of major implementation options: `-e`, `-p` and/or `-s`
 - Input file:
 
-    Create an input directory at root of the `GMSM` directory.
+    Create an input directory at root of the [GMSM](https://bitbucket.org/kaistmbel/gmsm) directory.
 
     Input files can be a standard full GenBank file with sequences (recommended) or FASTA file.
 
