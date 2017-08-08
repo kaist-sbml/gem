@@ -25,26 +25,25 @@ This project was initiated as a research collaboration between [Metabolic & Biom
 2. Get a *Free Academic* license, and place it in a `GMSM` directory.
 
 ###Docker
-Docker image is available, which contains all the major dependencies above and minimizes manutal setup. Currently two versions are available.
+Docker image is available at [https://hub.docker.com/kaistmbel/gmsm]. Docker image contains all the major dependencies above and minimizes manutal setup. Currently two versions are available.
 
-1. `gmsm_light`
+1. *gmsm_light*
 
     This is the version with all the dependencies, including [blastp](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/) and [makeblastdb](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/), but **not** [eficaz2.5](http://cssb.biology.gatech.edu/skolnick/webservice/EFICAz2/index.html).
 
     This version uses ~1.43 GB for disk space.
 
-    This version can be downloaded as follows (~3 min):
+    Download the Docker image (~3 min):
 
         docker pull mbel/gmsm_light
 
-2. `gmsm_full`
+2. *gmsm_full*
 
     This is the version with all the dependencies, including [blastp](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/) and [makeblastdb](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/), **and** [eficaz2.5](http://cssb.biology.gatech.edu/skolnick/webservice/EFICAz2/index.html).
 
     This version uses **~31 GB for disk space**.
 
-    This version can be downloaded as follows **(~40 min)**:
-
+    Download the Docker image **(~40 min)**:
 
         docker pull mbel/gmsm_full
  
@@ -88,9 +87,6 @@ Docker image is available, which contains all the major dependencies above and m
     **Note**: Following statement causes a system error: `export PATH="$HOME/gmsm/venv/bin/EFICAz2.5.1/bin/"`.
     
 #Implementation
-###Docker image
-To appear.
-
 ###General
 - Select one or combination of major implementation options: `-e`, `-p` and/or `-s`
 - Input file:
@@ -110,27 +106,48 @@ To appear.
     Create an output directory at root of the [GMSM](https://bitbucket.org/kaistmbel/gmsm) directory.
 
     If output directory is not given, result files are automatically stored in a directory `output` at root of the [GMSM](https://bitbucket.org/kaistmbel/gmsm) directory. **Note**: New result files will override existing files in the default `output` directory.
-    
+
+- [GMSM](https://bitbucket.org/kaistmbel/gmsm) builds a GEM based on a template high-quality GEM. A default template GEM is the [high-quality GEM of Streptomyces coelicolor A3(2)](http://onlinelibrary.wiley.com/doi/10.1002/biot.201300539/abstract). Other template GEMs can be selected from the menu.
+  
+- For more information:
+
+        run_gmsm.py -h
+ 
+###Docker image
+Upon download, run the Docker image:
+
+        docker run --rm -it -v $HOME/users_input_dir:/gmsm/input  -v $HOME/users_output_dir:/gmsm/output gmsm_full:0.4.5
+
+- `users_input_dir`: User's defined directory where input data are stored.
+- `users_output_dir`: User's defined directory where output data are stored.
+
+
 ###Examples
-- Run EC number annotation and modeling of primary and secondary metabolism
+`python` may need to be inserted, depending on the system configuration.
 
-        run_gmsm.py -e -p -s -d -i input/NC_021985.1.final.gbk
+- Run EC number annotation (takes long time for a full genome, ~6-16 h)
 
-- Run modeling of primary and secondary metabolism
-
-        run_gmsm.py -p -s -d -i input/NC_021985.1.final.gbk
+        run_gmsm.py -i input/sample_input_two_CDS.gb -e -d
 
 - Run modeling of primary metabolism
 
-        run_gmsm.py -p -d -i input/NC_021985.1.final.gbk
+        run_gmsm.py -i input/NC_021985.1.final_antismash3.gbk -p -d
 
-- Run modeling of secondary metabolism
+- Run modeling of primary metabolism using FASTA, EFICAz and compartment data
 
-        run_gmsm.py -s -d -i input/NC_021985.1.final.gbk
+        run_gmsm.py -i input/sample_input_ten_CDS.fasta -m -nsal  -p -E input/sample_eficaz_output.txt -C input/sample_compartment_info.txt -d
 
-- Run EC number annotation
+- Run modeling of secondary metabolism (only with antiSMASH output GenBank file)
 
-        run_gmsm.py -e -d -i input/NC_021985.1.final.gbk
+        run_gmsm.py -i input/NC_021985.1.final_antismash3.gbk -s -d
+
+- Run modeling of primary and secondary metabolism
+
+        run_gmsm.py-i input/NC_021985.1.final_antismash3.gbk -p -s -d 
+
+- Run EC number annotation and modeling of primary and secondary metabolism
+
+        run_gmsm.py -i input/NC_021985.1.final_antismash3.gbk -e -p -s -d
 
 Note: Option `-d` is for displaying debugging statements during program running.
 
