@@ -145,10 +145,6 @@ Upon download, run the Docker image:
 
         run_gmsm.py-i input/NC_021985.1.final_antismash3.gbk -p -s -d 
 
-- Run EC number annotation and modeling of primary and secondary metabolism
-
-        run_gmsm.py -i input/NC_021985.1.final_antismash3.gbk -e -p -s -d
-
 Note: Option `-d` is for displaying debugging statements during program running.
 
 #Model refinement
