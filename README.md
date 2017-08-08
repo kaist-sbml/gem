@@ -1,12 +1,11 @@
 #**GMSM**
 #Project
-***G***nome-scale metabolic ***M***odeling with ***S***econdary ***M***etabolism (GMSM) automatically generates secondary metabolite biosynthetic reactions in a genome-scale metabolic model (GEM) using antiSMASH output .gbk file. GMSM overall enables high-throughput modeling of both primary and secondary metabolism.
+***G***nome-scale metabolic ***M***odeling with ***S***econdary ***M***etabolism (GMSM) automatically generates secondary metabolite biosynthetic reactions in a genome-scale metabolic model (GEM) using antiSMASH output GenBank file. GMSM overall enables high-throughput modeling of both primary and secondary metabolism.
 
 #Development
 This project was initiated as a research collaboration between [Metabolic & Biomolecular Eng. Nat’l Research Laboratory (MBEL) & BioInformatics Research Center](http://mbel.kaist.ac.kr/) at KAIST and [Novo Nordisk Foundation Center for Biosustainability](http://www.biosustain.dtu.dk/english) at DTU.
 
 #Current features
-- Homology analysis (bidirectional blastp hits)
 - EC number annotation using [EFICAz](http://cssb.biology.gatech.edu/skolnick/webservice/EFICAz2/index.html)
 - Metabolic modeling for primary metabolism
 - Metabolic modeling for secondary metabolism
@@ -14,11 +13,11 @@ This project was initiated as a research collaboration between [Metabolic & Biom
 #Installation
 ###Major dependencies
 1. [`biopython`](http://biopython.org/wiki/Biopython) (version 1.68 tested)
-2. [`blastp`](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.28/) and [`makeblastdb`](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.28/)
+2. [`blastp`](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/) and [`makeblastdb`](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/)
 3. [`eficaz2.5`](http://cssb.biology.gatech.edu/skolnick/webservice/EFICAz2/index.html) (versions 2.5 and 2.5.1 tested)
 4. [`cobra`](https://opencobra.github.io/cobrapy/) (version 0.6.2 or greater; [GitHub](https://github.com/opencobra/cobrapy); [Document](https://cobrapy.readthedocs.io/en/latest/))
 
-###Gurobi (optional)
+###Gurobi (optional, internal)
 1. Create a symbolic link for the [gurobipy](http://www.gurobi.com/) installed in `root`. 
 
         ln -s /usr/local/lib/python2.7/dist-packages/gurobipy/ $HOME/gmsm/venv/lib/python2.7/site-packages/
@@ -45,13 +44,12 @@ This project was initiated as a research collaboration between [Metabolic & Biom
         pip install pip --upgrade
         pip install -r requirements.txt
 
-    Installation of `zmq` and `numpy` using `requirements.txt` often causes an error. In this case, just do: `pip install zmq` and `pip install numpy`.
-
-4. Test `GMSM`
+4. Test GMSM
 
     At the root of the repository,
 
         tox
+
 
 5. `blastp` and `makeblastdb` for bidirectional blastp hits
 
@@ -69,6 +67,9 @@ This project was initiated as a research collaboration between [Metabolic & Biom
     **Note**: Following statement causes a system error: `export PATH="/home/edhyunukkim/gmsm/venv/bin/EFICAz2.5.1/bin/"`.
     
 #Implementation
+###Docker image
+To appear.
+
 ###General
 - Select one or combination of major implementation options: `-e`, `-p` and/or `-s`
 - Input file:
@@ -112,14 +113,11 @@ This project was initiated as a research collaboration between [Metabolic & Biom
 
 Note: Option `-d` is for displaying debugging statements during program running.
 
-###Docker image
-To appear.
-
 #Model refinement
 Model draft created by GMSM should be refined to ensure its quality. Output files with prefix `rmc_` provide starting points for manual curation. `rmc_` stands for 'resource for manual curation'.
 
 #Publication
-Hyun Uk Kim, Jae Yong Ryu, Kyu-Sang Hwang, Tilmann Weber and Sang Yup Lee. GMSM: Genome-scale metabolic Modeling with Secondary Metabolism.
+Hyun Uk Kim, Jae Yong Ryu, Kyu-Sang Hwang, Tilmann Weber and Sang Yup Lee. ***GMSM***: ***G***enome-scale metabolic ***M***odeling with ***S***econdary ***M***etabolism.
 
 #License
 TBD
