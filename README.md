@@ -46,8 +46,6 @@ This project was initiated as a research collaboration between [Metabolic & Biom
 
 4. Test GMSM
 
-    At the root of the repository,
-
         tox
 
 5. `blastp` and `makeblastdb` for bidirectional blastp hits
