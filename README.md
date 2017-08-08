@@ -29,10 +29,10 @@ This project was initiated as a research collaboration between [Metabolic & Biom
 
     (HTTPS)
 
-        git clone https://ehukim@bitbucket.org/ehukim/gmsm.git
+        git clone https://bitbucket.org/kaistmbel/gmsm.git
     (SSH)
 
-        git clone git@bitbucket.org:ehukim/gmsm.git
+        git clone git@bitbucket.org:kaistmbel/gmsm.git
 
 2. Create and activate virtual environment
 
@@ -57,14 +57,14 @@ This project was initiated as a research collaboration between [Metabolic & Biom
 
     Make sure to get access to these executables using `chmod`.
 
-6. EFICAz for EC number annotation
+6. EFICAz for EC number annotation (internal)
 
     Place `eficaz2.5` in a directory and set up `PATH` in `.bashrc`, e.g.:
 
-    	export EFICAz25_PATH="/home/edhyunukkim/gmsm/venv/bin/EFICAz2.5.1/bin/"
+    	export EFICAz25_PATH="$HOME/gmsm/venv/bin/EFICAz2.5.1/bin/"
     	export PATH="${PATH}:${EFICAz25_PATH}"
 
-    **Note**: Following statement causes a system error: `export PATH="/home/edhyunukkim/gmsm/venv/bin/EFICAz2.5.1/bin/"`.
+    **Note**: Following statement causes a system error: `export PATH="$HOME/gmsm/venv/bin/EFICAz2.5.1/bin/"`.
     
 #Implementation
 ###Docker image
@@ -118,6 +118,3 @@ Model draft created by GMSM should be refined to ensure its quality. Output file
 
 #Publication
 Hyun Uk Kim, Jae Yong Ryu, Kyu-Sang Hwang, Tilmann Weber and Sang Yup Lee. ***GMSM***: ***G***enome-scale metabolic ***M***odeling with ***S***econdary ***M***etabolism.
-
-#License
-TBD
