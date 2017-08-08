@@ -15,6 +15,7 @@ RUN apt-get install -y python2.7-dev
 RUN apt-get install -y python-pip
 RUN apt-get install -y python-tox
 RUN apt-get install -y ncbi-blast+
+RUN apt-get install -y sed
 
 # Install major dependencies
 COPY . /gmsm
@@ -28,8 +29,10 @@ RUN rm -r /gmsm/output
 ADD ./EFICAz2.5.1.tar.gz /
 WORKDIR /usr/bin/
 RUN bash "/EFICAz2.5.1/bin/INSTALL"
+RUN sed -i 's/\/usr/$EFICAz25_PATH/g' /usr/bin/eficaz2.5
 VOLUME ["/input", "/output"]
 WORKDIR /gmsm/
+RUN rm /gmsm/EFICAz2.5.1.tar.gz
 RUN chmod +x run_gmsm.py
 
 ENTRYPOINT ["/bin/bash"]
