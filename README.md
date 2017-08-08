@@ -12,7 +12,7 @@ This project was initiated as a research collaboration between [Metabolic & Biom
 
 #Installation
 ###Major dependencies
-1. [biopython](http://biopython.org/wiki/Biopython) (version 1.68 tested)
+1. [biopython](http://biopython.org/wiki/Biopython)
 2. [blastp](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/) and [makeblastdb](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/)
 3. [eficaz2.5](http://cssb.biology.gatech.edu/skolnick/webservice/EFICAz2/index.html) (versions 2.5 and 2.5.1 tested)
 4. [cobra](https://opencobra.github.io/cobrapy/) (version 0.6.2 or greater; [GitHub](https://github.com/opencobra/cobrapy); [Document](https://cobrapy.readthedocs.io/en/latest/))
@@ -22,7 +22,7 @@ This project was initiated as a research collaboration between [Metabolic & Biom
 
         ln -s /usr/local/lib/python2.7/dist-packages/gurobipy/ $HOME/gmsm/venv/lib/python2.7/site-packages/
 
-2. Get a *Free Academic* license, and place it in a `GMSM` directory.
+2. Get a *Free Academic* license.
 
 ###Docker
 Docker image is available at [https://hub.docker.com/kaistmbel/gmsm]. Docker image contains all the major dependencies above and minimizes manutal setup. Currently two versions are available.
@@ -97,7 +97,7 @@ Docker image is available at [https://hub.docker.com/kaistmbel/gmsm]. Docker ima
 
     antiSMASH-annotated GenBank file **MUST** be provided for secondary metabolism modeling.
 
-    EFICAz output file and subcellular localizations (compartments) can be provided as inputs, with options `-E` and `-C`, respectively.
+    EFICAz output file and subcellular localizations (compartments) can be provided as additional inputs, with options `-E` and `-C`, respectively.
 
 - Output directory:
 
@@ -135,7 +135,7 @@ Upon download, run the Docker image:
 
 - Run modeling of primary metabolism using FASTA, EFICAz and compartment data
 
-        run_gmsm.py -i input/sample_input_ten_CDS.fasta -m -nsal  -p -E input/sample_eficaz_output.txt -C input/sample_compartment_info.txt -d
+        run_gmsm.py -i input/sample_input_ten_CDS.fasta -m nsal -p -E input/sample_eficaz_output.txt -C input/sample_compartment_info.txt -d
 
 - Run modeling of secondary metabolism (only with antiSMASH output GenBank file)
 
