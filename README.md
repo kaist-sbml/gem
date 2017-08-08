@@ -12,10 +12,10 @@ This project was initiated as a research collaboration between [Metabolic & Biom
 
 #Installation
 ###Major dependencies
-1. [`biopython`](http://biopython.org/wiki/Biopython) (version 1.68 tested)
-2. [`blastp`](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/) and [`makeblastdb`](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/)
-3. [`eficaz2.5`](http://cssb.biology.gatech.edu/skolnick/webservice/EFICAz2/index.html) (versions 2.5 and 2.5.1 tested)
-4. [`cobra`](https://opencobra.github.io/cobrapy/) (version 0.6.2 or greater; [GitHub](https://github.com/opencobra/cobrapy); [Document](https://cobrapy.readthedocs.io/en/latest/))
+1. [biopython](http://biopython.org/wiki/Biopython) (version 1.68 tested)
+2. [blastp](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/) and [makeblastdb](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/)
+3. [eficaz2.5](http://cssb.biology.gatech.edu/skolnick/webservice/EFICAz2/index.html) (versions 2.5 and 2.5.1 tested)
+4. [cobra](https://opencobra.github.io/cobrapy/) (version 0.6.2 or greater; [GitHub](https://github.com/opencobra/cobrapy); [Document](https://cobrapy.readthedocs.io/en/latest/))
 
 ###Gurobi (optional, internal)
 1. Create a symbolic link for the [gurobipy](http://www.gurobi.com/) installed in `root`. 
@@ -44,19 +44,19 @@ This project was initiated as a research collaboration between [Metabolic & Biom
         pip install pip --upgrade
         pip install -r requirements.txt
 
-4. Test GMSM
+4. Test [GMSM](https://bitbucket.org/kaistmbel/gmsm)
 
         tox
 
-5. blastp and makeblastdb for bidirectional blastp hits
+5. [blastp](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/) and [makeblastdb](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/) for bidirectional blastp hits
 
     Get these executables from [NCBI FTP](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/). Preferably, place them in `venv/bin`.
 
     Make sure to get access to these executables using `chmod`.
 
-6. EFICAz for EC number annotation (internal)
+6. [EFICAz](http://cssb.biology.gatech.edu/skolnick/webservice/EFICAz2/index.html) for EC number annotation (internal)
 
-    Place `eficaz2.5` in a directory and set up `PATH` in `.bashrc`, e.g.:
+    Place [eficaz2.5](http://cssb.biology.gatech.edu/skolnick/webservice/EFICAz2/index.html) in a directory and set up `PATH` in `.bashrc`, e.g.:
 
     	export EFICAz25_PATH="$HOME/gmsm/venv/bin/EFICAz2.5.1/bin/"
     	export PATH="${PATH}:${EFICAz25_PATH}"
@@ -83,9 +83,9 @@ To appear.
 
     Defining output directory is *optional*.
 
-    Create an output directory at root of the `GMSM` directory.
+    Create an output directory at root of the [GMSM](https://bitbucket.org/kaistmbel/gmsm) directory.
 
-    If output directory is not given, result files are automatically stored in a directory `output` at root of the `GMSM` directory. **Note**: New result files will override existing files in the default `output` directory.
+    If output directory is not given, result files are automatically stored in a directory `output` at root of the [GMSM](https://bitbucket.org/kaistmbel/gmsm) directory. **Note**: New result files will override existing files in the default `output` directory.
     
 ###Examples
 - Run EC number annotation and modeling of primary and secondary metabolism
