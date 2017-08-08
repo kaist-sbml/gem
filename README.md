@@ -50,6 +50,7 @@ This project was initiated as a research collaboration between [Metabolic & Biom
 
 5. `blastp` and `makeblastdb` for bidirectional blastp hits
 
+
     Get these executables from [NCBI FTP](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/). Preferably, place them in `venv/bin`.
 
     Make sure to get access to these executables using `chmod`.
