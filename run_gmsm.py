@@ -72,12 +72,13 @@ def main():
 
     group = parser.add_argument_group('Template model options',
                         "Select a biologically close organism\n"
-                        "(with corresponding PMID in parenthesis next to the model name)")
+                        "(with corresponding PMID in parenthesis next to the model name)\n"
+                        "A default template GEM is 'sco' (24623710)")
     group.add_argument('-m', '--model',
                         dest='orgName',
                         default='sco',
                         choices=['bsu', 'cre', 'eco','mtu','nsal','ppu','sco'],
-                        help="Specify a template model for the target modeling\n"
+                        help=
                         "'bsu': iYO844 (17573341); Bacillus subtilis subsp. subtilis str. 168\n"
                         #NOTE: metabolite compartments (other than 'c') NOT standardized
                         "'cre': iCre1355 (26485611); Chlamydomonas reinhardtii\n"
