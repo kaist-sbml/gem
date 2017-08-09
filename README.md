@@ -143,7 +143,7 @@ Following examples can be executed using both Docker image and source. However, 
 
 - Run modeling of primary and secondary metabolism
 
-        run_gmsm.py-i input/NC_021985.1.final_antismash3.gbk -p -s -d 
+        run_gmsm.py -i input/NC_021985.1.final_antismash3.gbk -p -s -d 
 
 Note: Option `-d` is for displaying debugging statements during program running.
 
