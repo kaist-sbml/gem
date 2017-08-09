@@ -131,19 +131,20 @@ Following examples can be executed using both Docker image and source. However, 
 
 - Run modeling of primary metabolism
 
-        run_gmsm.py -i input/NC_021985.1.final_antismash3.gbk -p -d
+        run_gmsm.py -i input/NC_021985.1.final_antismash4.gbk -p -d
 
 - Run modeling of primary metabolism using FASTA, EFICAz and compartment data
 
         run_gmsm.py -i input/sample_input_ten_CDS.fasta -m nsal -p -E input/sample_eficaz_output.txt -C input/sample_compartment_info.txt -d
 
 - Run modeling of secondary metabolism (only with antiSMASH output GenBank file)
+    Following command will not generate secondary metabolite biosynthetic reactions if the GMSM-derived primary metabolism model is not available in the designated folder.
 
-        run_gmsm.py -i input/NC_021985.1.final_antismash3.gbk -s -d
+        run_gmsm.py -i input/NC_021985.1.final_antismash4.gbk -s -d
 
 - Run modeling of primary and secondary metabolism
 
-        run_gmsm.py -i input/NC_021985.1.final_antismash3.gbk -p -s -d 
+        run_gmsm.py -i input/NC_021985.1.final_antismash4.gbk -p -s -d 
 
 Note: Option `-d` is for displaying debugging statements during program running.
 
