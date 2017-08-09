@@ -14,7 +14,7 @@ This project was initiated as a research collaboration between [Metabolic & Biom
 ###Major dependencies
 1. [biopython](http://biopython.org/wiki/Biopython)
 2. [blastp](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/) and [makeblastdb](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/)
-3. [eficaz2.5](http://cssb.biology.gatech.edu/skolnick/webservice/EFICAz2/index.html) (versions 2.5 and 2.5.1 tested)
+3. [eficaz2.5](http://cssb.biology.gatech.edu/skolnick/webservice/EFICAz2/index.html)
 4. [cobra](https://opencobra.github.io/cobrapy/) (version 0.6.2 or greater; [GitHub](https://github.com/opencobra/cobrapy); [Document](https://cobrapy.readthedocs.io/en/latest/))
 
 ###Gurobi (optional, internal)
@@ -25,27 +25,27 @@ This project was initiated as a research collaboration between [Metabolic & Biom
 2. Get a *Free Academic* license.
 
 ###Docker
-Docker image is available at [https://hub.docker.com/kaistmbel/gmsm]. Docker image contains all the major dependencies above and minimizes manutal setup. Currently two versions are available.
+Docker image is available at [https://hub.docker.com/kaistmbel/gmsm]. Docker image contains all the major dependencies above and minimizes manutal setup. Currently light and full versions are available. All the Docker images are also tagged with GMSM versions.
 
-1. *gmsm_light*
+1. *Light version*
 
-    This is the version with all the dependencies, including [blastp](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/) and [makeblastdb](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/), but **not** [eficaz2.5](http://cssb.biology.gatech.edu/skolnick/webservice/EFICAz2/index.html).
+    Light version has all the dependencies, including [blastp](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/) and [makeblastdb](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/), but **not** [eficaz2.5](http://cssb.biology.gatech.edu/skolnick/webservice/EFICAz2/index.html).
 
     This version uses ~1.43 GB for disk space.
 
     Download the Docker image (~3 min):
 
-        docker pull mbel/gmsm_light
+        docker pull mbel/gmsm:0.4.5light
 
-2. *gmsm_full*
+2. *Full version*
 
-    This is the version with all the dependencies, including [blastp](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/) and [makeblastdb](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/), **and** [eficaz2.5](http://cssb.biology.gatech.edu/skolnick/webservice/EFICAz2/index.html).
+    Full version has all the dependencies, including [blastp](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/) and [makeblastdb](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/), **and** [eficaz2.5](http://cssb.biology.gatech.edu/skolnick/webservice/EFICAz2/index.html).
 
     This version uses **~31 GB for disk space**.
 
     Download the Docker image **(~40 min)**:
 
-        docker pull mbel/gmsm_full
+        docker pull mbel/gmsm:0.4.5full
  
 ###Source
 1. Clone the repository
@@ -116,14 +116,14 @@ Docker image is available at [https://hub.docker.com/kaistmbel/gmsm]. Docker ima
 ###Docker image
 Upon download, run the Docker image:
 
-        docker run --rm -it -v $HOME/users_input_dir:/gmsm/input  -v $HOME/users_output_dir:/gmsm/output gmsm_full:0.4.5
+        docker run --rm -it -v $HOME/users_input_dir:/gmsm/input  -v $HOME/users_output_dir:/gmsm/output mbel/gmsm:0.4.5full
 
 - `users_input_dir`: User's defined directory where input data are stored.
 - `users_output_dir`: User's defined directory where output data are stored.
 
 
 ###Examples
-`python` may need to be inserted, depending on the system configuration.
+Following examples can be executed using both Docker image and source. However, `python` may need to be inserted, depending on user's system environment.
 
 - Run EC number annotation (takes long time for a full genome, ~6-16 h)
 
