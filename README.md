@@ -99,6 +99,20 @@ Docker image is available at [https://hub.docker.com/kaistmbel/gmsm]. Docker ima
 
     EFICAz output file and subcellular localizations (compartments) can be provided as additional inputs, with options `-E` and `-C`, respectively.
 
+- Input samples (available in `/gmsm/input/`):
+
+    NC_021985.1.final_antismash4.gbk: an output GenBank file of antiSMASH 4.0
+
+    NC_021985.1.final_ec_antismash3.gbk: an output GenBank file of antiSMASH 4.0 with full EC numbers via EFICAz
+
+    sample_compartment_info.txt: a sample file containing subcellular localizations (compartments) for each locus tag
+
+    sample_eficaz_output.txt: a sample output file of EFICAz
+
+    sample_input_ten_CDS.fasta: a sample FASTA with ten locus tags
+
+    sample_input_two_CDS.gb: a sample GenBank with two locus tags
+
 - Output directory:
 
     Defining output directory is *optional*.
@@ -138,7 +152,8 @@ Following examples can be executed using both Docker image and source. However, 
         run_gmsm.py -i input/sample_input_ten_CDS.fasta -m nsal -p -E input/sample_eficaz_output.txt -C input/sample_compartment_info.txt -d
 
 - Run modeling of secondary metabolism (only with antiSMASH output GenBank file)
-    Following command will not generate secondary metabolite biosynthetic reactions if the GMSM-derived primary metabolism model is not available in the designated folder.
+
+    Following command will not generate secondary metabolite biosynthetic reactions if the GMSM-derived primary metabolism model is not available in the designated folder (i.e., `3_primary_metabolic_model`).
 
         run_gmsm.py -i input/NC_021985.1.final_antismash4.gbk -s -d
 
