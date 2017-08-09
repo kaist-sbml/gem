@@ -101,9 +101,9 @@ Docker image is available at [https://hub.docker.com/kaistmbel/gmsm]. Docker ima
 
 - Sample input files (available in `/gmsm/input/`):
 
-    `NC_021985.1.final_antismash4.gbk`: an output GenBank file of antiSMASH 4.0
+    `NC_021985.1.final_antismash4.gbk`: an output GenBank file of antiSMASH 4.0 (for Streptomyces collinus Tu 365)
 
-    `NC_021985.1.final_ec_antismash3.gbk`: an output GenBank file of antiSMASH 3.0 with full EC numbers via EFICAz
+    `NC_021985.1.final_ec_antismash3.gbk`: an output GenBank file of antiSMASH 3.0 with full EC numbers via EFICAz (for Streptomyces collinus Tu 365)
 
     `sample_compartment_info.txt`: a sample file containing subcellular localizations (compartments) for each locus tag
 
