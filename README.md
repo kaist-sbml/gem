@@ -99,7 +99,7 @@ Docker image is available at [https://hub.docker.com/kaistmbel/gmsm]. Docker ima
 
     EFICAz output file and subcellular localizations (compartments) can be provided as additional inputs, with options `-E` and `-C`, respectively.
 
-- Input samples (available in `/gmsm/input/`):
+- Sample input files (available in `/gmsm/input/`):
 
     `NC_021985.1.final_antismash4.gbk`: an output GenBank file of antiSMASH 4.0
 
