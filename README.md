@@ -139,37 +139,36 @@ Upon download, run the Docker image:
 
 
 ###Examples
-Following examples can be executed using both Docker image and source. However, `python` may need to be inserted at the beginning, depending on user's system environment.
+Following examples can be executed using both Docker image and source. However, `python` may need to be inserted at the beginning, depending on user's system environment. Running each example below takes a few minutes (~1-10 min) except for the last example.
 
-- Run EC number annotation (~2 min for this example; **~6-16 h** for a full bacterial genome)
+- Run EC number annotation (**~6-16 h** for a full bacterial genome).
 
         run_gmsm.py -i input/sample_input_two_CDS.gb -e -d
 
-- Run modeling of secondary metabolism (only with antiSMASH output GenBank file)
-
-    Secondary metabolite biosynthetic reactions cannot be generated because a GMSM-derived primary metabolism model has not been generated in the designated folder (i.e., `3_primary_metabolic_model`).
+- Run modeling of secondary metabolism (only with antiSMASH output GenBank file). Secondary metabolite biosynthetic reactions cannot be generated because a GMSM-derived primary metabolism model has not been generated in the designated folder (i.e., `3_primary_metabolic_model`).
 
         run_gmsm.py -i input/NC_021985.1.final_antismash4.gbk -s -d
 
-- Run modeling of primary metabolism (~4 min for this example)
-
-    This run will create the primary metabolism model necessary for secondary metabolism modeling.
+- Run modeling of primary metabolism. This run will create the primary metabolism model necessary for secondary metabolism modeling.
 
         run_gmsm.py -i input/NC_021985.1.final_antismash4.gbk -p -d
 
-- Run modeling of secondary metabolism (only with antiSMASH output GenBank file; ~3 min for this example)
-
+- Run modeling of secondary metabolism (only with antiSMASH output GenBank file).
     Following command can now generate secondary metabolite biosynthetic reactions because the GMSM-derived primary metabolism model has been generated in the designated folder (i.e., `3_primary_metabolic_model`).
 
         run_gmsm.py -i input/NC_021985.1.final_antismash4.gbk -s -d
 
-- Run modeling of primary and secondary metabolism (~7 min for this example)
+- Run modeling of primary and secondary metabolism.
 
         run_gmsm.py -i input/NC_021985.1.final_antismash4.gbk -p -s -d
 
-- Run modeling of primary metabolism using FASTA, EFICAz and compartment data (~2 min for this example)
+- Run modeling of primary metabolism using FASTA, EFICAz and compartment data.
 
         run_gmsm.py -i input/sample_input_ten_CDS.fasta -m nsal -p -E input/sample_eficaz_output.txt -C input/sample_compartment_info.txt -d
+# TODO
+- Run modeling of primary and secondary metabolism (~ min for this example)
+
+        run_gmsm.py -i input/NC_021985.1.final_ec_antismash3.gbk -p -s -d
 
 Note: Option `-d` is for displaying debugging statements during program running.
 
