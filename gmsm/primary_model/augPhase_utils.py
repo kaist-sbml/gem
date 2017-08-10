@@ -67,8 +67,11 @@ def get_rxnInfo_from_rxnid(rxnid, options):
 def load_cache(cache_dir, cache_data, options):
 
     if os.path.isfile(cache_dir):
+        # NOTE: Disabled at the moment because Docker images do not have cache files.
+        # TODO: As to the motivation behind this function, automatic removal of
+        #existing cache files everytime GMSM starts or ends can be an option.
         # For regular update of the cache
-        utils.time_bomb(cache_dir, options)
+        #utils.time_bomb(cache_dir, options)
 
         try:
             with open(cache_dir, 'rb') as f:
