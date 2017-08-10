@@ -133,6 +133,24 @@ class TestPrimary_model:
                 '((( B446_12400 or B446_11440 ) or ( B446_12400 or B446_11440 ) or ( B446_12400 or B446_11440 ) or (SCO1269 and SCO1270)) and (( B446_19415 or B446_19475 ) or ( B446_19415 or B446_19475 )) and (B446_32095 or ( B446_11425 or B446_32095 or B446_23075 ) or ( B446_11425 or B446_23075 )))'
 
 
+    def test_get_rxnid_from_ECNumber(self, options):
+        _cfg_name = 'gmsm.cfg'
+        load_config(options)
+
+        rxnid_list = []
+        enzymeEC = '2.7.1.22'
+        rxnid_list = augPhase_utils.get_rxnid_from_ECNumber(rxnid_list, enzymeEC, options)
+        assert 'R02324' in rxnid_list
+
+        rxnid_list = []
+        # This EC number is the one deleted from KEGG in 2016.
+        # Error caused by this EC number was previously reported
+        #for antiSMASH 3.0 (Aug 16, 2016)
+        enzymeEC = '2.7.1.69'
+        rxnid_list = augPhase_utils.get_rxnid_from_ECNumber(rxnid_list, enzymeEC, options)
+        assert not rxnid_list
+
+
     def test_get_rxnid_info_dict_from_kegg(self, options):
         _cfg_name = 'gmsm.cfg'
         load_config(options)
