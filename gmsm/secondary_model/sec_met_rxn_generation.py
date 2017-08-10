@@ -4,6 +4,7 @@ import os
 import pickle
 from antismash_monomer_info import get_std_id_from_antismash_id
 from cobra import Reaction, Metabolite
+from cobra.util.solver import linear_reaction_coefficients
 from gmsm import utils
 
 def get_cluster_location(seq_record, cluster_nr, options):
@@ -289,10 +290,9 @@ def add_sec_met_rxn(target_model, options):
 
 
 def check_producibility_sec_met(target_model, options):
-    for rxn in target_model.reactions:
-        rxn.objective_coefficient = 0
 
-    #target_model.reactions.get_by_id('Biomass_SCO').objective_coefficient = 0
+    obj_rxn = linear_reaction_coefficients(target_model).keys()[0].id
+    target_model.reactions.get_by_id(obj_rxn).objective_coefficient = 0
     target_model.reactions.get_by_id("Ex_"+options.product).objective_coefficient = 1
 
     #Model reloading and overwrtting are necessary for model stability
@@ -303,7 +303,7 @@ def check_producibility_sec_met(target_model, options):
     flux_dist = target_model.optimize()
     logging.debug("Flux: %s" %flux_dist.objective_value)
 
-    target_model.reactions.get_by_id('Biomass_SCO').objective_coefficient = 1
+    target_model.reactions.get_by_id(obj_rxn).objective_coefficient = 1
     target_model.reactions.get_by_id("Ex_"+options.product).objective_coefficient = 0
 
     return target_model, flux_dist
