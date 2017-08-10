@@ -165,7 +165,7 @@ Following examples can be executed using both Docker image and source. However, 
 
         run_gmsm.py -i input/sample_input_ten_CDS.fasta -m nsal -p -E input/sample_eficaz_output.txt -C input/sample_compartment_info.txt -d
 
-- Run modeling of primary and secondary metabolism (~30 min for this example). Modeling using this input file takes much longer because this GenBank file has comprehensive EC number annotations from EFICAz, and thus has more reactions to be retrieved from [KEGG](http://www.kegg.jp/kegg/rest/) and added to the GEM draft.
+- Run modeling of primary and secondary metabolism (~30 min). Modeling using this input file takes much longer because this GenBank file has comprehensive EC number annotations from EFICAz, and thus has more reactions to be retrieved from [KEGG](http://www.kegg.jp/kegg/rest/) and added to the GEM draft.
 
         run_gmsm.py -i input/NC_021985.1.final_ec_antismash3.gbk -p -s -d
 
