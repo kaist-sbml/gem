@@ -25,7 +25,7 @@ This project was initiated as a research collaboration between [Metabolic & Biom
 2. Get a *Free Academic* license.
 
 ###Docker
-Docker image is available at [https://hub.docker.com/kaistmbel/gmsm]. Docker image contains all the major dependencies above and minimizes manutal setup. Currently light and full versions are available. All the Docker images are also tagged with GMSM versions.
+Docker image is available at https://hub.docker.com/mbel/gmsm. Docker image contains all the major dependencies above and minimizes manutal setup. Currently light and full versions are available. All the Docker images are also tagged with GMSM versions.
 
 1. *Light version*
 
@@ -99,7 +99,7 @@ Docker image is available at [https://hub.docker.com/kaistmbel/gmsm]. Docker ima
 
     EFICAz output file and subcellular localizations (compartments) can be provided as additional inputs, with options `-E` and `-C`, respectively.
 
-- Sample input files (available in `/gmsm/input/`):
+- Sample input files (available in `/gmsm/input/` in the source):
 
     `NC_021985.1.final_antismash4.gbk`: an output GenBank file of antiSMASH 4.0 (for Streptomyces collinus Tu 365)
 
@@ -122,6 +122,8 @@ Docker image is available at [https://hub.docker.com/kaistmbel/gmsm]. Docker ima
     If output directory is not given, result files are automatically stored in a directory `output` at root of the [GMSM](https://bitbucket.org/kaistmbel/gmsm) directory. **Note**: New result files will override existing files in the default `output` directory.
 
 - [GMSM](https://bitbucket.org/kaistmbel/gmsm) builds a GEM based on a template high-quality GEM. A default template GEM is the [high-quality GEM of Streptomyces coelicolor A3(2)](http://onlinelibrary.wiley.com/doi/10.1002/biot.201300539/abstract). Other template GEMs can be selected from the menu.
+
+- User's computer should be connected to the internet while modeling primary metabolism as GMSM accesses [KEGG](http://www.kegg.jp/kegg/rest/) to retrieve new reactions.
   
 - For more information:
 
@@ -137,7 +139,7 @@ Upon download, run the Docker image:
 
 
 ###Examples
-Following examples can be executed using both Docker image and source. However, `python` may need to be inserted, depending on user's system environment.
+Following examples can be executed using both Docker image and source. However, `python` may need to be inserted at the beginning, depending on user's system environment.
 
 - Run EC number annotation (takes long time for a full genome, ~6-16 h)
 
@@ -146,6 +148,10 @@ Following examples can be executed using both Docker image and source. However, 
 - Run modeling of primary metabolism
 
         run_gmsm.py -i input/NC_021985.1.final_antismash4.gbk -p -d
+
+- Run modeling of primary and secondary metabolism
+
+        run_gmsm.py -i input/NC_021985.1.final_antismash4.gbk -p -s -d
 
 - Run modeling of primary metabolism using FASTA, EFICAz and compartment data
 
@@ -156,10 +162,6 @@ Following examples can be executed using both Docker image and source. However, 
     Following command will not generate secondary metabolite biosynthetic reactions if a GMSM-derived primary metabolism model is not available in the designated folder (i.e., `3_primary_metabolic_model`).
 
         run_gmsm.py -i input/NC_021985.1.final_antismash4.gbk -s -d
-
-- Run modeling of primary and secondary metabolism
-
-        run_gmsm.py -i input/NC_021985.1.final_antismash4.gbk -p -s -d 
 
 Note: Option `-d` is for displaying debugging statements during program running.
 
