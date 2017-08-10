@@ -1,6 +1,7 @@
 
 import logging
 import os
+import sys
 
 def get_features_from_gbk(seq_record, options):
 
@@ -8,7 +9,11 @@ def get_features_from_gbk(seq_record, options):
         if feature.type == 'CDS':
 
             #Retrieving "locus_tag (i.e., ORF name)" for each CDS
-            locusTag = feature.qualifiers['locus_tag'][0]
+            if feature.qualifiers.get('locus_tag'):
+                locusTag = feature.qualifiers['locus_tag'][0]
+            else:
+                logging.error("No 'locus_tag' found in gbk file")
+                sys.exit(1)
 
             #Note that the numbers of CDS and "translation" do not match.
             #Some CDSs do not have "translation".
