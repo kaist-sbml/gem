@@ -145,7 +145,7 @@ Following examples can be executed using both Docker image and source. However, 
 
         run_gmsm.py -i input/sample_input_two_CDS.gb -e -d
 
-- Run modeling of secondary metabolism (only with antiSMASH output GenBank file). Secondary metabolite biosynthetic reactions cannot be generated because a GMSM-derived primary metabolism model has not been generated in the designated folder (i.e., `3_primary_metabolic_model`).
+- Run modeling of secondary metabolism (only with antiSMASH output GenBank file). Secondary metabolite biosynthetic reactions cannot be generated at this point because a GMSM-derived primary metabolism model has not been generated in the designated folder (i.e., `3_primary_metabolic_model`).
 
         run_gmsm.py -i input/NC_021985.1.final_antismash4.gbk -s -d
 
@@ -153,8 +153,7 @@ Following examples can be executed using both Docker image and source. However, 
 
         run_gmsm.py -i input/NC_021985.1.final_antismash4.gbk -p -d
 
-- Run modeling of secondary metabolism (only with antiSMASH output GenBank file).
-    Following command can now generate secondary metabolite biosynthetic reactions because the GMSM-derived primary metabolism model has been generated in the designated folder (i.e., `3_primary_metabolic_model`).
+- Run modeling of secondary metabolism (only with antiSMASH output GenBank file). This run can now generate secondary metabolite biosynthetic reactions because the GMSM-derived primary metabolism model has been generated in the designated folder (i.e., `3_primary_metabolic_model`).
 
         run_gmsm.py -i input/NC_021985.1.final_antismash4.gbk -s -d
 
@@ -165,8 +164,8 @@ Following examples can be executed using both Docker image and source. However, 
 - Run modeling of primary metabolism using FASTA, EFICAz and compartment data.
 
         run_gmsm.py -i input/sample_input_ten_CDS.fasta -m nsal -p -E input/sample_eficaz_output.txt -C input/sample_compartment_info.txt -d
-# TODO
-- Run modeling of primary and secondary metabolism (~ min for this example)
+
+- Run modeling of primary and secondary metabolism (~30 min for this example). Modeling using this input file takes much longer because this GenBank file has comprehensive EC number annotations from EFICAz, and thus has more reactions to be retrieved from [KEGG](http://www.kegg.jp/kegg/rest/) and added to the GEM draft.
 
         run_gmsm.py -i input/NC_021985.1.final_ec_antismash3.gbk -p -s -d
 
