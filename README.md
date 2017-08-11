@@ -88,7 +88,7 @@ Docker image is available at https://hub.docker.com/r/mbelinsilico/gmsm. Docker 
     
 #Implementation
 ###General
-- Select one or combination of major implementation options: `-e`, `-p` and/or `-s`
+- Select one or combination of modeling options: `-e` (EC number annotation), `-p` (primary metabolism modeling) and/or `-s` (secondary metabolism modeling).
 - Input file:
 
     Create an input directory at root of the [GMSM](https://bitbucket.org/kaistmbel/gmsm) directory.
@@ -121,7 +121,7 @@ Docker image is available at https://hub.docker.com/r/mbelinsilico/gmsm. Docker 
 
     If output directory is not given, result files are automatically stored in a directory `output` at root of the [GMSM](https://bitbucket.org/kaistmbel/gmsm) directory. **Note**: New result files will override existing files in the default `output` directory.
 
-- [GMSM](https://bitbucket.org/kaistmbel/gmsm) builds a GEM based on a template high-quality GEM. A default template GEM is the [high-quality GEM of Streptomyces coelicolor A3(2)](http://onlinelibrary.wiley.com/doi/10.1002/biot.201300539/abstract). Other template GEMs can be selected from the menu.
+- [GMSM](https://bitbucket.org/kaistmbel/gmsm) builds a GEM based on a template high-quality GEM. A default template GEM is the [high-quality GEM of Streptomyces coelicolor A3(2)](http://onlinelibrary.wiley.com/doi/10.1002/biot.201300539/abstract). Other template GEMs can be selected from the menu using `-m`.
 
 - User's computer should be connected to the internet while modeling primary metabolism as GMSM accesses [KEGG](http://www.kegg.jp/kegg/rest/) to retrieve new reactions.
   
@@ -130,18 +130,19 @@ Docker image is available at https://hub.docker.com/r/mbelinsilico/gmsm. Docker 
         run_gmsm.py -h
  
 ###Docker image
-Upon download, run the Docker image:
+Upon download, run the Docker image (full version):
 
-        docker run --rm -it -v $HOME/users_input_dir:/gmsm/input  -v $HOME/users_output_dir:/gmsm/output mbelinsilico/gmsm:0.4.6full
+        docker run --rm -it -v $HOME/users_input_dir:/gmsm/input -v $HOME/users_output_dir:/gmsm/output mbelinsilico/gmsm:0.4.6full
 
 - `users_input_dir`: User's defined directory where input data are stored.
 - `users_output_dir`: User's defined directory where output data are stored.
+- To run the light version, replace `full` with `light` in the above command. 
 
 
 ###Examples
 Following examples can be executed using both Docker image and source. However, `python` may need to be inserted at the beginning, depending on user's system environment. Running each example below takes a few minutes (~1-10 min) except for the last example.
 
-- Run EC number annotation (**~6-16 h** for a full bacterial genome).
+- Run EC number annotation (**~6-16 h** for a full bacterial genome). This example cannot be run with `mbelinsilico/gmsm:0.4.6light`.
 
         run_gmsm.py -i input/sample_input_two_CDS.gb -e -d
 
