@@ -88,7 +88,9 @@ Docker image is available at https://hub.docker.com/r/mbelinsilico/gmsm. Docker 
     
 #Implementation
 ###General
-- Select one or combination of modeling options: `-e` (EC number annotation), `-p` (primary metabolism modeling) and/or `-s` (secondary metabolism modeling).
+- [GMSM](https://bitbucket.org/kaistmbel/gmsm) builds a GEM based on a template high-quality GEM. A default template GEM is the [high-quality GEM of Streptomyces coelicolor A3(2)](http://onlinelibrary.wiley.com/doi/10.1002/biot.201300539/abstract). Other template GEMs can be selected from the menu using `-m`.
+
+- Select one or combination of modeling options using: `-e` (EC number annotation), `-p` (primary metabolism modeling) and/or `-s` (secondary metabolism modeling).
 - Input file:
 
     Create an input directory at root of the [GMSM](https://bitbucket.org/kaistmbel/gmsm) directory.
@@ -119,9 +121,7 @@ Docker image is available at https://hub.docker.com/r/mbelinsilico/gmsm. Docker 
 
     Create an output directory at root of the [GMSM](https://bitbucket.org/kaistmbel/gmsm) directory.
 
-    If output directory is not given, result files are automatically stored in a directory `output` at root of the [GMSM](https://bitbucket.org/kaistmbel/gmsm) directory. **Note**: New result files will override existing files in the default `output` directory.
-
-- [GMSM](https://bitbucket.org/kaistmbel/gmsm) builds a GEM based on a template high-quality GEM. A default template GEM is the [high-quality GEM of Streptomyces coelicolor A3(2)](http://onlinelibrary.wiley.com/doi/10.1002/biot.201300539/abstract). Other template GEMs can be selected from the menu using `-m`.
+    If output directory is not given, an output directory `output` is automatically generated at root of the [GMSM](https://bitbucket.org/kaistmbel/gmsm) repository. **Note**: New result files will override existing files in the default `output` directory.
 
 - User's computer should be connected to the internet while modeling primary metabolism as GMSM accesses [KEGG](http://www.kegg.jp/kegg/rest/) to retrieve new reactions.
   
@@ -146,15 +146,11 @@ Following examples can be executed using both Docker image and source. However, 
 
         run_gmsm.py -i input/sample_input_two_CDS.gb -e -d
 
-- Run modeling of secondary metabolism (only with antiSMASH output GenBank file). Secondary metabolite biosynthetic reactions cannot be generated at this point because a GMSM-derived primary metabolism model has not been generated in the designated folder (i.e., `3_primary_metabolic_model`).
-
-        run_gmsm.py -i input/NC_021985.1.final_antismash4.gbk -s -d
-
 - Run modeling of primary metabolism. This run will create the primary metabolism model necessary for secondary metabolism modeling.
 
         run_gmsm.py -i input/NC_021985.1.final_antismash4.gbk -p -d
 
-- Run modeling of secondary metabolism (only with antiSMASH output GenBank file). This run can now generate secondary metabolite biosynthetic reactions because the GMSM-derived primary metabolism model has been generated in the designated folder (i.e., `3_primary_metabolic_model`).
+- Run modeling of secondary metabolism (only with antiSMASH output GenBank file). A GMSM-derived primary metabolism model should be available in an automatically generated folder `/output/3_primary_metabolic_model/`.
 
         run_gmsm.py -i input/NC_021985.1.final_antismash4.gbk -s -d
 
