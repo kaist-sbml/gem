@@ -35,7 +35,7 @@ Docker image is available at https://hub.docker.com/r/mbelinsilico/gmsm. Docker 
 
     Download the Docker image (~3 min):
 
-        docker pull mbelinsilico/gmsm:0.4.5light
+        docker pull mbelinsilico/gmsm:0.4.6light
 
 2. *Full version*
 
@@ -45,7 +45,7 @@ Docker image is available at https://hub.docker.com/r/mbelinsilico/gmsm. Docker 
 
     Download the Docker image **(~40 min)**:
 
-        docker pull mbelinsilico/gmsm:0.4.5full
+        docker pull mbelinsilico/gmsm:0.4.6full
  
 ###Source
 1. Clone the repository
@@ -132,7 +132,7 @@ Docker image is available at https://hub.docker.com/r/mbelinsilico/gmsm. Docker 
 ###Docker image
 Upon download, run the Docker image:
 
-        docker run --rm -it -v $HOME/users_input_dir:/gmsm/input  -v $HOME/users_output_dir:/gmsm/output mbelinsilico/gmsm:0.4.5full
+        docker run --rm -it -v $HOME/users_input_dir:/gmsm/input  -v $HOME/users_output_dir:/gmsm/output mbelinsilico/gmsm:0.4.6full
 
 - `users_input_dir`: User's defined directory where input data are stored.
 - `users_output_dir`: User's defined directory where output data are stored.
