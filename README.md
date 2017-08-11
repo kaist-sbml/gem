@@ -25,7 +25,7 @@ This project was initiated as a research collaboration between [Metabolic & Biom
 2. Get a *Free Academic* license.
 
 ###Docker
-Docker image is available at https://hub.docker.com/mbel/gmsm. Docker image contains all the major dependencies above and minimizes manutal setup. Currently light and full versions are available. All the Docker images are also tagged with GMSM versions.
+Docker image is available at https://hub.docker.com/r/mbelinsilico/gmsm. Docker image contains all the major dependencies above and minimizes manutal setup. Currently light and full versions are available. All the Docker images are also tagged with GMSM versions.
 
 1. *Light version*
 
@@ -35,7 +35,7 @@ Docker image is available at https://hub.docker.com/mbel/gmsm. Docker image cont
 
     Download the Docker image (~3 min):
 
-        docker pull mbel/gmsm:0.4.5light
+        docker pull mbelinsilico/gmsm:0.4.5light
 
 2. *Full version*
 
@@ -45,7 +45,7 @@ Docker image is available at https://hub.docker.com/mbel/gmsm. Docker image cont
 
     Download the Docker image **(~40 min)**:
 
-        docker pull mbel/gmsm:0.4.5full
+        docker pull mbelinsilico/gmsm:0.4.5full
  
 ###Source
 1. Clone the repository
@@ -132,7 +132,7 @@ Docker image is available at https://hub.docker.com/mbel/gmsm. Docker image cont
 ###Docker image
 Upon download, run the Docker image:
 
-        docker run --rm -it -v $HOME/users_input_dir:/gmsm/input  -v $HOME/users_output_dir:/gmsm/output mbel/gmsm:0.4.5full
+        docker run --rm -it -v $HOME/users_input_dir:/gmsm/input  -v $HOME/users_output_dir:/gmsm/output mbelinsilico/gmsm:0.4.5full
 
 - `users_input_dir`: User's defined directory where input data are stored.
 - `users_output_dir`: User's defined directory where output data are stored.
