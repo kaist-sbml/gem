@@ -300,7 +300,12 @@ def add_nonBBH_rxn(modelPrunedGPR, options):
         modelPrunedGPR.add_reaction(rxn)
 
         #Re-define ID
-        rxn.id = kegg_id
+        # Assignment of the same reaction ID causes ValueError.
+        #This happens if the model has KEGG reaction IDs (e.g., 'R00227' in 'nsal').
+        try:
+            rxn.id = kegg_id
+        except ValueError as e:
+            logging.error(e)
 
         #Re-define Name
         rxn.name = options.rxnid_info_dict[kegg_id]['NAME']
