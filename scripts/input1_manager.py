@@ -333,7 +333,7 @@ def get_tempGenome_locusTag_aaSeq_dict(input1_tmp_dir, options, **kwargs):
     return tempGenome_locusTag_aaSeq_dict
 
 
-def get_tempModel_exrxnid_flux_dict(model, bigg_old_new_dict):
+def get_tempModel_exrxnid_flux_dict(model):
     tempModel_exrxnid_flux_dict = {}
 
     flux_dist = model.optimize()
@@ -611,8 +611,7 @@ if __name__ == '__main__':
         tempGenome_locusTag_aaSeq_dict = \
                 get_tempGenome_locusTag_aaSeq_dict(input1_tmp_dir, options)
 
-    tempModel_exrxnid_flux_dict = get_tempModel_exrxnid_flux_dict(
-                                                                model, bigg_old_new_dict)
+    tempModel_exrxnid_flux_dict = get_tempModel_exrxnid_flux_dict(model)
     tempModel_biggRxnid_locusTag_dict = get_tempModel_biggRxnid_locusTag_dict(model)
     tempModel_locusTag_aaSeq_dict = \
         get_tempModel_locusTag_aaSeq_dict(model, tempGenome_locusTag_aaSeq_dict, options)
