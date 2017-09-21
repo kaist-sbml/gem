@@ -157,8 +157,7 @@ def get_bigg_old_new_dict_for_nonstd_model():
 
 
 def fix_nonstd_model(bigg_old_new_dict, input1_tmp_dir, model, options):
-    tempModel_exrxnid_flux_dict = get_tempModel_exrxnid_flux_dict(
-                                                                model, bigg_old_new_dict)
+    tempModel_exrxnid_flux_dict = get_tempModel_exrxnid_flux_dict(model)
 
     for j in range(len(model.reactions)):
         rxn = model.reactions[j]
@@ -201,8 +200,7 @@ def fix_nonstd_model(bigg_old_new_dict, input1_tmp_dir, model, options):
                 model = gmsm.utils.stabilize_model(model, input1_tmp_dir, '')
                 logging.debug('Reaction: THRPS -> LTHRK canceled')
 
-    tempModel_exrxnid_flux_dict = get_tempModel_exrxnid_flux_dict(
-                                                                model, bigg_old_new_dict)
+    tempModel_exrxnid_flux_dict = get_tempModel_exrxnid_flux_dict(model)
 
     for i in range(len(model.metabolites)):
         metab = model.metabolites[i]
