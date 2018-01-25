@@ -222,10 +222,7 @@ def add_sec_met_rxn(target_model, options):
             #Add metabolites not available in the MNXref sbml
             else:
                 logging.debug("Metabolite (MNXM ID) %s: To be added" %metab)
-                metab_compt = Metabolite(metab_compt,
-                        formula = options.mnxm_compoundInfo_dict[metab][1],
-                        name = options.mnxm_compoundInfo_dict[metab][0],
-                        compartment='c')
+                metab_compt = Metabolite(metab_compt, compartment='c')
                 rxn.add_metabolites({metab_compt:options.metab_coeff_dict[metab]})
 
     #GPR association
