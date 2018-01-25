@@ -56,7 +56,7 @@ def check_input_options(options):
             not options.pmr_generation and \
             not options.smr_generation and \
             not options.comp:
-                logging.warning("Select one of the options: '-e', '-p-' or '-s'")
+                logging.warning("Select one of the options: '-e', '-p' or '-s'")
                 sys.exit(1)
 
     if options.comp:

@@ -91,7 +91,7 @@ def main():
 
     group = parser.add_argument_group('GEMS modeling options',
                         "At least one of the three options should be selected:"
-                        " '-e', '-p-' and '-s'\n"
+                        " '-e', '-p' and '-s'\n"
                         "Primary metabolic modeling option ('-p') should be selected "
                         "when using '-E' and/or '-C' options\n"
                         " - Examples:\n"
