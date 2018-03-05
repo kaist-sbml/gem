@@ -64,6 +64,20 @@ class ParseMNXref(object):
 
     # This function cannot parse the initial version of NMXref data
     def read_chem_xref(self, bigg_old_new_dict, filename):
+    	""" Process lines from cross reference file chem_xref. 
+    	Output 
+		mnxm_bigg_compound_dict
+		mnxm_kegg_compound_dict
+		Parameters
+        ----------
+        bigg_old_new_dict : dict
+            dict to reference old and new BiGG IDs Based on King et al. (2016) in NAR
+        file_name : str
+            Path to input file xref
+
+        # Note : Ignore the information from the databases other than bigg and kegg for metabolites
+        """
+
         mnxm_bigg_compound_dict = {}
         mnxm_kegg_compound_dict = {}
 
@@ -72,39 +86,42 @@ class ParseMNXref(object):
 
         for line in f:
             try:
-                metab_info_list = line.split('\t')
-                xref = metab_info_list[0].strip()
-                xref_list = xref.split(':')
-                xref_db = xref_list[0].strip()
-                xref_id = xref_list[1].strip()
-                mnxm = metab_info_list[1].strip()
+                if len(line) == 0 or line[0] == '#':    #ignore comment lines 
+                    metab_info_list = line.split('\t')
+                    xref = metab_info_list[0].strip()
 
-                if xref_db == 'bigg':
-                    if xref_id in bigg_old_new_dict:
-                        mnxm_bigg_compound_dict[mnxm] = bigg_old_new_dict[xref_id]
-                    else:
-                        mnxm_bigg_compound_dict[mnxm] = xref_id
+                    if xref.startswith('bigg' or 'kegg'): #this condition is modified to ignore lines without without ref in version 3
+                        xref_list = xref.split(':')
+                        xref_db = xref_list[0].strip()
+                        xref_id = xref_list[1].strip()
+                        mnxm = metab_info_list[1].strip()
 
-                elif xref_db == 'kegg':
-                    # Following conditions give priority to compoundID starting with 'C'
-                    if 'D' not in xref_id \
-                            and 'E' not in xref_id \
-                            and 'G' not in xref_id \
-                            and mnxm not in mnxm_kegg_compound_dict.keys():
-                        mnxm_kegg_compound_dict[mnxm] = xref_id
+                        if xref_db == 'bigg':
+                            if xref_id in bigg_old_new_dict:
+                                mnxm_bigg_compound_dict[mnxm] = bigg_old_new_dict[xref_id]
+                            else:
+                                mnxm_bigg_compound_dict[mnxm] = xref_id
 
-                logging.debug('%s; %s; %s' %(xref_db, xref_id, mnxm))
+                            logging.debug('%s; %s; %s' %(xref_db, xref_id, mnxm))    
+
+                        elif xref_db == 'kegg':
+                            # Following conditions give priority to compoundID starting with 'C'
+                            if 'D' not in xref_id \
+                                    and 'E' not in xref_id \
+                                    and 'G' not in xref_id \
+                                    and mnxm not in mnxm_kegg_compound_dict.keys():
+                                mnxm_kegg_compound_dict[mnxm] = xref_id
+
+                            logging.debug('%s; %s; %s' %(xref_db, xref_id, mnxm))
             except:
                 logging.debug('Cannot parse MNXM: %s' %line)
+
+        logging.debug('Parsing of chem_xref completed')
 
         f.close()
         self.mnxm_bigg_compound_dict = mnxm_bigg_compound_dict
         self.mnxm_kegg_compound_dict = mnxm_kegg_compound_dict
 
-        # TODO: To remove
-        with open(join(input2_tmp_dir, 'mnxm_bigg_compound_dict.txt'), 'w') as f:
-            for k, v in mnxm_bigg_compound_dict.iteritems():
-                print >>f, '%s\t%s' %(k, v)
 
     # mnxm_compoundInfo_dict =
     #{'MNXM128019': ['Methyl trans-p-methoxycinnamate', 'C11H12O3']}
@@ -429,6 +446,10 @@ def run_ParseMNXref():
             join(input2_tmp_dir, 'MNXref.xml'), use_fbc_package=False)
 
     # Write txt files
+    with open(join(input2_tmp_dir, 'mnxm_bigg_compound_dict.txt'), 'w') as f:
+        for k, v in self.mnxm_bigg_compound_dict.iteritems():
+            print >>f, '%s\t%s' %(k, v)
+
     with open(join(input2_tmp_dir, 'bigg_old_new_dict.txt'), 'w') as f:
         for k, v in bigg_old_new_dict.iteritems():
             print >>f, '%s\t%s' %(k, v)
