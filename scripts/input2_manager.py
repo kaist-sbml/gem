@@ -84,13 +84,14 @@ class ParseMNXref(object):
         f = open(filename,'r')
         f.readline()
 
+        logging.debug('Parsing of chem_xref initiated...')
         for line in f:
             try:
-                if len(line) == 0 or line[0] == '#':    #ignore comment lines 
+                if len(line) != 0 or line[0] != '#':    #ignore comment lines 
                     metab_info_list = line.split('\t')
                     xref = metab_info_list[0].strip()
 
-                    if xref.startswith('bigg' or 'kegg'): #this condition is modified to ignore lines without without ref in version 3
+                    if xref.startswith(('bigg', 'kegg')): #this condition is modified to ignore lines without without ref in version 3
                         xref_list = xref.split(':')
                         xref_db = xref_list[0].strip()
                         xref_id = xref_list[1].strip()
@@ -116,6 +117,9 @@ class ParseMNXref(object):
             except:
                 logging.debug('Cannot parse MNXM: %s' %line)
 
+        logging.debug('Cross reference dictionary for MNXM compounds to bigg has %d compounds' % len(mnxm_bigg_compound_dict))   
+        logging.debug('Cross reference dictionary for MNXM compounds to kegg has %d compounds' % len(mnxm_kegg_compound_dict))   
+             
         logging.debug('Parsing of chem_xref completed')
 
         f.close()
