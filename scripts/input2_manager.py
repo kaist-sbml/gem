@@ -127,25 +127,41 @@ class ParseMNXref(object):
         self.mnxm_kegg_compound_dict = mnxm_kegg_compound_dict
 
 
-    # mnxm_compoundInfo_dict =
-    #{'MNXM128019': ['Methyl trans-p-methoxycinnamate', 'C11H12O3']}
     def read_chem_prop(self, filename):
+    	''' Create metabolites information dictionary 
+    	chem_prop has following fields :
+    	MNX_ID	Description	Formula	Charge	Mass	InChI	SMILES	Source	InChIKey
+    	At the moment we store information of first 3 fields as required for GMSM
+		Output 
+		mnxm_compoundInfo_dict
+		{'MNXM128019': ['Methyl trans-p-methoxycinnamate', 'C11H12O3']}
+		Parameters
+        file_name : str
+            Path to input file 
+    	'''
         mnxm_compoundInfo_dict = {}
 
         f = open(filename,'r')
         f.readline()
+        logging.debug('Parsing of chem_prop initiated...')
 
         for line in f:
             try:
+                if len(line) == 0 or line[0] == '#':
+                	continue  # Skip empty lines and comment lines  
                 metab_prop_list = line.split('\t')
                 mnxm_id = metab_prop_list[0].strip()
                 mnxm_name = metab_prop_list[1].strip()
                 mnxm_formula = metab_prop_list[2].strip()
                 mnxm_compoundInfo_dict[mnxm_id] = [mnxm_name]
                 mnxm_compoundInfo_dict[mnxm_id].append(mnxm_formula)
+
             except:
                 logging.debug('Cannot parse MNXM: %s' %line)
 
+        logging.debug('Metabolite info dictionary has %d compounds' % len(mnxm_compoundInfo_dict))   
+
+        logging.debug('Parsing of chem_prop completed')        
         f.close()
         self.mnxm_compoundInfo_dict = mnxm_compoundInfo_dict
 
@@ -153,7 +169,16 @@ class ParseMNXref(object):
 
 
     def read_reac_xref(self, filename):
+    	""" Process lines from cross reference file reac_xref. 
+    	Output 
+		mnxr_kegg_dict, bigg_mnxr_dict, mnxr_xref_dict
+		
+		Parameters
+        file_name : str
+            Path to input file xref
 
+        # Note : Ignore the information from the databases other than bigg and kegg for reactions
+        """
         mnxr_xref_dict = {}
         mnxr_kegg_dict = {} # 1:n for {key:value}
         bigg_mnxr_dict = {} # 1:1 for {key:value}
