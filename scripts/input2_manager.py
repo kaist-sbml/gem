@@ -255,50 +255,50 @@ class ParseMNXref(object):
         logging.debug('Parsing of reac_prop initiated...')
         for line in f:
             try:
-            	if len(line) != 0 or line[0] != '#':    #ignore comment lines
-	                sptlist = line.split('\t')
-	                reaction_id = sptlist[0].strip()
-	                reversibility = True
+                if len(line) == 0 or line[0] == '#':
+                	continue  # Skip empty lines and comment lines 
+                sptlist = line.split('\t')
+                reaction_id = sptlist[0].strip()
+                reversibility = True
+                stoich_dict = {}
+                equation = sptlist[1].strip()
 
-	                stoich_dict = {}
-	                equation = sptlist[1].strip()
+                if sptlist[3].strip() == 'true':
+                	mass_balance = 'balanced'
+                elif sptlist[3].strip() == 'false':
+                	mass_balance = 'unbalanced'
+                	# Version 3 has 5 entries for balance of reaction - 'True', 'False', 'ambiguous', 'NA' or 'redox'
+                	# Here anything not True is taken as unbalanced
+                	# NEED REVIEW
+                else :
+                	mass_balance = 'unbalanced' 
 
-	                if sptlist[3].strip() == 'true':
-	                    mass_balance = 'balanced'
-	                elif sptlist[3].strip() == 'false':
-	                    mass_balance = 'unbalanced'
-	                # Version 3 has 5 entries for balance of reaction - 'True', 'False', 'ambiguous', 'NA' or 'redox'
-	                # Here anything not True is taken as unbalanced
-# NEED REVIEW    
-	                else :
-	                	mass_balance = 'unbalanced'     
+                ec_number = sptlist[4].strip()
 
-	                ec_number = sptlist[4].strip()
+                reactant_info, product_info = self.parse_equation(equation)
 
-	                reactant_info, product_info = self.parse_equation(equation)
+                for metabolite in reactant_info:
+                	stoich_dict[metabolite] = reactant_info[metabolite]
+                for metabolite in product_info:
+                	stoich_dict[metabolite] = product_info[metabolite]
 
-	                for metabolite in reactant_info:
-	                    stoich_dict[metabolite] = reactant_info[metabolite]
-	                for metabolite in product_info:
-	                    stoich_dict[metabolite] = product_info[metabolite]
+                flag = True
+                for each_reactant in reactant_info.keys():
+                	if each_reactant in product_info.keys():
+                		flag = False
+                		break
 
-	                flag = True
-	                for each_reactant in reactant_info.keys():
-	                    if each_reactant in product_info.keys():
-	                        flag = False
-	                        break
+                if flag == False:
+                	continue
 
-	                if flag == False:
-	                    continue
+                ec_number_list = ec_number.split(';')
 
-	                ec_number_list = ec_number.split(';')
-
-	                if len(ec_number_list) > 0:
-	                    reaction_info[reaction_id] = {
-	                            'stoichiometry': stoich_dict,
-	                            'balance': mass_balance,
-	                            'ec': ec_number_list,
-	                            'reversibility': reversibility}
+                if len(ec_number_list) > 0:
+	                reaction_info[reaction_id] = {
+	                        'stoichiometry': stoich_dict,
+	                        'balance': mass_balance,
+	                        'ec': ec_number_list,
+	                        'reversibility': reversibility}
             except:
                 logging.debug('Cannot parse MNXR: %s' %line)
 
@@ -307,7 +307,7 @@ class ParseMNXref(object):
         logging.debug('Parsing of reac_prop completed')
         
         self.reaction_info = reaction_info
-        fp.close()
+        f.close()
         return
 
 
@@ -319,7 +319,6 @@ class ParseMNXref(object):
 
     	Output :
     	reactant_info, product_info 
-			
 		'''
         equation = equation.replace('>', '')
         equation = equation.replace('<', '')
@@ -335,7 +334,7 @@ class ParseMNXref(object):
             spt_metabolite = each_metabolite.strip().split(' ')
 
             if len(spt_metabolite) == 1:
-				metabolite_compartment_list = spt_metabolite[0].split('@')
+                metabolite_compartment_list = spt_metabolite[0].split('@')
                 metabolite_name = metabolite_compartment_list[0].strip()
                 coeff = 1.0
                 reactant_info[metabolite_name] = coeff * -1
@@ -364,6 +363,11 @@ class ParseMNXref(object):
 
 
     def get_cobra_reactions(self):
+    	''' Creates Universal list of cobra reaction objects 	
+
+    	Output :
+    	cobra_reactions
+		'''
         logging.debug('Creating MNXR reactions: time-consuming')
 
         cobra_reactions = []
@@ -469,6 +473,11 @@ class ParseMNXref(object):
 
 
     def make_cobra_model(self):
+    	''' Creates Universal cobra model object 	
+
+    	Output :
+    	cobra_model
+		'''
         cobra_model = Model('mnxref_model')
         
         reaction_list = []
@@ -509,10 +518,10 @@ def unzip_tsv_files():
 def run_ParseMNXref():
     mnx_parser = ParseMNXref()
 
-    bigg_old_new_dict = mnx_parser.fix_legacy_id_using_BiGGModels()
-    mnx_parser.read_chem_xref(bigg_old_new_dict, join(input2_tmp_dir, 'chem_xref.tsv'))
-    mnxm_compoundInfo_dict = mnx_parser.read_chem_prop(join(input2_tmp_dir, 'chem_prop.tsv'))
-    mnxr_kegg_dict, bigg_mnxr_dict = mnx_parser.read_reac_xref(join(input2_tmp_dir, 'reac_xref.tsv'))
+    #bigg_old_new_dict = mnx_parser.fix_legacy_id_using_BiGGModels()
+    #mnx_parser.read_chem_xref(bigg_old_new_dict, join(input2_tmp_dir, 'chem_xref.tsv'))
+    #mnxm_compoundInfo_dict = mnx_parser.read_chem_prop(join(input2_tmp_dir, 'chem_prop.tsv'))
+    #mnxr_kegg_dict, bigg_mnxr_dict = mnx_parser.read_reac_xref(join(input2_tmp_dir, 'reac_xref.tsv'))
     mnx_parser.read_reac_prop(join(input2_tmp_dir, 'reac_prop.tsv'))
     mnx_parser.get_cobra_reactions()
     cobra_model = mnx_parser.make_cobra_model()
