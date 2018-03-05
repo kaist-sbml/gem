@@ -161,34 +161,46 @@ class ParseMNXref(object):
         f = open(filename,'r')
         f.readline()
 
+        logging.debug('Parsing of reac_xref initiated...')
         for line in f:
             try:
-                rxn_info_list = line.split('\t')
-                xref = rxn_info_list[0].strip()
-                xref_list = xref.split(':')
-                xref_db = xref_list[0].strip()
-                xref_id = xref_list[1].strip()
-                mnxr = rxn_info_list[1].strip()
+                if len(line) != 0 or line[0] != '#':    #ignore comment lines 
+                    rxn_info_list = line.split('\t')
+                    xref = rxn_info_list[0].strip()
 
-                # For reaction.name in MNXref.xml
-                if xref_db == 'bigg' or xref_db == 'kegg':
-                    if mnxr not in mnxr_xref_dict:
-                        mnxr_xref_dict[mnxr] = [xref_id]
-                    elif mnxr in mnxr_xref_dict:
-                        mnxr_xref_dict[mnxr].append(xref_id)
+                    if xref.startswith(('bigg', 'kegg')): #this condition is modified to ignore lines without without ref in version 3
+                        xref_list = xref.split(':')
+                        xref_db = xref_list[0].strip()
+                        xref_id = xref_list[1].strip()
+                        mnxr = rxn_info_list[1].strip()
 
-                if xref_db == 'kegg':
-                    if mnxr not in mnxr_kegg_dict:
-                        mnxr_kegg_dict[mnxr] = [xref_id]
-                    elif mnxr in mnxr_kegg_dict:
-                        mnxr_kegg_dict[mnxr].append(xref_id)
+                        # For reaction.name in MNXref.xml	
+                        if xref_db == 'bigg' or xref_db == 'kegg':
+                        	if mnxr not in mnxr_xref_dict:
+                        		mnxr_xref_dict[mnxr] = [xref_id]
+                        	elif mnxr in mnxr_xref_dict:
+                        		mnxr_xref_dict[mnxr].append(xref_id)
 
-                if xref_db == 'bigg':
-                    bigg_mnxr_dict[xref_id] = mnxr
+                        if xref_db == 'kegg':
+		                    if mnxr not in mnxr_kegg_dict:
+		                        mnxr_kegg_dict[mnxr] = [xref_id]
+		                    elif mnxr in mnxr_kegg_dict:
+		                        mnxr_kegg_dict[mnxr].append(xref_id)
 
-                logging.debug('%s; %s; %s' %(xref_db, xref_id, mnxr))
+		                    logging.debug('%s; %s; %s' %(xref_db, xref_id, mnxr))
+
+                        if xref_db == 'bigg':
+                    		bigg_mnxr_dict[xref_id] = mnxr
+
+                    		logging.debug('%s; %s; %s' %(xref_db, xref_id, mnxr))
+
             except:
                 logging.debug('Cannot parse MNXM: %s' %line)
+
+        logging.debug('Cross reference dictionary for bigg reactions to MNXR has %d reactions' % len(bigg_mnxr_dict))   
+        logging.debug('Cross reference dictionary for MNXM reactions to kegg has %d reactions' % len(mnxr_kegg_dict))   
+             
+        logging.debug('Parsing of reac_xref completed')
 
         f.close()
         self.mnxr_xref_dict = mnxr_xref_dict
