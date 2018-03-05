@@ -31,7 +31,7 @@ def make_blastDB(options):
 #Output: b0002,ASPK|b0002,0.0,100.00,820
 #"1e-30" is set as a threshold for bidirectional best hits
 def run_blastp(target_fasta, blastp_result, db_dir):
-    subprocess.call("./bin/diamond blastp -d %s -q %s -o %s --evalue 1e-85 --id 30 --outfmt 6 qseqid sseqid evalue score length pident"%(db_dir, target_fasta, blastp_result), shell=True, stderr=subprocess.STDOUT)
+    subprocess.call("./bin/diamond blastp -d %s -q %s -o %s --evalue 1e-30 --id 30 --outfmt 6 qseqid sseqid evalue score length pident"%(db_dir, target_fasta, blastp_result), shell=True, stderr=subprocess.STDOUT)
 
 #Input: Results file from "run_blastp"
 #Output: '\t' inserted between each element of the input
