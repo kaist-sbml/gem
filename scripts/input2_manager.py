@@ -126,6 +126,8 @@ class ParseMNXref(object):
         self.mnxm_bigg_compound_dict = mnxm_bigg_compound_dict
         self.mnxm_kegg_compound_dict = mnxm_kegg_compound_dict
 
+        return mnxm_bigg_compound_dict
+
 
     def read_chem_prop(self, filename):
     	''' Create metabolites information dictionary 
@@ -376,7 +378,8 @@ class ParseMNXref(object):
         cnt = 0
         for each_reaction in self.reaction_info:
             cnt += 1
-            logging.debug('Total reaction number %s; Reaction number covered %s; %s' \
+            if cnt%500 == 0:
+            	logging.debug('Total reaction number %s; Reaction number covered %s; %s' \
                     %(len(self.reaction_info), cnt, each_reaction))
             reaction_name = each_reaction
             metabolites = self.reaction_info[each_reaction]['stoichiometry']
@@ -518,10 +521,10 @@ def unzip_tsv_files():
 def run_ParseMNXref():
     mnx_parser = ParseMNXref()
 
-    #bigg_old_new_dict = mnx_parser.fix_legacy_id_using_BiGGModels()
-    #mnx_parser.read_chem_xref(bigg_old_new_dict, join(input2_tmp_dir, 'chem_xref.tsv'))
-    #mnxm_compoundInfo_dict = mnx_parser.read_chem_prop(join(input2_tmp_dir, 'chem_prop.tsv'))
-    #mnxr_kegg_dict, bigg_mnxr_dict = mnx_parser.read_reac_xref(join(input2_tmp_dir, 'reac_xref.tsv'))
+    bigg_old_new_dict = mnx_parser.fix_legacy_id_using_BiGGModels()
+    mnxm_bigg_compound_dict = mnx_parser.read_chem_xref(bigg_old_new_dict, join(input2_tmp_dir, 'chem_xref.tsv'))
+    mnxm_compoundInfo_dict = mnx_parser.read_chem_prop(join(input2_tmp_dir, 'chem_prop.tsv'))
+    mnxr_kegg_dict, bigg_mnxr_dict = mnx_parser.read_reac_xref(join(input2_tmp_dir, 'reac_xref.tsv'))
     mnx_parser.read_reac_prop(join(input2_tmp_dir, 'reac_prop.tsv'))
     mnx_parser.get_cobra_reactions()
     cobra_model = mnx_parser.make_cobra_model()
@@ -532,7 +535,7 @@ def run_ParseMNXref():
 
     # Write txt files
     with open(join(input2_tmp_dir, 'mnxm_bigg_compound_dict.txt'), 'w') as f:
-        for k, v in self.mnxm_bigg_compound_dict.iteritems():
+        for k, v in mnxm_bigg_compound_dict.iteritems():
             print >>f, '%s\t%s' %(k, v)
 
     with open(join(input2_tmp_dir, 'bigg_old_new_dict.txt'), 'w') as f:
