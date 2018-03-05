@@ -72,7 +72,7 @@ class ParseMNXref(object):
         ----------
         bigg_old_new_dict : dict
             dict to reference old and new BiGG IDs Based on King et al. (2016) in NAR
-        file_name : str
+        filename : str
             Path to input file xref
 
         # Note : Ignore the information from the databases other than bigg and kegg for metabolites
@@ -136,7 +136,7 @@ class ParseMNXref(object):
 		mnxm_compoundInfo_dict
 		{'MNXM128019': ['Methyl trans-p-methoxycinnamate', 'C11H12O3']}
 		Parameters
-        file_name : str
+        filename : str
             Path to input file 
     	'''
         mnxm_compoundInfo_dict = {}
@@ -174,7 +174,7 @@ class ParseMNXref(object):
 		mnxr_kegg_dict, bigg_mnxr_dict, mnxr_xref_dict
 		
 		Parameters
-        file_name : str
+        filename : str
             Path to input file xref
 
         # Note : Ignore the information from the databases other than bigg and kegg for reactions
@@ -234,6 +234,83 @@ class ParseMNXref(object):
         return mnxr_kegg_dict, bigg_mnxr_dict
 
 
+    def read_reac_prop(self, filename):
+    	''' Create reaction information dictionary 
+    	reac_prop has following fields :
+    	MNX_ID	Equation  Description  Balance	EC	Source
+    	
+    	Output 
+		reaction_info : dict		
+		Parameters
+        filename : str
+            Path to input file 
+    	'''
+        reaction_info = {}
+        mass_balance = ''
+        ec_number = ''
+
+        f = open(filename, 'r')
+        f.readline()  
+
+        logging.debug('Parsing of reac_prop initiated...')
+        for line in f:
+            try:
+            	if len(line) != 0 or line[0] != '#':    #ignore comment lines
+	                sptlist = line.split('\t')
+	                reaction_id = sptlist[0].strip()
+	                reversibility = True
+
+	                stoich_dict = {}
+	                equation = sptlist[1].strip()
+
+	                if sptlist[3].strip() == 'true':
+	                    mass_balance = 'balanced'
+	                elif sptlist[3].strip() == 'false':
+	                    mass_balance = 'unbalanced'
+	                # Version 3 has 5 entries for balance of reaction - 'True', 'False', 'ambiguous', 'NA' or 'redox'
+	                # Here anything not True is taken as unbalanced
+# NEED REVIEW    
+	                else
+	                	mass_balance = 'unbalanced'     
+
+	                ec_number = sptlist[4].strip()
+
+	                reactant_info, product_info = self.parse_equation(equation)
+
+	                for metabolite in reactant_info:
+	                    stoich_dict[metabolite] = reactant_info[metabolite]
+	                for metabolite in product_info:
+	                    stoich_dict[metabolite] = product_info[metabolite]
+
+	                flag = True
+	                for each_reactant in reactant_info.keys():
+	                    if each_reactant in product_info.keys():
+	                        flag = False
+	                        break
+
+	                if flag == False:
+	                    continue
+
+	                ec_number_list = ec_number.split(';')
+
+	                if len(ec_number_list) > 0:
+	                    reaction_info[reaction_id] = {
+	                            'stoichiometry': stoich_dict,
+	                            'balance': mass_balance,
+	                            'ec': ec_number_list,
+	                            'reversibility': reversibility}
+            except:
+                logging.debug('Cannot parse MNXR: %s' %line)
+
+        logging.debug('Reaction info dictionary has %d reactions' % len(reaction_info))   
+
+        logging.debug('Parsing of reac_prop completed')
+        
+        self.reaction_info = reaction_info
+        fp.close()
+        return
+
+
     def parse_equation(self, equation):
         equation = equation.replace('>', '')
         equation = equation.replace('<', '')
@@ -271,61 +348,6 @@ class ParseMNXref(object):
                 product_info[metabolite_name] = float(coeff)
 
         return reactant_info, product_info
-
-
-    def read_reac_prop(self, filename):
-        reaction_info = {}
-        mass_balance = ''
-        ec_number = ''
-
-        fp = open(filename, 'r')
-        fp.readline()  # dummy line
-        for line in fp:
-            try:
-                sptlist = line.split('\t')
-                reaction_id = sptlist[0].strip()
-                reversibility = True
-
-                stoich_dict = {}
-                equation = sptlist[1].strip()
-
-                if sptlist[3].strip() == 'true':
-                    mass_balance = 'balanced'
-                elif sptlist[3].strip() == 'false':
-                    mass_balance = 'unbalanced'
-
-                ec_number = sptlist[4].strip()
-
-                reactant_info, product_info = self.parse_equation(equation)
-
-                for metabolite in reactant_info:
-                    stoich_dict[metabolite] = reactant_info[metabolite]
-                for metabolite in product_info:
-                    stoich_dict[metabolite] = product_info[metabolite]
-
-                flag = True
-                for each_reactant in reactant_info.keys():
-                    if each_reactant in product_info.keys():
-                        flag = False
-                        break
-
-                if flag == False:
-                    continue
-
-                ec_number_list = ec_number.split(';')
-
-                if len(ec_number_list) > 0:
-                    reaction_info[reaction_id] = {
-                            'stoichiometry': stoich_dict,
-                            'balance': mass_balance,
-                            'ec': ec_number_list,
-                            'reversibility': reversibility}
-            except:
-                logging.debug('Cannot parse MNXR: %s' %line)
-
-        self.reaction_info = reaction_info
-        fp.close()
-        return
 
 
     def get_cobra_reactions(self):
@@ -433,11 +455,9 @@ class ParseMNXref(object):
         self.cobra_reactions = cobra_reactions
 
 
-    def make_cobra_model(self, mnx_file):
+    def make_cobra_model(self):
         cobra_model = Model('mnxref_model')
-        self.read_reac_prop(mnx_file)
-        self.get_cobra_reactions()
-
+        
         reaction_list = []
         for reaction_id in cobra_model.reactions:
             reaction_list.append(reaction_id.id)
@@ -480,7 +500,9 @@ def run_ParseMNXref():
     mnx_parser.read_chem_xref(bigg_old_new_dict, join(input2_tmp_dir, 'chem_xref.tsv'))
     mnxm_compoundInfo_dict = mnx_parser.read_chem_prop(join(input2_tmp_dir, 'chem_prop.tsv'))
     mnxr_kegg_dict, bigg_mnxr_dict = mnx_parser.read_reac_xref(join(input2_tmp_dir, 'reac_xref.tsv'))
-    cobra_model = mnx_parser.make_cobra_model(join(input2_tmp_dir, 'reac_prop.tsv'))
+    mnx_parser.read_reac_prop(join(input2_tmp_dir, 'reac_prop.tsv'))
+    mnx_parser.get_cobra_reactions()
+    cobra_model = mnx_parser.make_cobra_model()
 
     # Write SBML file
     cobra.io.write_sbml_model(cobra_model,
