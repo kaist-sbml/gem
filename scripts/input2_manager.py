@@ -378,8 +378,8 @@ class ParseMNXref(object):
         cnt = 0
         for each_reaction in self.reaction_info:
             cnt += 1
-            if cnt%500 == 0:
-            	logging.debug('Total reaction number %s; Reaction number covered %s; %s' \
+           
+            logging.debug('Total reaction number %s; Reaction number covered %s; %s' \
                     %(len(self.reaction_info), cnt, each_reaction))
             reaction_name = each_reaction
             metabolites = self.reaction_info[each_reaction]['stoichiometry']
