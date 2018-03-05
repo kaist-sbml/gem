@@ -270,7 +270,7 @@ class ParseMNXref(object):
 	                # Version 3 has 5 entries for balance of reaction - 'True', 'False', 'ambiguous', 'NA' or 'redox'
 	                # Here anything not True is taken as unbalanced
 # NEED REVIEW    
-	                else
+	                else :
 	                	mass_balance = 'unbalanced'     
 
 	                ec_number = sptlist[4].strip()
@@ -312,6 +312,15 @@ class ParseMNXref(object):
 
 
     def parse_equation(self, equation):
+    	''' Parse reaction equation to give reactant and products 
+    	Equation form: chemID is replaced by chemID@compID  e.g.
+    	1 MNXM12@MNXD1 + 1 MNXM146442@MNXD1 = 1 MNXM32694@MNXD1 + 1 MNXM686@MNXD1 
+    	NOTE : At the moment, we ignore the compartmentalization feature introduced in version 3    	
+
+    	Output :
+    	reactant_info, product_info 
+			
+		'''
         equation = equation.replace('>', '')
         equation = equation.replace('<', '')
         spt_equation = equation.split('=')
@@ -326,12 +335,14 @@ class ParseMNXref(object):
             spt_metabolite = each_metabolite.strip().split(' ')
 
             if len(spt_metabolite) == 1:
-                metabolite_name = spt_metabolite[0].strip()
+				metabolite_compartment_list = spt_metabolite[0].split('@')
+                metabolite_name = metabolite_compartment_list[0].strip()
                 coeff = 1.0
                 reactant_info[metabolite_name] = coeff * -1
             elif len(spt_metabolite) == 2:
                 coeff = spt_metabolite[0].strip()
-                metabolite_name = spt_metabolite[1].strip()
+                metabolite_compartment_list = spt_metabolite[1].split('@')
+                metabolite_name = metabolite_compartment_list[0].strip()
                 reactant_info[metabolite_name] = float(coeff) * -1
 
         product_list = product_str.split('+')
@@ -339,12 +350,14 @@ class ParseMNXref(object):
             spt_metabolite = each_metabolite.strip().split(' ')
 
             if len(spt_metabolite) == 1:
-                metabolite_name = spt_metabolite[0].strip()
+                metabolite_compartment_list = spt_metabolite[0].split('@')
+                metabolite_name = metabolite_compartment_list[0].strip()
                 coeff = 1.0
                 product_info[metabolite_name] = float(coeff)
             elif len(spt_metabolite) == 2:
                 coeff = spt_metabolite[0].strip()
-                metabolite_name = spt_metabolite[1].strip()
+                metabolite_compartment_list = spt_metabolite[1].split('@')
+                metabolite_name = metabolite_compartment_list[0].strip()
                 product_info[metabolite_name] = float(coeff)
 
         return reactant_info, product_info
