@@ -10,16 +10,13 @@ import subprocess
 #Make database files using fasta files
 def make_blastDB(options):
     db_dir = './%s/targetBlastDB' %options.outputfolder2
-    DBprogramName = options.makeblastdb_path
-    subprocess.call(
-            [DBprogramName,'-in',
-            options.target_fasta,'-out',
-            db_dir,'-dbtype',
-            'prot'])
-
+    subprocess.call("./bin/diamond makedb --in %s -d %s"%(options.target_fasta, db_dir), shell=True, stderr=subprocess.STDOUT)
+    
     #Checks if DB is properly created; otherwise shutdown
-    if os.path.isfile('./%s/targetBlastDB.psq' %options.outputfolder2) == False:
-	logging.debug("Error in make_blastDB: blast DB not created")
+    if os.path.isfile('./%s/targetBlastDB.dmnd' %options.outputfolder2) == False:
+        logging.debug("Error in make_blastDB: blast DB not created")
+    else:
+        logging.debug("Blast DB created")
 
 
 #Output: b0002,ASPK|b0002,0.0,100.00,820
