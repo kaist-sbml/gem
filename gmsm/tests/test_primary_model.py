@@ -174,12 +174,12 @@ class TestPrimary_model:
 
 
     def test_get_mnxr_list_from_modelPrunedGPR(self, sco_tmp_model, options):
-        bigg_mnxr_dict = {'MCOATA':'MNXR35619'}
+        bigg_mnxr_dict = {'MCOATA':'MNXR101421'}
         options.bigg_mnxr_dict = bigg_mnxr_dict
 
         augPhase_utils.get_mnxr_list_from_modelPrunedGPR(sco_tmp_model, options)
 
-        assert 'MNXR35619' in options.modelPrunedGPR_mnxr_list
+        assert 'MNXR101421' in options.modelPrunedGPR_mnxr_list
 
 
     def test_mnxr_to_add_list(self, mnxref, options):
@@ -192,19 +192,19 @@ class TestPrimary_model:
                 'PATHWAY': 'rn00051 Fructose and mannose metabolism'}
                 }
 
-        options.mnxr_kegg_dict = {'MNXR70727': ['R08926']}
+        options.mnxr_kegg_dict = {'MNXR112417': ['R08926']}
         options.modelPrunedGPR_mnxr_list = []
         options.mnxref = mnxref
 
         augPhase_utils.get_mnxr_to_add_list(options)
 
-        assert 'MNXR70727' in options.mnxr_to_add_list
+        assert 'MNXR112417' in options.mnxr_to_add_list
 
 
     # Focus on metabolite addition in this test
     # New metabolites: 'MNXM16902' and 'fuc__L'
     def test_add_nonBBH_rxn(self, sco_tmp_model, mnxref, tmpdir, sco_tmp_model_flux, options):
-        options.mnxr_to_add_list = ['MNXR70727']
+        options.mnxr_to_add_list = ['MNXR112417']
         options.rxnid_info_dict = {
             'R08926':{
                 'ENZYME': '1.1.1.122',
@@ -213,7 +213,7 @@ class TestPrimary_model:
                 'NAME': 'L-fucose:NAD+ 1-oxidoreductase',
                 'PATHWAY': 'rn00051 Fructose and mannose metabolism'}
                 }
-        options.mnxr_kegg_dict = {'MNXR70727': ['R08926']}
+        options.mnxr_kegg_dict = {'MNXR112417': ['R08926']}
         options.rxnid_locusTag_dict = {'R08926':['STEN_00480']}
         options.targetGenome_locusTag_prod_dict = {'STEN_00480':'D-threo-aldose 1-dehydrogenase'}
         outputfolder5 = './tmp'
@@ -226,7 +226,7 @@ class TestPrimary_model:
 
         assert 'R08926' not in sco_tmp_model.reactions
         assert 'MNXM16902_c' not in sco_tmp_model.metabolites
-        assert 'fuc__L_c' not in sco_tmp_model.metabolites
+        assert 'MNXM659_c' not in sco_tmp_model.metabolites
         assert 'h_c' in sco_tmp_model.metabolites
         assert 'nadh_c' in sco_tmp_model.metabolites
         assert 'nad_c' in sco_tmp_model.metabolites
@@ -235,7 +235,7 @@ class TestPrimary_model:
 
         assert 'R08926' in model.reactions
         assert 'MNXM16902_c' in model.metabolites
-        assert 'fuc__L_c' in model.metabolites
+        assert 'MNXM659_c' in model.metabolites
         assert 'h_c' in model.metabolites
         assert 'nadh_c' in model.metabolites
         assert 'nad_c' in model.metabolites
