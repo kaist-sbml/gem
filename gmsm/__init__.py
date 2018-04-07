@@ -15,6 +15,7 @@ def check_prereqs(options):
 
     # Tuple is ( binary_name, optional)
     _required_binaries = [
+        ('diamond', False),
         ('eficaz2.5', False)
     ]
 
