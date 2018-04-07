@@ -5,33 +5,33 @@
 import logging
 import os
 import subprocess
-
+import multiprocessing
 
 #Make database files using fasta files
 def make_blastDB(options):
     db_dir = './%s/targetBlastDB' %options.outputfolder2
-    DBprogramName = options.makeblastdb_path
-    subprocess.call(
-            [DBprogramName,'-in',
-            options.target_fasta,'-out',
-            db_dir,'-dbtype',
-            'prot'])
-
+    subprocess.call("./bin/diamond makedb --in %s -d %s"%(options.target_fasta, db_dir), shell=True, stderr=subprocess.STDOUT)
+    
     #Checks if DB is properly created; otherwise shutdown
-    if os.path.isfile('./%s/targetBlastDB.psq' %options.outputfolder2) == False:
-	logging.debug("Error in make_blastDB: blast DB not created")
+    if os.path.isfile('./%s/targetBlastDB.dmnd' %options.outputfolder2) == False:
+        logging.debug("Error in make_blastDB: blast DB not created")
+    else:
+        logging.debug("targetBlastDB.dmnd created")
+        
+    db_dir = './%s/tempBlastDB' %options.outputfolder2
+    subprocess.call("./bin/diamond makedb --in %s -d %s"%(options.temp_fasta, db_dir), shell=True, stderr=subprocess.STDOUT)
+    
+    #Checks if DB is properly created; otherwise shutdown
+    if os.path.isfile('./%s/tempBlastDB.dmnd' %options.outputfolder2) == False:
+        logging.debug("Error in make_blastDB: blast DB not created")
+    else:
+        logging.debug("tempBlastDB.dmnd created")
 
 
 #Output: b0002,ASPK|b0002,0.0,100.00,820
 #"1e-30" is set as a threshold for bidirectional best hits
-def run_blastp(blastp_path, target_fasta, blastp_result, db_dir, evalue):
-    BLASTPprogramName = blastp_path
-    subprocess.call(
-            [BLASTPprogramName,'-query',
-            target_fasta,'-out',blastp_result,
-            '-db',db_dir,'-evalue', str(evalue),
-            '-outfmt',"10 qseqid sseqid evalue score length pident"])
-
+def run_blastp(target_fasta, blastp_result, db_dir):
+    subprocess.call("./bin/diamond blastp -d %s -q %s -o %s --evalue 1e-30 --id 30 --outfmt 6 qseqid sseqid evalue score length pident"%(db_dir, target_fasta, blastp_result), shell=True, stderr=subprocess.STDOUT)
 
 #Input: Results file from "run_blastp"
 #Output: '\t' inserted between each element of the input
@@ -42,7 +42,7 @@ def parseBlaspResults(inputFile, outputFile):
     itemnum=0
     for line in fp:
         key = itemnum
-        sptList = line.strip().split(',')
+        sptList = line.strip().split('\t')
         qseqid = sptList[0].strip()
         sseqid = sptList[1].strip()
         evalue = sptList[2].strip()

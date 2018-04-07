@@ -7,7 +7,7 @@ import logging
 import utils
 #from os.path import join, abspath, dirname
 
-__version__ = '0.4.9'
+__version__ = '0.5.0'
 
 
 def check_prereqs(options):
@@ -15,8 +15,7 @@ def check_prereqs(options):
 
     # Tuple is ( binary_name, optional)
     _required_binaries = [
-        ('blastp', False),
-        ('makeblastdb', False),
+        ('diamond', False),
         ('eficaz2.5', False)
     ]
 
@@ -26,11 +25,7 @@ def check_prereqs(options):
         binary_path = utils.locate_executable(binary_name)
 
         if binary_path:
-            if binary_name == 'makeblastdb':
-                options.makeblastdb_path = binary_path
-            elif binary_name == 'blastp':
-                options.blastp_path = binary_path
-            elif binary_name == 'eficaz2.5':
+            if binary_name == 'eficaz2.5':
                 options.eficaz_path = binary_path
         elif binary_path is None and not optional:
             failure_messages.append("Failed to locate file: %r" % binary_name)

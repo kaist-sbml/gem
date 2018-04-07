@@ -20,22 +20,18 @@ def get_homologs(options):
 
     logging.info("Running BLASTP #1: target genome --> template model genes..")
     run_blastp(
-            options.blastp_path,
             target_fasta='./%s/targetGenome_locusTag_aaSeq.fa' %options.outputfolder2,
             blastp_result='./%s/blastp_targetGenome_against_tempGenome.txt'
             %options.outputfolder2,
-            db_dir = '%s/tempBlastDB' %(options.input1),
-            evalue=float(options.blastp.evalue))
+            db_dir = './%s/tempBlastDB.dmnd' %options.outputfolder2)
 
     logging.info("Running BLASTP #2: template model genes --> target genome..")
     run_blastp(
-            options.blastp_path,
             target_fasta=options.temp_fasta,
             blastp_result='./%s/blastp_tempGenome_against_targetGenome.txt'
             %options.outputfolder2,
-            db_dir = './%s/targetBlastDB' %options.outputfolder2,
-            evalue=float(options.blastp.evalue))
-
+            db_dir = './%s/targetBlastDB.dmnd' %options.outputfolder2)
+    
     logging.debug("Parsing the results of BLASTP #1..")
     blastpResults_dict1 = parseBlaspResults(
             './%s/blastp_targetGenome_against_tempGenome.txt'
