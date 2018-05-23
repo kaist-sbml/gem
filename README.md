@@ -52,10 +52,10 @@ Docker image is available at https://hub.docker.com/r/mbelinsilico/gmsm. Docker 
 
     (HTTPS)
 
-        git clone https://bitbucket.org/kaistmbel/gmsm.git
+        git clone https://bitbucket.org/kaistsystemsbiology/gmsm.git
     (SSH)
 
-        git clone git@bitbucket.org:kaistmbel/gmsm.git
+        git clone git@bitbucket.org:kaistsystemsbiology/gmsm.git
 
 2. Create and activate virtual environment
 
