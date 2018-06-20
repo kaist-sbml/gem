@@ -155,6 +155,8 @@ def get_eficaz_file(options):
 
         if eficazResultString.strip().startswith("4EC"):
             r = re.match('4EC: (\d+\.\d+\.\d+\.\d+), (.*)', eficazResultString)
+            if not r:
+                r = re.match('4EC:(\d+\.\d+\.\d+\.\d+)', eficazResultString)
             if r:
                 EC = r.group(1)
                 #ECDesc = r.group(2)
