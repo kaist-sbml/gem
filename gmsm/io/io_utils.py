@@ -28,11 +28,14 @@ def get_features_from_gbk(seq_record, options):
                 product = feature.qualifiers.get('product')[0]
                 options.targetGenome_locusTag_prod_dict[locusTag] = product
 
-            #Multiple 'EC_number's may exit for a single CDS.
-            #Nver use '[0]' for the 'qualifiers.get' list.
-            if feature.qualifiers.get('EC_number'):
-                ecnum = feature.qualifiers.get('EC_number')
-                options.targetGenome_locusTag_ec_dict[locusTag] = ecnum
+            if options.eficaz or options.eficaz_file:
+                logging.debug("Ignoring EC annotations from input gbk file")
+            else:
+                #Multiple 'EC_number's may exit for a single CDS.
+                #Nver use '[0]' for the 'qualifiers.get' list.
+                if feature.qualifiers.get('EC_number'):
+                    ecnum = feature.qualifiers.get('EC_number')
+                    options.targetGenome_locusTag_ec_dict[locusTag] = ecnum
 
         if feature.type == 'cluster':
             options.total_cluster += 1
