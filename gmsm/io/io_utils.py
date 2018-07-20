@@ -5,6 +5,12 @@ import sys
 
 def get_features_from_gbk(seq_record, options):
 
+    if options.eficaz or options.eficaz_file:
+        logging.info("Ignoring EC annotations from input gbk file")
+        #As EC numbers are used from a different source, existing EC annotations are ignored
+    else:
+        logging.info("Using EC annotations from input gbk file")
+
     for feature in seq_record.features:
         if feature.type == 'CDS':
 
@@ -29,7 +35,7 @@ def get_features_from_gbk(seq_record, options):
                 options.targetGenome_locusTag_prod_dict[locusTag] = product
 
             if options.eficaz or options.eficaz_file:
-                logging.debug("Ignoring EC annotations from input gbk file")
+                pass
             else:
                 #Multiple 'EC_number's may exit for a single CDS.
                 #Nver use '[0]' for the 'qualifiers.get' list.
