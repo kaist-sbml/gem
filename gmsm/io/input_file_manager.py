@@ -141,6 +141,7 @@ def get_eficaz_file(options):
         if eficazResultString == 'No EFICAz EC assignment':
             continue
 
+        # For EC number with 3 digits
         #if eficazResultString.strip().startswith("3EC"):
         #    r = re.match('3EC: (\d+\.\d+\.\d+), (.*)', eficazResultString)
         #    if r:
@@ -153,10 +154,13 @@ def get_eficaz_file(options):
         #        #EC3Info[locustag].append(ECDesc)
         #        continue
 
+        # Parse output formats of both EFICAz and DeepEC
         if eficazResultString.strip().startswith("4EC"):
             r = re.match('4EC: (\d+\.\d+\.\d+\.\d+)', eficazResultString)
+
+            # Ignore additional notes from EFICAz
             #r = re.match('4EC: (\d+\.\d+\.\d+\.\d+), (.*)', eficazResultString)
-            #EC Description is ingnored for now
+
             if r:
                 EC = r.group(1)
                 #ECDesc = r.group(2)
