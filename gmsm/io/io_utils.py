@@ -5,40 +5,40 @@ import sys
 
 def get_features_from_gbk(seq_record, options):
 
+    # Ignore existing annotations of EC numbers in an input gbk file as they are from a different source.
     if options.eficaz or options.eficaz_file:
         logging.info("Ignoring EC annotations from input gbk file")
-        #As EC numbers are used from a different source, existing EC annotations are ignored
     else:
         logging.info("Using EC annotations from input gbk file")
 
     for feature in seq_record.features:
         if feature.type == 'CDS':
 
-            #Retrieving "locus_tag (i.e., ORF name)" for each CDS
+            # Retrieving "locus_tag (i.e., ORF name)" for each CDS
             if feature.qualifiers.get('locus_tag'):
                 locusTag = feature.qualifiers['locus_tag'][0]
             else:
                 logging.error("No 'locus_tag' found in gbk file")
                 sys.exit(1)
 
-            #Note that the numbers of CDS and "translation" do not match.
-            #Some CDSs do not have "translation".
+            # Note that the numbers of CDS and "translation" do not match.
+            # Some CDSs do not have "translation".
             if feature.qualifiers.get('translation'):
                 translation = feature.qualifiers.get('translation')[0]
                 options.targetGenome_locusTag_aaSeq_dict[locusTag] = translation
 
-            #Used to find "and" relationship in the GPR association
+            # Used to find "and" relationship in the GPR association
             if feature.qualifiers.get('product'):
-                #It is confirmed that each locus_tag has a single '/product' annotation.
-                #Thus, it's OK to use '[0]'.
+                # It is confirmed that each locus_tag has a single '/product' annotation.
+                # Thus, it's OK to use '[0]'.
                 product = feature.qualifiers.get('product')[0]
                 options.targetGenome_locusTag_prod_dict[locusTag] = product
 
             if options.eficaz or options.eficaz_file:
                 pass
             else:
-                #Multiple 'EC_number's may exit for a single CDS.
-                #Nver use '[0]' for the 'qualifiers.get' list.
+                # Multiple 'EC_number's may exit for a single CDS.
+                # Never use '[0]' for the 'qualifiers.get' list.
                 if feature.qualifiers.get('EC_number'):
                     ecnum = feature.qualifiers.get('EC_number')
                     options.targetGenome_locusTag_ec_dict[locusTag] = ecnum
