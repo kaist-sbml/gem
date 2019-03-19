@@ -7,98 +7,90 @@ from cobra import Reaction, Metabolite
 from cobra.util.solver import linear_reaction_coefficients
 from gmsm import utils
 
-def get_cluster_location(seq_record, cluster_nr, options):
-
+def get_region_location(seq_record, options):
+    options.region_startlist = []
+    options.region_endlist = []
     for feature in seq_record.features:
-
-        if feature.type == 'cluster':
-            cluster_number = 'Cluster number: %s' %cluster_nr
-            options.cluster_number = cluster_number
-
-            if options.cluster_number in feature.qualifiers.get('note'):
-                options.cluster_loc1 = feature.location.start
-                options.cluster_loc2 = feature.location.end
+        if feature.type == 'region':
+            options.region_startlist.append(feature.location.start)
+            options.region_endlist.append(feature.location.end)
 
 
 #Exract all the information associated with a particular locus_tag for the selected cluster
-def get_cluster_info_from_seq_record(seq_record, options):
-
-    cluster_info_dict = {}
-
+def get_region_info_from_seq_record(seq_record, region_nr, options):
+    region_info_dict = {}
     for feature in seq_record.features:
-
         if feature.type == 'CDS':
-            if feature.location.start >= options.cluster_loc1 \
-                    and feature.location.end <= options.cluster_loc2:
+            if feature.location.start >= options.region_startlist[region_nr-1] \
+                    and feature.location.end <= options.region_endlist[region_nr-1]:
                 qualifier_locus_tag = feature.qualifiers.get('locus_tag')[0]
-                if feature.qualifiers.get('sec_met'):
-                    cluster_info_dict[qualifier_locus_tag] = \
-                            feature.qualifiers.get('sec_met')
+                if feature.qualifiers.get('sec_met_domain'):
+                    region_info_dict[qualifier_locus_tag] = \
+                            feature.qualifiers.get('sec_met_domain')
 
-    options.cluster_info_dict = cluster_info_dict
+    options.region_info_dict = region_info_dict
+             
 
-
-def get_cluster_product(seq_record, cluster_nr, options):
-
+def get_region_product(seq_record, region_nr, options):
     for feature in seq_record.features:
-
-        #Retrieving "Cluster number"
-        if feature.type == 'cluster':
-            qualifier_cluster = feature.qualifiers.get('note')
-            if options.cluster_number in qualifier_cluster:
-                product = feature.qualifiers.get('product')[0]
-
-    #Handle legacy problem
-    product2 = product.replace("-","_")
-
-    if float(cluster_nr) < 10:
-        product3 = "Cluster0"+str(cluster_nr)+"_"+product2
-    else:
-        product3 = "Cluster"+str(cluster_nr)+"_"+product2
-
-    options.product = product3
-
-
+        if feature.type == 'region':
+            if feature.location.start == options.region_startlist[region_nr-1] and \
+            feature.location.end == options.region_endlist[region_nr-1]:
+                product_list = feature.qualifiers.get('product')
+                for i in range(len(product_list)):
+                    # connecting all product of a region
+                    if i == 0:
+                        product = product_list[i].replace('-','_')
+                        if float(region_nr) < 10:
+                            product2 = "Region0"+str(region_nr)+"_"+product
+                        else:
+                            product2 = "Region"+str(region_nr)+"_"+product
+                    else:
+                        product = product_list[i].replace('-','_')
+                        product2 = product2+'_'+product
+                    options.product = product2      
+        
+        
+        
+#Exract all the information associated with a particular locus_tag for the selected region
 #Output: e.g., {'SAV_943_M1':['mmal', 'Ethyl_mal', 'pk']}
-def get_cluster_monomers(options):
+def get_region_monomers(seq_record, region_nr, options):
 
-    locustag_monomer_dict = {}
-    for each_gene in options.cluster_info_dict.keys():
-        module_count = 0
+    options.cds_info_dict = {}
+    options.locustag_monomer_dict = {}
 
-        for sec_met_info in options.cluster_info_dict[each_gene]:
+    for feature in seq_record.features:  
+        # find location of CDS involved in SM
+        if feature.type == 'CDS':       
+            module_count = 0
+            options.cds_loc1 = feature.location.start
+            options.cds_loc2 = feature.location.end
+        # find antiSMASH domain in range of CDS    
+        if feature.type == 'aSDomain':       
+            if feature.location.start >= options.cds_loc1 \
+            and feature.location.end <= options.cds_loc2:
+                # collect monomer information in one region
+                if feature.location.start >= options.region_startlist[region_nr-1] and \
+                feature.location.end <= options.region_endlist[region_nr-1]:
+                    qualifier_locus_tag = feature.qualifiers.get('locus_tag')[0]
+                    module_number = qualifier_locus_tag + '_M' + str(module_count)
+                    if feature.qualifiers.get('specificity'):
+                        sec_met_info = feature.qualifiers.get('specificity')
+                        if 'KR ' not in sec_met_info[0]:     # exclude KR stochiometry information
+                            options.cds_info_dict[module_number] = \
+                                feature.qualifiers.get('specificity')
+                            module_count += 1
 
-            if 'Substrate specificity predictions' in sec_met_info:
-                #type(sec_met_info) is string
-                #Convert 'sec_met_info' into a list
-                sec_met_info_list = sec_met_info.split(';')
-                for each_sec_met_info in sec_met_info_list:
-                    if 'Substrate specificity predictions' in each_sec_met_info:
-                        pred_monomer_list = []
-                        #Following statement produces a list with 2 elements:
-                        #e.g., [' Substrate specificity predictions',
-                        #' gly (NRPSPredictor2 SVM), gly (Stachelhaus code),
-                        #gly (Minowa), gly (consensus)']
-                        monomer_list = each_sec_met_info.split(':')
-                        for monomer in monomer_list:
-                            #Make sure to include a space ''
-                            #for monomers predicted from different engines:
-                            #e.g., 'orn,lys,arg (NRPSPredictor2 SVM),
-                            #lys (Stachelhaus code), leu (Minowa), nrp (consensus)'
-                            if 'Substrate specificity predictions' not in monomer \
-                                    and ', ' in monomer:
-                                monomer_list2 = monomer.split(', ')
-                                for monomer2 in monomer_list2:
-                                    monomer2_list = monomer2.split('(')
-                                    monomer3 = monomer2_list[0].strip()
-                                    pred_monomer_list.append(monomer3)
-
-                module_number = each_gene + '_M' + str(module_count)
-                locustag_monomer_dict[module_number] = pred_monomer_list
-                module_count += 1
-
-    options.locustag_monomer_dict = locustag_monomer_dict
-
+    for each_gene in options.cds_info_dict.keys():
+        monomer_list = []
+        for sec_met_info in options.cds_info_dict[each_gene]:
+            sec_met = sec_met_info.split(': ')
+            if 'KR ' not in sec_met[0]:
+                monomer = sec_met[1]
+                monomer_list.append(monomer)
+            options.locustag_monomer_dict[each_gene] = monomer_list
+    
+        
 
 def get_biggid(priority_list, each_module, options):
     for i in priority_list:
@@ -120,59 +112,33 @@ def get_biggid(priority_list, each_module, options):
 # Add stoichiometric coeff's of monomers
 # Output: e.g., {'mmalcoa': -4, 'malcoa': -7}
 def get_all_metab_coeff(options):
-
-    metab_coeff_dict = {}
-    for each_module in options.locustag_monomer_dict:
-        logging.debug("Module: %s; monomers: %s",
-                        each_module, options.locustag_monomer_dict[each_module])
-
-        # NRPS analyzed with antiSMASH 3.0
-        # Index [0]: NRPSPredictor2 SVM
-        # Index [1]: Stachelhaus code
-        # Index [2]: Minowa
-        # Index [3]: consensus
-        # Priority: consensus > NRPSPredictor2 SVM > Stachelhaus code > Minowa
-        if len(options.locustag_monomer_dict[each_module]) == 4:
-            priority_list = [3, 0, 1, 2]
-            biggid_met = get_biggid(priority_list, each_module, options)
-
-        # NRPS analyzed with antiSMASH 4.0
-        # Index [0]: Stachelhaus code
-        # Index [1]: NRPSPredictor3 SVM
-        # Index [2]: pHMM
-        # Index [3]: PrediCAT
-        # Index [4]: SANDPUMA ensemble
-        # Priority: consensus (SANDPUMA ensemble) > NRPSPredictor3 SVM > PrediCAT >
-        #pHMM > Stachelhaus code
-        elif len(options.locustag_monomer_dict[each_module]) == 5:
-            priority_list = [4, 1, 3, 2, 0]
-            biggid_met = get_biggid(priority_list, each_module, options)
-
-        # PKS analyzed with antiSMASH 3.0 & 4.0
-        # locustag_monomer_dict[each_module] for pks
-        # Index [0]: PKS signature
-        # Index [1]: Minowa
-        # Index [2]: consensus
-        # Priority: consensus > PKS signature > Minowa
-        elif len(options.locustag_monomer_dict[each_module]) == 3:
-            priority_list = [2, 0, 1]
-            biggid_met = get_biggid(priority_list, each_module, options)
-
-        # Filter modules without 'Substrate specificity predictions'
-        #e.g., 'B446_13275_M0'
-        #{'B446_13415_M0': ['gly,ala,val,leu,ile,abu,iva', 'ile', 'val', 'nrp'], 'B446_13275_M0': [], 'B446_13350_M0': ['leu', 'ala', 'sar', 'nrp'], 'B446_13445_M0': ['pro,pip', 'N/A', 'orn', 'nrp']}
-        if options.locustag_monomer_dict[each_module] and biggid_met:
-            if biggid_met not in metab_coeff_dict:
-                metab_coeff_dict[biggid_met] = -1
-            else:
-                metab_coeff_dict[biggid_met] -= 1
-
-    # Add secondary metabolite product to the reaction
-    metab_coeff_dict[options.product] = 1
-
-    logging.debug('metab_coeff_dict: %s' %metab_coeff_dict)
-    options.metab_coeff_dict = metab_coeff_dict
-
+        metab_coeff_dict = {}
+        for each_module in options.locustag_monomer_dict:
+            # PKS analyzed with antiSMASH 5.0
+            # locustag_monomer_dict[each_module] for pks
+            # Index [0]: consensus
+            # Index [1]: Minowa
+            # Index [2]: PKS signature
+            # Priority: consensus > PKS signature > Minowa
+            if len(options.locustag_monomer_dict[each_module]) == 3:
+                priority_list = [0, 2, 1]
+                biggid_met = get_biggid(priority_list, each_module, options)
+            elif len(options.locustag_monomer_dict[each_module]) == 1:
+                priority_list = [0]
+                biggid_met = get_biggid(priority_list, each_module, options)
+            # Filter modules without 'Substrate specificity predictions'
+            # e.g., 'B446_13275_M0'
+            # {'B446_13415_M0': ['gly,ala,val,leu,ile,abu,iva', 'ile', 'val', 'nrp'], 'B446_13275_M0': [], 'B446_13350_M0': ['leu', 'ala', 'sar', 'nrp'], 'B446_13445_M0': ['pro,pip', 'N/A', 'orn', 'nrp']}
+            if options.locustag_monomer_dict[each_module] and biggid_met:
+                if biggid_met not in metab_coeff_dict:
+                    metab_coeff_dict[biggid_met] = -1
+                else:
+                    metab_coeff_dict[biggid_met] -= 1
+        # Add secondary metabolite product to the reaction
+        metab_coeff_dict[options.product] = 1
+        options.metab_coeff_dict = metab_coeff_dict    
+    
+    
 
 def get_pickles(options):
 
@@ -214,8 +180,8 @@ def add_sec_met_rxn(target_model, options):
                 metab_compt = options.mnxref.metabolites.get_by_id(metab_compt)
                 rxn.add_metabolites({metab_compt:options.metab_coeff_dict[metab]})
 
-            elif 'Cluster' in metab:
-                logging.debug("Secondary metabolite ('Cluster') %s: To be added" %metab)
+            elif 'Region' in metab:
+                logging.debug("Secondary metabolite ('Region') %s: To be added" %metab)
                 metab_compt = Metabolite(metab_compt, compartment='c')
                 rxn.add_metabolites({metab_compt:options.metab_coeff_dict[metab]})
 
@@ -227,7 +193,7 @@ def add_sec_met_rxn(target_model, options):
 
     #GPR association
     gpr_count = 0
-    for each_gene in options.cluster_info_dict.keys():
+    for each_gene in options.region_info_dict.keys():
         if gpr_count == 0:
             gpr_list = each_gene
             gpr_count += 1
