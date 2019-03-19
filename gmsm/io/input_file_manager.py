@@ -82,7 +82,7 @@ def get_target_genome_from_input(filetype, options):
     options.targetGenome_locusTag_aaSeq_dict = {}
     options.targetGenome_locusTag_ec_dict = {}
     options.targetGenome_locusTag_prod_dict = {}
-    options.total_cluster = 0
+    options.total_region = 0
 
     seq_records = list(SeqIO.parse(options.input, filetype))
 

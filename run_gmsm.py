@@ -259,10 +259,10 @@ def main():
 
         if len(seq_records) == 1 and \
                 len(model_file) > 0 and '.xml' in model_file[0] and \
-                options.total_cluster > 0:
+                options.total_region > 0:
 
             logging.info("Generating secondary metabolite biosynthesizing reactions..")
-            logging.debug("Total number of clusters: %s" %options.total_cluster)
+            logging.debug("Total number of regions: %s" %options.total_region)
 
             seq_record = seq_records[0]
 
@@ -299,8 +299,8 @@ def main():
                     "Input genome data with multiple records is currently not supported")
             elif len(model_file) == 0 or '.xml' not in model_file[0]:
                 logging.warning("COBRA-compliant SBML file needed")
-            elif options.total_cluster == 0:
-                logging.warning("No cluster information found in input genome data")
+            elif options.total_region == 0:
+                logging.warning("No region information found in input genome data")
 
     remove_tmp_model_files(options)
     logging.info(time.strftime("Elapsed time %H:%M:%S", time.gmtime(time.time() - start)))

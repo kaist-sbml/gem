@@ -43,8 +43,8 @@ def get_features_from_gbk(seq_record, options):
                     ecnum = feature.qualifiers.get('EC_number')
                     options.targetGenome_locusTag_ec_dict[locusTag] = ecnum
 
-        if feature.type == 'cluster':
-            options.total_cluster += 1
+        if feature.type == 'region':
+            options.total_region += 1
 
 
 def get_features_from_fasta(seq_record, options):
