@@ -18,13 +18,13 @@ def generate_outputs(folder, runtime, options, **kwargs):
     #This can also mask the effects of model error (e.g., undeclared metabolite ID)
     cobra_model = utils.stabilize_model(cobra_model, folder, '')
 
-    num_essen_rxn, num_kegg_rxn, num_region_rxn = get_model_reactions(
+    num_essen_rxn, num_kegg_rxn, num_secondary_rxn = get_model_reactions(
                        folder, options, **kwargs)
     get_model_metabolites(folder, cobra_model, options)
     template_model_gene_list, duplicate_gene_list = \
                        get_model_genes(folder, cobra_model, options)
     get_summary_report(folder, cobra_model, runtime,
-                       num_essen_rxn, num_kegg_rxn, num_region_rxn,
+                       num_essen_rxn, num_kegg_rxn, num_secondary_rxn,
                        template_model_gene_list, duplicate_gene_list, options)
 
     if '3_primary_metabolic_model'in folder:
@@ -50,7 +50,10 @@ def get_model_reactions(folder, options, **kwargs):
             +'GPR'+'\t'+'pathway'+'\n')
 
     if '4_complete_model' in folder:
-        fp4 = open('./%s/rmc_region_fluxes.txt' %folder, 'w')
+        if options.anti == 5:
+            fp4 = open('./%s/rmc_region_fluxes.txt' %folder, 'w')
+        if options.anti == 4:
+            fp4 = open('./%s/rmc_cluster_fluxes.txt' %folder, 'w')
         fp4.write('reaction_ID'+'\t'+'fluxes without gap-filling reactions'+'\n')
 
     if 'cobra_model' in kwargs:
@@ -58,7 +61,7 @@ def get_model_reactions(folder, options, **kwargs):
 
     num_essen_rxn = 0
     num_kegg_rxn = 0
-    num_region_rxn = 0
+    num_secondary_rxn = 0
     for j in range(len(cobra_model.reactions)):
         rxn = cobra_model.reactions[j]
         print >>fp1, '%s\t%s\t%s\t%s\t%s' %(rxn.id, rxn.name, rxn.reaction,
@@ -82,8 +85,8 @@ def get_model_reactions(folder, options, **kwargs):
                                             rxn.gene_reaction_rule, rxn.subsystem)
 
         #Secondary metabolite biosynthetic reactions
-        if re.search('Ex_Region', rxn.id) and '4_complete_model' in folder:
-            num_region_rxn+=1
+        if (re.search('Ex_Region', rxn.id) or re.search('Ex_Cluster', rxn.id)) and '4_complete_model' in folder:
+            num_secondary_rxn +=1
 
             #Calculated flux values are inaccurate without
             #manual setting of objective_coefficient to zero
@@ -113,7 +116,7 @@ def get_model_reactions(folder, options, **kwargs):
     if '4_complete_model' in folder:
         fp4.close()
 
-    return num_essen_rxn, num_kegg_rxn, num_region_rxn
+    return num_essen_rxn, num_kegg_rxn, num_secondary_rxn
 
 
 def get_model_metabolites(folder, cobra_model, options):
@@ -216,7 +219,7 @@ def get_model_genes(folder, cobra_model, options):
 
 
 def get_summary_report(folder, cobra_model, runtime,
-                       num_essen_rxn, num_kegg_rxn, num_region_rxn,
+                       num_essen_rxn, num_kegg_rxn, num_secondary_rxn,
                        template_model_gene_list, duplicate_gene_list,
                        options):
     fp1 = open('./%s/summary_report.txt' %folder, "w")
@@ -249,7 +252,7 @@ def get_summary_report(folder, cobra_model, runtime,
     model_summary_dict['number_remaining_essential_reactions_from_template_model'] = \
             num_essen_rxn
     model_summary_dict['number_reactions_added_from_kegg']=num_kegg_rxn
-    model_summary_dict['number_regions_for_reactions']=num_region_rxn
+    model_summary_dict['number_secondary_reactions']=num_secondary_rxn
     model_summary_dict['number_remaining_genes_from_template_model'] = \
             len(template_model_gene_list)
     model_summary_dict['number_duplicate_genes_in_rxn_from_target_model'] = \

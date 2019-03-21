@@ -3,6 +3,18 @@ import logging
 import os
 import sys
 
+
+def get_antismash_version_from_gbk(seq_record, options):
+    comment = seq_record.annotations
+    try:
+        if comment['structured_comment']['antiSMASH-Data']['Version'][0] == '5':
+            logging.info("Gbk file from antiSMASH version 5")
+            options.anti = 5
+    except:
+        logging.info("Gbk file from antiSMASH version 4")
+        options.anti = 4
+        pass
+        
 def get_features_from_gbk(seq_record, options):
 
     # Ignore existing annotations of EC numbers in an input gbk file as they are from a different source.
@@ -45,6 +57,8 @@ def get_features_from_gbk(seq_record, options):
 
         if feature.type == 'region':
             options.total_region += 1
+        if feature.type == 'cluster':
+            options.total_cluster += 1
 
 
 def get_features_from_fasta(seq_record, options):
