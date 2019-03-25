@@ -3,8 +3,8 @@ import logging
 import os
 import sys
 
-def get_features_from_gbk(seq_record, options):
-
+def get_features_from_gbk(seq_record, io_ns):
+    options = io_ns
     # Ignore existing annotations of EC numbers in an input gbk file as they are from a different source.
     if options.eficaz or options.eficaz_file:
         logging.info("Ignoring EC annotations from input gbk file")
@@ -25,14 +25,14 @@ def get_features_from_gbk(seq_record, options):
             # Some CDSs do not have "translation".
             if feature.qualifiers.get('translation'):
                 translation = feature.qualifiers.get('translation')[0]
-                options.targetGenome_locusTag_aaSeq_dict[locusTag] = translation
+                io_ns.targetGenome_locusTag_aaSeq_dict[locusTag] = translation
 
             # Used to find "and" relationship in the GPR association
             if feature.qualifiers.get('product'):
                 # It is confirmed that each locus_tag has a single '/product' annotation.
                 # Thus, it's OK to use '[0]'.
                 product = feature.qualifiers.get('product')[0]
-                options.targetGenome_locusTag_prod_dict[locusTag] = product
+                io_ns.targetGenome_locusTag_prod_dict[locusTag] = product
 
             if options.eficaz or options.eficaz_file:
                 pass
@@ -41,43 +41,43 @@ def get_features_from_gbk(seq_record, options):
                 # Never use '[0]' for the 'qualifiers.get' list.
                 if feature.qualifiers.get('EC_number'):
                     ecnum = feature.qualifiers.get('EC_number')
-                    options.targetGenome_locusTag_ec_dict[locusTag] = ecnum
+                    io_ns.targetGenome_locusTag_ec_dict[locusTag] = ecnum
 
         if feature.type == 'cluster':
-            options.total_cluster += 1
+            io_ns.total_cluster += 1
 
 
-def get_features_from_fasta(seq_record, options):
+def get_features_from_fasta(seq_record, io_ns):
     locusTag = seq_record.id
-    options.targetGenome_locusTag_aaSeq_dict[locusTag] = seq_record.seq
-    options.targetGenome_locusTag_prod_dict[locusTag] = seq_record.description
+    io_ns.targetGenome_locusTag_aaSeq_dict[locusTag] = seq_record.seq
+    io_ns.targetGenome_locusTag_prod_dict[locusTag] = seq_record.description
 
 
-def get_target_fasta(options):
+def get_target_fasta(io_ns):
 
-    if options.targetGenome_locusTag_aaSeq_dict:
-
+    if io_ns.targetGenome_locusTag_aaSeq_dict:
         target_fasta_dir = os.path.join(
-                options.outputfolder2, 'targetGenome_locusTag_aaSeq.fa')
+                io_ns.outputfolder2, 'targetGenome_locusTag_aaSeq.fa')
         with open(target_fasta_dir,'w') as f:
-            for locusTag in options.targetGenome_locusTag_aaSeq_dict.keys():
+            for locusTag in io_ns.targetGenome_locusTag_aaSeq_dict.keys():
                 print >>f, '>%s\n%s' \
-                %(str(locusTag), str(options.targetGenome_locusTag_aaSeq_dict[locusTag]))
-        options.target_fasta = target_fasta_dir
+                %(str(locusTag), str(io_ns.targetGenome_locusTag_aaSeq_dict[locusTag]))
+        io_ns.target_fasta = target_fasta_dir
     else:
         logging.warning("FASTA file 'targetGenome_locusTag_aaSeq.fa' not found")
 
 
 #Look for pre-stored fasta file of the template model
-def get_temp_fasta(options):
+def get_temp_fasta(io_ns):
+    options = io_ns
     for root, _, files in os.walk('./gmsm/io/data/input1/%s/' %(options.orgName)):
         for f in files:
             if f.endswith('.fa'):
                 tempFasta = os.path.join(root, f)
-                options.input1 = root
-                options.temp_fasta = tempFasta
+                io_ns.input1 = root
+                io_ns.temp_fasta = tempFasta
 
-    if options.temp_fasta:
+    if io_ns.temp_fasta:
         logging.debug("FASTA file for '%s' found", options.orgName)
     else:
         logging.warning("FASTA file for '%s' not found", options.orgName)
