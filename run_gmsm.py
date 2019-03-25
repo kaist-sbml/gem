@@ -146,8 +146,8 @@ def main():
                         default=False,
                         help="Show the program version and exit")
 
+    # Create a namespace for each modules
     options = parser.parse_args()
-    
     io_ns = options
     gmsm_ns = options
     config_ns = options
