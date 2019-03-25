@@ -147,20 +147,28 @@ def main():
                         help="Show the program version and exit")
 
     options = parser.parse_args()
-
+    
+    io_ns = options
+    gmsm_ns = options
+    config_ns = options
+    eficaz_ns = options
+    homology_ns = options
+    primary_model_ns = options
+    run_secondary_modeling_ns = options
+    
     # Create an output directory for a log file
-    make_folder(options.outputfolder)
+    make_folder(io_ns.outputfolder)
 
-    utils.setup_logging(options)
+    utils.setup_logging(gmsm_ns)
 
     # Create output folders
-    setup_outputfolders(options)
+    setup_outputfolders(io_ns)
 
     if options.version:
         print 'GEMS version %s (%s)' %(utils.get_version(), utils.get_git_log())
         sys.exit(0)
 
-    utils.check_input_options(options)
+    utils.check_input_options(gmsm_ns)
 
     # Warning messages from cobrapy turned off by default
     if not options.warning:
@@ -168,23 +176,23 @@ def main():
 
     logging.info('Starting GEMS ver. %s (%s)', utils.get_version(), utils.get_git_log())
 
-    show_input_options(options)
+    show_input_options(io_ns)
 
     logging.info("Reading input genome files..")
-    filetype = check_input_filetype(options)
+    filetype = check_input_filetype(io_ns)
 
     # Load config data
-    load_config(options)
+    load_config(config_ns)
 
     # Check prerequisites of executables and libraries
-    check_prereqs(options)
+    check_prereqs(gmsm_ns)
 
     # EC number prediction
     if options.eficaz:
-        seq_records = get_target_genome_from_input(filetype, options)
+        seq_records = get_target_genome_from_input(filetype, io_ns)
 
         if options.eficaz_path and \
-                options.targetGenome_locusTag_aaSeq_dict and \
+                io_ns.targetGenome_locusTag_aaSeq_dict and \
                 not options.eficaz_file:
 
             if filetype == 'fasta' or len(seq_records) > 1:
@@ -192,40 +200,40 @@ def main():
                 logging.info("Raw EFICAz output (.txt)  will be generated, not GenBank")
 
             if len(seq_records) == 1:
-                getECs1(options, seq_record = seq_records[0])
+                getECs1(eficaz_ns, seq_record = seq_records[0])
             elif len(seq_records) > 1:
-                getECs2(options)
+                getECs2(eficaz_ns)
         else:
             logging.warning("EFICAz not implemented;")
 
             if not options.eficaz_path:
                 logging.warning("EFICAz not found")
-            elif not options.targetGenome_locusTag_aaSeq_dict:
+            elif not io_ns.targetGenome_locusTag_aaSeq_dict:
                 logging.warning(
                         "No amino acid sequences found in input genome data")
 
     # Primary metabolic modeling
     if options.pmr_generation:
         if not options.eficaz:
-            seq_records = get_target_genome_from_input(filetype, options)
+            seq_records = get_target_genome_from_input(filetype, io_ns)
 
         if options.eficaz_file:
-            get_eficaz_file(options)
+            get_eficaz_file(io_ns)
 
-        get_fasta_files(options)
+        get_fasta_files(io_ns)
 
-        if options.targetGenome_locusTag_aaSeq_dict:
-            get_homologs(options)
-            model = get_pickles_prunPhase(options)
-            modelPrunedGPR = run_prunPhase(model, options)
+        if io_ns.targetGenome_locusTag_aaSeq_dict:
+            get_homologs(homology_ns)
+            model = get_pickles_prunPhase(io_ns)
+            modelPrunedGPR = run_prunPhase(model, io_ns)
 
-            if options.targetGenome_locusTag_ec_dict:
-                get_pickles_augPhase(options)
+            if io_ns.targetGenome_locusTag_ec_dict:
+                get_pickles_augPhase(io_ns)
 
                 if options.comp:
-                    get_locustag_comp_dict(options)
+                    get_locustag_comp_dict(io_ns)
 
-                target_model = run_augPhase(modelPrunedGPR, options)
+                target_model = run_augPhase(modelPrunedGPR, primary_model_ns)
             else:
                 logging.warning("No EC_numbers found in input genome data")
                 logging.warning("New reactions will NOT be added")
@@ -239,10 +247,10 @@ def main():
                     time.gmtime(time.time() - start))
 
             try:
-                generate_outputs(options.outputfolder3, runtime1, options,
+                generate_outputs(io_ns.outputfolder3, runtime1, io_ns,
                         cobra_model = target_model)
             except:
-                generate_outputs(options.outputfolder3, runtime1, options,
+                generate_outputs(io_ns.outputfolder3, runtime1, io_ns,
                         cobra_model = modelPrunedGPR)
         else:
             logging.warning("Primary metabolic modeling not implemented;")
@@ -251,41 +259,41 @@ def main():
     # Secondary metabolic modeling
     if options.smr_generation:
         if not options.eficaz:
-            seq_records = get_target_genome_from_input(filetype, options)
+            seq_records = get_target_genome_from_input(filetype, io_ns)
 
         model_file = []
-        files = glob.glob(options.outputfolder3 + os.sep + '*.xml')
+        files = glob.glob(io_ns.outputfolder3 + os.sep + '*.xml')
         model_file = [each_file for each_file in files if '.xml' in each_file]
 
         if len(seq_records) == 1 and \
                 len(model_file) > 0 and '.xml' in model_file[0] and \
-                options.total_cluster > 0:
+                io_ns.total_cluster > 0:
 
             logging.info("Generating secondary metabolite biosynthesizing reactions..")
-            logging.debug("Total number of clusters: %s" %options.total_cluster)
+            logging.debug("Total number of clusters: %s" %io_ns.total_cluster)
 
             seq_record = seq_records[0]
 
             model_file = os.path.basename(model_file[0])
             target_model = cobra.io.read_sbml_model(
-                           os.path.join(options.outputfolder3, model_file))
+                           os.path.join(io_ns.outputfolder3, model_file))
 
-            target_model = run_secondary_modeling(seq_record, target_model, options)
+            target_model = run_secondary_modeling(seq_record, target_model, run_secondary_modeling_ns)
 
             #target_model_no_gapsFilled = copy.deepcopy(target_model)
 
-            get_target_nonprod_monomers_for_gapfilling(target_model, options)
+            get_target_nonprod_monomers_for_gapfilling(target_model, run_secondary_modeling_ns)
 
             # NOTE: Disabled temporarily
-            #target_model_complete = run_gapfilling(target_model, options)
+            #target_model_complete = run_gapfilling(target_model, run_secondary_modeling_ns)
 
             prune_unused_metabolites(target_model)
 
             runtime2 = time.strftime("Elapsed time %H:%M:%S",
                                      time.gmtime(time.time() - start))
 
-            generate_outputs(options.outputfolder4,
-                             runtime2, options,
+            generate_outputs(io_ns.outputfolder4,
+                             runtime2, io_ns,
                              #cobra_model_no_gapFilled = target_model_no_gapsFilled,
                              cobra_model = target_model)
 
@@ -299,10 +307,10 @@ def main():
                     "Input genome data with multiple records is currently not supported")
             elif len(model_file) == 0 or '.xml' not in model_file[0]:
                 logging.warning("COBRA-compliant SBML file needed")
-            elif options.total_cluster == 0:
+            elif io_ns.total_cluster == 0:
                 logging.warning("No cluster information found in input genome data")
 
-    remove_tmp_model_files(options)
+    remove_tmp_model_files(io_ns)
     logging.info(time.strftime("Elapsed time %H:%M:%S", time.gmtime(time.time() - start)))
 
 if __name__ == '__main__':
