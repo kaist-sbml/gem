@@ -150,7 +150,7 @@ def main():
     options = parser.parse_args()
     
     [io_ns, gmsm_ns, config_ns, eficaz_ns, homology_ns, primary_model_ns, \
-     run_secondary_modeling_ns] = [options for i in range(7)]
+     run_secondary_modeling_ns] = [options for module in range(7)]
   
     # Create an output directory for a log file
     make_folder(io_ns.outputfolder)
