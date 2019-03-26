@@ -158,7 +158,7 @@ def main():
     utils.setup_logging(gmsm_ns)
 
     # Create output folders
-    setup_outputfolders(io_ns)
+    setup_outputfolders(run_ns, io_ns)
 
     if run_ns.version:
         print 'GEMS version %s (%s)' %(utils.get_version(), utils.get_git_log())
@@ -172,10 +172,10 @@ def main():
 
     logging.info('Starting GEMS ver. %s (%s)', utils.get_version(), utils.get_git_log())
 
-    show_input_options(io_ns)
+    show_input_options(run_ns)
 
     logging.info("Reading input genome files..")
-    filetype = check_input_filetype(io_ns)
+    filetype = check_input_filetype(run_ns)
 
     # Load config data
     load_config(config_ns)
@@ -185,7 +185,7 @@ def main():
 
     # EC number prediction
     if run_ns.eficaz:
-        seq_records = get_target_genome_from_input(filetype, io_ns)
+        seq_records = get_target_genome_from_input(filetype, run_ns, io_ns)
 
         if run_ns.eficaz_path and \
                 io_ns.targetGenome_locusTag_aaSeq_dict and \
@@ -211,10 +211,10 @@ def main():
     # Primary metabolic modeling
     if run_ns.pmr_generation:
         if not run_ns.eficaz:
-            seq_records = get_target_genome_from_input(filetype, io_ns)
+            seq_records = get_target_genome_from_input(filetype, run_ns, io_ns)
 
         if run_ns.eficaz_file:
-            get_eficaz_file(io_ns)
+            get_eficaz_file(run_ns, io_ns)
 
         get_fasta_files(io_ns)
 
@@ -227,7 +227,7 @@ def main():
                 get_pickles_augPhase(io_ns)
 
                 if run_ns.comp:
-                    get_locustag_comp_dict(io_ns)
+                    get_locustag_comp_dict(run_ns, io_ns)
 
                 target_model = run_augPhase(modelPrunedGPR, primary_model_ns)
             else:
@@ -255,7 +255,7 @@ def main():
     # Secondary metabolic modeling
     if run_ns.smr_generation:
         if not run_ns.eficaz:
-            seq_records = get_target_genome_from_input(filetype, io_ns)
+            seq_records = get_target_genome_from_input(filetype, run_ns, io_ns)
 
         model_file = []
         files = glob.glob(io_ns.outputfolder3 + os.sep + '*.xml')

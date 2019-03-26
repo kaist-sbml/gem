@@ -18,59 +18,58 @@ def make_folder(folder):
         os.makedirs(folder)
 
 
-def setup_outputfolders(io_ns):
-    options = io_ns
+def setup_outputfolders(run_ns, io_ns):
     folders = ['1_EFICAz_results', '2_blastp_results',
             '3_primary_metabolic_model', '4_complete_model',
             'tmp_model_files', 'tmp_data_files']
 
     # Second if statement is to keep "-o ./test" from creating "tes", not "test"
-    if '/' in io_ns.outputfolder and './' not in io_ns.outputfolder:
-        io_ns.outputfolder = io_ns.outputfolder[:-1]
+    if '/' in run_ns.outputfolder and './' not in run_ns.outputfolder:
+        run_ns.outputfolder = run_ns.outputfolder[:-1]
 
-    if options.eficaz:
+    if run_ns.eficaz:
         #'1_EFICAz_results'
-        io_ns.outputfolder1 = os.path.join(options.outputfolder, folders[0])
+        io_ns.outputfolder1 = os.path.join(run_ns.outputfolder, folders[0])
         make_folder(io_ns.outputfolder1)
-    if options.pmr_generation:
+    if run_ns.pmr_generation:
         #'2_blastp_results'
-        io_ns.outputfolder2 = os.path.join(options.outputfolder, folders[1])
+        io_ns.outputfolder2 = os.path.join(run_ns.outputfolder, folders[1])
         make_folder(io_ns.outputfolder2)
         #'3_primary_metabolic_model'
-        io_ns.outputfolder3 = os.path.join(options.outputfolder, folders[2])
+        io_ns.outputfolder3 = os.path.join(run_ns.outputfolder, folders[2])
         make_folder(io_ns.outputfolder3)
-    if options.smr_generation:
+    if run_ns.smr_generation:
         #'3_primary_metabolic_model'
-        io_ns.outputfolder3 = os.path.join(options.outputfolder, folders[2])
+        io_ns.outputfolder3 = os.path.join(run_ns.outputfolder, folders[2])
         make_folder(io_ns.outputfolder3)
         #'4_complete_model'
-        io_ns.outputfolder4 = os.path.join(options.outputfolder, folders[3])
+        io_ns.outputfolder4 = os.path.join(run_ns.outputfolder, folders[3])
         make_folder(io_ns.outputfolder4)
 
     #'tmp_model_files'
-    io_ns.outputfolder5 = os.path.join(options.outputfolder, folders[4])
+    io_ns.outputfolder5 = os.path.join(run_ns.outputfolder, folders[4])
     make_folder(io_ns.outputfolder5)
 
     #'tmp_data_files'
-    io_ns.outputfolder6 = os.path.join(options.outputfolder, folders[5])
+    io_ns.outputfolder6 = os.path.join(run_ns.outputfolder, folders[5])
     make_folder(io_ns.outputfolder6)
 
 
-def show_input_options(io_ns):
-    options = io_ns
-    logging.debug("input_file: %s", options.input)
-    logging.debug("outputfolder: %s", options.outputfolder)
-    logging.debug("template_model_organism: %s", options.orgName)
-    logging.debug("eficaz: %s", options.eficaz)
-    logging.debug("primary_metabolic_modeling: %s", options.pmr_generation)
-    logging.debug("secondary_metabolic_modeling: %s", options.smr_generation)
-    logging.debug("eficaz_file: %s", options.eficaz_file)
-    logging.debug("compartment_file: %s", options.comp)
+def show_input_options(run_ns):
+
+    logging.debug("input_file: %s", run_ns.input)
+    logging.debug("outputfolder: %s", run_ns.outputfolder)
+    logging.debug("template_model_organism: %s", run_ns.orgName)
+    logging.debug("eficaz: %s", run_ns.eficaz)
+    logging.debug("primary_metabolic_modeling: %s", run_ns.pmr_generation)
+    logging.debug("secondary_metabolic_modeling: %s", run_ns.smr_generation)
+    logging.debug("eficaz_file: %s", run_ns.eficaz_file)
+    logging.debug("compartment_file: %s", run_ns.comp)
 
 
-def check_input_filetype(io_ns):
-    options = io_ns
-    input_ext = os.path.splitext(options.input)[1]
+def check_input_filetype(run_ns):
+
+    input_ext = os.path.splitext(run_ns.input)[1]
 
     if input_ext in ('.gbk', '.gb', '.genbank', '.gbf', '.gbff'):
         logging.debug("A GenBank file is found for input")
@@ -80,14 +79,13 @@ def check_input_filetype(io_ns):
         return 'fasta'
 
 
-def get_target_genome_from_input(filetype, io_ns):
-    options = io_ns
+def get_target_genome_from_input(filetype, run_ns, io_ns):
     io_ns.targetGenome_locusTag_aaSeq_dict = {}
     io_ns.targetGenome_locusTag_ec_dict = {}
     io_ns.targetGenome_locusTag_prod_dict = {}
     io_ns.total_cluster = 0
 
-    seq_records = list(SeqIO.parse(options.input, filetype))
+    seq_records = list(SeqIO.parse(run_ns.input, filetype))
 
     # len(seq_records) == 1: e.g., A complete bacterial genome (1 contig)
     # len(seq_records) > 1: e.g., An incomplete bacterial genome (multiple contigs)
@@ -122,20 +120,20 @@ def get_target_genome_from_input(filetype, io_ns):
     return seq_records
 
 
-def get_eficaz_file(io_ns):
-    options = io_ns
+def get_eficaz_file(run_ns, io_ns):
+
     logging.info("Reading EFICAz output file..")
 
 #    EC4Info = {}
 #    EC3Info = {}
 
     try:
-        f = open(options.eficaz_file,"r")
+        f = open(run_ns.eficaz_file,"r")
     except OSError as e:
-         logging.error("No EFICAz output file %s found", options.eficaz_file)
+         logging.error("No EFICAz output file %s found", run_ns.eficaz_file)
          #continue
     except IOError as e:
-         logging.error("No EFICAz output file %s found", options.eficaz_file)
+         logging.error("No EFICAz output file %s found", run_ns.eficaz_file)
          #continue
 
     for line in f.read().splitlines():
@@ -223,21 +221,21 @@ def get_pickles_augPhase(io_ns):
     io_ns.template_exrxnid_flux_dict = template_exrxnid_flux_dict
 
 
-def get_locustag_comp_dict(io_ns):
-    options = io_ns
+def get_locustag_comp_dict(run_ns, io_ns):
+
     logging.info("Reading file on subcellular localizations (compartments)..")
 
     io_ns.locustag_comp_dict = {}
 
     try:
-        f = open(options.comp,"r")
+        f = open(run_ns.comp,"r")
     except OSError as e:
          logging.error("No file %s (subcellular localizations (compartments)) found",
-                        options.comp)
+                        run_ns.comp)
          #continue
     except IOError as e:
          logging.error("No file %s (subcellular localizations (compartments)) found",
-                        options.comp)
+                        run_ns.comp)
          #continue
 
     for line in f.read().splitlines():
