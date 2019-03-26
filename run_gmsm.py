@@ -147,10 +147,10 @@ def main():
                         help="Show the program version and exit")
 
     # Create a namespace for each modules
-    options = parser.parse_args()
+    run_ns = parser.parse_args()
     
     [io_ns, gmsm_ns, config_ns, eficaz_ns, homology_ns, primary_model_ns, \
-     secondary_model_ns] = [options for module in range(7)]
+     secondary_model_ns] = [run_ns for module in range(7)]
   
     # Create an output directory for a log file
     make_folder(io_ns.outputfolder)
@@ -160,14 +160,14 @@ def main():
     # Create output folders
     setup_outputfolders(io_ns)
 
-    if options.version:
+    if run_ns.version:
         print 'GEMS version %s (%s)' %(utils.get_version(), utils.get_git_log())
         sys.exit(0)
 
     utils.check_input_options(gmsm_ns)
 
     # Warning messages from cobrapy turned off by default
-    if not options.warning:
+    if not run_ns.warning:
         warnings.filterwarnings("ignore")
 
     logging.info('Starting GEMS ver. %s (%s)', utils.get_version(), utils.get_git_log())
@@ -184,12 +184,12 @@ def main():
     check_prereqs(gmsm_ns)
 
     # EC number prediction
-    if options.eficaz:
+    if run_ns.eficaz:
         seq_records = get_target_genome_from_input(filetype, io_ns)
 
-        if options.eficaz_path and \
+        if run_ns.eficaz_path and \
                 io_ns.targetGenome_locusTag_aaSeq_dict and \
-                not options.eficaz_file:
+                not run_ns.eficaz_file:
 
             if filetype == 'fasta' or len(seq_records) > 1:
                 logging.info("Input file in FASTA format or with multiple records:")
@@ -202,18 +202,18 @@ def main():
         else:
             logging.warning("EFICAz not implemented;")
 
-            if not options.eficaz_path:
+            if not run_ns.eficaz_path:
                 logging.warning("EFICAz not found")
             elif not io_ns.targetGenome_locusTag_aaSeq_dict:
                 logging.warning(
                         "No amino acid sequences found in input genome data")
 
     # Primary metabolic modeling
-    if options.pmr_generation:
-        if not options.eficaz:
+    if run_ns.pmr_generation:
+        if not run_ns.eficaz:
             seq_records = get_target_genome_from_input(filetype, io_ns)
 
-        if options.eficaz_file:
+        if run_ns.eficaz_file:
             get_eficaz_file(io_ns)
 
         get_fasta_files(io_ns)
@@ -226,7 +226,7 @@ def main():
             if io_ns.targetGenome_locusTag_ec_dict:
                 get_pickles_augPhase(io_ns)
 
-                if options.comp:
+                if run_ns.comp:
                     get_locustag_comp_dict(io_ns)
 
                 target_model = run_augPhase(modelPrunedGPR, primary_model_ns)
@@ -253,8 +253,8 @@ def main():
             logging.warning("No amino acid sequences found in input genome data")
 
     # Secondary metabolic modeling
-    if options.smr_generation:
-        if not options.eficaz:
+    if run_ns.smr_generation:
+        if not run_ns.eficaz:
             seq_records = get_target_genome_from_input(filetype, io_ns)
 
         model_file = []
