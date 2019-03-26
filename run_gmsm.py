@@ -148,14 +148,10 @@ def main():
 
     # Create a namespace for each modules
     options = parser.parse_args()
-    io_ns = options
-    gmsm_ns = options
-    config_ns = options
-    eficaz_ns = options
-    homology_ns = options
-    primary_model_ns = options
-    run_secondary_modeling_ns = options
     
+    [io_ns, gmsm_ns, config_ns, eficaz_ns, homology_ns, primary_model_ns, \
+     run_secondary_modeling_ns] = [options for i in range(7)]
+  
     # Create an output directory for a log file
     make_folder(io_ns.outputfolder)
 
