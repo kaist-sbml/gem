@@ -150,7 +150,7 @@ def main():
     options = parser.parse_args()
     
     [io_ns, gmsm_ns, config_ns, eficaz_ns, homology_ns, primary_model_ns, \
-     run_secondary_modeling_ns] = [options for module in range(7)]
+     secondary_model_ns] = [options for module in range(7)]
   
     # Create an output directory for a log file
     make_folder(io_ns.outputfolder)
@@ -274,14 +274,14 @@ def main():
             target_model = cobra.io.read_sbml_model(
                            os.path.join(io_ns.outputfolder3, model_file))
 
-            target_model = run_secondary_modeling(seq_record, target_model, run_secondary_modeling_ns)
+            target_model = run_secondary_modeling(seq_record, target_model, secondary_model_ns)
 
             #target_model_no_gapsFilled = copy.deepcopy(target_model)
 
-            get_target_nonprod_monomers_for_gapfilling(target_model, run_secondary_modeling_ns)
+            get_target_nonprod_monomers_for_gapfilling(target_model, secondary_model_ns)
 
             # NOTE: Disabled temporarily
-            #target_model_complete = run_gapfilling(target_model, run_secondary_modeling_ns)
+            #target_model_complete = run_gapfilling(target_model, secondary_model_ns)
 
             prune_unused_metabolites(target_model)
 
