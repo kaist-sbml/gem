@@ -97,7 +97,7 @@ def get_target_genome_from_input(filetype, run_ns, io_ns):
 
         if filetype == 'genbank':
             for seq_record in seq_records:
-                get_features_from_gbk(seq_record, io_ns)
+                get_features_from_gbk(seq_record, run_ns, io_ns)
 
         elif filetype == 'fasta':
             for seq_record in seq_records:
@@ -180,13 +180,13 @@ def get_eficaz_file(run_ns, io_ns):
                   len(io_ns.targetGenome_locusTag_ec_dict.keys()))
 
 
-def get_fasta_files(io_ns):
+def get_fasta_files(run_ns, io_ns):
     #Following data are needed only for primary metabolic modeling
     logging.info("Looking for a fasta file of a target genome..")
     get_target_fasta(io_ns)
 
     logging.info("Looking for a fasta file of template model genes..")
-    get_temp_fasta(io_ns)
+    get_temp_fasta(run_ns, io_ns)
 
 
 #For model pruning phase

@@ -216,7 +216,7 @@ def main():
         if run_ns.eficaz_file:
             get_eficaz_file(run_ns, io_ns)
 
-        get_fasta_files(io_ns)
+        get_fasta_files(run_ns, io_ns)
 
         if io_ns.targetGenome_locusTag_aaSeq_dict:
             get_homologs(homology_ns)

@@ -3,10 +3,10 @@ import logging
 import os
 import sys
 
-def get_features_from_gbk(seq_record, io_ns):
-    options = io_ns
+def get_features_from_gbk(seq_record, run_ns, io_ns):
+
     # Ignore existing annotations of EC numbers in an input gbk file as they are from a different source.
-    if options.eficaz or options.eficaz_file:
+    if run_ns.eficaz or run_ns.eficaz_file:
         logging.info("Ignoring EC annotations from input gbk file")
     else:
         logging.info("Using EC annotations from input gbk file")
@@ -34,7 +34,7 @@ def get_features_from_gbk(seq_record, io_ns):
                 product = feature.qualifiers.get('product')[0]
                 io_ns.targetGenome_locusTag_prod_dict[locusTag] = product
 
-            if options.eficaz or options.eficaz_file:
+            if run_ns.eficaz or run_ns.eficaz_file:
                 pass
             else:
                 # Multiple 'EC_number's may exit for a single CDS.
@@ -68,9 +68,9 @@ def get_target_fasta(io_ns):
 
 
 #Look for pre-stored fasta file of the template model
-def get_temp_fasta(io_ns):
-    options = io_ns
-    for root, _, files in os.walk('./gmsm/io/data/input1/%s/' %(options.orgName)):
+def get_temp_fasta(run_ns, io_ns):
+
+    for root, _, files in os.walk('./gmsm/io/data/input1/%s/' %(run_ns.orgName)):
         for f in files:
             if f.endswith('.fa'):
                 tempFasta = os.path.join(root, f)
@@ -78,6 +78,6 @@ def get_temp_fasta(io_ns):
                 io_ns.temp_fasta = tempFasta
 
     if io_ns.temp_fasta:
-        logging.debug("FASTA file for '%s' found", options.orgName)
+        logging.debug("FASTA file for '%s' found", run_ns.orgName)
     else:
-        logging.warning("FASTA file for '%s' not found", options.orgName)
+        logging.warning("FASTA file for '%s' not found", run_ns.orgName)
