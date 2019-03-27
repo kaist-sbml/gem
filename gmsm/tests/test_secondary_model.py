@@ -82,6 +82,7 @@ class TestSecondary_model:
 
         options.locustag_monomer_dict = locustag_monomer_dict
         options.product = 'Cluster03_nrps_t1pks_transatpks'
+        options.anti = 3
         get_all_metab_coeff(options)
 
         assert len(options.metab_coeff_dict) == 10
@@ -115,6 +116,7 @@ class TestSecondary_model:
 
         options.locustag_monomer_dict = locustag_monomer_dict
         options.product = 'Cluster03_nrps_t1pks_transatpks'
+        options.anti = 4
         get_all_metab_coeff(options)
 
         assert len(options.metab_coeff_dict) == 9
@@ -126,7 +128,8 @@ class TestSecondary_model:
 
     def test_add_sec_met_rxn_cluster3(self,
             seq_record, sci_primary_model, mnxref, options):
-
+        
+        options.anti = 4
         options.product = 'Cluster03_nrps_t1pks_transatpks'
         options.metab_coeff_dict = {
                 '24dab': -1, 'leu__L': -1, 'mmcoa__R': -2, 'malcoa': -3,
@@ -153,6 +156,7 @@ class TestSecondary_model:
     def test_add_sec_met_rxn_cluster7(self,
             seq_record, sci_primary_model, mnxref, options):
 
+        options.anti = 4
         options.product = 'Cluster07_nrps_t1pks'
         options.metab_coeff_dict = {
                 'mmcoa__R': -1, 'malcoa': -1, 'Cluster07_nrps_t1pks': 1, '23dhb': -1}

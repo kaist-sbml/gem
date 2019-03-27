@@ -78,7 +78,7 @@ def get_std_id_from_antismash_id(each_substrate):
         met_name = 'lys_DASH_L'
 
     # Malonyl-CoA: MNXM40; C00083
-    elif each_substrate in ['mal', 'ohmal', 'ccmal', 'redmal', 'Malonyl-CoA']:
+    elif each_substrate in ['mal', 'ohmal', 'ccmal', 'redmal']:
         met_name = 'malcoa'
 
     # L-Methionine: MNXM61; C00073
@@ -94,7 +94,7 @@ def get_std_id_from_antismash_id(each_substrate):
         met_name = 'ivcoa'
 
     # (R)-Methylmalonyl-CoA: MNXM608; C01213
-    elif each_substrate in ['mmal', 'ohmmal', 'ccmmal', 'redmmal', 'Methylmalonyl-CoA']:
+    elif each_substrate in ['mmal', 'ohmmal', 'ccmmal', 'redmmal']:
         met_name = 'mmcoa_DASH_R'
 
     # Ornithine: MNXM89689; C01602
