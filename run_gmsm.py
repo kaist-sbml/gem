@@ -147,14 +147,14 @@ def main():
                         help="Show the program version and exit")
 
     # Create a namespace for each modules 
-    # *_ns are arranged sequentially based on appearing in this python file
+    # *_ns are arranged based on appearing orders in this python file
     run_ns = parser.parse_args()
     
     [io_ns, gmsm_ns, config_ns, eficaz_ns, homology_ns, primary_model_ns, \
      secondary_model_ns] = [run_ns for module in range(7)]
   
     # Create an output directory for a log file
-    make_folder(io_ns.outputfolder)
+    make_folder(run_ns.outputfolder)
 
     utils.setup_logging(gmsm_ns)
 
