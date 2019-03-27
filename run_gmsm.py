@@ -146,7 +146,8 @@ def main():
                         default=False,
                         help="Show the program version and exit")
 
-    # Create a namespace for each modules
+    # Create a namespace for each modules 
+    # *_ns are arranged sequentially based on appearing in this python file
     run_ns = parser.parse_args()
     
     [io_ns, gmsm_ns, config_ns, eficaz_ns, homology_ns, primary_model_ns, \
