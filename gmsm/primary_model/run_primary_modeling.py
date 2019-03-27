@@ -29,7 +29,7 @@ def run_prunPhase(model, options):
     return modelPrunedGPR
 
 
-def run_augPhase(modelPrunedGPR, options):
+def run_augPhase(modelPrunedGPR, options, io_ns, primary_model_ns):
     logging.info("Augmentation phase starting..")
     logging.info("Creating various dict data for the nonBBH gene-associted reactions..")
     logging.info("(time-consuming)")
@@ -48,7 +48,7 @@ def run_augPhase(modelPrunedGPR, options):
 
     get_mnxr_to_add_list(options)
 
-    target_model = add_nonBBH_rxn(modelPrunedGPR, options)
+    target_model = add_nonBBH_rxn(modelPrunedGPR, options, io_ns, primary_model_ns)
 
     if options.comp:
         logging.info("Adding reactions with the new compartment..")

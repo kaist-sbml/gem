@@ -287,11 +287,11 @@ def get_mnxr_to_add_list(options):
     options.mnxr_to_add_list = mnxr_to_add_list
 
 
-def add_nonBBH_rxn(modelPrunedGPR, options):
+def add_nonBBH_rxn(modelPrunedGPR, options, io_ns, primary_model_ns):
 
     for mnxr in options.mnxr_to_add_list:
 
-        kegg_id = utils.get_keggid_from_mnxr(mnxr, options)
+        kegg_id = utils.get_keggid_from_mnxr(mnxr, io_ns, primary_model_ns)
 
         logging.debug("--------------------")
         logging.debug("Reaction to be added: %s; %s", mnxr, kegg_id)

@@ -156,7 +156,7 @@ def main():
     # Create an output directory for a log file
     make_folder(run_ns.outputfolder)
 
-    utils.setup_logging(gmsm_ns)
+    utils.setup_logging(run_ns)
 
     # Create output folders
     setup_outputfolders(run_ns, io_ns)
@@ -165,7 +165,7 @@ def main():
         print 'GEMS version %s (%s)' %(utils.get_version(), utils.get_git_log())
         sys.exit(0)
 
-    utils.check_input_options(gmsm_ns)
+    utils.check_input_options(run_ns)
 
     # Warning messages from cobrapy turned off by default
     if not run_ns.warning:
@@ -182,7 +182,7 @@ def main():
     load_config(config_ns)
 
     # Check prerequisites of executables and libraries
-    check_prereqs(gmsm_ns)
+    check_prereqs(run_ns)
 
     # EC number prediction
     if run_ns.eficaz:
@@ -230,7 +230,7 @@ def main():
                 if run_ns.comp:
                     get_locustag_comp_dict(run_ns, io_ns)
 
-                target_model = run_augPhase(modelPrunedGPR, primary_model_ns)
+                target_model = run_augPhase(modelPrunedGPR, run_ns, io_ns, primary_model_ns)
             else:
                 logging.warning("No EC_numbers found in input genome data")
                 logging.warning("New reactions will NOT be added")
