@@ -8,8 +8,7 @@ import shutil
 from cobra.util.solver import linear_reaction_coefficients
 from gmsm import utils
 
-def generate_outputs(folder, runtime, io_ns, **kwargs):
-    options = io_ns
+def generate_outputs(folder, runtime, run_ns, io_ns, homology_ns, primary_model_ns, secondary_model_ns, **kwargs):
     if 'cobra_model' in kwargs:
         cobra_model = kwargs['cobra_model']
 
@@ -19,25 +18,25 @@ def generate_outputs(folder, runtime, io_ns, **kwargs):
     cobra_model = utils.stabilize_model(cobra_model, folder, '')
 
     num_essen_rxn, num_kegg_rxn, num_cluster_rxn = get_model_reactions(
-                       folder, io_ns, **kwargs)
-    get_model_metabolites(folder, cobra_model, io_ns)
+                       folder, io_ns, primary_model_ns, **kwargs)
+    get_model_metabolites(folder, cobra_model, io_ns, secondary_model_ns)
     template_model_gene_list, duplicate_gene_list = \
-                       get_model_genes(folder, cobra_model, io_ns)
+                       get_model_genes(folder, cobra_model, run_ns, io_ns)
     get_summary_report(folder, cobra_model, runtime,
                        num_essen_rxn, num_kegg_rxn, num_cluster_rxn,
-                       template_model_gene_list, duplicate_gene_list, io_ns)
+                       template_model_gene_list, duplicate_gene_list, run_ns, io_ns)
 
     if '3_primary_metabolic_model'in folder:
         logging.info("'Primary' metabolic model completed")
     elif '4_complete_model' in folder:
         logging.info("'Secondary' metabolic model completed")
 
-    if options.pmr_generation and options.debug:
-        write_data_for_debug(io_ns)
+    if run_ns.pmr_generation and run_ns.debug:
+        write_data_for_debug(run_ns, io_ns, homology_ns, primary_model_ns)
 
 
-def get_model_reactions(folder, io_ns, **kwargs):
-    primary_model_ns = io_ns
+def get_model_reactions(folder, io_ns, primary_model_ns, **kwargs):
+
     fp1 = open('./%s/model_reactions.txt' %folder, 'w')
     fp2 = open('./%s/rmc_remaining_essential_reactions_from_template_model.txt' %folder, 'w')
     fp3 = open('./%s/rmc_reactions_added_from_kegg.txt' %folder, 'w')
@@ -116,8 +115,8 @@ def get_model_reactions(folder, io_ns, **kwargs):
     return num_essen_rxn, num_kegg_rxn, num_cluster_rxn
 
 
-def get_model_metabolites(folder, cobra_model, io_ns):
-    secondary_model_ns = io_ns
+def get_model_metabolites(folder, cobra_model, io_ns, secondary_model_ns):
+
     fp1 = open('./%s/model_metabolites.txt' %folder, "w")
     fp1.write('metabolite_ID'+'\t'+'metabolite_name'+'\t'
             +'formula'+'\t'+'compartment'+'\n')
@@ -152,8 +151,7 @@ def get_model_metabolites(folder, cobra_model, io_ns):
         fp2.close()
 
 
-def get_model_genes(folder, cobra_model, io_ns):
-    options = io_ns
+def get_model_genes(folder, cobra_model, run_ns, io_ns):
     template_model_gene_list = []
     duplicate_gene_list = []
 
@@ -161,19 +159,19 @@ def get_model_genes(folder, cobra_model, io_ns):
 
     fp1.write('gene'+'\t'+'note'+'\t'+'reaction_ID'+'\t'+'reaction_name'+'\t'+'reaction_equation'+'\t'+'GPR'+'\t'+'pathway'+'\n')
 
-    if options.orgName == 'bsu':
+    if run_ns.orgName == 'bsu':
         locustag_pattern = 'BSU[0-9]+[0-9]+[0-9]+[0-9]'
-    elif options.orgName == 'cre':
+    elif run_ns.orgName == 'cre':
         locustag_pattern = 'Cre'
-    elif options.orgName == 'eco':
+    elif run_ns.orgName == 'eco':
         locustag_pattern = 'b[0-9]+[0-9]+[0-9]+[0-9]'
-    elif options.orgName == 'mtu':
+    elif run_ns.orgName == 'mtu':
         locustag_pattern = 'Rv[0-9]+[0-9]+[0-9]+[0-9]'
-    elif options.orgName == 'nsal':
+    elif run_ns.orgName == 'nsal':
         locustag_pattern = 'NSV'
-    elif options.orgName == 'ppu':
+    elif run_ns.orgName == 'ppu':
         locustag_pattern = 'PP_[0-9]+[0-9]+[0-9]+[0-9]'
-    elif options.orgName == 'sco':
+    elif run_ns.orgName == 'sco':
         locustag_pattern = 'SCO[0-9]+[0-9]+[0-9]+[0-9]'
 
     for g in range(len(cobra_model.genes)):
@@ -217,33 +215,33 @@ def get_model_genes(folder, cobra_model, io_ns):
 
 def get_summary_report(folder, cobra_model, runtime,
                        num_essen_rxn, num_kegg_rxn, num_cluster_rxn,
-                       template_model_gene_list, duplicate_gene_list,
+                       template_model_gene_list, duplicate_gene_list, run_ns,
                        io_ns):
-    options = io_ns
+
     secondary_model_ns = io_ns
     fp1 = open('./%s/summary_report.txt' %folder, "w")
 
     #log_level
-    if options.verbose:
+    if run_ns.verbose:
         log_level = 'verbose'
-    elif options.debug:
+    elif run_ns.debug:
         log_level = 'debug'
 
     #runtime
     runtime2 = runtime.split()[2]
 
     model_summary_dict = {}
-    model_summary_dict['number_cpu_use']=options.cpus
-    model_summary_dict['input_file']=options.input
-    model_summary_dict['outputfolder']=options.outputfolder
-    model_summary_dict['template_model_organism']= options.orgName
-    model_summary_dict['eficaz']=options.eficaz
-    model_summary_dict['primary_metabolic_modeling']=options.pmr_generation
-    model_summary_dict['secondary_metabolic_modeling']=options.smr_generation
-    model_summary_dict['eficaz_file'] = options.eficaz_file
-    model_summary_dict['compartment_file'] = options.comp
+    model_summary_dict['number_cpu_use']=run_ns.cpus
+    model_summary_dict['input_file']=run_ns.input
+    model_summary_dict['outputfolder']=run_ns.outputfolder
+    model_summary_dict['template_model_organism']=run_ns.orgName
+    model_summary_dict['eficaz']=run_ns.eficaz
+    model_summary_dict['primary_metabolic_modeling']=run_ns.pmr_generation
+    model_summary_dict['secondary_metabolic_modeling']=run_ns.smr_generation
+    model_summary_dict['eficaz_file']=run_ns.eficaz_file
+    model_summary_dict['compartment_file']=run_ns.comp
     model_summary_dict['log_level']=log_level
-    model_summary_dict['program version']= 'GEMS version %s (%s)'\
+    model_summary_dict['program version']='GEMS version %s (%s)'\
                                             %(utils.get_version(), utils.get_git_log())
     model_summary_dict['number_genes']=len(cobra_model.genes)
     model_summary_dict['number_reactions']=len(cobra_model.reactions)
@@ -273,10 +271,8 @@ def get_summary_report(folder, cobra_model, runtime,
     fp1.close()
 
 
-def write_data_for_debug(io_ns):
-    options = io_ns
-    homology_ns = io_ns
-    primary_model_ns = io_ns
+def write_data_for_debug(run_ns, io_ns, homology_ns, primary_model_ns):
+
     with open('./%s/temp_target_BBH_dict.txt' %io_ns.outputfolder2,'w') as f:
         for locustag in homology_ns.temp_target_BBH_dict:
             print >> f, '%s\t%s' %(locustag, homology_ns.temp_target_BBH_dict[locustag])
@@ -309,7 +305,7 @@ def write_data_for_debug(io_ns):
     except AttributeError, e:
         logging.warning(e)
 
-    if options.comp:
+    if run_ns.comp:
         try:
             with open('./%s/rxn_newComp_fate_dict.txt' %io_ns.outputfolder6,'w') as f:
                 for rxnid in primary_model_ns.rxn_newComp_fate_dict:

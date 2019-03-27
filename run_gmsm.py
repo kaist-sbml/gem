@@ -243,11 +243,9 @@ def main():
                     time.gmtime(time.time() - start))
 
             try:
-                generate_outputs(io_ns.outputfolder3, runtime1, io_ns,
-                        cobra_model = target_model)
+                generate_outputs(io_ns.outputfolder3, runtime1, run_ns, io_ns, homology_ns, primary_model_ns, secondary_model_ns, cobra_model = target_model)
             except:
-                generate_outputs(io_ns.outputfolder3, runtime1, io_ns,
-                        cobra_model = modelPrunedGPR)
+                generate_outputs(io_ns.outputfolder3, runtime1, run_ns, io_ns, homology_ns, primary_model_ns, secondary_model_ns, cobra_model = modelPrunedGPR)
         else:
             logging.warning("Primary metabolic modeling not implemented;")
             logging.warning("No amino acid sequences found in input genome data")
@@ -289,7 +287,7 @@ def main():
                                      time.gmtime(time.time() - start))
 
             generate_outputs(io_ns.outputfolder4,
-                             runtime2, io_ns,
+                             runtime2, run_ns, io_ns, homology_ns, primary_model_ns, secondary_model_ns,
                              #cobra_model_no_gapFilled = target_model_no_gapsFilled,
                              cobra_model = target_model)
 
