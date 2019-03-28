@@ -231,7 +231,7 @@ class TestPrimary_model:
         assert 'nadh_c' in sco_tmp_model.metabolites
         assert 'nad_c' in sco_tmp_model.metabolites
 
-        model = augPhase_utils.add_nonBBH_rxn(sco_tmp_model, options)
+        model = augPhase_utils.add_nonBBH_rxn(sco_tmp_model, options, options, options)
 
         assert 'R08926' in model.reactions
         assert 'MNXM16902_c' in model.metabolites
