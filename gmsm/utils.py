@@ -155,19 +155,19 @@ def get_gene_id(feature):
 # For regular update of the cache:
 # KEGG updates its EC_number:reaction ID pairs time to time,
 #and old caches can cause an error
-def time_bomb(cache_file, options):
+def time_bomb(cache_file, config_ns):
     today = datetime.datetime.today()
     modified_date = datetime.datetime.fromtimestamp(getmtime(cache_file))
     file_age = today - modified_date
 
-    if int(file_age.days) > int(options.utils.time_bomb_duration):
+    if int(file_age.days) > int(config_ns.utils.time_bomb_duration):
         logging.debug('File %s is older than %s days (currently %s days)',
-                cache_file, options.utils.time_bomb_duration, file_age.days)
+                cache_file, config_ns.utils.time_bomb_duration, file_age.days)
         os.remove(cache_file)
         logging.debug('File %s was removed', cache_file)
     else:
         logging.debug('File %s has not reached %s days (currently %s days)',
-                cache_file, options.utils.time_bomb_duration, file_age.days)
+                cache_file, config_ns.utils.time_bomb_duration, file_age.days)
 
 
 def get_keggid_from_mnxr(mnxr, io_ns, primary_model_ns):
@@ -265,7 +265,7 @@ def get_exrxnid_flux(model, template_exrxnid_flux_dict):
 
 #Output: a list file having either T or F for major Exchange reactions
 def check_exrxn_flux_direction(
-        template_exrxnid_flux_dict, target_exrxnid_flux_dict, options):
+        template_exrxnid_flux_dict, target_exrxnid_flux_dict, config_ns):
 
     exrxn_flux_change_list = []
 
@@ -280,9 +280,9 @@ def check_exrxn_flux_direction(
                 logging.debug("%s has a zero flux", exrxn_id)
 
             #Similar species are allowed to uptake nutrients within a decent range
-            if float(target_exrxn_flux)*float(template_exrxn_flux) > float(options.cobrapy.non_zero_flux_cutoff) \
-                    and float(options.cobrapy.nutrient_uptake_rate) < ratio_exrxn_flux \
-                    and ratio_exrxn_flux < float(options.cobrapy.nutrient_uptake_rate):
+            if float(target_exrxn_flux)*float(template_exrxn_flux) > float(config_ns.cobrapy.non_zero_flux_cutoff) \
+                    and float(config_ns.cobrapy.nutrient_uptake_rate) < ratio_exrxn_flux \
+                    and ratio_exrxn_flux < float(config_ns.cobrapy.nutrient_uptake_rate):
                 exrxn_flux_change_list.append('T')
 
             #Cause drastic changes in Exchange reaction fluxes
