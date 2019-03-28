@@ -13,8 +13,8 @@ from gmsm import utils
 #Retrieves a list of reaction IDs using their EC numbers from KEGG
 #Input: E.C number in string form (e.g., 4.1.3.6)
 #Output: reactionID in list form (e.g., ['R00362'])
-def get_rxnid_from_ECNumber(rxnid_list, enzymeEC, options):
-    url = options.urls.kegg_enzyme + '%s' %enzymeEC
+def get_rxnid_from_ECNumber(rxnid_list, enzymeEC, config_ns):
+    url = config_ns.urls.kegg_enzyme + '%s' %enzymeEC
     ecinfo_text = urllib2.urlopen(url).read()
 
     #Original line also extracted genes in other organisms: R50912; R50345 (NOT rxnid)
@@ -36,8 +36,8 @@ def get_rxnid_from_ECNumber(rxnid_list, enzymeEC, options):
 #Output: Reaction information for 'Name', 'Definition', and 'Equation' as dictionary form
 #{'NAME': 'citrate oxaloacetate-lyase', 'DEFINITION': Citrate <=> Acetate + Oxaloacetate,
 #'EQUATION': C00158 <=> C00033 + C00036}
-def get_rxnInfo_from_rxnid(rxnid, options):
-    url = options.urls.kegg_rn + '%s' %rxnid
+def get_rxnInfo_from_rxnid(rxnid, config_ns):
+    url = config_ns.urls.kegg_rn + '%s' %rxnid
     reaction_info_text = urllib2.urlopen(url).read()
     split_text = reaction_info_text.strip().split('\n')
     NAME = ''
@@ -64,14 +64,14 @@ def get_rxnInfo_from_rxnid(rxnid, options):
                     'EQUATION':EQUATION, 'ENZYME':ENZYME, 'PATHWAY':PATHWAY}
 
 
-def load_cache(cache_dir, cache_data, options):
+def load_cache(cache_dir, cache_data):
 
     if os.path.isfile(cache_dir):
         # NOTE: Disabled at the moment because Docker images do not have cache files.
         # TODO: As to the motivation behind this function, automatic removal of
         #existing cache files everytime GMSM starts or ends can be an option.
         # For regular update of the cache
-        #utils.time_bomb(cache_dir, options)
+        #utils.time_bomb(cache_dir, config_ns)
 
         try:
             with open(cache_dir, 'rb') as f:
@@ -110,27 +110,27 @@ def create_cache(cache_dir, cache_data):
         logging.warning("Can't open %s in 'wb' mode: %s", cache_data, e)
 
 
-def get_targetGenome_locusTag_ec_nonBBH_dict(options):
+def get_targetGenome_locusTag_ec_nonBBH_dict(io_ns, homology_ns, primary_model_ns):
     targetGenome_locusTag_ec_nonBBH_dict = {}
 
-    for locusTag in options.nonBBH_list:
-	if locusTag in options.targetGenome_locusTag_ec_dict.keys():
+    for locusTag in homology_ns.nonBBH_list:
+	if locusTag in io_ns.targetGenome_locusTag_ec_dict.keys():
             targetGenome_locusTag_ec_nonBBH_dict[locusTag] = \
-            options.targetGenome_locusTag_ec_dict[locusTag]
-    options.targetGenome_locusTag_ec_nonBBH_dict = targetGenome_locusTag_ec_nonBBH_dict
+            io_ns.targetGenome_locusTag_ec_dict[locusTag]
+    primary_model_ns.targetGenome_locusTag_ec_nonBBH_dict = targetGenome_locusTag_ec_nonBBH_dict
 
 
-def edit_mnxr_kegg_dict(keggid, options):
-    for mnxr in options.mnxr_kegg_dict.keys():
+def edit_mnxr_kegg_dict(keggid, io_ns):
+    for mnxr in io_ns.mnxr_kegg_dict.keys():
         # Remove candidate KEGG rxn IDs from consideration
-        if keggid in options.mnxr_kegg_dict[mnxr]:
-            cnt = len(options.mnxr_kegg_dict[mnxr])
-            options.mnxr_kegg_dict[mnxr].remove(keggid)
+        if keggid in io_ns.mnxr_kegg_dict[mnxr]:
+            cnt = len(io_ns.mnxr_kegg_dict[mnxr])
+            io_ns.mnxr_kegg_dict[mnxr].remove(keggid)
             logging.debug('Number of KEGG IDs for %s: %s --> %s',
-                          mnxr, cnt, len(options.mnxr_kegg_dict[mnxr]))
+                          mnxr, cnt, len(io_ns.mnxr_kegg_dict[mnxr]))
 
-            if len(options.mnxr_kegg_dict[mnxr]) == 0:
-                del options.mnxr_kegg_dict[mnxr]
+            if len(io_ns.mnxr_kegg_dict[mnxr]) == 0:
+                del io_ns.mnxr_kegg_dict[mnxr]
                 logging.debug('%s removed', mnxr)
 
 
@@ -145,7 +145,7 @@ def get_rxnid_locusTag_dict(rxnid_locusTag_dict, rxnid, locusTag):
     return rxnid_locusTag_dict
 
 
-def get_rxnid_info_dict_from_kegg(options):
+def get_rxnid_info_dict_from_kegg(io_ns, config_ns, primary_model_ns):
     cache_ec_rxn_dict = {}
     cache_rxnid_info_dict = {}
     rxnid_info_dict = {}
@@ -168,16 +168,16 @@ def get_rxnid_info_dict_from_kegg(options):
     cache_dumped_rxnid_list_dir = join(kegg_cache_dir, 'cache_dumped_rxnid_list.p')
 
     cache_ec_rxn_dict = load_cache(
-            cache_ec_rxn_dict_dir, cache_ec_rxn_dict, options)
+            cache_ec_rxn_dict_dir, cache_ec_rxn_dict)
     cache_rxnid_info_dict = load_cache(
-            cache_rxnid_info_dict_dir, cache_rxnid_info_dict, options)
+            cache_rxnid_info_dict_dir, cache_rxnid_info_dict)
     cache_dumped_ec_list = load_cache(
-            cache_dumped_ec_list_dir, cache_dumped_ec_list, options)
+            cache_dumped_ec_list_dir, cache_dumped_ec_list)
     cache_dumped_rxnid_list = load_cache(
-            cache_dumped_rxnid_list_dir, cache_dumped_rxnid_list, options)
+            cache_dumped_rxnid_list_dir, cache_dumped_rxnid_list)
 
-    for locusTag in options.targetGenome_locusTag_ec_nonBBH_dict.keys():
-	for enzymeEC in options.targetGenome_locusTag_ec_nonBBH_dict[locusTag]:
+    for locusTag in primary_model_ns.targetGenome_locusTag_ec_nonBBH_dict.keys():
+	for enzymeEC in primary_model_ns.targetGenome_locusTag_ec_nonBBH_dict[locusTag]:
             # This should be declared in case enzymeEC is not available at KEGG: e.g.,
             #"UnboundLocalError: local variable 'rxnid_list' referenced before assignment"
             rxnid_list = []
@@ -193,7 +193,7 @@ def get_rxnid_info_dict_from_kegg(options):
                                       locusTag, enzymeEC)
 
                 elif enzymeEC not in cache_dumped_ec_list:
-                    rxnid_list = get_rxnid_from_ECNumber(rxnid_list, enzymeEC, options)
+                    rxnid_list = get_rxnid_from_ECNumber(rxnid_list, enzymeEC, config_ns)
                     logging.debug("EC_number info fetched from KEGG: %s, %s",
                                   locusTag, enzymeEC)
                     if rxnid_list:
@@ -216,7 +216,7 @@ def get_rxnid_info_dict_from_kegg(options):
                                           locusTag, enzymeEC, rxnid)
                     else:
                         if rxnid not in cache_dumped_rxnid_list:
-                            rxnid_info = get_rxnInfo_from_rxnid(rxnid, options)
+                            rxnid_info = get_rxnInfo_from_rxnid(rxnid, config_ns)
                             logging.debug(
                                          'Reaction info fetched from KEGG: %s, %s, %s',
                                          locusTag, enzymeEC, rxnid)
@@ -234,9 +234,9 @@ def get_rxnid_info_dict_from_kegg(options):
                                 if rxnid not in cache_dumped_rxnid_list:
                                     cache_dumped_rxnid_list.append(rxnid)
 
-                                edit_mnxr_kegg_dict(rxnid, options)
+                                edit_mnxr_kegg_dict(rxnid, io_ns)
                         else:
-                            edit_mnxr_kegg_dict(rxnid, options)
+                            edit_mnxr_kegg_dict(rxnid, io_ns)
 
                     rxnid_locusTag_dict = get_rxnid_locusTag_dict(
                                 rxnid_locusTag_dict, rxnid, locusTag)
@@ -246,36 +246,36 @@ def get_rxnid_info_dict_from_kegg(options):
     create_cache(cache_dumped_ec_list_dir, cache_dumped_ec_list)
     create_cache(cache_dumped_rxnid_list_dir, cache_dumped_rxnid_list)
 
-    options.rxnid_info_dict = rxnid_info_dict
-    options.rxnid_locusTag_dict = rxnid_locusTag_dict
+    primary_model_ns.rxnid_info_dict = rxnid_info_dict
+    primary_model_ns.rxnid_locusTag_dict = rxnid_locusTag_dict
 
 
-def get_mnxr_list_from_modelPrunedGPR(modelPrunedGPR, options):
+def get_mnxr_list_from_modelPrunedGPR(modelPrunedGPR, io_ns, primary_model_ns):
     modelPrunedGPR_mnxr_list = []
 
     for j in range(len(modelPrunedGPR.reactions)):
         biggid = modelPrunedGPR.reactions[j].id
 
-        if biggid in options.bigg_mnxr_dict:
-            mnxr = options.bigg_mnxr_dict[biggid]
+        if biggid in io_ns.bigg_mnxr_dict:
+            mnxr = io_ns.bigg_mnxr_dict[biggid]
             if mnxr not in modelPrunedGPR_mnxr_list:
                 modelPrunedGPR_mnxr_list.append(mnxr)
         else:
             logging.debug('BiGG reaction %s NOT in MNXref', biggid)
 
-    options.modelPrunedGPR_mnxr_list = modelPrunedGPR_mnxr_list
+    primary_model_ns.modelPrunedGPR_mnxr_list = modelPrunedGPR_mnxr_list
 
 
-def get_mnxr_to_add_list(options):
+def get_mnxr_to_add_list(io_ns, primary_model_ns):
 
     mnxr_to_add_list = []
-    for rxnid in options.rxnid_info_dict:
-        for mnxr, kegg_list in options.mnxr_kegg_dict.iteritems():
+    for rxnid in primary_model_ns.rxnid_info_dict:
+        for mnxr, kegg_list in io_ns.mnxr_kegg_dict.iteritems():
             if rxnid in kegg_list:
                 # Check reaction duplicates
-                if mnxr not in options.modelPrunedGPR_mnxr_list:
+                if mnxr not in primary_model_ns.modelPrunedGPR_mnxr_list:
                     if mnxr not in mnxr_to_add_list:
-                        if mnxr in options.mnxref.reactions:
+                        if mnxr in io_ns.mnxref.reactions:
                             mnxr_to_add_list.append(mnxr)
                         else:
                             logging.debug('%s (%s) not available in MNXref', rxnid, mnxr)
@@ -284,19 +284,19 @@ def get_mnxr_to_add_list(options):
 
     logging.debug('Number of KEGG reactions to be added (based on EC numbers): %s',
                   len(mnxr_to_add_list))
-    options.mnxr_to_add_list = mnxr_to_add_list
+    primary_model_ns.mnxr_to_add_list = mnxr_to_add_list
 
 
-def add_nonBBH_rxn(modelPrunedGPR, options, io_ns, primary_model_ns):
+def add_nonBBH_rxn(modelPrunedGPR, io_ns, config_ns, primary_model_ns):
 
-    for mnxr in options.mnxr_to_add_list:
+    for mnxr in primary_model_ns.mnxr_to_add_list:
 
         kegg_id = utils.get_keggid_from_mnxr(mnxr, io_ns, primary_model_ns)
 
         logging.debug("--------------------")
         logging.debug("Reaction to be added: %s; %s", mnxr, kegg_id)
 
-        rxn = options.mnxref.reactions.get_by_id(mnxr)
+        rxn = io_ns.mnxref.reactions.get_by_id(mnxr)
         modelPrunedGPR.add_reaction(rxn)
 
         #Re-define ID
@@ -308,11 +308,11 @@ def add_nonBBH_rxn(modelPrunedGPR, options, io_ns, primary_model_ns):
             logging.error(e)
 
         #Re-define Name
-        rxn.name = options.rxnid_info_dict[kegg_id]['NAME']
+        rxn.name = primary_model_ns.rxnid_info_dict[kegg_id]['NAME']
 
         #'add_reaction' requires writing/reloading of the model
         modelPrunedGPR = utils.stabilize_model(
-                modelPrunedGPR, options.outputfolder5, kegg_id)
+                modelPrunedGPR, io_ns.outputfolder5, kegg_id)
 
         rxn = modelPrunedGPR.reactions.get_by_id(kegg_id)
 
@@ -325,41 +325,41 @@ def add_nonBBH_rxn(modelPrunedGPR, options, io_ns, primary_model_ns):
         #this potential bug.
 
         #GPR association
-        if len(options.rxnid_locusTag_dict[kegg_id]) == 1:
-            gpr = '( %s )' %(options.rxnid_locusTag_dict[kegg_id][0])
+        if len(primary_model_ns.rxnid_locusTag_dict[kegg_id]) == 1:
+            gpr = '( %s )' %(primary_model_ns.rxnid_locusTag_dict[kegg_id][0])
         else:
             count = 1
-            for locusTag in options.rxnid_locusTag_dict[kegg_id]:
+            for locusTag in primary_model_ns.rxnid_locusTag_dict[kegg_id]:
 
                 #Check whether the submitted gbk file contains "/product" for CDS
-                if locusTag in options.targetGenome_locusTag_prod_dict:
+                if locusTag in io_ns.targetGenome_locusTag_prod_dict:
 
                     #Consider "and" relationship in the GPR association
-                    if 'subunit' in options.targetGenome_locusTag_prod_dict[locusTag]:
+                    if 'subunit' in io_ns.targetGenome_locusTag_prod_dict[locusTag]:
                         count += 1
-            if count == len(options.rxnid_locusTag_dict[kegg_id]):
-                gpr = ' and '.join(options.rxnid_locusTag_dict[kegg_id])
+            if count == len(primary_model_ns.rxnid_locusTag_dict[kegg_id]):
+                gpr = ' and '.join(primary_model_ns.rxnid_locusTag_dict[kegg_id])
             else:
-                gpr = ' or '.join(options.rxnid_locusTag_dict[kegg_id])
+                gpr = ' or '.join(primary_model_ns.rxnid_locusTag_dict[kegg_id])
             gpr = '( %s )' %(gpr)
 
         rxn.gene_reaction_rule = gpr
 
         # Subsystem
-        rxn.subsystem = options.rxnid_info_dict[kegg_id]['PATHWAY']
+        rxn.subsystem = primary_model_ns.rxnid_info_dict[kegg_id]['PATHWAY']
 
         modelPrunedGPR = utils.stabilize_model(
-                modelPrunedGPR, options.outputfolder5, kegg_id)
+                modelPrunedGPR, io_ns.outputfolder5, kegg_id)
 
         logging.debug("Number of reactions in the model: %s",
                 len(modelPrunedGPR.reactions))
 
         #Check model prediction consistency
         target_exrxnid_flux_dict = utils.get_exrxnid_flux(modelPrunedGPR,
-                options.template_exrxnid_flux_dict)
+                io_ns.template_exrxnid_flux_dict)
         exrxn_flux_change_list = utils.check_exrxn_flux_direction(
-                options.template_exrxnid_flux_dict,
-                target_exrxnid_flux_dict, options)
+                io_ns.template_exrxnid_flux_dict,
+                target_exrxnid_flux_dict, config_ns)
 
         if 'F' in exrxn_flux_change_list:
             #'remove_reactions' does not seem to require
@@ -370,11 +370,11 @@ def add_nonBBH_rxn(modelPrunedGPR, options, io_ns, primary_model_ns):
     return target_model
 
 
-def get_rxn_newComp_list_from_model(model, options):
+def get_rxn_newComp_list_from_model(model, io_ns):
 
     rxn_newComp_list = []
 
-    for locustag in options.locustag_comp_dict:
+    for locustag in io_ns.locustag_comp_dict:
         for j in range(len(model.reactions)):
             rxn = model.reactions[j]
 
@@ -384,17 +384,17 @@ def get_rxn_newComp_list_from_model(model, options):
     return rxn_newComp_list
 
 
-def create_rxn_newComp(rxn_newComp_list, model, options):
+def create_rxn_newComp(rxn_newComp_list, model, io_ns, primary_model_ns):
 
-    options.rxn_newComp_fate_dict = {}
+    primary_model_ns.rxn_newComp_fate_dict = {}
     added_rxn_newComp_list = []
 
     for rxnid in rxn_newComp_list:
         rxn = model.reactions.get_by_id(rxnid)
 
-        for locustag in options.locustag_comp_dict:
+        for locustag in io_ns.locustag_comp_dict:
             if locustag in str(rxn.genes):
-                for i in range(len(options.locustag_comp_dict[locustag])):
+                for i in range(len(io_ns.locustag_comp_dict[locustag])):
                     rxn_newCompt_dict = {}
                     rxn_comp_list = []
 
@@ -407,24 +407,24 @@ def create_rxn_newComp(rxn_newComp_list, model, options):
                         logging.debug(
                             "Reaction %s for %s has metabolites with multiple compartments ('%s'): manual addition needed", rxnid, locustag, rxn_comp_list)
 
-                        options.rxn_newComp_fate_dict[rxnid] = \
-                                "Locus tag: %s; Exisiting compartment: %s; New comparment: %s; Not added - metabolites with multiple compartments" %(locustag, rxn_comp_list, options.locustag_comp_dict[locustag])
+                        primary_model_ns.rxn_newComp_fate_dict[rxnid] = \
+                                "Locus tag: %s; Exisiting compartment: %s; New comparment: %s; Not added - metabolites with multiple compartments" %(locustag, rxn_comp_list, io_ns.locustag_comp_dict[locustag])
 
                     elif len(rxn_comp_list) == 1 and \
-                            rxn_comp_list[0] == options.locustag_comp_dict[locustag][i]:
+                            rxn_comp_list[0] == io_ns.locustag_comp_dict[locustag][i]:
 
                         logging.debug(
                         "Reaction %s for %s with the compartment ('%s'): already exists",
-                        rxnid, locustag, options.locustag_comp_dict[locustag][i])
+                        rxnid, locustag, io_ns.locustag_comp_dict[locustag][i])
 
-                        options.rxn_newComp_fate_dict[rxnid] = \
-                                "Locus tag: %s; Exisiting compartment: %s; New comparment: %s; Not added - already exists" %(locustag, rxn_comp_list, options.locustag_comp_dict[locustag])
+                        primary_model_ns.rxn_newComp_fate_dict[rxnid] = \
+                                "Locus tag: %s; Exisiting compartment: %s; New comparment: %s; Not added - already exists" %(locustag, rxn_comp_list, io_ns.locustag_comp_dict[locustag])
 
                     elif len(rxn_comp_list) == 1 and \
-                            rxn_comp_list[0] != options.locustag_comp_dict[locustag][i]:
+                            rxn_comp_list[0] != io_ns.locustag_comp_dict[locustag][i]:
 
                         new_rxn_id = \
-                                ''.join([rxn.id, options.locustag_comp_dict[locustag][i]])
+                                ''.join([rxn.id, io_ns.locustag_comp_dict[locustag][i]])
 
                         # rxn.metabolites extracts metabolites and their coeff's
                         #from the corresponding reaction
@@ -432,18 +432,18 @@ def create_rxn_newComp(rxn_newComp_list, model, options):
                             if metab.id in model.metabolites:
                                 new_metab_id = '_'.join(
                                             [metab.id[:-2],
-                                            options.locustag_comp_dict[locustag][i]])
+                                            io_ns.locustag_comp_dict[locustag][i]])
                                 new_metab = Metabolite(
                                         new_metab_id,
                                         name = metab.name,
                                         formula = metab.formula,
-                                        compartment = options.locustag_comp_dict[locustag][i]
+                                        compartment = io_ns.locustag_comp_dict[locustag][i]
                                         )
                                 rxn_newCompt_dict[new_metab] = \
                                         float(rxn.metabolites[metab])
 
                         new_rxn_id = \
-                                ''.join([rxn.id, options.locustag_comp_dict[locustag][i]])
+                                ''.join([rxn.id, io_ns.locustag_comp_dict[locustag][i]])
                         rxn_newComp = Reaction(new_rxn_id)
                         rxn_newComp.name = rxn.name
                         rxn_newComp.subsystem = rxn.subsystem
@@ -459,42 +459,42 @@ def create_rxn_newComp(rxn_newComp_list, model, options):
                             #'add_reaction' requires writing/reloading of the model
                             model.add_reactions(rxn_newComp)
                             model = utils.stabilize_model(
-                                    model, options.outputfolder5, rxn_newComp.id)
+                                    model, io_ns.outputfolder5, rxn_newComp.id)
                             added_rxn_newComp_list.append(rxn_newComp.id)
 
                             logging.debug(
                             "Reaction %s for %s with the compartment ('%s'): added ",
-                            rxnid, locustag, options.locustag_comp_dict[locustag][i])
+                            rxnid, locustag, io_ns.locustag_comp_dict[locustag][i])
 
-                            options.rxn_newComp_fate_dict[rxnid] = \
-                                "Locus tag: %s; Exisiting compartment: %s; New comparment: %s; Added" %(locustag, rxn_comp_list, options.locustag_comp_dict[locustag])
+                            primary_model_ns.rxn_newComp_fate_dict[rxnid] = \
+                                "Locus tag: %s; Exisiting compartment: %s; New comparment: %s; Added" %(locustag, rxn_comp_list, io_ns.locustag_comp_dict[locustag])
 
                         elif res == 'duplicate' or rxn_newComp.id in model.reactions:
                             logging.debug(
-                                    "Reaction %s for %s with the compartment ('%s'): already exists", rxnid, locustag, options.locustag_comp_dict[locustag][i])
+                                    "Reaction %s for %s with the compartment ('%s'): already exists", rxnid, locustag, io_ns.locustag_comp_dict[locustag][i])
 
-                            options.rxn_newComp_fate_dict[rxnid] = \
-                                    "Locus tag: %s; Exisiting compartment: %s; New comparment: %s; Not added - already exists" %(locustag, rxn_comp_list, options.locustag_comp_dict[locustag])
+                            primary_model_ns.rxn_newComp_fate_dict[rxnid] = \
+                                    "Locus tag: %s; Exisiting compartment: %s; New comparment: %s; Not added - already exists" %(locustag, rxn_comp_list, io_ns.locustag_comp_dict[locustag])
 
     return model, added_rxn_newComp_list
 
 
-def remove_inactive_rxn_newComp(added_rxn_newComp_list, model, options):
+def remove_inactive_rxn_newComp(added_rxn_newComp_list, model, io_ns, primary_model_ns):
     rxn_newComp_list2 = []
-    options.inactive_rxn_newComp_list = []
+    primary_model_ns.inactive_rxn_newComp_list = []
 
     for rxn in added_rxn_newComp_list:
         rxn_newComp_list2.append(model.reactions.get_by_id(rxn))
 
-    options.inactive_rxn_newComp_list = \
+    primary_model_ns.inactive_rxn_newComp_list = \
             cobra.flux_analysis.variability.find_blocked_reactions(
                                                         model,
                                                         reaction_list=rxn_newComp_list2)
 
-    model.remove_reactions(options.inactive_rxn_newComp_list)
-    model = utils.stabilize_model(model, options.outputfolder5, '')
+    model.remove_reactions(primary_model_ns.inactive_rxn_newComp_list)
+    model = utils.stabilize_model(model, io_ns.outputfolder5, '')
 
-    logging.debug("Following reactions with new compartments have been removed from the model as they carry no fluxes: %s", options.inactive_rxn_newComp_list)
+    logging.debug("Following reactions with new compartments have been removed from the model as they carry no fluxes: %s", primary_model_ns.inactive_rxn_newComp_list)
 
     return model
 

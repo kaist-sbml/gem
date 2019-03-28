@@ -222,7 +222,7 @@ def main():
         if io_ns.targetGenome_locusTag_aaSeq_dict:
             get_homologs(io_ns, homology_ns)
             model = get_pickles_prunPhase(io_ns)
-            modelPrunedGPR = run_prunPhase(model, io_ns)
+            modelPrunedGPR = run_prunPhase(model, io_ns, config_ns, homology_ns, primary_model_ns)
 
             if io_ns.targetGenome_locusTag_ec_dict:
                 get_pickles_augPhase(io_ns)
@@ -230,7 +230,7 @@ def main():
                 if run_ns.comp:
                     get_locustag_comp_dict(run_ns, io_ns)
 
-                target_model = run_augPhase(modelPrunedGPR, run_ns, io_ns, primary_model_ns)
+                target_model = run_augPhase(modelPrunedGPR, run_ns, io_ns, config_ns, homology_ns, primary_model_ns)
             else:
                 logging.warning("No EC_numbers found in input genome data")
                 logging.warning("New reactions will NOT be added")
