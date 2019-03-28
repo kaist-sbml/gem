@@ -50,7 +50,7 @@ def get_model_reactions(folder, options, **kwargs):
             +'GPR'+'\t'+'pathway'+'\n')
 
     if '4_complete_model' in folder:
-        fp4 = open('./%s/rmc_secondary_metabolites_fluxes.txt' %folder, 'w')
+        fp4 = open('./%s/rmc_secondary_reaction_fluxes.txt' %folder, 'w')
         fp4.write('reaction_ID'+'\t'+'fluxes without gap-filling reactions'+'\n')
 
     if 'cobra_model' in kwargs:
