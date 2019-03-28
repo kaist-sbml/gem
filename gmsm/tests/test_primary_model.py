@@ -68,7 +68,7 @@ class TestPrimary_model:
         options.temp_target_BBH_dict['SCO6659'] = ['B446_30415', 'B446_10110']
         options.tempModel_biggRxnid_locusTag_dict['PGI'] = ['SCO1942', 'or', 'SCO6659']
 
-        prunPhase_utils.label_rxn_to_remove(sco_tmp_model, options)
+        prunPhase_utils.label_rxn_to_remove(sco_tmp_model, options, options, options)
         assert options.rxnToRemove_dict['PGI'] == '1'
 
         # AKGDH2
@@ -79,13 +79,13 @@ class TestPrimary_model:
         options.temp_target_BBH_dict['SCO0681'] = ['B446_05650']
         options.tempModel_biggRxnid_locusTag_dict['AKGDH2'] = \
                 [[['SCO4594', 'and', 'SCO4595'], 'or', ['SCO6269', 'and', 'SCO6270']], 'and', 'SCO0681']
-        prunPhase_utils.label_rxn_to_remove(sco_tmp_model, options)
+        prunPhase_utils.label_rxn_to_remove(sco_tmp_model, options, options, options)
         assert options.rxnToRemove_dict['AKGDH2'] == '1'
 
         # TGBPA
         options.temp_target_BBH_dict['SCO5852'] = ['B446_05445']
         options.tempModel_biggRxnid_locusTag_dict['TGBPA'] = ['SCO5848', 'and', 'SCO5852']
-        prunPhase_utils.label_rxn_to_remove(sco_tmp_model, options)
+        prunPhase_utils.label_rxn_to_remove(sco_tmp_model, options, options, options)
         assert options.rxnToRemove_dict['TGBPA'] == '0'
 
 
@@ -102,7 +102,7 @@ class TestPrimary_model:
         assert 'COELICHELINR2' in sco_tmp_model.reactions
         assert 'ATPHs' in sco_tmp_model.reactions
 
-        modelPruned = prunPhase_utils.prune_model(sco_tmp_model, options)
+        modelPruned = prunPhase_utils.prune_model(sco_tmp_model, options, options)
 
         assert 'PAPA160' in modelPruned.reactions
         assert 'COELICHELINR2' not in modelPruned.reactions
@@ -156,7 +156,7 @@ class TestPrimary_model:
         load_config(options)
 
         options.targetGenome_locusTag_ec_nonBBH_dict = {'B446_27575':['2.7.4.9']}
-        augPhase_utils.get_rxnid_info_dict_from_kegg(options)
+        augPhase_utils.get_rxnid_info_dict_from_kegg(options, options, options)
         assert 'R02098' in options.rxnid_info_dict
         assert options.rxnid_info_dict['R02098']['PATHWAY'] == \
                 'rn00240 Pyrimidine metabolism'
@@ -165,7 +165,7 @@ class TestPrimary_model:
 
         options.targetGenome_locusTag_ec_nonBBH_dict = \
                 {'B446_23835':['4.1.1.45', '3.5.2.3']}
-        augPhase_utils.get_rxnid_info_dict_from_kegg(options)
+        augPhase_utils.get_rxnid_info_dict_from_kegg(options, options, options)
         assert 'R04323' in options.rxnid_info_dict
         assert options.rxnid_info_dict['R04323']['NAME'] == \
                 '2-Amino-3-carboxymuconate semialdehyde carboxy-lyase'
@@ -177,7 +177,7 @@ class TestPrimary_model:
         bigg_mnxr_dict = {'MCOATA':'MNXR101421'}
         options.bigg_mnxr_dict = bigg_mnxr_dict
 
-        augPhase_utils.get_mnxr_list_from_modelPrunedGPR(sco_tmp_model, options)
+        augPhase_utils.get_mnxr_list_from_modelPrunedGPR(sco_tmp_model, options, options)
 
         assert 'MNXR101421' in options.modelPrunedGPR_mnxr_list
 
@@ -196,7 +196,7 @@ class TestPrimary_model:
         options.modelPrunedGPR_mnxr_list = []
         options.mnxref = mnxref
 
-        augPhase_utils.get_mnxr_to_add_list(options)
+        augPhase_utils.get_mnxr_to_add_list(options, options)
 
         assert 'MNXR112417' in options.mnxr_to_add_list
 
@@ -261,7 +261,7 @@ class TestPrimary_model:
 
         options.outputfolder5 = './tmp'
         model, added_rxn_newComp_list = augPhase_utils.create_rxn_newComp(
-                                           rxn_newComp_list, sci_primary_model, options)
+                                           rxn_newComp_list, sci_primary_model, options, options)
         assert len(model.reactions) == int(1805)
 
 
@@ -287,7 +287,7 @@ class TestPrimary_model:
 
         options.outputfolder5 = './tmp'
         model, added_rxn_newComp_list = augPhase_utils.create_rxn_newComp(
-                                           rxn_newComp_list, sci_primary_model, options)
+                                           rxn_newComp_list, sci_primary_model, options, options)
 
         assert 'ACKrp' in model.reactions
         assert 'PPAKrp' in model.reactions
@@ -320,7 +320,7 @@ class TestPrimary_model:
         model = augPhase_utils.remove_inactive_rxn_newComp(
                                                             added_rxn_newComp_list,
                                                             sci_primary_model,
-                                                            options)
+                                                            options, options)
 
         assert len(model.reactions) == 1804
         assert 'CSND' not in model.reactions
