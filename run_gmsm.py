@@ -150,8 +150,8 @@ def main():
     # *_ns are arranged based on appearing orders in this python file
     run_ns = parser.parse_args()
     
-    [io_ns, config_ns, eficaz_ns, homology_ns, primary_model_ns, \
-     secondary_model_ns] = [run_ns for module in range(6)]
+    [io_ns, config_ns, homology_ns, primary_model_ns, \
+     secondary_model_ns] = [run_ns for module in range(5)]
   
     # Create an output directory for a log file
     make_folder(run_ns.outputfolder)
@@ -197,9 +197,9 @@ def main():
                 logging.info("Raw EFICAz output (.txt)  will be generated, not GenBank")
 
             if len(seq_records) == 1:
-                getECs1(eficaz_ns, seq_record = seq_records[0])
+                getECs1(run_ns, io_ns, seq_record = seq_records[0])
             elif len(seq_records) > 1:
-                getECs2(eficaz_ns)
+                getECs2(run_ns, io_ns)
         else:
             logging.warning("EFICAz not implemented;")
 
