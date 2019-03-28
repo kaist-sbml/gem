@@ -8,7 +8,7 @@ from os.path import join, abspath, dirname
 
 _cfg_name = 'gmsm.cfg'
 
-def load_config(options):
+def load_config(config_ns):
 
     _cfg_dir = join(dirname(abspath(__file__)), _cfg_name)
 
@@ -16,10 +16,10 @@ def load_config(options):
     config.read(_cfg_dir)
 
     for section in config.sections():
-        if section not in options:
-            # Create Namespace within 'options' namespace
-            options.__dict__[section] = Namespace()
+        if section not in config_ns:
+            # Create Namespace within 'config_ns' namespace
+            config_ns.__dict__[section] = Namespace()
 
         for key, value in config.items(section):
-            options.__dict__[section].__dict__[key] = value
+            config_ns.__dict__[section].__dict__[key] = value
 
