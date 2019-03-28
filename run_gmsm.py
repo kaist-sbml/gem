@@ -220,7 +220,7 @@ def main():
         get_fasta_files(run_ns, io_ns)
 
         if io_ns.targetGenome_locusTag_aaSeq_dict:
-            get_homologs(homology_ns)
+            get_homologs(io_ns, homology_ns)
             model = get_pickles_prunPhase(io_ns)
             modelPrunedGPR = run_prunPhase(model, io_ns)
 

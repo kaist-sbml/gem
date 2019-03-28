@@ -8,21 +8,21 @@ import subprocess
 import multiprocessing
 
 #Make database files using fasta files
-def make_blastDB(options):
-    db_dir = './%s/targetBlastDB' %options.outputfolder2
-    subprocess.call("./bin/diamond makedb --in %s -d %s"%(options.target_fasta, db_dir), shell=True, stderr=subprocess.STDOUT)
+def make_blastDB(io_ns):
+    db_dir = './%s/targetBlastDB' %io_ns.outputfolder2
+    subprocess.call("./bin/diamond makedb --in %s -d %s"%(io_ns.target_fasta, db_dir), shell=True, stderr=subprocess.STDOUT)
     
     #Checks if DB is properly created; otherwise shutdown
-    if os.path.isfile('./%s/targetBlastDB.dmnd' %options.outputfolder2) == False:
+    if os.path.isfile('./%s/targetBlastDB.dmnd' %io_ns.outputfolder2) == False:
         logging.debug("Error in make_blastDB: blast DB not created")
     else:
         logging.debug("targetBlastDB.dmnd created")
         
-    db_dir = './%s/tempBlastDB' %options.outputfolder2
-    subprocess.call("./bin/diamond makedb --in %s -d %s"%(options.temp_fasta, db_dir), shell=True, stderr=subprocess.STDOUT)
+    db_dir = './%s/tempBlastDB' %io_ns.outputfolder2
+    subprocess.call("./bin/diamond makedb --in %s -d %s"%(io_ns.temp_fasta, db_dir), shell=True, stderr=subprocess.STDOUT)
     
     #Checks if DB is properly created; otherwise shutdown
-    if os.path.isfile('./%s/tempBlastDB.dmnd' %options.outputfolder2) == False:
+    if os.path.isfile('./%s/tempBlastDB.dmnd' %io_ns.outputfolder2) == False:
         logging.debug("Error in make_blastDB: blast DB not created")
     else:
         logging.debug("tempBlastDB.dmnd created")
@@ -86,7 +86,7 @@ def makeBestHits_dict(inputFile):
 
 #Finding bidirectional best hits
 #Input: two dict data from "selectBestHits" (e.g.,bestHits_dict)
-def getBBH(dic1, dic2, options):
+def getBBH(dic1, dic2, homology_ns):
     targetBBH_list = []
     temp_target_BBH_dict = {}
 
@@ -108,20 +108,20 @@ def getBBH(dic1, dic2, options):
                         else:
                             temp_target_BBH_dict[temp_locusTag].append((target_locusTag))
 
-    options.targetBBH_list = targetBBH_list
-    options.temp_target_BBH_dict = temp_target_BBH_dict
+    homology_ns.targetBBH_list = targetBBH_list
+    homology_ns.temp_target_BBH_dict = temp_target_BBH_dict
 
 
 #A set of locusTag not included in BBH_list were considered nonBBH_list.
 #Their respective reactions, if available, are added to the model in augPhase.
 #def get_nonBBH(targetGenome_locusTag_ec_dict, targetBBH_list):
-def get_nonBBH(options):
+def get_nonBBH(io_ns, homology_ns):
     nonBBH_list = []
 
-    for locusTag in options.targetGenome_locusTag_ec_dict.keys():
-	if locusTag not in options.targetBBH_list:
+    for locusTag in io_ns.targetGenome_locusTag_ec_dict.keys():
+	if locusTag not in homology_ns.targetBBH_list:
             nonBBH_list.append(locusTag)
 
     nonBBH_list = sorted(set(nonBBH_list))
-    options.nonBBH_list = nonBBH_list
+    homology_ns.nonBBH_list = nonBBH_list
 
