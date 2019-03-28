@@ -72,12 +72,12 @@ def get_region_product(seq_record, region_nr, options):
                     if i == 0:
                         product = product_list[i].replace('-','_')
                         if float(region_nr) < 10:
-                            product2 = "Region0"+str(region_nr)+"_"+product
+                            product2 = "Region0"+str(region_nr)+"_"+product.lower()
                         else:
-                            product2 = "Region"+str(region_nr)+"_"+product
+                            product2 = "Region"+str(region_nr)+"_"+product.lower()
                     else:
                         product = product_list[i].replace('-','_')
-                        product2 = product2+'_'+product
+                        product2 = product2+'_'+product.lower()
                         
                     options.product = product2      
 

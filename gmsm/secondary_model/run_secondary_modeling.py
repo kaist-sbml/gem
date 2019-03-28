@@ -67,7 +67,7 @@ def run_sec_met_rxn_generation_anti5(seq_record, region_nr, target_model, prod_s
 
     get_region_product(seq_record, region_nr, options)
 
-    if 'T1PKS' in options.product or 'NRPS' in options.product:
+    if 't1pks' in options.product or 'nrps' in options.product:
         get_region_monomers(seq_record, region_nr, options)
 
         get_all_metab_coeff(options)

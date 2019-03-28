@@ -82,6 +82,7 @@ class TestSecondary_model:
 
         options.locustag_monomer_dict = locustag_monomer_dict
         options.product = 'Cluster03_nrps_t1pks_transatpks'
+        options.anti = 3
         get_all_metab_coeff(options)
 
         assert len(options.metab_coeff_dict) == 10
@@ -115,6 +116,7 @@ class TestSecondary_model:
 
         options.locustag_monomer_dict = locustag_monomer_dict
         options.product = 'Cluster03_nrps_t1pks_transatpks'
+        options.anti = 4
         get_all_metab_coeff(options)
 
         assert len(options.metab_coeff_dict) == 9
@@ -133,6 +135,7 @@ class TestSecondary_model:
                 'arg__L': -1, 'ser__L': -2, 'thr__L': -1,
                 'Cluster03_nrps_t1pks_transatpks': 1, 'val__L': -2, 'gly': -3,
                 'ala__L': -1}
+        options.anti = 4
 
         # All the monomer for Cluster 3 are already present in model
         options.mnxref = mnxref
@@ -156,6 +159,7 @@ class TestSecondary_model:
         options.product = 'Cluster07_nrps_t1pks'
         options.metab_coeff_dict = {
                 'mmcoa__R': -1, 'malcoa': -1, 'Cluster07_nrps_t1pks': 1, '23dhb': -1}
+        options.anti = 4
 
         # Following metabolite is absent in the model
         options.mnxref = mnxref
