@@ -144,7 +144,7 @@ class TestSecondary_model:
         cluster_nr = 3
         get_cluster_location(seq_record, cluster_nr, options)
         get_cluster_info_from_seq_record(seq_record, options)
-        model = add_sec_met_rxn(sci_primary_model, options)
+        model = add_sec_met_rxn(sci_primary_model, options, options)
 
         assert 'Cluster03_nrps_t1pks_transatpks' in model.reactions
         assert 'Cluster03_nrps_t1pks_transatpks_c' in model.metabolites
@@ -168,7 +168,7 @@ class TestSecondary_model:
         cluster_nr = 7
         get_cluster_location(seq_record, cluster_nr, options)
         get_cluster_info_from_seq_record(seq_record, options)
-        model = add_sec_met_rxn(sci_primary_model, options)
+        model = add_sec_met_rxn(sci_primary_model, options, options)
 
         assert 'Cluster07_nrps_t1pks' in model.reactions
         assert '23dhb_c' in model.metabolites
