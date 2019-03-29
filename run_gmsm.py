@@ -273,14 +273,14 @@ def main():
             target_model = cobra.io.read_sbml_model(
                            os.path.join(io_ns.outputfolder3, model_file))
 
-            target_model = run_secondary_modeling(seq_record, target_model, secondary_model_ns)
+            target_model = run_secondary_modeling(seq_record, target_model, io_ns, config_ns, secondary_model_ns)
 
             #target_model_no_gapsFilled = copy.deepcopy(target_model)
 
-            get_target_nonprod_monomers_for_gapfilling(target_model, secondary_model_ns)
+            get_target_nonprod_monomers_for_gapfilling(target_model, io_ns, config_ns, secondary_model_ns)
 
             # NOTE: Disabled temporarily
-            #target_model_complete = run_gapfilling(target_model, secondary_model_ns)
+            #target_model_complete = run_gapfilling(target_model, io_ns, config_ns, secondary_model_ns)
 
             prune_unused_metabolites(target_model)
 

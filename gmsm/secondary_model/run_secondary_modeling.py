@@ -22,68 +22,67 @@ from gapfilling import(
 )
 
 
-def run_secondary_modeling(seq_record, target_model, options):
+def run_secondary_modeling(seq_record, target_model, io_ns, config_ns, secondary_model_ns):
     prod_sec_met_dict = {}
     nonprod_sec_met_dict = {}
 
     cluster_nr = 1
 
-    while cluster_nr <= options.total_cluster:
+    while cluster_nr <= io_ns.total_cluster:
         logging.info("Generating reactions for Cluster %s.." %cluster_nr)
         target_model = run_sec_met_rxn_generation(
                  seq_record, cluster_nr,
                  target_model,
                  prod_sec_met_dict, nonprod_sec_met_dict,
-                 options)
+                 io_ns, config_ns, secondary_model_ns)
 
         cluster_nr += 1
 
     return target_model
 
 
-def run_sec_met_rxn_generation(seq_record, cluster_nr, target_model, prod_sec_met_dict,
-                                nonprod_sec_met_dict, options):
+def run_sec_met_rxn_generation(seq_record, cluster_nr, target_model, prod_sec_met_dict, nonprod_sec_met_dict, io_ns, config_ns, secondary_model_ns):
 
-    get_cluster_location(seq_record, cluster_nr, options)
+    get_cluster_location(seq_record, cluster_nr, secondary_model_ns)
 
-    get_cluster_info_from_seq_record(seq_record, options)
+    get_cluster_info_from_seq_record(seq_record, secondary_model_ns)
 
-    get_cluster_product(seq_record, cluster_nr, options)
+    get_cluster_product(seq_record, cluster_nr, secondary_model_ns)
 
-    if 't1pks' in options.product or 'nrps' in options.product:
-        get_cluster_monomers(options)
+    if 't1pks' in secondary_model_ns.product or 'nrps' in secondary_model_ns.product:
+        get_cluster_monomers(secondary_model_ns)
 
-        get_all_metab_coeff(options)
+        get_all_metab_coeff(secondary_model_ns)
 
-        get_pickles(options)
+        get_pickles(io_ns)
 
-        target_model = add_sec_met_rxn(target_model, options)
+        target_model = add_sec_met_rxn(target_model, io_ns, secondary_model_ns)
 
-        target_model, flux_dist = check_producibility_sec_met(target_model, options)
+        target_model, flux_dist = check_producibility_sec_met(target_model, io_ns, secondary_model_ns)
 
-        if flux_dist.objective_value < float(options.cobrapy.non_zero_flux_cutoff):
+        if flux_dist.objective_value < float(config_ns.cobrapy.non_zero_flux_cutoff):
             nonprod_sec_met_list = []
-            nonprod_sec_met_metab_list = get_sec_met_monomers(nonprod_sec_met_list, options)
-            nonprod_sec_met_dict[options.product] = nonprod_sec_met_metab_list
+            nonprod_sec_met_metab_list = get_sec_met_monomers(nonprod_sec_met_list, secondary_model_ns)
+            nonprod_sec_met_dict[secondary_model_ns.product] = nonprod_sec_met_metab_list
         else:
             prod_sec_met_list = []
-            prod_sec_met_metab_list = get_sec_met_monomers(prod_sec_met_list, options)
-            prod_sec_met_dict[options.product] = prod_sec_met_metab_list
+            prod_sec_met_metab_list = get_sec_met_monomers(prod_sec_met_list, secondary_model_ns)
+            prod_sec_met_dict[secondary_model_ns.product] = prod_sec_met_metab_list
 
     else:
         logging.debug("This BGC does not belong to 't1pks', 'nrps' or their hybird")
 
-    if cluster_nr == options.total_cluster:
-        options.prod_sec_met_dict = prod_sec_met_dict
-        options.nonprod_sec_met_dict = nonprod_sec_met_dict
+    if cluster_nr == io_ns.total_cluster:
+        secondary_model_ns.prod_sec_met_dict = prod_sec_met_dict
+        secondary_model_ns.nonprod_sec_met_dict = nonprod_sec_met_dict
 
     return target_model
 
 
-def get_target_nonprod_monomers_for_gapfilling(target_model, options):
+def get_target_nonprod_monomers_for_gapfilling(target_model, io_ns, config_ns, secondary_model_ns):
     logging.info("Producibility of secondary metabolites (gap-filling needed)..")
 
-    unique_nonprod_monomers_list = get_unique_nonprod_monomers_list(options)
+    unique_nonprod_monomers_list = get_unique_nonprod_monomers_list(secondary_model_ns)
 
     #Some monomers used for nonproducible secondary metabolites can be produced from an initial target_model
     #They need to be excluded from the list for gap-filling targets
@@ -91,11 +90,11 @@ def get_target_nonprod_monomers_for_gapfilling(target_model, options):
 
     for nonprod_monomer in unique_nonprod_monomers_list:
         target_model_monomer = add_transport_exchange_rxn_nonprod_monomer(target_model,
-                               nonprod_monomer, options)
+                               nonprod_monomer, io_ns)
         target_model_monomer, flux_dist = \
                 check_producibility_nonprod_monomer(target_model_monomer,
                                                     nonprod_monomer)
-        if flux_dist.objective_value < float(options.cobrapy.non_zero_flux_cutoff):
+        if flux_dist.objective_value < float(config_ns.cobrapy.non_zero_flux_cutoff):
             adj_unique_nonprod_monomers_list.append(nonprod_monomer)
         else:
             continue
@@ -103,21 +102,21 @@ def get_target_nonprod_monomers_for_gapfilling(target_model, options):
     logging.debug("Unique set of metabolites for gap-filling: %s",
                     adj_unique_nonprod_monomers_list)
 
-    options.adj_unique_nonprod_monomers_list = adj_unique_nonprod_monomers_list
+    secondary_model_ns.adj_unique_nonprod_monomers_list = adj_unique_nonprod_monomers_list
 
 
-def run_gapfilling(target_model, options):
+def run_gapfilling(target_model, io_ns, config_ns, secondary_model_ns):
 
     gapfill_rxns2 = []
 
-    for nonprod_monomer in options.adj_unique_nonprod_monomers_list:
+    for nonprod_monomer in secondary_model_ns.adj_unique_nonprod_monomers_list:
         try:
             #Gap-filling via cobrapy
             #TODO: Check downstream functions for 'gapfill_iter' > 1
             gapfill_rxns = cobra.flux_analysis.gapfilling.SMILEY(
                     target_model, '%s_c' %nonprod_monomer,
-                    options.mnxref,
-                    iterations = int(options.cobrapy.gapfill_iter))
+                    io_ns.mnxref,
+                    iterations = int(config_ns.cobrapy.gapfill_iter))
             logging.debug('gapfill_rxns: %s' %gapfill_rxns)
 
             #'gapfill_rxns' is a list of list:
@@ -141,9 +140,9 @@ def run_gapfilling(target_model, options):
     #Currently this function causes an error;
     #gap-filling reactions are not added to the model being edited
     #gap_rxns3 = check_gapfill_rxn_biomass_effects(target_model,
-    #                           universal_model, gapfill_rxns2, options)
+    #                           universal_model, gapfill_rxns2, io_ns)
     target_model_complete = add_gapfill_rxn_target_model(target_model,
-                            options.mnxref, gapfill_rxns2,options)
+                            io_ns.mnxref, gapfill_rxns2)
 
     return target_model_complete
 

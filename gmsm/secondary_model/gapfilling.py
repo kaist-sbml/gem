@@ -4,18 +4,18 @@ import logging
 from cobra import Reaction, Metabolite
 from gmsm import utils
 
-def get_unique_nonprod_monomers_list(options):
+def get_unique_nonprod_monomers_list(secondary_model_ns):
 
     unique_prod_monomers_list = []
     unique_nonprod_monomers_list = []
 
-    for prod_monomers_list in options.prod_sec_met_dict:
-        for prod_monomer in options.prod_sec_met_dict[prod_monomers_list]:
+    for prod_monomers_list in secondary_model_ns.prod_sec_met_dict:
+        for prod_monomer in secondary_model_ns.prod_sec_met_dict[prod_monomers_list]:
             if prod_monomer not in unique_prod_monomers_list:
                 unique_prod_monomers_list.append(prod_monomer)
 
-    for nonprod_monomers_list in options.nonprod_sec_met_dict:
-        for nonprod_monomer in options.nonprod_sec_met_dict[nonprod_monomers_list]:
+    for nonprod_monomers_list in secondary_model_ns.nonprod_sec_met_dict:
+        for nonprod_monomer in secondary_model_ns.nonprod_sec_met_dict[nonprod_monomers_list]:
             if nonprod_monomer not in unique_nonprod_monomers_list \
                 and nonprod_monomer not in unique_prod_monomers_list:
                 unique_nonprod_monomers_list.append(nonprod_monomer)
@@ -24,7 +24,7 @@ def get_unique_nonprod_monomers_list(options):
     return unique_nonprod_monomers_list
 
 
-def add_transport_exchange_rxn_nonprod_monomer(target_model, nonprod_monomer, options):
+def add_transport_exchange_rxn_nonprod_monomer(target_model, nonprod_monomer, io_ns):
 
     target_model_temp = copy.deepcopy(target_model)
 
@@ -61,7 +61,7 @@ def add_transport_exchange_rxn_nonprod_monomer(target_model, nonprod_monomer, op
     target_model_temp.add_reaction(rxn)
 
     #Model reloading and overwrtting are necessary for model stability
-    utils.stabilize_model(target_model_temp, options.outputfolder5, nonprod_monomer)
+    utils.stabilize_model(target_model_temp, io_ns.outputfolder5, nonprod_monomer)
 
     return target_model_temp
 
@@ -84,7 +84,7 @@ def check_producibility_nonprod_monomer(cobra_model, nonprod_monomer):
 #and unrealistic fluxes for critial nutrients (e.g., O2, CO2 etc)
 #Remove such gap-filling reactions from the list of reactions to be added to the model
 def check_gapfill_rxn_biomass_effects(target_model, universal_model,
-                                     gapfill_rxns, options):
+                                     gapfill_rxns, io_ns):
 
     gapfill_rxns2 = copy.deepcopy(gapfill_rxns)
     target_model_gapFilled = copy.deepcopy(target_model)
@@ -93,12 +93,12 @@ def check_gapfill_rxn_biomass_effects(target_model, universal_model,
         target_model_gapFilled.add_reaction(
                 universal_model.reactions.get_by_id(gapfill_rxn))
 
-        utils.stabilize_model(target_model_gapFilled, options.outputfolder5, '')
+        utils.stabilize_model(target_model_gapFilled, io_ns.outputfolder5, '')
 
         target_exrxnid_flux_dict = utils.get_exrxnid_flux(
-                target_model_gapFilled, options.template_exrxnid_flux_dict)
+                target_model_gapFilled, io_ns.template_exrxnid_flux_dict)
         exrxn_flux_change_list = utils.check_exrxn_flux_direction(
-                options.template_exrxnid_flux_dict, target_exrxnid_flux_dict)
+                io_ns.template_exrxnid_flux_dict, target_exrxnid_flux_dict)
 
         #Remove gap-filling reactions
         #if they cause wrong flux values for nutrients transport
@@ -109,7 +109,7 @@ def check_gapfill_rxn_biomass_effects(target_model, universal_model,
             target_model_gapFilled.remove_reactions(
                     universal_model.reactions.get_by_id(gapfill_rxn))
 
-            utils.stabilize_model(target_model_gapFilled, options.outputfolder5, '')
+            utils.stabilize_model(target_model_gapFilled, io_ns.outputfolder5, '')
 
             logging.debug("Gap-filling reaction causing wrong fluxes: %s"
                             %str(gapfill_rxn))
@@ -119,7 +119,7 @@ def check_gapfill_rxn_biomass_effects(target_model, universal_model,
     return gapfill_rxns2
 
 
-def add_gapfill_rxn_target_model(target_model, universal_model, gapfill_rxns2, options):
+def add_gapfill_rxn_target_model(target_model, universal_model, gapfill_rxns2):
 
     for gapfill_rxn in gapfill_rxns2:
         target_model.add_reaction(universal_model.reactions.get_by_id(gapfill_rxn))
