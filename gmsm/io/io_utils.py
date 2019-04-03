@@ -9,12 +9,13 @@ def get_antismash_version_from_gbk(seq_record, options):
     try:
         if comment['structured_comment']['antiSMASH-Data']['Version'][0] == '5':
             logging.info("Gbk file from antiSMASH version 5")
-            options.anti = 5
+            options.anti_version = 5
     except:
         logging.info("Gbk file from antiSMASH version 4")
-        options.anti = 4
+        options.anti_version = 4
         pass
-        
+
+
 def get_features_from_gbk(seq_record, options):
 
     # Ignore existing annotations of EC numbers in an input gbk file as they are from a different source.

@@ -29,8 +29,8 @@ from gapfilling import(
 def run_secondary_modeling(seq_record, target_model, options):
     prod_sec_met_dict = {}
     nonprod_sec_met_dict = {}
-    
-    if options.anti == 5:
+
+    if options.anti_version == 5:
         region_nr = 1
         get_region_location(seq_record, options)
 
@@ -43,10 +43,10 @@ def run_secondary_modeling(seq_record, target_model, options):
                          options)
 
             region_nr += 1
-    
-    elif options.anti == 4:
+
+    elif options.anti_version == 4:
         cluster_nr = 1
-        
+
         while cluster_nr <= options.total_cluster:
             logging.info("Generating reactions for Cluster %s.." %cluster_nr)
             target_model = run_sec_met_rxn_generation_anti4(
@@ -62,7 +62,7 @@ def run_secondary_modeling(seq_record, target_model, options):
 
 def run_sec_met_rxn_generation_anti5(seq_record, region_nr, target_model, prod_sec_met_dict,
                                 nonprod_sec_met_dict, options):
-    
+
     get_region_info_from_seq_record(seq_record, region_nr, options)
 
     get_region_product(seq_record, region_nr, options)
@@ -88,7 +88,7 @@ def run_sec_met_rxn_generation_anti5(seq_record, region_nr, target_model, prod_s
             prod_sec_met_dict[options.product] = prod_sec_met_metab_list
 
     else:
-        logging.debug("This BGC does not belong to 'T1PKS', 'NRPS' or their hybird")
+        logging.debug("This BGC does not belong to 't1pks', 'nrps' or their hybird")
 
     if region_nr == options.total_region:
         options.prod_sec_met_dict = prod_sec_met_dict
