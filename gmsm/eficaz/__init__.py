@@ -84,7 +84,7 @@ class EFICAzECPrediction:
         return allFastaList
 
 
-    def _prepareInput(self, io_ns):
+    def _prepareInput(self, run_ns, io_ns):
         """Generate $run_ns.cpus chunks of multi-Fasta-files; each in it's own subdirectory named "Chunk0000x";
         returns: list of directorynames"""
 
@@ -296,9 +296,9 @@ class EFICAzECPrediction:
         shutil.rmtree(self.tempdirname)
 
 
-    def runECpred(self, io_ns):
+    def runECpred(self, run_ns, io_ns):
         "Runs the EFICAz EC number predictions"
-        chunkDirs = self._prepareInput(io_ns)
+        chunkDirs = self._prepareInput(run_ns, io_ns)
         if len(chunkDirs) > 0:
             logging.debug("Split inputs to %s directories; first one is %s" % (len(chunkDirs), chunkDirs[0]))
             self._execute_EFICAz_processes(chunkDirs)
@@ -389,7 +389,7 @@ def getECs1(run_ns, io_ns, seq_record):
 
     inputfile = os.path.basename(run_ns.input).split('.')[0]
     EFICAzECs = EFICAzECPrediction(run_ns, io_ns, inputfile)
-    EFICAzECs.runECpred(io_ns)
+    EFICAzECs.runECpred(run_ns, io_ns)
 
     logging.debug("Found %s predictions for EC4" % len(EFICAzECs.getEC4Dict().keys()))
     logging.debug("Found %s predictions for EC3" % len(EFICAzECs.getEC3Dict().keys()))
@@ -454,7 +454,7 @@ def getECs2(run_ns, io_ns):
 
     inputfile = os.path.basename(run_ns.input).split('.')[0]
     EFICAzECs = EFICAzECPrediction(run_ns, io_ns, inputfile)
-    EFICAzECs.runECpred(io_ns)
+    EFICAzECs.runECpred(run_ns, io_ns)
 
     logging.debug("Found %s predictions for EC4" % len(EFICAzECs.getEC4Dict().keys()))
     logging.debug("Found %s predictions for EC3" % len(EFICAzECs.getEC3Dict().keys()))
