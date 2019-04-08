@@ -249,7 +249,7 @@ def get_summary_report(folder, cobra_model, runtime,
     model_summary_dict['number_remaining_essential_reactions_from_template_model'] = \
             num_essen_rxn
     model_summary_dict['number_reactions_added_from_kegg']=num_kegg_rxn
-    model_summary_dict['number_secondary_reactions']=num_secondary_rxn
+    model_summary_dict['number_clusters(regions)_for_reactions']=num_secondary_rxn
     model_summary_dict['number_remaining_genes_from_template_model'] = \
             len(template_model_gene_list)
     model_summary_dict['number_duplicate_genes_in_rxn_from_target_model'] = \
