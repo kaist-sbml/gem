@@ -88,10 +88,7 @@ def get_target_genome_from_input(filetype, options):
     options.total_cluster = 0
 
     seq_records = list(SeqIO.parse(options.input, filetype))
-    
-    if filetype == 'genbank':
-        get_antismash_version_from_gbk(seq_records[0], options)
-    
+
     # len(seq_records) == 1: e.g., A complete bacterial genome (1 contig)
     # len(seq_records) > 1: e.g., An incomplete bacterial genome (multiple contigs)
     if len(seq_records) >= 1:
@@ -103,7 +100,11 @@ def get_target_genome_from_input(filetype, options):
         if filetype == 'genbank':
             for seq_record in seq_records:
                 get_features_from_gbk(seq_record, options)
-
+            if options.total_region > 0 or options.total_cluster > 0:    
+                get_antismash_version_from_gbk(seq_records[0], options)
+            else:
+                options.anti_version = 0
+                logging.debug("This gbk file needs to be processed by antiSMASH")
         elif filetype == 'fasta':
             for seq_record in seq_records:
                 get_features_from_fasta(seq_record, options)
