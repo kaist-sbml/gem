@@ -10,13 +10,14 @@ from gmsm import utils
 
 def get_region_location(seq_record, options):
 
-    options.region_startlist = []
-    options.region_endlist = []
-
     for feature in seq_record.features:
         if feature.type == 'region':
-            options.region_startlist.append(feature.location.start)
-            options.region_endlist.append(feature.location.end)
+            if feature.location.start > options.temp_loc1:
+                options.region_loc1 = feature.location.start
+                options.region_loc2 = feature.location.end
+                options.temp_loc1 = feature.location.start
+                options.temp_loc2 = feature.location.end
+                break
 
 def get_cluster_location(seq_record, cluster_nr, options):
 
@@ -37,8 +38,8 @@ def get_region_info_from_seq_record(seq_record, region_nr, options):
 
     for feature in seq_record.features:
         if feature.type == 'CDS':
-            if feature.location.start >= options.region_startlist[region_nr-1] \
-                    and feature.location.end <= options.region_endlist[region_nr-1]:
+            if feature.location.start >= options.region_loc1 \
+                    and feature.location.end <= options.region_loc2:
                 qualifier_locus_tag = feature.qualifiers.get('locus_tag')[0]
                 if feature.qualifiers.get('sec_met_domain'):
                     region_info_dict[qualifier_locus_tag] = \
@@ -69,8 +70,8 @@ def get_region_product(seq_record, region_nr, options):
     for feature in seq_record.features:
         if feature.type == 'region':
 
-            if feature.location.start == options.region_startlist[region_nr-1] and \
-            feature.location.end == options.region_endlist[region_nr-1]:
+            if feature.location.start == options.region_loc1 and \
+            feature.location.end == options.region_loc2:
                 product_list = feature.qualifiers.get('product')
 
                 # connecting all product of a region
@@ -127,8 +128,8 @@ def get_region_monomers(seq_record, region_nr, options):
             if feature.location.start >= options.cds_loc1 \
             and feature.location.end <= options.cds_loc2:
                 # collect monomer information in one region
-                if feature.location.start >= options.region_startlist[region_nr-1] and \
-                feature.location.end <= options.region_endlist[region_nr-1]:
+                if feature.location.start >= options.region_loc1 and \
+                feature.location.end <= options.region_loc2:
                     qualifier_locus_tag = feature.qualifiers.get('locus_tag')[0]
                     module_number = qualifier_locus_tag + '_M' + str(module_count)
 

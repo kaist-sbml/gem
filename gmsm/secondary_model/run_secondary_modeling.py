@@ -32,7 +32,8 @@ def run_secondary_modeling(seq_record, target_model, options):
 
     if options.anti_version == 5:
         region_nr = 1
-        get_region_location(seq_record, options)
+        options.temp_loc1 = 0
+        options.temp_loc2 = float('inf')
 
         while region_nr <= options.total_region:
             logging.info("Generating reactions for Region %s.." %region_nr)
@@ -62,6 +63,8 @@ def run_secondary_modeling(seq_record, target_model, options):
 
 def run_sec_met_rxn_generation_anti5(seq_record, region_nr, target_model, prod_sec_met_dict,
                                 nonprod_sec_met_dict, options):
+
+    get_region_location(seq_record, options)
 
     get_region_info_from_seq_record(seq_record, region_nr, options)
 

@@ -11,7 +11,6 @@ from io_utils import (
     get_features_from_gbk,
     get_features_from_fasta,
     get_target_fasta
-    
 )
 
 
@@ -78,7 +77,7 @@ def check_input_filetype(options):
         logging.debug("A FASTA file is found for input")
         return 'fasta'
 
-                    
+
 def get_target_genome_from_input(filetype, options):
 
     options.targetGenome_locusTag_aaSeq_dict = {}
