@@ -252,26 +252,22 @@ def main():
     if options.smr_generation:
         if not options.eficaz:
             seq_records = get_target_genome_from_input(filetype, options)
-        
 
         model_file = []
         files = glob.glob(options.outputfolder3 + os.sep + '*.xml')
         model_file = [each_file for each_file in files if '.xml' in each_file]
 
-        if len(seq_records) == 1 and len(model_file) > 0 and '.xml' in model_file[0]:
+        if len(seq_records) == 1 and len(model_file) > 0 and '.xml' in model_file[0] \
+            and (options.total_region > 0 or options.total_cluster > 0):
+
             if options.total_region > 0:
-                
                 logging.info("Generating secondary metabolite biosynthesizing reactions..")
                 logging.debug("Total number of regions: %s" %options.total_region)
-                
+
             elif options.total_cluster > 0:
-                
                 logging.info("Generating secondary metabolite biosynthesizing reactions..")
                 logging.debug("Total number of clusters: %s" %options.total_cluster)
-                
-            else:
-                logging.warning("No cluster/region information found in input genome data")
-                
+
             seq_record = seq_records[0]
 
             model_file = os.path.basename(model_file[0])
@@ -296,7 +292,6 @@ def main():
                              runtime2, options,
                              #cobra_model_no_gapFilled = target_model_no_gapsFilled,
                              cobra_model = target_model)
-            
 
         else:
             logging.warning("Secondary metabolic modeling not implemented;")
@@ -308,7 +303,9 @@ def main():
                     "Input genome data with multiple records is currently not supported")
             elif len(model_file) == 0 or '.xml' not in model_file[0]:
                 logging.warning("COBRA-compliant SBML file needed")
-                
+            elif options.total_region == 0 and options.total_cluster == 0:
+                logging.warning("No cluster/region information found in input genome data")
+
 
     remove_tmp_model_files(options)
     logging.info(time.strftime("Elapsed time %H:%M:%S", time.gmtime(time.time() - start)))
