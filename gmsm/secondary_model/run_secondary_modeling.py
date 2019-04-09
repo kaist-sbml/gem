@@ -33,7 +33,6 @@ def run_secondary_modeling(seq_record, target_model, options):
     if options.anti_version == 5:
         region_nr = 1
         options.temp_loc1 = 0
-        options.temp_loc2 = float('inf')
 
         while region_nr <= options.total_region:
             logging.info("Generating reactions for Region %s.." %region_nr)
