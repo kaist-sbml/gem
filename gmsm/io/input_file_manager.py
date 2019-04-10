@@ -7,6 +7,7 @@ import re
 from Bio import SeqIO
 from io_utils import (
     get_temp_fasta,
+    get_antismash_version_from_gbk,
     get_features_from_gbk,
     get_features_from_fasta,
     get_target_fasta
@@ -82,6 +83,7 @@ def get_target_genome_from_input(filetype, options):
     options.targetGenome_locusTag_aaSeq_dict = {}
     options.targetGenome_locusTag_ec_dict = {}
     options.targetGenome_locusTag_prod_dict = {}
+    options.total_region = 0
     options.total_cluster = 0
 
     seq_records = list(SeqIO.parse(options.input, filetype))
@@ -97,7 +99,11 @@ def get_target_genome_from_input(filetype, options):
         if filetype == 'genbank':
             for seq_record in seq_records:
                 get_features_from_gbk(seq_record, options)
-
+            if options.total_region > 0 or options.total_cluster > 0:    
+                get_antismash_version_from_gbk(seq_records[0], options)
+            else:
+                options.anti_version = 0
+                logging.debug("This gbk file needs to be processed by antiSMASH")
         elif filetype == 'fasta':
             for seq_record in seq_records:
                 get_features_from_fasta(seq_record, options)

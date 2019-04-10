@@ -3,9 +3,13 @@ import cobra
 import logging
 import pickle
 from sec_met_rxn_generation import(
+    get_region_location,
     get_cluster_location,
+    get_region_info_from_seq_record,
     get_cluster_info_from_seq_record,
+    get_region_product,
     get_cluster_product,
+    get_region_monomers,
     get_cluster_monomers,
     get_all_metab_coeff,
     get_pickles,
@@ -26,22 +30,76 @@ def run_secondary_modeling(seq_record, target_model, options):
     prod_sec_met_dict = {}
     nonprod_sec_met_dict = {}
 
-    cluster_nr = 1
+    if options.anti_version == 5:
+        region_nr = 1
+        options.temp_loc1 = 0
 
-    while cluster_nr <= options.total_cluster:
-        logging.info("Generating reactions for Cluster %s.." %cluster_nr)
-        target_model = run_sec_met_rxn_generation(
-                 seq_record, cluster_nr,
-                 target_model,
-                 prod_sec_met_dict, nonprod_sec_met_dict,
-                 options)
+        while region_nr <= options.total_region:
+            logging.info("Generating reactions for Region %s.." %region_nr)
+            target_model = run_sec_met_rxn_generation_anti5(
+                         seq_record, region_nr,
+                         target_model,
+                         prod_sec_met_dict, nonprod_sec_met_dict,
+                         options)
 
-        cluster_nr += 1
+            region_nr += 1
+
+    elif options.anti_version == 4:
+        cluster_nr = 1
+
+        while cluster_nr <= options.total_cluster:
+            logging.info("Generating reactions for Cluster %s.." %cluster_nr)
+            target_model = run_sec_met_rxn_generation_anti4(
+                         seq_record, cluster_nr,
+                         target_model,
+                         prod_sec_met_dict, nonprod_sec_met_dict,
+                         options)
+
+            cluster_nr += 1
 
     return target_model
 
 
-def run_sec_met_rxn_generation(seq_record, cluster_nr, target_model, prod_sec_met_dict,
+def run_sec_met_rxn_generation_anti5(seq_record, region_nr, target_model, prod_sec_met_dict,
+                                nonprod_sec_met_dict, options):
+
+    get_region_location(seq_record, options)
+
+    get_region_info_from_seq_record(seq_record, region_nr, options)
+
+    get_region_product(seq_record, region_nr, options)
+
+    if 't1pks' in options.product or 'nrps' in options.product:
+        get_region_monomers(seq_record, region_nr, options)
+
+        get_all_metab_coeff(options)
+
+        get_pickles(options)
+
+        target_model = add_sec_met_rxn(target_model, options)
+
+        target_model, flux_dist = check_producibility_sec_met(target_model, options)
+
+        if flux_dist.objective_value < float(options.cobrapy.non_zero_flux_cutoff):
+            nonprod_sec_met_list = []
+            nonprod_sec_met_metab_list = get_sec_met_monomers(nonprod_sec_met_list, options)
+            nonprod_sec_met_dict[options.product] = nonprod_sec_met_metab_list
+        else:
+            prod_sec_met_list = []
+            prod_sec_met_metab_list = get_sec_met_monomers(prod_sec_met_list, options)
+            prod_sec_met_dict[options.product] = prod_sec_met_metab_list
+
+    else:
+        logging.debug("This BGC does not belong to 't1pks', 'nrps' or their hybird")
+
+    if region_nr == options.total_region:
+        options.prod_sec_met_dict = prod_sec_met_dict
+        options.nonprod_sec_met_dict = nonprod_sec_met_dict
+
+    return target_model
+
+
+def run_sec_met_rxn_generation_anti4(seq_record, cluster_nr, target_model, prod_sec_met_dict,
                                 nonprod_sec_met_dict, options):
 
     get_cluster_location(seq_record, cluster_nr, options)
