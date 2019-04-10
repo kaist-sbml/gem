@@ -7,7 +7,7 @@ import logging
 import utils
 #from os.path import join, abspath, dirname
 
-__version__ = '0.6.2'
+__version__ = '0.6.3'
 
 
 def check_prereqs(options):
