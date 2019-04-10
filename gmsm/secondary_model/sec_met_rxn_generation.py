@@ -66,7 +66,7 @@ def get_cluster_info_from_seq_record(seq_record, options):
 
 
 def get_region_product(seq_record, region_nr, options):
-    
+
     for feature in seq_record.features:
         if feature.type == 'region':
 
@@ -84,7 +84,7 @@ def get_region_product(seq_record, region_nr, options):
                             product2 = "Region"+str(region_nr)+"_"+product.lower()
                     else:
                         product = product_list[i].replace('-','_')
-                        product2 = product2+'_'+product.lower()
+                        product2 = product2+'_and_'+product.lower()
 
                     options.product = product2
 
@@ -148,9 +148,8 @@ def get_region_monomers(seq_record, region_nr, options):
             #type(sec_met_info) is string
             #Convert 'sec_met_info' into a list
             sec_met = sec_met_info.split(': ')
-            if 'KR ' not in sec_met[0]:
-                monomer = sec_met[1]
-                monomer_list.append(monomer)
+            monomer = sec_met[1]
+            monomer_list.append(monomer)
 
         options.locustag_monomer_dict[each_module] = monomer_list
 
@@ -215,70 +214,69 @@ def get_biggid(priority_list, each_module, options):
 # Add stoichiometric coeff's of monomers
 # Output: e.g., {'mmalcoa': -4, 'malcoa': -7}
 def get_all_metab_coeff(options):
-        metab_coeff_dict = {}
-        for each_module in options.locustag_monomer_dict:
+    metab_coeff_dict = {}
+    for each_module in options.locustag_monomer_dict:
 
-            # NRPS analyzed with antiSMASH 3.0
-            # locustag_monomer_dict[each_module]
-            # Index [0]: NRPSPredictor2 SVM
-            # Index [1]: Stachelhaus code
-            # Index [2]: Minowa
-            # Index [3]: consensus
-            # Priority: consensus > NRPSPredictor2 SVM > Stachelhaus code > Minowa
-            if len(options.locustag_monomer_dict[each_module]) == 4:
-                priority_list = [3, 0, 1, 2]
+        # NRPS analyzed with antiSMASH 3.0
+        # locustag_monomer_dict[each_module]
+        # Index [0]: NRPSPredictor2 SVM
+        # Index [1]: Stachelhaus code
+        # Index [2]: Minowa
+        # Index [3]: consensus
+        # Priority: consensus > NRPSPredictor2 SVM > Stachelhaus code > Minowa
+        if len(options.locustag_monomer_dict[each_module]) == 4:
+            priority_list = [3, 0, 1, 2]
+            biggid_met = get_biggid(priority_list, each_module, options)
+
+        # NRPS analyzed with antiSMASH 4.0
+        # Index [0]: Stachelhaus code
+        # Index [1]: NRPSPredictor3 SVM
+        # Index [2]: pHMM
+        # Index [3]: PrediCAT
+        # Index [4]: SANDPUMA ensemble
+        # Priority: consensus (SANDPUMA ensemble) > NRPSPredictor3 SVM > PrediCAT >
+        #pHMM > Stachelhaus code
+        elif len(options.locustag_monomer_dict[each_module]) == 5:
+            priority_list = [4, 1, 3, 2, 0]
+            biggid_met = get_biggid(priority_list, each_module, options)
+
+        if len(options.locustag_monomer_dict[each_module]) == 3:
+            if options.anti_version == 5:
+                # PKS_AT analyzed with antiSMASH 5.0
+                # Index [0]: consensus
+                # Index [1]: Minowa
+                # Index [2]: PKS signature
+                # Priority: consensus > PKS signature > Minowa
+                priority_list = [0, 2, 1]
                 biggid_met = get_biggid(priority_list, each_module, options)
-                
-            # NRPS analyzed with antiSMASH 4.0
-            # Index [0]: Stachelhaus code
-            # Index [1]: NRPSPredictor3 SVM
-            # Index [2]: pHMM
-            # Index [3]: PrediCAT
-            # Index [4]: SANDPUMA ensemble
-            # Priority: consensus (SANDPUMA ensemble) > NRPSPredictor3 SVM > PrediCAT >
-            #pHMM > Stachelhaus code
-            elif len(options.locustag_monomer_dict[each_module]) == 5:
-                priority_list = [4, 1, 3, 2, 0]
-                biggid_met = get_biggid(priority_list, each_module, options)
-
-
-            if len(options.locustag_monomer_dict[each_module]) == 3:
-                if options.anti_version == 5:
-                    # PKS_AT analyzed with antiSMASH 5.0
-                    # Index [0]: consensus
-                    # Index [1]: Minowa
-                    # Index [2]: PKS signature
-                    # Priority: consensus > PKS signature > Minowa
-                    priority_list = [0, 2, 1]
-                    biggid_met = get_biggid(priority_list, each_module, options)
-                else:
-                    # PKS_AT analyzed with antiSMASH 3.0 & 4.0
-                    # Index [0]: PKS signature
-                    # Index [1]: Minowa
-                    # Index [2]: consensus
-                    # Priority: consensus > PKS signature > Minowa
-                    priority_list = [2, 0, 1]
-                    biggid_met = get_biggid(priority_list, each_module, options)
-
-            #NRPS analyzed with antiSMASH 5.0
-            elif len(options.locustag_monomer_dict[each_module]) == 1:
-                #index [0]: NRPSpredictor2 SVM
-                priority_list = [0]
+            else:
+                # PKS_AT analyzed with antiSMASH 3.0 & 4.0
+                # Index [0]: PKS signature
+                # Index [1]: Minowa
+                # Index [2]: consensus
+                # Priority: consensus > PKS signature > Minowa
+                priority_list = [2, 0, 1]
                 biggid_met = get_biggid(priority_list, each_module, options)
 
-            # Filter modules without 'Substrate specificity predictions'
-            # e.g., 'B446_13275_M0'
-            # {'B446_13415_M0': ['gly,ala,val,leu,ile,abu,iva', 'ile', 'val', 'nrp'], 'B446_13275_M0': [], 'B446_13350_M0': ['leu', 'ala', 'sar', 'nrp'], 'B446_13445_M0': ['pro,pip', 'N/A', 'orn', 'nrp']}
-            if options.locustag_monomer_dict[each_module] and biggid_met:
-                if biggid_met not in metab_coeff_dict:
-                    metab_coeff_dict[biggid_met] = -1
-                else:
-                    metab_coeff_dict[biggid_met] -= 1
+        #NRPS analyzed with antiSMASH 5.0
+        elif len(options.locustag_monomer_dict[each_module]) == 1:
+            #index [0]: NRPSpredictor2 SVM
+            priority_list = [0]
+            biggid_met = get_biggid(priority_list, each_module, options)
 
-        # Add secondary metabolite product to the reaction
-        metab_coeff_dict[options.product] = 1
-        options.metab_coeff_dict = metab_coeff_dict    
+        # Filter modules without 'Substrate specificity predictions'
+        # e.g., 'B446_13275_M0'
+        # {'B446_13415_M0': ['gly,ala,val,leu,ile,abu,iva', 'ile', 'val', 'nrp'], 'B446_13275_M0': [], 'B446_13350_M0': ['leu', 'ala', 'sar', 'nrp'], 'B446_13445_M0': ['pro,pip', 'N/A', 'orn', 'nrp']}
+        if options.locustag_monomer_dict[each_module] and biggid_met:
+            if biggid_met not in metab_coeff_dict:
+                metab_coeff_dict[biggid_met] = -1
+            else:
+                metab_coeff_dict[biggid_met] -= 1
 
+    # Add secondary metabolite product to the reaction
+    metab_coeff_dict[options.product] = 1
+    logging.debug('metab_coeff_dict: %s' %metab_coeff_dict)
+    options.metab_coeff_dict = metab_coeff_dict
 
 
 def get_pickles(options):
@@ -325,7 +323,7 @@ def add_sec_met_rxn(target_model, options):
                 logging.debug("Secondary metabolite ('Region') %s: To be added" %metab)
                 metab_compt = Metabolite(metab_compt, compartment='c')
                 rxn.add_metabolites({metab_compt:options.metab_coeff_dict[metab]})
-            
+
             elif 'Cluster' in metab:
                 logging.debug("Secondary metabolite ('Cluster') %s: To be added" %metab)
                 metab_compt = Metabolite(metab_compt, compartment='c')
