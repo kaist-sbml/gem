@@ -13,7 +13,7 @@ class TestOutput_file_manager:
         folder = './tmp'
         options.orgName = 'sco'
         template_model_gene_list, duplicate_gene_list = \
-                get_model_genes(folder, sci_primary_model, options, options)
+                get_model_genes(folder, sci_primary_model, options)
 
         assert 'B446_29745' in sci_primary_model.genes
         assert 'SCO0549' in sci_primary_model.genes

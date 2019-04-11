@@ -18,13 +18,13 @@ def generate_outputs(folder, runtime, run_ns, io_ns, homology_ns, primary_model_
     cobra_model = utils.stabilize_model(cobra_model, folder, '')
 
     num_essen_rxn, num_kegg_rxn, num_cluster_rxn = get_model_reactions(
-                       folder, io_ns, primary_model_ns, **kwargs)
-    get_model_metabolites(folder, cobra_model, io_ns, secondary_model_ns)
+                       folder, primary_model_ns, **kwargs)
+    get_model_metabolites(folder, cobra_model, secondary_model_ns)
     template_model_gene_list, duplicate_gene_list = \
-                       get_model_genes(folder, cobra_model, run_ns, io_ns)
+                       get_model_genes(folder, cobra_model, run_ns)
     get_summary_report(folder, cobra_model, runtime,
                        num_essen_rxn, num_kegg_rxn, num_cluster_rxn,
-                       template_model_gene_list, duplicate_gene_list, run_ns, io_ns, secondary_model_ns)
+                       template_model_gene_list, duplicate_gene_list, run_ns, secondary_model_ns)
 
     if '3_primary_metabolic_model'in folder:
         logging.info("'Primary' metabolic model completed")
