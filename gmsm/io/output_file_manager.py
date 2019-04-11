@@ -35,7 +35,7 @@ def generate_outputs(folder, runtime, run_ns, io_ns, homology_ns, primary_model_
         write_data_for_debug(run_ns, io_ns, homology_ns, primary_model_ns)
 
 
-def get_model_reactions(folder, io_ns, primary_model_ns, **kwargs):
+def get_model_reactions(folder, primary_model_ns, **kwargs):
 
     fp1 = open('./%s/model_reactions.txt' %folder, 'w')
     fp2 = open('./%s/rmc_remaining_essential_reactions_from_template_model.txt' %folder, 'w')
@@ -115,7 +115,7 @@ def get_model_reactions(folder, io_ns, primary_model_ns, **kwargs):
     return num_essen_rxn, num_kegg_rxn, num_cluster_rxn
 
 
-def get_model_metabolites(folder, cobra_model, io_ns, secondary_model_ns):
+def get_model_metabolites(folder, cobra_model, secondary_model_ns):
 
     fp1 = open('./%s/model_metabolites.txt' %folder, "w")
     fp1.write('metabolite_ID'+'\t'+'metabolite_name'+'\t'
@@ -151,7 +151,7 @@ def get_model_metabolites(folder, cobra_model, io_ns, secondary_model_ns):
         fp2.close()
 
 
-def get_model_genes(folder, cobra_model, run_ns, io_ns):
+def get_model_genes(folder, cobra_model, run_ns):
     template_model_gene_list = []
     duplicate_gene_list = []
 
@@ -215,8 +215,7 @@ def get_model_genes(folder, cobra_model, run_ns, io_ns):
 
 def get_summary_report(folder, cobra_model, runtime,
                        num_essen_rxn, num_kegg_rxn, num_cluster_rxn,
-                       template_model_gene_list, duplicate_gene_list, run_ns,
-                       io_ns, secondary_model_ns):
+                       template_model_gene_list, duplicate_gene_list, run_ns, secondary_model_ns):
 
     fp1 = open('./%s/summary_report.txt' %folder, "w")
 

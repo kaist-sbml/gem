@@ -42,6 +42,7 @@ class EFICAzECPrediction:
         # Assign variables
         self.inputfile = inputfile
         self.run_ns = run_ns
+        self.io_ns = io_ns
 
         # Variables to store EC prediction
         self.EC4Dict = {}
