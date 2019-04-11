@@ -71,7 +71,7 @@ def run_sec_met_rxn_generation_anti5(seq_record, region_nr, target_model, prod_s
     if 't1pks' in secondary_model_ns.product or 'nrps' in secondary_model_ns.product:
         get_region_monomers(seq_record, region_nr, secondary_model_ns)
 
-        get_all_metab_coeff(secondary_model_ns)
+        get_all_metab_coeff(io_ns, secondary_model_ns)
 
         get_pickles(io_ns)
 
@@ -109,7 +109,7 @@ def run_sec_met_rxn_generation_anti4(seq_record, cluster_nr, target_model, prod_
     if 't1pks' in secondary_model_ns.product or 'nrps' in secondary_model_ns.product:
         get_cluster_monomers(secondary_model_ns)
 
-        get_all_metab_coeff(secondary_model_ns)
+        get_all_metab_coeff(io_ns, secondary_model_ns)
 
         get_pickles(io_ns)
 

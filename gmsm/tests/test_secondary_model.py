@@ -83,7 +83,7 @@ class TestSecondary_model:
         options.locustag_monomer_dict = locustag_monomer_dict
         options.product = 'Cluster03_nrps_t1pks_transatpks'
         options.anti_version = 3
-        get_all_metab_coeff(options)
+        get_all_metab_coeff(options, options)
 
         assert len(options.metab_coeff_dict) == 10
         assert options.metab_coeff_dict['mmcoa__R'] == -2
@@ -117,7 +117,7 @@ class TestSecondary_model:
         options.locustag_monomer_dict = locustag_monomer_dict
         options.product = 'Cluster03_nrps_t1pks_transatpks'
         options.anti_version = 4
-        get_all_metab_coeff(options)
+        get_all_metab_coeff(options, options)
 
         assert len(options.metab_coeff_dict) == 9
         assert options.metab_coeff_dict['mmcoa__R'] == -2
