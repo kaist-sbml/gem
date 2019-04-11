@@ -260,12 +260,16 @@ def main():
         files = glob.glob(io_ns.outputfolder3 + os.sep + '*.xml')
         model_file = [each_file for each_file in files if '.xml' in each_file]
 
-        if len(seq_records) == 1 and \
-                len(model_file) > 0 and '.xml' in model_file[0] and \
-                io_ns.total_cluster > 0:
+        if len(seq_records) == 1 and len(model_file) > 0 and '.xml' in model_file[0] \
+            and (io_ns.total_region > 0 or io_ns.total_cluster > 0):
 
-            logging.info("Generating secondary metabolite biosynthesizing reactions..")
-            logging.debug("Total number of clusters: %s" %io_ns.total_cluster)
+            if io_ns.total_region > 0:
+                logging.info("Generating secondary metabolite biosynthesizing reactions..")
+                logging.debug("Total number of regions: %s" %io_ns.total_region)
+
+            elif io_ns.total_cluster > 0:
+                logging.info("Generating secondary metabolite biosynthesizing reactions..")
+                logging.debug("Total number of clusters: %s" %io_ns.total_cluster)
 
             seq_record = seq_records[0]
 
@@ -302,8 +306,8 @@ def main():
                     "Input genome data with multiple records is currently not supported")
             elif len(model_file) == 0 or '.xml' not in model_file[0]:
                 logging.warning("COBRA-compliant SBML file needed")
-            elif io_ns.total_cluster == 0:
-                logging.warning("No cluster information found in input genome data")
+            elif io_ns.total_region == 0 and io_ns.total_cluster == 0:
+                logging.warning("No cluster/region information found in input genome data")
 
     remove_tmp_model_files(io_ns)
     logging.info(time.strftime("Elapsed time %H:%M:%S", time.gmtime(time.time() - start)))
