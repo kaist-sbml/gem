@@ -8,22 +8,22 @@ import subprocess
 from os.path import getmtime, isfile, join, split
 
 
-def setup_logging(options):
-    if options.verbose:
+def setup_logging(run_ns):
+    if run_ns.verbose:
         log_level = logging.INFO
-    elif options.debug:
+    elif run_ns.debug:
         log_level = logging.DEBUG
     else:
         log_level = logging.WARNING
 
     logging.basicConfig(format='%(levelname)s: %(message)s', level=log_level)
 
-    if options.verbose or options.debug:
+    if run_ns.verbose or run_ns.debug:
         logger = logging.getLogger('')
         fomatter = logging.Formatter(
                 '[%(levelname)s|%(filename)s:%(lineno)s] > %(message)s')
         fh = logging.FileHandler(
-                os.path.join(options.outputfolder, 'gmsm.log'), mode = 'w')
+                os.path.join(run_ns.outputfolder, 'gmsm.log'), mode = 'w')
         fh.setFormatter(fomatter)
         logger.setLevel(log_level)
         logger.addHandler(fh)
@@ -46,32 +46,32 @@ def get_git_log():
     return""
 
 
-def check_input_options(options):
-    if not options.input:
+def check_input_options(run_ns):
+    if not run_ns.input:
         logging.warning("Provide input file via ('-i')")
         sys.exit(1)
 
-    if not options.eficaz_file and \
-            not options.eficaz and \
-            not options.pmr_generation and \
-            not options.smr_generation and \
-            not options.comp:
+    if not run_ns.eficaz_file and \
+            not run_ns.eficaz and \
+            not run_ns.pmr_generation and \
+            not run_ns.smr_generation and \
+            not run_ns.comp:
                 logging.warning("Select one of the options: '-e', '-p' or '-s'")
                 sys.exit(1)
 
-    if options.comp:
-        if not options.pmr_generation:
+    if run_ns.comp:
+        if not run_ns.pmr_generation:
             logging.warning(
                     "Primary metabolic modeling option ('-p') should also be selected")
             sys.exit(1)
 
-    if options.eficaz_file:
-        if options.eficaz:
+    if run_ns.eficaz_file:
+        if run_ns.eficaz:
             logging.warning(
                     "EFICAz output file option ('-E') or the EFICAz run option ('-e') should be removed")
             sys.exit(1)
 
-        if not options.pmr_generation:
+        if not run_ns.pmr_generation:
             logging.warning(
                     "Primary metabolic modeling option ('-p') should also be selected")
             sys.exit(1)
@@ -155,27 +155,27 @@ def get_gene_id(feature):
 # For regular update of the cache:
 # KEGG updates its EC_number:reaction ID pairs time to time,
 #and old caches can cause an error
-def time_bomb(cache_file, options):
+def time_bomb(cache_file, config_ns):
     today = datetime.datetime.today()
     modified_date = datetime.datetime.fromtimestamp(getmtime(cache_file))
     file_age = today - modified_date
 
-    if int(file_age.days) > int(options.utils.time_bomb_duration):
+    if int(file_age.days) > int(config_ns.utils.time_bomb_duration):
         logging.debug('File %s is older than %s days (currently %s days)',
-                cache_file, options.utils.time_bomb_duration, file_age.days)
+                cache_file, config_ns.utils.time_bomb_duration, file_age.days)
         os.remove(cache_file)
         logging.debug('File %s was removed', cache_file)
     else:
         logging.debug('File %s has not reached %s days (currently %s days)',
-                cache_file, options.utils.time_bomb_duration, file_age.days)
+                cache_file, config_ns.utils.time_bomb_duration, file_age.days)
 
 
-def get_keggid_from_mnxr(mnxr, options):
-    if len(options.mnxr_kegg_dict[mnxr]) > 1:
+def get_keggid_from_mnxr(mnxr, io_ns, primary_model_ns):
+    if len(io_ns.mnxr_kegg_dict[mnxr]) > 1:
         keggid_list = []
 
-        for keggid in options.mnxr_kegg_dict[mnxr]:
-            if keggid in options.rxnid_info_dict:
+        for keggid in io_ns.mnxr_kegg_dict[mnxr]:
+            if keggid in primary_model_ns.rxnid_info_dict:
                 keggid_list.append(keggid)
 
         if len(keggid_list) == 1:
@@ -185,8 +185,8 @@ def get_keggid_from_mnxr(mnxr, options):
             keggid_list.sort()
             kegg_id = keggid_list[-1]
 
-    elif len(options.mnxr_kegg_dict[mnxr]) == 1:
-        kegg_id = options.mnxr_kegg_dict[mnxr][0]
+    elif len(io_ns.mnxr_kegg_dict[mnxr]) == 1:
+        kegg_id = io_ns.mnxr_kegg_dict[mnxr][0]
 
     return kegg_id
 
@@ -265,7 +265,7 @@ def get_exrxnid_flux(model, template_exrxnid_flux_dict):
 
 #Output: a list file having either T or F for major Exchange reactions
 def check_exrxn_flux_direction(
-        template_exrxnid_flux_dict, target_exrxnid_flux_dict, options):
+        template_exrxnid_flux_dict, target_exrxnid_flux_dict, config_ns):
 
     exrxn_flux_change_list = []
 
@@ -280,9 +280,9 @@ def check_exrxn_flux_direction(
                 logging.debug("%s has a zero flux", exrxn_id)
 
             #Similar species are allowed to uptake nutrients within a decent range
-            if float(target_exrxn_flux)*float(template_exrxn_flux) > float(options.cobrapy.non_zero_flux_cutoff) \
-                    and float(options.cobrapy.nutrient_uptake_rate) < ratio_exrxn_flux \
-                    and ratio_exrxn_flux < float(options.cobrapy.nutrient_uptake_rate):
+            if float(target_exrxn_flux)*float(template_exrxn_flux) > float(config_ns.cobrapy.non_zero_flux_cutoff) \
+                    and float(config_ns.cobrapy.nutrient_uptake_rate) < ratio_exrxn_flux \
+                    and ratio_exrxn_flux < float(config_ns.cobrapy.nutrient_uptake_rate):
                 exrxn_flux_change_list.append('T')
 
             #Cause drastic changes in Exchange reaction fluxes

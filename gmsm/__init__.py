@@ -10,7 +10,7 @@ import utils
 __version__ = '0.6.3'
 
 
-def check_prereqs(options):
+def check_prereqs(run_ns):
     "Check if all required files and applications are around"
 
     # Tuple is ( binary_name, optional)
@@ -26,11 +26,11 @@ def check_prereqs(options):
 
         if binary_path:
             if binary_name == 'eficaz2.5':
-                options.eficaz_path = binary_path
+                run_ns.eficaz_path = binary_path
         elif binary_path is None and not optional:
             failure_messages.append("Failed to locate file: %r" % binary_name)
             if binary_name == 'eficaz2.5':
-                options.eficaz_path = binary_path
+                run_ns.eficaz_path = binary_path
 
     try:
         import cobra

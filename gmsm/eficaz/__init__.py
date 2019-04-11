@@ -37,11 +37,12 @@ EFICAzBinary = "eficaz2.5"
 
 class EFICAzECPrediction:
 
-    def __init__(self, options, inputfile):
+    def __init__(self, run_ns, io_ns, inputfile):
 
         # Assign variables
         self.inputfile = inputfile
-        self.options = options
+        self.run_ns = run_ns
+        self.io_ns = io_ns
 
         # Variables to store EC prediction
         self.EC4Dict = {}
@@ -53,7 +54,7 @@ class EFICAzECPrediction:
         # self.ChunkFilenames['/path/to/Chunk1'] = '/path/to/fastafile'
         self.ChunkFilenames = {}
 
-        self.basedirName = os.path.abspath(os.path.join(options.outputfolder1, "EFICAz"))
+        self.basedirName = os.path.abspath(os.path.join(io_ns.outputfolder1, "EFICAz"))
         try:
             os.makedirs(self.basedirName)
         except OSError:
@@ -67,10 +68,10 @@ class EFICAzECPrediction:
         tempdir = tempfile.mkdtemp(prefix='antiSMASH_ECpred')
         self.tempdirname = tempdir
 
-    def _getMultiFastaList(self, options):
+    def _getMultiFastaList(self, io_ns):
         allFastaList = []
 
-        for gene_id, fasta_seq in options.targetGenome_locusTag_aaSeq_dict.iteritems():
+        for gene_id, fasta_seq in io_ns.targetGenome_locusTag_aaSeq_dict.iteritems():
             if "-" in str(fasta_seq):
                 fasta_seq = Seq(str(fasta_seq).replace("-",""), generic_protein)
 
@@ -84,17 +85,17 @@ class EFICAzECPrediction:
         return allFastaList
 
 
-    def _prepareInput(self, options):
-        """Generate $options.cpus chunks of multi-Fasta-files; each in it's own subdirectory named "Chunk0000x";
+    def _prepareInput(self, run_ns, io_ns):
+        """Generate $run_ns.cpus chunks of multi-Fasta-files; each in it's own subdirectory named "Chunk0000x";
         returns: list of directorynames"""
 
         logging.debug("Preparing input files for EFICAz")
         InputDirList = []
-        allFastaList = self._getMultiFastaList(options)
+        allFastaList = self._getMultiFastaList(io_ns)
 
         logging.debug("Number of sequences: %s", len(allFastaList))
 
-        maxChunks = self.options.cpus
+        maxChunks = self.run_ns.cpus
 
 
         if len(allFastaList) < maxChunks:
@@ -111,7 +112,7 @@ class EFICAzECPrediction:
         for i in range(maxChunks):
             if i == 0:
                 fastaChunk = allFastaList[:equalpartsizes]
-            elif i == (self.options.cpus-1):
+            elif i == (self.run_ns.cpus-1):
                 fastaChunk = allFastaList[(i*equalpartsizes):]
             else:
                 fastaChunk = allFastaList[(i*equalpartsizes):((i+1)*equalpartsizes)]
@@ -296,9 +297,9 @@ class EFICAzECPrediction:
         shutil.rmtree(self.tempdirname)
 
 
-    def runECpred(self, options):
+    def runECpred(self, run_ns, io_ns):
         "Runs the EFICAz EC number predictions"
-        chunkDirs = self._prepareInput(options)
+        chunkDirs = self._prepareInput(run_ns, io_ns)
         if len(chunkDirs) > 0:
             logging.debug("Split inputs to %s directories; first one is %s" % (len(chunkDirs), chunkDirs[0]))
             self._execute_EFICAz_processes(chunkDirs)
@@ -381,15 +382,15 @@ class EFICAzECPrediction:
         return self.EC3InfoDict
 
 
-def getECs1(options, seq_record):
+def getECs1(run_ns, io_ns, seq_record):
     logging.debug("Predicting EC numbers with EFICAz (getECs1)")
 
-    if not 'cpus' in options:
-        options.cpus = 1
+    if not 'cpus' in run_ns:
+        run_ns.cpus = 1
 
-    inputfile = os.path.basename(options.input).split('.')[0]
-    EFICAzECs = EFICAzECPrediction(options, inputfile)
-    EFICAzECs.runECpred(options)
+    inputfile = os.path.basename(run_ns.input).split('.')[0]
+    EFICAzECs = EFICAzECPrediction(run_ns, io_ns, inputfile)
+    EFICAzECs.runECpred(run_ns, io_ns)
 
     logging.debug("Found %s predictions for EC4" % len(EFICAzECs.getEC4Dict().keys()))
     logging.debug("Found %s predictions for EC3" % len(EFICAzECs.getEC3Dict().keys()))
@@ -443,41 +444,41 @@ def getECs1(options, seq_record):
 
     #Write output gbk file
     output_gbk = inputfile + '_ec.gbk'
-    SeqIO.write(seq_record, os.path.join(options.outputfolder1, output_gbk), 'genbank')
+    SeqIO.write(seq_record, os.path.join(io_ns.outputfolder1, output_gbk), 'genbank')
 
 
-def getECs2(options):
+def getECs2(run_ns, io_ns):
     logging.debug("Predicting EC numbers with EFICAz (getECs2)")
 
-    if not 'cpus' in options:
-        options.cpus = 1
+    if not 'cpus' in run_ns:
+        run_ns.cpus = 1
 
-    inputfile = os.path.basename(options.input).split('.')[0]
-    EFICAzECs = EFICAzECPrediction(options, inputfile)
-    EFICAzECs.runECpred(options)
+    inputfile = os.path.basename(run_ns.input).split('.')[0]
+    EFICAzECs = EFICAzECPrediction(run_ns, io_ns, inputfile)
+    EFICAzECs.runECpred(run_ns, io_ns)
 
     logging.debug("Found %s predictions for EC4" % len(EFICAzECs.getEC4Dict().keys()))
     logging.debug("Found %s predictions for EC3" % len(EFICAzECs.getEC3Dict().keys()))
 
-    for locustag in options.targetGenome_locusTag_aaSeq_dict:
+    for locustag in io_ns.targetGenome_locusTag_aaSeq_dict:
         if EFICAzECs.getEC4(locustag):
             ecnum = EFICAzECs.getEC4(locustag)
 
-            if locustag not in options.targetGenome_locusTag_ec_dict:
-                options.targetGenome_locusTag_ec_dict[locustag] = []
+            if locustag not in io_ns.targetGenome_locusTag_ec_dict:
+                io_ns.targetGenome_locusTag_ec_dict[locustag] = []
 
             for ec in ecnum:
-                if ec not in options.targetGenome_locusTag_ec_dict[locustag]:
-                    options.targetGenome_locusTag_ec_dict[locustag].append(ec)
+                if ec not in io_ns.targetGenome_locusTag_ec_dict[locustag]:
+                    io_ns.targetGenome_locusTag_ec_dict[locustag].append(ec)
 
-    logging.debug("len(options.targetGenome_locusTag_ec_dict.keys): %s",
-                  len(options.targetGenome_locusTag_ec_dict.keys()))
+    logging.debug("len(io_ns.targetGenome_locusTag_ec_dict.keys): %s",
+                  len(io_ns.targetGenome_locusTag_ec_dict.keys()))
 
     #Write output file
     ecpredfile = inputfile + '_ec.txt'
-    outputfiles = glob.glob(os.path.abspath(os.path.join(options.outputfolder1, "EFICAz", '*.ecpred')))
+    outputfiles = glob.glob(os.path.abspath(os.path.join(io_ns.outputfolder1, "EFICAz", '*.ecpred')))
 
-    with open(os.path.join(options.outputfolder1, ecpredfile), 'w') as outfile:
+    with open(os.path.join(io_ns.outputfolder1, ecpredfile), 'w') as outfile:
         for outputfile in outputfiles:
             with open(outputfile) as infile:
                 outfile.write(infile.read())

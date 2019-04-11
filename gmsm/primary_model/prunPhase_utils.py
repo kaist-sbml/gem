@@ -89,28 +89,28 @@ def get_rxn_fate(locustag_list, temp_target_BBH_dict):
     return rxn_fate2
 
 
-def label_rxn_to_remove(model, options):
+def label_rxn_to_remove(model, io_ns, homology_ns, primary_model_ns):
     rxnToRemove_dict = {}
 
-    for biggRxnid in options.tempModel_biggRxnid_locusTag_dict:
+    for biggRxnid in io_ns.tempModel_biggRxnid_locusTag_dict:
 	rxn = model.reactions.get_by_id(biggRxnid)
         #Prevent removal of transport reactions from the template model
 	if 'Transport' not in rxn.name and 'transport' not in rxn.name \
             and 'Exchange' not in rxn.name and 'exchange' not in rxn.name:
             rxnToRemove_dict[biggRxnid] = get_rxn_fate(
-                    options.tempModel_biggRxnid_locusTag_dict[biggRxnid],
-                    options.temp_target_BBH_dict)
+                    io_ns.tempModel_biggRxnid_locusTag_dict[biggRxnid],
+                    homology_ns.temp_target_BBH_dict)
 
-    options.rxnToRemove_dict = rxnToRemove_dict
+    primary_model_ns.rxnToRemove_dict = rxnToRemove_dict
 
 
-def prune_model(model, options):
+def prune_model(model, config_ns, primary_model_ns):
 
-    for rxnid in options.rxnToRemove_dict:
+    for rxnid in primary_model_ns.rxnToRemove_dict:
 
-        logging.debug("Fate of reaction %s: %s", rxnid, options.rxnToRemove_dict[rxnid])
+        logging.debug("Fate of reaction %s: %s", rxnid, primary_model_ns.rxnToRemove_dict[rxnid])
         #Single reaction deletion is performed only for reactions labelled as "False"
-        if options.rxnToRemove_dict[rxnid] == '0':
+        if primary_model_ns.rxnToRemove_dict[rxnid] == '0':
 
             flux_dist = single_reaction_deletion(
                         model, reaction_list=list([rxnid]), method='fba')
@@ -120,7 +120,7 @@ def prune_model(model, options):
 
                 #Check growth rate upon reaction deletion
                 if float(flux_dist.flux[rxnid]) >= \
-                        float(options.cobrapy.non_zero_flux_cutoff):
+                        float(config_ns.cobrapy.non_zero_flux_cutoff):
                     model.remove_reactions(rxnid)
                     logging.debug("Removed reaction: %s; %s; %s; %s"
                             %(rxnid, flux_dist.flux[rxnid],
@@ -140,17 +140,17 @@ def prune_model(model, options):
 
 # Retain structures of original GPR associations in the template model:
 # e.g., parenthesis structures and Boolean relationships
-def swap_locustag_with_homolog(modelPruned, options):
+def swap_locustag_with_homolog(modelPruned, homology_ns):
 
-    for locustag in options.temp_target_BBH_dict:
+    for locustag in homology_ns.temp_target_BBH_dict:
         for rxn in modelPruned.reactions:
             if rxn.gene_reaction_rule and locustag in rxn.gene_reaction_rule:
-                if len(options.temp_target_BBH_dict[locustag]) == 1:
+                if len(homology_ns.temp_target_BBH_dict[locustag]) == 1:
                     new_gpr = rxn.gene_reaction_rule.replace(
-                            locustag, options.temp_target_BBH_dict[locustag][0])
+                            locustag, homology_ns.temp_target_BBH_dict[locustag][0])
                     rxn.gene_reaction_rule = new_gpr
-                elif len(options.temp_target_BBH_dict[locustag]) > 1:
-                    homologs = ' or '.join(options.temp_target_BBH_dict[locustag])
+                elif len(homology_ns.temp_target_BBH_dict[locustag]) > 1:
+                    homologs = ' or '.join(homology_ns.temp_target_BBH_dict[locustag])
                     new_gpr = rxn.gene_reaction_rule.replace(locustag, '( %s )' %homologs)
                     rxn.gene_reaction_rule = new_gpr
 
