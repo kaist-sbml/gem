@@ -3,6 +3,18 @@ import logging
 import os
 import sys
 
+def get_antismash_version_from_gbk(seq_record, io_ns):
+    comment = seq_record.annotations
+    try:
+        if comment['structured_comment']['antiSMASH-Data']['Version'][0] == '5':
+            logging.info("Gbk file from antiSMASH version 5")
+            io_ns.anti_version = 5
+    except:
+        logging.info("Gbk file from antiSMASH version 4")
+        io_ns.anti_version = 4
+        pass
+
+
 def get_features_from_gbk(seq_record, run_ns, io_ns):
 
     # Ignore existing annotations of EC numbers in an input gbk file as they are from a different source.
@@ -43,6 +55,8 @@ def get_features_from_gbk(seq_record, run_ns, io_ns):
                     ecnum = feature.qualifiers.get('EC_number')
                     io_ns.targetGenome_locusTag_ec_dict[locusTag] = ecnum
 
+        if feature.type == 'region':
+            io_ns.total_region += 1
         if feature.type == 'cluster':
             io_ns.total_cluster += 1
 
