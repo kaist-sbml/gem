@@ -59,37 +59,37 @@ class TestSecondary_model:
         assert options.locustag_monomer_dict['B446_01670_M0'][2] == 'ccmmal'
 
 
-    def test_get_all_metab_coeff_antismash3(self, options):
+    #def test_get_all_metab_coeff_antismash3(self, options):
 
-        locustag_monomer_dict = {
-                'B446_01480_M0': ['orn,lys,arg', 'lys', 'leu', 'nrp'],
-                'B446_01480_M1': ['ser', 'ser', 'ser', 'ser'],
-                'B446_01485_M0': ['val', 'val', 'val', 'val'],
-                'B446_01485_M1': ['asp,asn,glu,gln,aad', 'N/A', 'ala', 'nrp'],
-                'B446_01485_M2': ['gly', 'gly', 'gly', 'gly'],
-                'B446_01525_M0': ['hydrophilic', 'arg', 'arg', 'arg'],
-                'B446_01530_M0': ['N/A', 'ser', 'dab', 'nrp'],
-                'B446_01535_M0': ['val', 'val', 'val', 'val'],
-                'B446_01565_M0': ['thr', 'thr', 'thr', 'thr'],
-                'B446_01565_M1': ['ser', 'ser', 'ser', 'ser'],
-                'B446_01635_M0': ['mmal', 'mmal', 'mmal'],
-                'B446_01655_M0': ['mal', 'mal', 'mal'],
-                'B446_01655_M1': ['mal', 'mal', 'mal'],
-                'B446_01660_M0': ['gly', 'gly', 'gly', 'gly'],
-                'B446_01670_M0': ['mmal', 'mmal', 'ccmmal'],
-                'B446_01670_M1': ['mal', 'mal', 'mal'],
-                'B446_01685_M0': ['gly', 'gly', 'gly', 'gly']}
+        #locustag_monomer_dict = {
+                #'B446_01480_M0': ['orn,lys,arg', 'lys', 'leu', 'nrp'],
+                #'B446_01480_M1': ['ser', 'ser', 'ser', 'ser'],
+                #'B446_01485_M0': ['val', 'val', 'val', 'val'],
+                #'B446_01485_M1': ['asp,asn,glu,gln,aad', 'N/A', 'ala', 'nrp'],
+                #'B446_01485_M2': ['gly', 'gly', 'gly', 'gly'],
+                #'B446_01525_M0': ['hydrophilic', 'arg', 'arg', 'arg'],
+                #'B446_01530_M0': ['N/A', 'ser', 'dab', 'nrp'],
+                #'B446_01535_M0': ['val', 'val', 'val', 'val'],
+                #'B446_01565_M0': ['thr', 'thr', 'thr', 'thr'],
+                #'B446_01565_M1': ['ser', 'ser', 'ser', 'ser'],
+                #'B446_01635_M0': ['mmal', 'mmal', 'mmal'],
+                #'B446_01655_M0': ['mal', 'mal', 'mal'],
+                #'B446_01655_M1': ['mal', 'mal', 'mal'],
+                #'B446_01660_M0': ['gly', 'gly', 'gly', 'gly'],
+                #'B446_01670_M0': ['mmal', 'mmal', 'ccmmal'],
+                #'B446_01670_M1': ['mal', 'mal', 'mal'],
+                #'B446_01685_M0': ['gly', 'gly', 'gly', 'gly']}
 
-        options.locustag_monomer_dict = locustag_monomer_dict
-        options.product = 'Cluster03_nrps_t1pks_transatpks'
-        options.anti_version = 3
-        get_all_metab_coeff(options, options)
+        #options.locustag_monomer_dict = locustag_monomer_dict
+        #options.product = 'Cluster03_nrps_t1pks_transatpks'
+        #options.anti_version = 3
+        #get_all_metab_coeff(options, options)
 
-        assert len(options.metab_coeff_dict) == 10
-        assert options.metab_coeff_dict['mmcoa__R'] == -2
-        assert options.metab_coeff_dict['ser__L'] == -3
-        assert options.metab_coeff_dict['val__L'] == -2
-        assert options.metab_coeff_dict['Cluster03_nrps_t1pks_transatpks'] == 1
+        #assert len(options.metab_coeff_dict) == 10
+        #assert options.metab_coeff_dict['mmcoa__R'] == -2
+        #assert options.metab_coeff_dict['ser__L'] == -3
+        #assert options.metab_coeff_dict['val__L'] == -2
+        #assert options.metab_coeff_dict['Cluster03_nrps_t1pks_transatpks'] == 1
 
 
     def test_get_all_metab_coeff_antismash4(self, options):
