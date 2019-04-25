@@ -320,7 +320,7 @@ def get_tempGenome_locusTag_aaSeq_dict(input1_tmp_dir, options, **kwargs):
 
     if filetype == 'genbank':
         for seq_record in seq_records:
-            io_utils.get_features_from_gbk(seq_record, options)
+            io_utils.get_features_from_gbk(seq_record, options, options)
 
     elif filetype == 'fasta':
         for seq_record in seq_records:
