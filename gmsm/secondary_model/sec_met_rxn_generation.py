@@ -218,6 +218,7 @@ def get_all_metab_coeff(io_ns, secondary_model_ns):
     for each_module in secondary_model_ns.locustag_monomer_dict:
         logging.debug("Module: %s; monomers: %s", each_module, secondary_model_ns.locustag_monomer_dict[each_module])
 
+        # Paused (antiSMASH 3.0 is not used now)
         # NRPS analyzed with antiSMASH 3.0
         # locustag_monomer_dict[each_module]
         # Index [0]: NRPSPredictor2 SVM
@@ -225,9 +226,9 @@ def get_all_metab_coeff(io_ns, secondary_model_ns):
         # Index [2]: Minowa
         # Index [3]: consensus
         # Priority: consensus > NRPSPredictor2 SVM > Stachelhaus code > Minowa
-        if len(secondary_model_ns.locustag_monomer_dict[each_module]) == 4:
-            priority_list = [3, 0, 1, 2]
-            biggid_met = get_biggid(priority_list, each_module, secondary_model_ns)
+        #if len(secondary_model_ns.locustag_monomer_dict[each_module]) == 4:
+            #priority_list = [3, 0, 1, 2]
+            #biggid_met = get_biggid(priority_list, each_module, secondary_model_ns)
 
         # NRPS analyzed with antiSMASH 4.0
         # Index [0]: Stachelhaus code
@@ -237,12 +238,26 @@ def get_all_metab_coeff(io_ns, secondary_model_ns):
         # Index [4]: SANDPUMA ensemble
         # Priority: consensus (SANDPUMA ensemble) > NRPSPredictor3 SVM > PrediCAT >
         #pHMM > Stachelhaus code
-        elif len(secondary_model_ns.locustag_monomer_dict[each_module]) == 5:
+        if len(secondary_model_ns.locustag_monomer_dict[each_module]) == 5:
             priority_list = [4, 1, 3, 2, 0]
             biggid_met = get_biggid(priority_list, each_module, secondary_model_ns)
 
-        if len(secondary_model_ns.locustag_monomer_dict[each_module]) == 3:
-            if io_ns.anti_version == 5:
+        #NRPS analyzed with antiSMASH 5.0
+        elif len(secondary_model_ns.locustag_monomer_dict[each_module]) == 1:
+            #index [0]: NRPSpredictor2 SVM
+            priority_list = [0]
+            biggid_met = get_biggid(priority_list, each_module, secondary_model_ns)
+
+        elif len(secondary_model_ns.locustag_monomer_dict[each_module]) == 3:
+            if io_ns.anti_version == 4:
+                # PKS_AT analyzed with antiSMASH 4.0 (also available for antiSMASH 3.0 but antiSMASH 3.0 is not used now)
+                # Index [0]: PKS signature
+                # Index [1]: Minowa
+                # Index [2]: consensus
+                # Priority: consensus > PKS signature > Minowa
+                priority_list = [2, 0, 1]
+                biggid_met = get_biggid(priority_list, each_module, secondary_model_ns)
+            else:
                 # PKS_AT analyzed with antiSMASH 5.0
                 # locustag_monomer_dict[each_module] for pks
                 # Index [0]: consensus
@@ -251,20 +266,6 @@ def get_all_metab_coeff(io_ns, secondary_model_ns):
                 # Priority: consensus > PKS signature > Minowa
                 priority_list = [0, 2, 1]
                 biggid_met = get_biggid(priority_list, each_module, secondary_model_ns)
-            else:
-                # PKS_AT analyzed with antiSMASH 3.0 & 4.0
-                # Index [0]: PKS signature
-                # Index [1]: Minowa
-                # Index [2]: consensus
-                # Priority: consensus > PKS signature > Minowa
-                priority_list = [2, 0, 1]
-                biggid_met = get_biggid(priority_list, each_module, secondary_model_ns)
-
-        #NRPS analyzed with antiSMASH 5.0
-        elif len(secondary_model_ns.locustag_monomer_dict[each_module]) == 1:
-            #index [0]: NRPSpredictor2 SVM
-            priority_list = [0]
-            biggid_met = get_biggid(priority_list, each_module, secondary_model_ns)
 
         # Filter modules without 'Substrate specificity predictions'
         # e.g., 'B446_13275_M0'
