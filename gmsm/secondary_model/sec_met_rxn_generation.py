@@ -249,8 +249,8 @@ def get_all_metab_coeff(io_ns, secondary_model_ns):
             biggid_met = get_biggid(priority_list, each_module, secondary_model_ns)
 
         elif len(secondary_model_ns.locustag_monomer_dict[each_module]) == 3:
-            if io_ns.anti_version != 5:
-                # PKS_AT analyzed with antiSMASH 3.0 & 4.0
+            if io_ns.anti_version == 4:
+                # PKS_AT analyzed with antiSMASH 4.0 (also available for antiSMASH 3.0 but antiSMASH 3.0 is not used now)
                 # Index [0]: PKS signature
                 # Index [1]: Minowa
                 # Index [2]: consensus
