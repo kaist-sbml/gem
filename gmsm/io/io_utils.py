@@ -32,7 +32,7 @@ def get_features_from_gbk(seq_record, run_ns, io_ns):
 
             # Retrieving "locus_tag (i.e., ORF name)" for each CDS
             if feature.qualifiers.get('locus_tag'):
-                locusTag = feature.qualifiers['locus_tag'][0]
+                locusTag = feature.qualifiers['locus_tag'][0].replace("-", "_")
             else:
                 logging.error("No 'locus_tag' found in gbk file")
                 sys.exit(1)

@@ -281,18 +281,37 @@ def check_model_fluxes(model, tempModel_exrxnid_flux_dict, bigg_old_new_dict, op
 
 
 def download_gbk_from_ncbi(input1_tmp_dir, model_info_dict):
-    gbk_file = ''.join([model_info_dict['genome_name'], '.gb'])
     Entrez.email = "ehukim@kaist.ac.kr"
+    if model_info_dict['genome_name'].startswith('GCF_'):
+        gbk_files = []
+        chromosome_number = 1
+        gi_numbers = Entrez.read(Entrez.esearch(db="nucleotide", term=model_info_dict['genome_name'] + '[assembly]'))['IdList']
+        gi_numbers = sorted(gi_numbers)
+        
+        for gi_number in gi_numbers:
+            handle = Entrez.efetch(db="nucleotide", id=gi_number, rettype='gbwithparts', retmode='text')
+            seq_record = handle.read()
+            gbk_file = ''.join([model_info_dict['genome_name'], '_chromosome_', str(chromosome_number), '.gb'])
+            
+            with open(join(input1_tmp_dir, gbk_file), 'wb') as f:
+                f.write(seq_record)
+                
+            gbk_files.append(gbk_file)
+            chromosome_number += 1
+            
+        return gbk_files
+        
+    else:
+        gbk_file = ''.join([model_info_dict['genome_name'], '.gb'])
+        handle = Entrez.efetch(db='nucleotide',
+                id=model_info_dict['genome_name'], rettype='gbwithparts', retmode='text')
 
-    handle = Entrez.efetch(db='nucleotide',
-            id=model_info_dict['genome_name'], rettype='gbwithparts', retmode='text')
+        seq_record = handle.read()
 
-    seq_record = handle.read()
+        with open(join(input1_tmp_dir, gbk_file), 'wb') as f:
+            f.write(seq_record)
 
-    with open(join(input1_tmp_dir, gbk_file), 'wb') as f:
-        f.write(seq_record)
-
-    return gbk_file
+        return gbk_file
 
 
 def get_tempGenome_locusTag_aaSeq_dict(input1_tmp_dir, options, **kwargs):
@@ -306,7 +325,17 @@ def get_tempGenome_locusTag_aaSeq_dict(input1_tmp_dir, options, **kwargs):
     if 'gbk_file' in kwargs:
         gbk_file = kwargs['gbk_file']
         filetype = 'genbank'
+        total_chromosome = 1
         seq_records = list(SeqIO.parse(join(input1_tmp_dir, gbk_file), filetype))
+        
+    elif 'gbk_files' in kwargs:
+        gbk_files = kwargs['gbk_files']
+        filetype = 'genbank'
+        total_chromosome = 0
+        for gbk_file in gbk_files:
+            total_chromosome += 1
+            locals()['seq_records_{}'.format(total_chromosome)] \
+                    = list(SeqIO.parse(join(input1_tmp_dir, gbk_file), filetype))
 
     elif 'gbk_file' not in kwargs and options.genome:
         input_ext = os.path.splitext(options.genome)[1]
@@ -319,13 +348,19 @@ def get_tempGenome_locusTag_aaSeq_dict(input1_tmp_dir, options, **kwargs):
         seq_records = list(SeqIO.parse(join(input1_tmp_dir, options.genome), filetype))
 
     if filetype == 'genbank':
-        for seq_record in seq_records:
-            io_utils.get_features_from_gbk(seq_record, options, options)
+        if total_chromosome == 1:
+            for seq_record in seq_records:
+                io_utils.get_features_from_gbk(seq_record, options, options)
+                
+        elif total_chromosome > 1:
+            for chromosome_number in range(total_chromosome):
+                for seq_record in locals()['seq_records_{}'.format(chromosome_number+1)]:
+                    io_utils.get_features_from_gbk(seq_record, options, options)
 
     elif filetype == 'fasta':
         for seq_record in seq_records:
             io_utils.get_features_from_fasta(seq_record, options)
-
+    
     tempGenome_locusTag_aaSeq_dict = options.targetGenome_locusTag_aaSeq_dict
 
     return tempGenome_locusTag_aaSeq_dict
@@ -437,8 +472,9 @@ def get_gpr_fromString_toList(gpr):
                                 (and_booleanop, 2, pyparsing.opAssoc.LEFT),
                                 (or_booleanop, 2, pyparsing.opAssoc.LEFT)
                                 ])
-    gpr_list = expr.parseString(gpr)[0].asList()
-
+    if expr.parseString(gpr)[0] != str:
+        gpr_list = expr.parseString(gpr)[0].asList()
+    
     return gpr_list
 
 
@@ -450,8 +486,8 @@ def get_tempModel_biggRxnid_locusTag_dict(model):
         logging.debug('%s; %s', rxn.id, rxn.gene_reaction_rule)
 
         if rxn.gene_reaction_rule and \
-                ('and' in rxn.gene_reaction_rule or 'AND' in rxn.gene_reaction_rule \
-                or 'or' in rxn.gene_reaction_rule or 'OR' in rxn.gene_reaction_rule):
+                (' and ' in rxn.gene_reaction_rule or ' AND ' in rxn.gene_reaction_rule \
+                or ' or ' in rxn.gene_reaction_rule or ' OR ' in rxn.gene_reaction_rule):
             gene_list = get_gpr_fromString_toList(rxn.gene_reaction_rule)
             tempModel_biggRxnid_locusTag_dict[rxn.id] = gene_list
             logging.debug('%s; %s', rxn.id, rxn.gene_reaction_rule)
@@ -602,9 +638,15 @@ if __name__ == '__main__':
 
     if options.bigg or options.acc_number:
         gbk_file = download_gbk_from_ncbi(input1_tmp_dir, model_info_dict)
-        tempGenome_locusTag_aaSeq_dict = \
-            get_tempGenome_locusTag_aaSeq_dict(
-                    input1_tmp_dir, options, gbk_file = gbk_file)
+        if type(gbk_file) == str:
+            tempGenome_locusTag_aaSeq_dict = \
+                get_tempGenome_locusTag_aaSeq_dict(
+                        input1_tmp_dir, options, gbk_file = gbk_file)
+        elif type(gbk_file) == list:
+            gbk_files = gbk_file
+            tempGenome_locusTag_aaSeq_dict = \
+                get_tempGenome_locusTag_aaSeq_dict(
+                        input1_tmp_dir, options, gbk_files = gbk_files)
     elif options.genome:
         tempGenome_locusTag_aaSeq_dict = \
                 get_tempGenome_locusTag_aaSeq_dict(input1_tmp_dir, options)
