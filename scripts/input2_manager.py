@@ -97,7 +97,7 @@ class ParseMNXref(object):
                         xref_id = xref_list[1].strip()
                         mnxm = metab_info_list[1].strip()
 
-                        if xref_db == 'bigg':
+                        if xref_db == 'bigg' and 'M_' not in xref_id:
                             if xref_id in bigg_old_new_dict:
                                 mnxm_bigg_compound_dict[mnxm] = bigg_old_new_dict[xref_id]
                             else:
@@ -202,7 +202,7 @@ class ParseMNXref(object):
                         mnxr = rxn_info_list[1].strip()
 
                         # For reaction.name in MNXref.xml	
-                        if xref_db == 'bigg' or xref_db == 'kegg':
+                        if (xref_db == 'bigg' and 'R_' not in xref_id) or xref_db == 'kegg':
                         	if mnxr not in mnxr_xref_dict:
                         		mnxr_xref_dict[mnxr] = [xref_id]
                         	elif mnxr in mnxr_xref_dict:
@@ -216,7 +216,7 @@ class ParseMNXref(object):
 
 		                    logging.debug('%s; %s; %s' %(xref_db, xref_id, mnxr))
 
-                        if xref_db == 'bigg':
+                        if xref_db == 'bigg' and 'R_' not in xref_id:
                     		bigg_mnxr_dict[xref_id] = mnxr
 
                     		logging.debug('%s; %s; %s' %(xref_db, xref_id, mnxr))
