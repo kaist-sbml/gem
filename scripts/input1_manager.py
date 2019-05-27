@@ -3,6 +3,7 @@
 import argparse
 import ast
 import cobra
+import gzip
 import glob
 import os
 import logging
@@ -283,23 +284,23 @@ def check_model_fluxes(model, tempModel_exrxnid_flux_dict, bigg_old_new_dict, op
 def download_gbk_from_ncbi(input1_tmp_dir, model_info_dict):
     Entrez.email = "ehukim@kaist.ac.kr"
     if model_info_dict['genome_name'].startswith('GCF_'):
-        gbk_files = []
-        chromosome_number = 1
-        gi_numbers = Entrez.read(Entrez.esearch(db="nucleotide", term=model_info_dict['genome_name'] + '[assembly]'))['IdList']
-        gi_numbers = sorted(gi_numbers)
+        id_num = Entrez.read(Entrez.esearch(db="assembly", term='GCF_000146045.2'))['IdList'][0]
+        assembly_ftp_address = Entrez.read(Entrez.esummary(db="assembly", id=id_num))['DocumentSummarySet']['DocumentSummary'][0]['FtpPath_RefSeq']
+        genome_genbank_gzip = assembly_ftp_address.split('/')[-1] + '_genomic.gbff.gz'
+        genome_ftp_address = assembly_ftp_address + '/' + genome_genbank_gzip
+        genome_load_ftp = urllib2.urlopen(genome_ftp_address)
         
-        for gi_number in gi_numbers:
-            handle = Entrez.efetch(db="nucleotide", id=gi_number, rettype='gbwithparts', retmode='text')
-            seq_record = handle.read()
-            gbk_file = ''.join([model_info_dict['genome_name'], '_chromosome_', str(chromosome_number), '.gb'])
+        with open(join(input1_tmp_dir, genome_genbank_gzip), 'w') as f:
+            f.write(genome_load_ftp.read())
+        
+        gbk_file = ''.join([model_info_dict['genome_name'], '.gbff'])
+        
+        with open(join(input1_tmp_dir, gbk_file), 'w') as f:
+            f.write(gzip.open(join(input1_tmp_dir, genome_genbank_gzip),'rb').read())
+        
+        os.remove(join(input1_tmp_dir, genome_genbank_gzip))
             
-            with open(join(input1_tmp_dir, gbk_file), 'wb') as f:
-                f.write(seq_record)
-                
-            gbk_files.append(gbk_file)
-            chromosome_number += 1
-            
-        return gbk_files
+        return gbk_file
         
     else:
         gbk_file = ''.join([model_info_dict['genome_name'], '.gb'])
@@ -325,18 +326,8 @@ def get_tempGenome_locusTag_aaSeq_dict(input1_tmp_dir, options, **kwargs):
     if 'gbk_file' in kwargs:
         gbk_file = kwargs['gbk_file']
         filetype = 'genbank'
-        total_chromosome = 1
         seq_records = list(SeqIO.parse(join(input1_tmp_dir, gbk_file), filetype))
         
-    elif 'gbk_files' in kwargs:
-        gbk_files = kwargs['gbk_files']
-        filetype = 'genbank'
-        total_chromosome = 0
-        for gbk_file in gbk_files:
-            total_chromosome += 1
-            locals()['seq_records_{}'.format(total_chromosome)] \
-                    = list(SeqIO.parse(join(input1_tmp_dir, gbk_file), filetype))
-
     elif 'gbk_file' not in kwargs and options.genome:
         input_ext = os.path.splitext(options.genome)[1]
 
@@ -348,14 +339,8 @@ def get_tempGenome_locusTag_aaSeq_dict(input1_tmp_dir, options, **kwargs):
         seq_records = list(SeqIO.parse(join(input1_tmp_dir, options.genome), filetype))
 
     if filetype == 'genbank':
-        if total_chromosome == 1:
-            for seq_record in seq_records:
-                io_utils.get_features_from_gbk(seq_record, options, options)
-                
-        elif total_chromosome > 1:
-            for chromosome_number in range(total_chromosome):
-                for seq_record in locals()['seq_records_{}'.format(chromosome_number+1)]:
-                    io_utils.get_features_from_gbk(seq_record, options, options)
+        for seq_record in seq_records:
+            io_utils.get_features_from_gbk(seq_record, options, options)
 
     elif filetype == 'fasta':
         for seq_record in seq_records:
@@ -638,15 +623,9 @@ if __name__ == '__main__':
 
     if options.bigg or options.acc_number:
         gbk_file = download_gbk_from_ncbi(input1_tmp_dir, model_info_dict)
-        if type(gbk_file) == str:
-            tempGenome_locusTag_aaSeq_dict = \
-                get_tempGenome_locusTag_aaSeq_dict(
-                        input1_tmp_dir, options, gbk_file = gbk_file)
-        elif type(gbk_file) == list:
-            gbk_files = gbk_file
-            tempGenome_locusTag_aaSeq_dict = \
-                get_tempGenome_locusTag_aaSeq_dict(
-                        input1_tmp_dir, options, gbk_files = gbk_files)
+        tempGenome_locusTag_aaSeq_dict = \
+            get_tempGenome_locusTag_aaSeq_dict(
+                    input1_tmp_dir, options, gbk_file = gbk_file)
     elif options.genome:
         tempGenome_locusTag_aaSeq_dict = \
                 get_tempGenome_locusTag_aaSeq_dict(input1_tmp_dir, options)
