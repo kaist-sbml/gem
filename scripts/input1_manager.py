@@ -284,7 +284,7 @@ def check_model_fluxes(model, tempModel_exrxnid_flux_dict, bigg_old_new_dict, op
 def download_gbk_from_ncbi(input1_tmp_dir, model_info_dict):
     Entrez.email = "ehukim@kaist.ac.kr"
     if model_info_dict['genome_name'].startswith('GCF_'):
-        id_num = Entrez.read(Entrez.esearch(db="assembly", term='GCF_000146045.2'))['IdList'][0]
+        id_num = Entrez.read(Entrez.esearch(db="assembly", term=model_info_dict['genome_name']))['IdList'][0]
         assembly_ftp_address = Entrez.read(Entrez.esummary(db="assembly", id=id_num))['DocumentSummarySet']['DocumentSummary'][0]['FtpPath_RefSeq']
         genome_genbank_gzip = assembly_ftp_address.split('/')[-1] + '_genomic.gbff.gz'
         genome_ftp_address = assembly_ftp_address + '/' + genome_genbank_gzip
