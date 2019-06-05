@@ -235,7 +235,7 @@ class TestPrimary_model:
 
         assert 'R08926' in model.reactions
         assert 'MNXM16902_c' in model.metabolites
-        assert 'MNXM659_c' in model.metabolites
+        assert 'fuc__L_c' in model.metabolites
         assert 'h_c' in model.metabolites
         assert 'nadh_c' in model.metabolites
         assert 'nad_c' in model.metabolites
