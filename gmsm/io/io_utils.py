@@ -17,11 +17,6 @@ def get_antismash_version_from_gbk(seq_record, io_ns):
 
 
 def get_features_from_gbk(seq_record, run_ns, io_ns):
-    # Ignore existing annotations of EC numbers in an input gbk file as they are from a different source.
-    if run_ns.eficaz or run_ns.eficaz_file:
-        logging.info("Ignoring EC annotations from input gbk file")
-    else:
-        logging.info("Using EC annotations from input gbk file")
 
     for feature in seq_record.features:
         if feature.type == 'CDS':

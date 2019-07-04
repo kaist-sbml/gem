@@ -96,6 +96,12 @@ def get_target_genome_from_input(filetype, run_ns, io_ns):
         elif len(seq_records) > 1:
             logging.debug("Multiple records are found in genome data")
 
+        # Ignore existing annotations of EC numbers in an input gbk file as they are from a different source.
+        if run_ns.eficaz or run_ns.eficaz_file:
+            logging.info("Ignoring EC annotations from input gbk file")
+        else:
+            logging.info("Using EC annotations from input gbk file")
+
         if filetype == 'genbank':
             for seq_record in seq_records:
                 get_features_from_gbk(seq_record, run_ns, io_ns)
