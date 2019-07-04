@@ -17,6 +17,9 @@ def get_antismash_version_from_gbk(seq_record, io_ns):
 
 
 def get_features_from_gbk(seq_record, run_ns, io_ns):
+    seq_record_BGC_num_list = []
+    seq_record_BGC_num_list.append(seq_record)
+    BGC_num = 0
 
     for feature in seq_record.features:
         if feature.type == 'CDS':
@@ -52,8 +55,14 @@ def get_features_from_gbk(seq_record, run_ns, io_ns):
 
         if feature.type == 'region':
             io_ns.total_region += 1
+            BGC_num += 1
+
         if feature.type == 'cluster':
             io_ns.total_cluster += 1
+            BGC_num += 1
+
+    seq_record_BGC_num_list.append(BGC_num)
+    io_ns.seq_record_BGC_num_list_list.append(seq_record_BGC_num_list)
 
 
 def get_features_from_fasta(seq_record, io_ns):

@@ -84,6 +84,7 @@ def get_target_genome_from_input(filetype, run_ns, io_ns):
     io_ns.targetGenome_locusTag_aaSeq_dict = {}
     io_ns.targetGenome_locusTag_ec_dict = {}
     io_ns.targetGenome_locusTag_prod_dict = {}
+    io_ns.seq_record_BGC_num_list_list = []
     io_ns.total_region = 0
     io_ns.total_cluster = 0
 
