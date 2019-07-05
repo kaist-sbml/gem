@@ -183,7 +183,8 @@ def get_rxnid_info_dict_from_kegg(io_ns, config_ns, primary_model_ns):
             rxnid_list = []
 
             #KEGG REST does not accept unspecific EC_number: e.g., 3.2.2.-
-            if '-' not in enzymeEC:
+            #KEGG REST does not cover preliminary EC number: e.g., 3.6.5.n1
+            if '-' not in enzymeEC and 'n' not in enzymeEC:
 
                 #Check cache file
                 if enzymeEC in cache_ec_rxn_dict:
