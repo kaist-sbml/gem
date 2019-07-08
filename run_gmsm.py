@@ -260,7 +260,7 @@ def main():
         files = glob.glob(io_ns.outputfolder3 + os.sep + '*.xml')
         model_file = [each_file for each_file in files if '.xml' in each_file]
 
-        if len(seq_records) == 1 and len(model_file) > 0 and '.xml' in model_file[0] \
+        if len(model_file) > 0 and '.xml' in model_file[0] \
             and (io_ns.total_region > 0 or io_ns.total_cluster > 0):
 
             if io_ns.total_region > 0:
@@ -271,13 +271,11 @@ def main():
                 logging.info("Generating secondary metabolite biosynthesizing reactions..")
                 logging.debug("Total number of clusters: %s" %io_ns.total_cluster)
 
-            seq_record = seq_records[0]
-
             model_file = os.path.basename(model_file[0])
             target_model = cobra.io.read_sbml_model(
                            os.path.join(io_ns.outputfolder3, model_file))
 
-            target_model = run_secondary_modeling(seq_record, target_model, io_ns, config_ns, secondary_model_ns)
+            target_model = run_secondary_modeling(seq_records, target_model, io_ns, config_ns, secondary_model_ns)
 
             #target_model_no_gapsFilled = copy.deepcopy(target_model)
 
@@ -301,9 +299,6 @@ def main():
 
             if filetype == 'fasta':
                 logging.warning("FASTA input file cannot be used for secondary modeling")
-            elif len(seq_records) > 1:
-                logging.warning(
-                    "Input genome data with multiple records is currently not supported")
             elif len(model_file) == 0 or '.xml' not in model_file[0]:
                 logging.warning("COBRA-compliant SBML file needed")
             elif io_ns.total_region == 0 and io_ns.total_cluster == 0:
