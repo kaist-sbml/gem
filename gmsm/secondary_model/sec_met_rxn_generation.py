@@ -30,7 +30,7 @@ def get_cluster_location(seq_record, cluster_nr, secondary_model_ns):
                 secondary_model_ns.cluster_loc1 = feature.location.start
                 secondary_model_ns.cluster_loc2 = feature.location.end
 
-                
+
 #Exract all the information associated with a particular locus_tag for the selected region
 def get_region_info_from_seq_record(seq_record, region_nr, secondary_model_ns):
 
@@ -64,7 +64,7 @@ def get_cluster_info_from_seq_record(seq_record, secondary_model_ns):
 
     secondary_model_ns.cluster_info_dict = cluster_info_dict
 
-    
+
 def get_region_product(seq_record, region_nr, secondary_model_ns):
 
     for feature in seq_record.features:
@@ -77,18 +77,19 @@ def get_region_product(seq_record, region_nr, secondary_model_ns):
                 # connecting all product of a region
                 for i in range(len(product_list)):
                     if i == 0:
+                        #Handle legacy problem
                         product = product_list[i].replace('-','_')
                         if float(region_nr) < 10:
-                            product2 = "Region0"+str(region_nr)+"_"+product.lower()
+                            product2 = seq_record.id.replace('.','_')+"_Region0"+str(region_nr)+"_"+product.lower()
                         else:
-                            product2 = "Region"+str(region_nr)+"_"+product.lower()
+                            product2 = seq_record.id.replace('.','_')+"_Region"+str(region_nr)+"_"+product.lower()
                     else:
                         product = product_list[i].replace('-','_')
                         product2 = product2+'_and_'+product.lower()
 
                     secondary_model_ns.product = product2
 
-    
+
 def get_cluster_product(seq_record, cluster_nr, secondary_model_ns):
 
     for feature in seq_record.features:
@@ -103,9 +104,9 @@ def get_cluster_product(seq_record, cluster_nr, secondary_model_ns):
     product2 = product.replace("-","_")
 
     if float(cluster_nr) < 10:
-        product3 = "Cluster0"+str(cluster_nr)+"_"+product2
+        product3 = seq_record.id.replace('.','_')+"_Cluster0"+str(cluster_nr)+"_"+product2
     else:
-        product3 = "Cluster"+str(cluster_nr)+"_"+product2
+        product3 = seq_record.id.replace('.','_')+"_Cluster"+str(cluster_nr)+"_"+product2
 
     secondary_model_ns.product = product3
 
