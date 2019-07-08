@@ -82,7 +82,7 @@ def get_model_reactions(folder, primary_model_ns, **kwargs):
                                             rxn.gene_reaction_rule, rxn.subsystem)
 
         #Secondary metabolite biosynthetic reactions
-        if (re.search('Ex_Region', rxn.id) or re.search('Ex_Cluster', rxn.id)) and '4_complete_model' in folder:
+        if (re.search('Ex_', rxn.id) and re.search('(Region|Cluster)', rxn.id)) and '4_complete_model' in folder:
             num_bgc_rxn+=1
 
             #Calculated flux values are inaccurate without
