@@ -26,36 +26,45 @@ from gapfilling import(
 )
 
 
-def run_secondary_modeling(seq_record, target_model, io_ns, config_ns, secondary_model_ns):
+def run_secondary_modeling(seq_records, target_model, io_ns, config_ns, secondary_model_ns):
     prod_sec_met_dict = {}
     nonprod_sec_met_dict = {}
 
-    if io_ns.anti_version == 5:
-        region_nr = 1
-        io_ns.temp_loc1 = 0
+    for seq_record_BGC_num_list in io_ns.seq_record_BGC_num_list_list:
 
-        while region_nr <= io_ns.total_region:
-            logging.info("Generating reactions for Region %s.." %region_nr)
-            target_model = run_sec_met_rxn_generation_anti5(
-                         seq_record, region_nr,
-                         target_model,
-                         prod_sec_met_dict, nonprod_sec_met_dict,
-                         io_ns, config_ns, secondary_model_ns)
+        seq_record = seq_record_BGC_num_list[0]
+        secondary_model_ns.temp_loc1 = 0
 
-            region_nr += 1
+        if io_ns.anti_version == 5:
+            region_num = seq_record_BGC_num_list[1]
+            region_nr = 1
 
-    elif io_ns.anti_version == 4:
-        cluster_nr = 1
+            while region_nr <= region_num:
+                logging.info("Generating reactions for %s_Region_%s.." %(seq_record.id, region_nr))
+                target_model = run_sec_met_rxn_generation_anti5(
+                    seq_record, region_nr,
+                    target_model,
+                    prod_sec_met_dict, nonprod_sec_met_dict,
+                    io_ns, config_ns, secondary_model_ns)
 
-        while cluster_nr <= io_ns.total_cluster:
-            logging.info("Generating reactions for Cluster %s.." %cluster_nr)
-            target_model = run_sec_met_rxn_generation_anti4(
-                         seq_record, cluster_nr,
-                         target_model,
-                         prod_sec_met_dict, nonprod_sec_met_dict,
-                         io_ns, config_ns, secondary_model_ns)
+                region_nr += 1
 
-            cluster_nr += 1
+        elif io_ns.anti_version == 4:
+            cluster_num = seq_record_BGC_num_list[1]
+            cluster_nr = 1
+
+            while cluster_nr <= cluster_num:
+                logging.info("Generating reactions for Cluster %s_Cluster_%s.." %(seq_record.id, cluster_nr))
+                target_model = run_sec_met_rxn_generation_anti4(
+                             seq_record, cluster_nr,
+                             target_model,
+                             prod_sec_met_dict, nonprod_sec_met_dict,
+                             io_ns, config_ns, secondary_model_ns)
+
+                cluster_nr += 1
+
+    secondary_model_ns.prod_sec_met_dict = prod_sec_met_dict
+    secondary_model_ns.nonprod_sec_met_dict = nonprod_sec_met_dict
 
     return target_model
 
@@ -90,10 +99,6 @@ def run_sec_met_rxn_generation_anti5(seq_record, region_nr, target_model, prod_s
 
     else:
         logging.debug("This BGC does not belong to 't1pks', 'nrps' or their hybird")
-
-    if region_nr == io_ns.total_region:
-        secondary_model_ns.prod_sec_met_dict = prod_sec_met_dict
-        secondary_model_ns.nonprod_sec_met_dict = nonprod_sec_met_dict
 
     return target_model
 
