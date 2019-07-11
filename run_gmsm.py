@@ -275,7 +275,7 @@ def main():
             target_model = cobra.io.read_sbml_model(
                            os.path.join(io_ns.outputfolder3, model_file))
 
-            target_model = run_secondary_modeling(seq_records, target_model, io_ns, config_ns, secondary_model_ns)
+            target_model = run_secondary_modeling(target_model, io_ns, config_ns, secondary_model_ns)
 
             #target_model_no_gapsFilled = copy.deepcopy(target_model)
 
