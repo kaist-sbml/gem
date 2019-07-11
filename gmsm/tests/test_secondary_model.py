@@ -40,7 +40,7 @@ class TestSecondary_model:
         get_cluster_location(seq_record, cluster_nr, options)
         get_cluster_product(seq_record, cluster_nr, options)
 
-        assert options.product == 'Cluster03_nrps_t1pks_transatpks'
+        assert options.product == 'NC_021985_1_Cluster03_nrps_t1pks_transatpks'
 
 
     def test_get_cluster_monomers(self, seq_record, options):
