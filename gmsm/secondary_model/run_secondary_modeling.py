@@ -26,7 +26,7 @@ from gapfilling import(
 )
 
 
-def run_secondary_modeling(seq_records, target_model, io_ns, config_ns, secondary_model_ns):
+def run_secondary_modeling(target_model, io_ns, config_ns, secondary_model_ns):
     prod_sec_met_dict = {}
     nonprod_sec_met_dict = {}
 
@@ -54,7 +54,7 @@ def run_secondary_modeling(seq_records, target_model, io_ns, config_ns, secondar
             cluster_nr = 1
 
             while cluster_nr <= cluster_num:
-                logging.info("Generating reactions for Cluster %s_Cluster_%s.." %(seq_record.id, cluster_nr))
+                logging.info("Generating reactions for %s_Cluster_%s.." %(seq_record.id, cluster_nr))
                 target_model = run_sec_met_rxn_generation_anti4(
                              seq_record, cluster_nr,
                              target_model,
@@ -73,7 +73,7 @@ def run_sec_met_rxn_generation_anti5(seq_record, region_nr, target_model, prod_s
 
     get_region_location(seq_record, secondary_model_ns)
 
-    get_region_info_from_seq_record(seq_record, region_nr, secondary_model_ns)
+    get_region_info_from_seq_record(seq_record, secondary_model_ns)
 
     get_region_product(seq_record, region_nr, secondary_model_ns)
 
@@ -105,7 +105,7 @@ def run_sec_met_rxn_generation_anti5(seq_record, region_nr, target_model, prod_s
 
 def run_sec_met_rxn_generation_anti4(seq_record, cluster_nr, target_model, prod_sec_met_dict, nonprod_sec_met_dict, io_ns, config_ns, secondary_model_ns):
 
-    get_cluster_location(seq_record, cluster_nr, secondary_model_ns)
+    get_cluster_location(seq_record, secondary_model_ns)
 
     get_cluster_info_from_seq_record(seq_record, secondary_model_ns)
 
