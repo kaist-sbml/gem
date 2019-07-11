@@ -150,9 +150,20 @@ def swap_locustag_with_homolog(modelPruned, homology_ns):
                             locustag, homology_ns.temp_target_BBH_dict[locustag][0])
                     rxn.gene_reaction_rule = new_gpr
                 elif len(homology_ns.temp_target_BBH_dict[locustag]) > 1:
-                    homologs = ' or '.join(homology_ns.temp_target_BBH_dict[locustag])
-                    new_gpr = rxn.gene_reaction_rule.replace(locustag, '( %s )' %homologs)
-                    rxn.gene_reaction_rule = new_gpr
+                    locustag_candidate_list = \
+                        copy.deepcopy(homology_ns.temp_target_BBH_dict[locustag])
+                    target_locustag_list = []
+                    for target_locustag in locustag_candidate_list:
+                        if not target_locustag in rxn.gene_reaction_rule \
+                            or target_locustag == locustag:
+                            target_locustag_list.append(target_locustag)
+                    if target_locustag_list:
+                        homologs = ' or '.join(target_locustag_list)
+                        if len(target_locustag_list) == 1:
+                            new_gpr = rxn.gene_reaction_rule.replace(locustag, '%s' %homologs)
+                        else:
+                            new_gpr = rxn.gene_reaction_rule.replace(locustag, '(%s)' %homologs)
+                        rxn.gene_reaction_rule = new_gpr
 
     modelPrunedGPR = copy.deepcopy(modelPruned)
     return modelPrunedGPR
