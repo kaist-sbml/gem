@@ -16,23 +16,21 @@ def get_region_location(seq_record, secondary_model_ns):
                 secondary_model_ns.region_loc1 = feature.location.start
                 secondary_model_ns.region_loc2 = feature.location.end
                 secondary_model_ns.temp_loc1 = feature.location.start
-                secondary_model_ns.temp_loc2 = feature.location.end
                 break
 
-def get_cluster_location(seq_record, cluster_nr, secondary_model_ns):
+def get_cluster_location(seq_record, secondary_model_ns):
 
     for feature in seq_record.features:
         if feature.type == 'cluster':
-            cluster_number = 'Cluster number: %s' %cluster_nr
-            secondary_model_ns.cluster_number = cluster_number
-
-            if secondary_model_ns.cluster_number in feature.qualifiers.get('note'):
+            if feature.location.start > secondary_model_ns.temp_loc1:
                 secondary_model_ns.cluster_loc1 = feature.location.start
                 secondary_model_ns.cluster_loc2 = feature.location.end
+                secondary_model_ns.temp_loc1 = feature.location.start
+                break
 
 
 #Exract all the information associated with a particular locus_tag for the selected region
-def get_region_info_from_seq_record(seq_record, region_nr, secondary_model_ns):
+def get_region_info_from_seq_record(seq_record, secondary_model_ns):
 
     region_info_dict = {}
 
@@ -94,10 +92,9 @@ def get_cluster_product(seq_record, cluster_nr, secondary_model_ns):
 
     for feature in seq_record.features:
 
-        #Retrieving "Cluster number"
         if feature.type == 'cluster':
-            qualifier_cluster = feature.qualifiers.get('note')
-            if secondary_model_ns.cluster_number in qualifier_cluster:
+            if feature.location.start == secondary_model_ns.cluster_loc1 and \
+            feature.location.end == secondary_model_ns.cluster_loc2:
                 product = feature.qualifiers.get('product')[0]
 
     #Handle legacy problem
