@@ -224,10 +224,45 @@ def swap_locustag_with_homolog(modelPruned, homology_ns):
                             continue
                         homologs = ' or '.join(locustag_candidate_list)
                         locustag_loc_end = locustag_loc + len(locustag)
-                        if len(locustag_candidate_list) == 1:
-                            changed_gpr = gpr[locustag_loc:locustag_loc_end].replace(locustag, '%s' %homologs)
+                        if len(locustag_candidate_list) > 1:
+                            if (locustag + ' and ') in gpr[locustag_loc:locustag_loc_end+5] \
+                                or (' and ' + locustag) in gpr[locustag_loc-5:locustag_loc_end]:
+                                    changed_gpr = gpr[locustag_loc:locustag_loc_end].replace(locustag, '( %s )' %homologs)
+                            else:
+                                right_loc_for_section = 0
+                                left_loc_for_section = 0
+                                for left_loc, right_loc, extracted_gpr in extracted_gpr_list:
+                                    if locustag_loc > right_loc:
+                                        right_loc_for_section = right_loc
+                                    if locustag_loc < left_loc:
+                                        left_loc_for_section = left_loc
+                                        break
+                                target_locustag_list = []
+                                if right_loc_for_section > left_loc_for_section:
+                                    left_loc_for_section = locustag_loc_end
+                                for target_locustag in gpr[right_loc_for_section:left_loc_for_section]:
+                                    if not target_locustag in rxn.gene_reaction_rule \
+                                        or target_locustag == locustag:
+                                        target_locustag_list.append(target_locustag)
+                                if target_locustag_list:
+                                    homologs = ' or '.join(target_locustag_list)
+                                    changed_gpr = gpr[right_loc_for_section:left_loc_for_section].replace(locustag, '%s' %homologs)
+                                elif not locustag in locustag_candidate_list:
+                                    if (locustag + ' or ') in gpr[right_loc_for_section:left_loc_for_section]:
+                                        changed_gpr = 4
+                                    elif (' or ' + locustag) in gpr[right_loc_for_section:left_loc_for_section]:
+                                        changed_gpr = -4
+                                else:
+                                    changed_gpr = gpr[locustag_loc:locustag_loc_end]
                         else:
-                            changed_gpr = gpr[locustag_loc:locustag_loc_end].replace(locustag, '( %s )' %homologs)
+                            changed_gpr = gpr[locustag_loc:locustag_loc_end].replace(locustag, '%s' %homologs)
+                        if type(changed_gpr) == int:
+                            if changed_gpr == 4:
+                                changed_gpr = ''
+                                locustag_loc -= 4
+                            else:
+                                changed_gpr = ''
+                                locustag_loc_end +=4
                         loc_diff = locustag_loc_end - locustag_loc
                         changed_gpr_list.append([locustag_loc, locustag_loc_end, changed_gpr, loc_diff])
                         new_locustag_loc = locustag_loc_end
