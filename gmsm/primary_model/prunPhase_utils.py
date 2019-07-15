@@ -146,25 +146,119 @@ def swap_locustag_with_homolog(modelPruned, homology_ns):
         for rxn in modelPruned.reactions:
             if rxn.gene_reaction_rule and locustag in rxn.gene_reaction_rule:
                 if len(homology_ns.temp_target_BBH_dict[locustag]) == 1:
-                    new_gpr = rxn.gene_reaction_rule.replace(
+                    if not locustag in homology_ns.temp_target_BBH_dict[locustag] \
+                        and not 'and' in rxn.gene_reaction_rule \
+                        and homology_ns.temp_target_BBH_dict[locustag][0] in rxn.gene_reaction_rule \
+                        and (locustag + ' or ') in rxn.gene_reaction_rule:
+                            new_gpr = rxn.gene_reaction_rule.replace((locustag + ' or '), '')
+                            rxn.gene_reaction_rule = new_gpr
+                    elif not locustag in homology_ns.temp_target_BBH_dict[locustag] \
+                        and not 'and' in rxn.gene_reaction_rule \
+                        and homology_ns.temp_target_BBH_dict[locustag][0] in rxn.gene_reaction_rule \
+                        and (' or ' + locustag) in rxn.gene_reaction_rule:
+                            new_gpr = rxn.gene_reaction_rule.replace((' or ' + locustag), '')
+                            rxn.gene_reaction_rule = new_gpr
+                    else:
+                        new_gpr = rxn.gene_reaction_rule.replace(
                             locustag, homology_ns.temp_target_BBH_dict[locustag][0])
-                    rxn.gene_reaction_rule = new_gpr
+                        rxn.gene_reaction_rule = new_gpr
                 elif len(homology_ns.temp_target_BBH_dict[locustag]) > 1:
                     locustag_candidate_list = \
                         copy.deepcopy(homology_ns.temp_target_BBH_dict[locustag])
-                    target_locustag_list = []
-                    for target_locustag in locustag_candidate_list:
-                        if not target_locustag in rxn.gene_reaction_rule \
-                            or target_locustag == locustag:
-                            target_locustag_list.append(target_locustag)
-                    if target_locustag_list:
-                        homologs = ' or '.join(target_locustag_list)
-                        if len(target_locustag_list) == 1:
+                    if not 'and' in rxn.gene_reaction_rule:
+                        target_locustag_list = []
+                        for target_locustag in locustag_candidate_list:
+                            if not target_locustag in rxn.gene_reaction_rule \
+                                or target_locustag == locustag:
+                                target_locustag_list.append(target_locustag)
+                        if target_locustag_list:
+                            homologs = ' or '.join(target_locustag_list)
                             new_gpr = rxn.gene_reaction_rule.replace(locustag, '%s' %homologs)
-                        else:
-                            new_gpr = rxn.gene_reaction_rule.replace(locustag, '(%s)' %homologs)
+                            rxn.gene_reaction_rule = new_gpr
+                        elif not locustag in locustag_candidate_list:
+                            if (locustag + ' or ') in rxn.gene_reaction_rule:
+                                new_gpr = rxn.gene_reaction_rule.replace((locustag + ' or '), '')
+                                rxn.gene_reaction_rule = new_gpr
+                            elif (' or ' + locustag) in rxn.gene_reaction_rule:
+                                new_gpr = rxn.gene_reaction_rule.replace((' or ' + locustag), '')
+                                rxn.gene_reaction_rule = new_gpr
+                    elif not 'or' in rxn.gene_reaction_rule:
+                        homologs = ' or '.join(homology_ns.temp_target_BBH_dict[locustag])
+                        new_gpr = rxn.gene_reaction_rule.replace(locustag, '( %s )' %homologs)
                         rxn.gene_reaction_rule = new_gpr
+                    else:
+                        gpr = copy.deepcopy(rxn.gene_reaction_rule)
+                        new_gpr = ''
+                        letter_loc = 0
+                        locustag_loc = 0
+                        new_locustag_loc = 0
+                        parentheses_loc_dict = {}
+                        extracted_gpr_list = []
+                        changed_gpr_list = []
+                        for letter in gpr:
+                            if letter == '(':
+                                parentheses_loc_dict['('] = letter_loc
+                            if letter == ')':
+                                parentheses_loc_dict[')'] = letter_loc
+                                if '(' in parentheses_loc_dict:
+                                    extracted_gpr = gpr[parentheses_loc_dict['(']:letter_loc+1]
+                                    extracted_gpr_list.append([parentheses_loc_dict['('],letter_loc+1,extracted_gpr])
+                                    del parentheses_loc_dict['(']
+                            letter_loc += 1                     
+                        while gpr.find(locustag,locustag_loc) != -1:
+                            locustag_loc = gpr.find(locustag, locustag_loc)
+                            for left_loc, right_loc, extracted_gpr in extracted_gpr_list:
+                                if left_loc <= locustag_loc and locustag_loc <= right_loc and locustag in extracted_gpr:
+                                    if not 'and' in extracted_gpr:
+                                        target_locustag_list = []
+                                        for target_locustag in locustag_candidate_list:
+                                            if not target_locustag in extracted_gpr \
+                                                or target_locustag == locustag:
+                                                target_locustag_list.append(target_locustag)
+                                        if target_locustag_list:
+                                            homologs = ' or '.join(target_locustag_list)
+                                            new_extracted_gpr = extracted_gpr.replace(locustag, '%s' %homologs)
+                                            loc_diff = right_loc - left_loc
+                                            changed_gpr_list.append([left_loc, right_loc, new_extracted_gpr, loc_diff])
+                                            new_locustag_loc = left_loc + len(new_extracted_gpr)
+                                        elif not locustag in locustag_candidate_list:
+                                            if (locustag + ' or ') in rxn.gene_reaction_rule:
+                                                new_extracted_gpr = extracted_gpr.replace((locustag + ' or '), '')
+                                                loc_diff = right_loc - left_loc
+                                                changed_gpr_list.append([left_loc, right_loc, new_extracted_gpr, loc_diff])
+                                                new_locustag_loc = left_loc + len(new_extracted_gpr)
+                                            elif (' or ' + locustag) in rxn.gene_reaction_rule:
+                                                new_extracted_gpr = extracted_gpr.replace((' or ' + locustag), '')
+                                                loc_diff = right_loc - left_loc
+                                                changed_gpr_list.append([left_loc, right_loc, new_extracted_gpr, loc_diff])
+                                                new_locustag_loc = left_loc + len(new_extracted_gpr)
+                                    else:
+                                        homologs = ' or '.join(homology_ns.temp_target_BBH_dict[locustag])
+                                        new_extracted_gpr = extracted_gpr.replace(locustag, '( %s )' %homologs)
+                                        loc_diff = right_loc - left_loc
+                                        changed_gpr_list.append([left_loc, right_loc, new_extracted_gpr, loc_diff])
+                                        new_locustag_loc = left_loc + len(new_extracted_gpr)
+                                    break
+                            if locustag_loc < new_locustag_loc:
+                                locustag_loc = new_locustag_loc
+                                continue
+                            homologs = ' or '.join(homology_ns.temp_target_BBH_dict[locustag])
+                            locustag_loc_end = locustag_loc + len(locustag)
+                            changed_gpr = gpr[locustag_loc:locustag_loc_end].replace(locustag, '( %s )' %homologs)
+                            loc_diff = locustag_loc_end - locustag_loc
+                            changed_gpr_list.append([locustag_loc, locustag_loc_end, changed_gpr, loc_diff])
+                            new_locustag_loc = locustag_loc_end
+                            locustag_loc = new_locustag_loc
+                        changed_gpr_list = sorted(changed_gpr_list)
+                        for i in range(len(changed_gpr_list)):
+                            new_gpr = gpr[0:changed_gpr_list[i][0]] + \
+                                      changed_gpr_list[i][2] + gpr[changed_gpr_list[i][1]:]
+                            for j in range(len(changed_gpr_list)):
+                                changed_gpr_list[j][0] += len(changed_gpr_list[i][2])-changed_gpr_list[i][3]
+                                changed_gpr_list[j][1] += len(changed_gpr_list[i][2])-changed_gpr_list[i][3]
+                            gpr = new_gpr
+                        rxn.gene_reaction_rule = new_gpr
+
 
     modelPrunedGPR = copy.deepcopy(modelPruned)
     return modelPrunedGPR
-
