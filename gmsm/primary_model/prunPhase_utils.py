@@ -145,26 +145,9 @@ def swap_locustag_with_homolog(modelPruned, homology_ns):
     for locustag in homology_ns.temp_target_BBH_dict:
         for rxn in modelPruned.reactions:
             if rxn.gene_reaction_rule and locustag in rxn.gene_reaction_rule:
-                if len(homology_ns.temp_target_BBH_dict[locustag]) == 1:
-                    if not locustag in homology_ns.temp_target_BBH_dict[locustag] \
-                        and not 'and' in rxn.gene_reaction_rule \
-                        and homology_ns.temp_target_BBH_dict[locustag][0] in rxn.gene_reaction_rule \
-                        and (locustag + ' or ') in rxn.gene_reaction_rule:
-                            new_gpr = rxn.gene_reaction_rule.replace((locustag + ' or '), '')
-                            rxn.gene_reaction_rule = new_gpr
-                    elif not locustag in homology_ns.temp_target_BBH_dict[locustag] \
-                        and not 'and' in rxn.gene_reaction_rule \
-                        and homology_ns.temp_target_BBH_dict[locustag][0] in rxn.gene_reaction_rule \
-                        and (' or ' + locustag) in rxn.gene_reaction_rule:
-                            new_gpr = rxn.gene_reaction_rule.replace((' or ' + locustag), '')
-                            rxn.gene_reaction_rule = new_gpr
-                    else:
-                        new_gpr = rxn.gene_reaction_rule.replace(
-                            locustag, homology_ns.temp_target_BBH_dict[locustag][0])
-                        rxn.gene_reaction_rule = new_gpr
-                elif len(homology_ns.temp_target_BBH_dict[locustag]) > 1:
+                if True:
                     locustag_candidate_list = \
-                        copy.deepcopy(homology_ns.temp_target_BBH_dict[locustag])
+                        copy.deepcopy(sorted(homology_ns.temp_target_BBH_dict[locustag]))
                     if not 'and' in rxn.gene_reaction_rule:
                         target_locustag_list = []
                         for target_locustag in locustag_candidate_list:
@@ -183,8 +166,11 @@ def swap_locustag_with_homolog(modelPruned, homology_ns):
                                 new_gpr = rxn.gene_reaction_rule.replace((' or ' + locustag), '')
                                 rxn.gene_reaction_rule = new_gpr
                     elif not 'or' in rxn.gene_reaction_rule:
-                        homologs = ' or '.join(homology_ns.temp_target_BBH_dict[locustag])
-                        new_gpr = rxn.gene_reaction_rule.replace(locustag, '( %s )' %homologs)
+                        homologs = ' or '.join(locustag_candidate_list)
+                        if len(locustag_candidate_list) == 1:
+                            new_gpr = rxn.gene_reaction_rule.replace(locustag, '%s' %homologs)
+                        else:
+                            new_gpr = rxn.gene_reaction_rule.replace(locustag, '( %s )' %homologs)
                         rxn.gene_reaction_rule = new_gpr
                     else:
                         gpr = copy.deepcopy(rxn.gene_reaction_rule)
@@ -204,7 +190,7 @@ def swap_locustag_with_homolog(modelPruned, homology_ns):
                                     extracted_gpr = gpr[parentheses_loc_dict['(']:letter_loc+1]
                                     extracted_gpr_list.append([parentheses_loc_dict['('],letter_loc+1,extracted_gpr])
                                     del parentheses_loc_dict['(']
-                            letter_loc += 1                     
+                            letter_loc += 1
                         while gpr.find(locustag,locustag_loc) != -1:
                             locustag_loc = gpr.find(locustag, locustag_loc)
                             for left_loc, right_loc, extracted_gpr in extracted_gpr_list:
@@ -220,31 +206,43 @@ def swap_locustag_with_homolog(modelPruned, homology_ns):
                                             new_extracted_gpr = extracted_gpr.replace(locustag, '%s' %homologs)
                                             loc_diff = right_loc - left_loc
                                             changed_gpr_list.append([left_loc, right_loc, new_extracted_gpr, loc_diff])
-                                            new_locustag_loc = left_loc + len(new_extracted_gpr)
+                                            new_locustag_loc = right_loc
                                         elif not locustag in locustag_candidate_list:
+                                            if rxn.id == "OXDHCOAT":
+                                                print("extracted_gpr : %s" %extracted_gpr)
                                             if (locustag + ' or ') in rxn.gene_reaction_rule:
                                                 new_extracted_gpr = extracted_gpr.replace((locustag + ' or '), '')
+                                                if rxn.id == "OXDHCOAT":
+                                                    print("new_extracted_gpr : %s" %new_extracted_gpr)
                                                 loc_diff = right_loc - left_loc
                                                 changed_gpr_list.append([left_loc, right_loc, new_extracted_gpr, loc_diff])
-                                                new_locustag_loc = left_loc + len(new_extracted_gpr)
+                                                new_locustag_loc = right_loc
                                             elif (' or ' + locustag) in rxn.gene_reaction_rule:
                                                 new_extracted_gpr = extracted_gpr.replace((' or ' + locustag), '')
+                                                if rxn.id == "OXDHCOAT":
+                                                    print("new_extracted_gpr : %s" %new_extracted_gpr)
                                                 loc_diff = right_loc - left_loc
                                                 changed_gpr_list.append([left_loc, right_loc, new_extracted_gpr, loc_diff])
-                                                new_locustag_loc = left_loc + len(new_extracted_gpr)
+                                                new_locustag_loc = right_loc
                                     else:
-                                        homologs = ' or '.join(homology_ns.temp_target_BBH_dict[locustag])
-                                        new_extracted_gpr = extracted_gpr.replace(locustag, '( %s )' %homologs)
+                                        homologs = ' or '.join(locustag_candidate_list)
+                                        if len(locustag_candidate_list) == 1:
+                                            new_extracted_gpr = extracted_gpr.replace(locustag, '%s' %homologs)
+                                        else:
+                                            new_extracted_gpr = extracted_gpr.replace(locustag, '( %s )' %homologs)
                                         loc_diff = right_loc - left_loc
                                         changed_gpr_list.append([left_loc, right_loc, new_extracted_gpr, loc_diff])
-                                        new_locustag_loc = left_loc + len(new_extracted_gpr)
+                                        new_locustag_loc = right_loc
                                     break
                             if locustag_loc < new_locustag_loc:
                                 locustag_loc = new_locustag_loc
                                 continue
-                            homologs = ' or '.join(homology_ns.temp_target_BBH_dict[locustag])
+                            homologs = ' or '.join(locustag_candidate_list)
                             locustag_loc_end = locustag_loc + len(locustag)
-                            changed_gpr = gpr[locustag_loc:locustag_loc_end].replace(locustag, '( %s )' %homologs)
+                            if len(locustag_candidate_list) == 1:
+                                changed_gpr = gpr[locustag_loc:locustag_loc_end].replace(locustag, '%s' %homologs)
+                            else:
+                                changed_gpr = gpr[locustag_loc:locustag_loc_end].replace(locustag, '( %s )' %homologs)
                             loc_diff = locustag_loc_end - locustag_loc
                             changed_gpr_list.append([locustag_loc, locustag_loc_end, changed_gpr, loc_diff])
                             new_locustag_loc = locustag_loc_end
