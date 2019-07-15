@@ -277,6 +277,5 @@ def swap_locustag_with_homolog(modelPruned, homology_ns):
                         gpr = new_gpr
                     rxn.gene_reaction_rule = new_gpr
 
-
     modelPrunedGPR = copy.deepcopy(modelPruned)
     return modelPrunedGPR
