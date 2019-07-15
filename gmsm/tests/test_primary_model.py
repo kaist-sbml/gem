@@ -130,7 +130,7 @@ class TestPrimary_model:
         assert modelPrunedGPR.reactions.get_by_id('ACOATA').gene_reaction_rule == \
                 '((B446_12465 or B446_27925 or B446_30165) and (B446_12470 or SCO0549 or SCO1267 or SCO1272))'
         assert modelPrunedGPR.reactions.get_by_id('PDH').gene_reaction_rule == \
-                '((( B446_11440 or B446_12400 ) or ( B446_11440 or B446_12400 ) or ( B446_11440 or B446_12400 ) or (SCO1269 and SCO1270)) and (B446_19415 or B446_19475) and (B446_11425 or B446_23075 or B446_32095))'
+                '((B446_11440 or B446_12400 or (SCO1269 and SCO1270)) and (B446_19415 or B446_19475) and (B446_32095 or B446_11425 or B446_23075))'
 
 
     def test_get_rxnid_from_ECNumber(self, options):
