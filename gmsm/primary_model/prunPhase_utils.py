@@ -177,14 +177,17 @@ def swap_locustag_with_homolog(modelPruned, homology_ns):
                     letter_loc = 0
                     locustag_loc = 0
                     new_locustag_loc = 0
+                    parentheses_loc_list = []
                     parentheses_loc_dict = {}
                     extracted_gpr_list = []
                     changed_gpr_list = []
                     for letter in gpr:
                         if letter == '(':
                             parentheses_loc_dict['('] = letter_loc
+                            parentheses_loc_list.append(['(', letter_loc])
                         if letter == ')':
                             parentheses_loc_dict[')'] = letter_loc
+                            parentheses_loc_list.append([')', letter_loc])
                             if '(' in parentheses_loc_dict:
                                 extracted_gpr = gpr[parentheses_loc_dict['(']:letter_loc+1]
                                 extracted_gpr_list.append([parentheses_loc_dict['('],letter_loc+1,extracted_gpr])
@@ -229,40 +232,37 @@ def swap_locustag_with_homolog(modelPruned, homology_ns):
                                 or (' and ' + locustag) in gpr[locustag_loc-5:locustag_loc_end]:
                                     changed_gpr = gpr[locustag_loc:locustag_loc_end].replace(locustag, '( %s )' %homologs)
                             else:
-                                right_loc_for_section = 0
-                                left_loc_for_section = 0
-                                for left_loc, right_loc, extracted_gpr in extracted_gpr_list:
-                                    if locustag_loc > right_loc:
-                                        right_loc_for_section = right_loc
-                                    if locustag_loc < left_loc:
-                                        left_loc_for_section = left_loc
+                                loc_for_left = 0
+                                loc_for_right = 0
+                                for parentheses, letter_loc in parentheses_loc_list:
+                                    if parentheses == ')' and locustag_loc > letter_loc:
+                                        loc_for_left = letter_loc
+                                    if parentheses == '(' and locustag_loc < letter_loc:
+                                        loc_for_right = letter_loc
                                         break
                                 target_locustag_list = []
-                                if right_loc_for_section > left_loc_for_section:
-                                    left_loc_for_section = locustag_loc_end
-                                for target_locustag in gpr[right_loc_for_section:left_loc_for_section]:
-                                    if not target_locustag in rxn.gene_reaction_rule \
-                                        or target_locustag == locustag:
+                                if loc_for_left > loc_for_right:
+                                    loc_for_right = len(gpr)
+                                for target_locustag in locustag_candidate_list:
+                                    if not target_locustag in gpr[loc_for_left:loc_for_right] \
+                                       or target_locustag == locustag:
                                         target_locustag_list.append(target_locustag)
                                 if target_locustag_list:
                                     homologs = ' or '.join(target_locustag_list)
-                                    changed_gpr = gpr[right_loc_for_section:left_loc_for_section].replace(locustag, '%s' %homologs)
+                                    changed_gpr = gpr[loc_for_left:loc_for_right].replace(locustag, '%s' %homologs)
+                                    locustag_loc = loc_for_left
+                                    locustag_loc_end = loc_for_right
                                 elif not locustag in locustag_candidate_list:
-                                    if (locustag + ' or ') in gpr[right_loc_for_section:left_loc_for_section]:
-                                        changed_gpr = 4
-                                    elif (' or ' + locustag) in gpr[right_loc_for_section:left_loc_for_section]:
-                                        changed_gpr = -4
+                                    if (locustag + ' or ') in gpr[loc_for_left:loc_for_right]:
+                                        changed_gpr = gpr[loc_for_left:loc_for_right].replace((locustag + ' or '), '')
+                                    elif (' or ' + locustag) in gpr[loc_for_left:loc_for_right]:
+                                        changed_gpr = gpr[loc_for_left:loc_for_right].replace((' or ' + locustag), '')
+                                    locustag_loc = loc_for_left
+                                    locustag_loc_end = loc_for_right
                                 else:
                                     changed_gpr = gpr[locustag_loc:locustag_loc_end]
                         else:
                             changed_gpr = gpr[locustag_loc:locustag_loc_end].replace(locustag, '%s' %homologs)
-                        if type(changed_gpr) == int:
-                            if changed_gpr == 4:
-                                changed_gpr = ''
-                                locustag_loc -= 4
-                            else:
-                                changed_gpr = ''
-                                locustag_loc_end +=4
                         loc_diff = locustag_loc_end - locustag_loc
                         changed_gpr_list.append([locustag_loc, locustag_loc_end, changed_gpr, loc_diff])
                         new_locustag_loc = locustag_loc_end
