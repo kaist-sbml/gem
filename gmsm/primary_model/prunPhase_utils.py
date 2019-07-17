@@ -147,9 +147,9 @@ def change_locustag_in_gpr(temp_locustag, gpr_list, locustag_candidate_list):
         if changed_gpr_list[locustag_loc] == temp_locustag:
             target_locustag_list = []
             boolean_list = []
-            for locustag2 in changed_gpr_list:
-                if locustag2 == 'and' or locustag2 == 'or':
-                    boolean_list.append(locustag2)
+            for boolean in changed_gpr_list:
+                if boolean == 'and' or boolean == 'or':
+                    boolean_list.append(boolean)
             boolean_list = list(set(boolean_list))
             for target_locustag in locustag_candidate_list:
                 if not target_locustag in changed_gpr_list or target_locustag == temp_locustag:
