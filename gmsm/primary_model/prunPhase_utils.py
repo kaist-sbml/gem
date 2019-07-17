@@ -138,28 +138,21 @@ def prune_model(model, config_ns, primary_model_ns):
     return modelPruned
 
 
-def change_locustag_in_gpr(template_locustag, gpr_list, locustag_candidate_list):
+def change_locustag_in_gpr(temp_locustag, gpr_list, locustag_candidate_list):
     
     changed_gpr_list = gpr_list
     for locustag_loc in range(len(changed_gpr_list)):
         if isinstance(changed_gpr_list[locustag_loc], list):
-            change_locustag_in_gpr(template_locustag, changed_gpr_list[locustag_loc], locustag_candidate_list)
-        
-        if changed_gpr_list[locustag_loc] == template_locustag:
+            change_locustag_in_gpr(temp_locustag, changed_gpr_list[locustag_loc], locustag_candidate_list)
+        if changed_gpr_list[locustag_loc] == temp_locustag:
             target_locustag_list = []
             boolean_list = []
-
             for locustag2 in changed_gpr_list:
                 if locustag2 == 'and' or locustag2 == 'or':
                     boolean_list.append(locustag2)
             boolean_list = list(set(boolean_list))
-
-            if len(boolean_list) > 1:
-                print("What's wrong?")
-                print(gpr_list)
-
             for target_locustag in locustag_candidate_list:
-                if not target_locustag in changed_gpr_list or target_locustag == template_locustag:
+                if not target_locustag in changed_gpr_list or target_locustag == temp_locustag:
                     target_locustag_list.append(target_locustag)
             if target_locustag_list:
                 if len(boolean_list) == 1 and boolean_list[0] == 'or':
@@ -169,7 +162,6 @@ def change_locustag_in_gpr(template_locustag, gpr_list, locustag_candidate_list)
                         changed_gpr_list.insert(locustag_loc, target_locustag)
                         changed_gpr_list.insert(locustag_loc, 'or')
                     changed_gpr_list.pop(locustag_loc)
-
                 else:
                     changed_gpr_list.pop(locustag_loc)
                     target_locustag_or_list = []
@@ -180,8 +172,7 @@ def change_locustag_in_gpr(template_locustag, gpr_list, locustag_candidate_list)
                     if len(target_locustag_or_list) == 1:
                         target_locustag_or_list = target_locustag_or_list[0]
                     changed_gpr_list.insert(locustag_loc, target_locustag_or_list)
-
-            elif not template_locustag in locustag_candidate_list:
+            elif not temp_locustag in locustag_candidate_list:
                 if len(boolean_list) == 1 and boolean_list[0] == 'or':
                     if changed_gpr_list[locustag_loc-1] == 'or':
                         changed_gpr_list.pop(locustag_loc-1)
@@ -190,14 +181,15 @@ def change_locustag_in_gpr(template_locustag, gpr_list, locustag_candidate_list)
                         changed_gpr_list.pop(locustag_loc)
                         changed_gpr_list.pop(locustag_loc)
             break
-                
-    
+
     new_gpr = str(changed_gpr_list)
     new_gpr = new_gpr.replace(',', '')
     new_gpr = new_gpr.replace('\'', '')
     new_gpr = new_gpr.replace('[','(')
     new_gpr = new_gpr.replace(']',')')
-            
+    new_gpr = new_gpr[1:]
+    new_gpr = new_gpr[:-1]
+
     return new_gpr
 
 
@@ -235,11 +227,6 @@ def swap_locustag_with_homolog(modelPruned, homology_ns):
                         new_gpr = rxn.gene_reaction_rule.replace(locustag, '( %s )' %homologs)
                     rxn.gene_reaction_rule = new_gpr
                 else:
-                    print(" ")
-                    print("rxn.id : %s" %rxn)
-                    print("locustag : %s" %locustag)
-                    print("temp_target_BBH_dict[locustag] : %s" %locustag_candidate_list)
-                    print("    gpr : %s" %rxn.gene_reaction_rule)
                     gpr = copy.deepcopy(rxn.gene_reaction_rule)
                     gpr_regex = pyparsing.Word(pyparsing.alphanums + '_' + '.')
                     and_booleanop = pyparsing.oneOf('AND and')
@@ -251,9 +238,7 @@ def swap_locustag_with_homolog(modelPruned, homology_ns):
                                                    ])
                     gpr_list = expr.parseString(gpr)[0].asList()
                     new_gpr = change_locustag_in_gpr(locustag, gpr_list, locustag_candidate_list)
-                    
                     rxn.gene_reaction_rule = new_gpr
-                    print("new_gpr : %s" %rxn.gene_reaction_rule)
                     
     modelPrunedGPR = copy.deepcopy(modelPruned)
     return modelPrunedGPR
