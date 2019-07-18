@@ -51,12 +51,10 @@ class TestPrimary_model:
                 tempModel_biggRxnid_locusTag_dict['TGBPA'], temp_target_BBH_dict)
         assert rxn_fate == '0'
 
-        # NOTE: This issue has not been resolved. OR is returned regardless of the Boolean.
-        #If successful, the result should be 'rxn_fate == 0'.
-        # NOTE: locustags should be given.
-#        bbh_avail_list = [['1', 'and', '0'], 'or', ['0', 'and', '1'], 'and', ['0', 'or', '1']]
-#        rxn_fate = prunPhase_utils.get_rxn_fate(bbh_avail_list)
-#        assert rxn_fate != '0'
+        # 'AND' and 'OR' within a parenthesis
+        bbh_avail_list = [['1', 'and', '0'], 'or', ['0', 'and', '1'], 'and', ['0', 'or', '1']]
+        rxn_fate = prunPhase_utils.get_rxn_fate(bbh_avail_list, temp_target_BBH_dict)
+        assert rxn_fate == '0'
 
 
     def test_label_rxn_to_remove(self, sco_tmp_model, options):

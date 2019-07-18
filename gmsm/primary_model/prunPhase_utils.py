@@ -45,42 +45,30 @@ def get_rxn_fate2(locustag_list, temp_target_BBH_dict):
         elif 'OR' in boolop_list2 or 'or' in boolop_list2:
             return locustag_list, max(bbh_avail_list)
 
-    # gene_reaction_rule contains both AND and OR within a parenthesis
-    #and without parentheses around AND. This is a bad practise.
     elif len(boolop_list2) >= 2:
-
-        # NOTE: This issue has not been resolved. OR is returned regardless of the Boolean.
-        #See: test_primary_model.py
-
-        #print '1', bbh_avail_list
-        #print '2', boolop_list2
-        #bbh_avail_list_str = str(bbh_avail_list)
-        #bbh_avail_list_str2 = bbh_avail_list_str.replace("'", "")
-        #bbh_avail_list_str3 = bbh_avail_list_str2.replace(",", "")
-        #bbh_avail_list_str4 = bbh_avail_list_str3.replace("[", "(")
-        #bbh_avail_list_str5 = bbh_avail_list_str4.replace("]", ")")
-        #print '3', bbh_avail_list_str5
-
-        #gpr_regex = pyparsing.Word(pyparsing.alphanums)
-        #and_booleanop = pyparsing.oneOf('AND and')
-        #or_booleanop = pyparsing.oneOf('OR or')
-        #expr = pyparsing.infixNotation(gpr_regex,
-        #        [
-        #            (and_booleanop, 2, pyparsing.opAssoc.LEFT),
-        #            (or_booleanop, 2, pyparsing.opAssoc.LEFT)
-        #        ])
-        #bbh_avail_list = expr.parseString(bbh_avail_list_str5)[0].asList()
-        #print '4', bbh_avail_list
-
-        logging.warning("Bad 'gene_reaction_rule' description", locustag_list)
-        return locustag_list, max(bbh_avail_list)
+        bbh_avail_list_str = str(locustag_list)
+        bbh_avail_list_str = bbh_avail_list_str.replace("'", "")
+        bbh_avail_list_str = bbh_avail_list_str.replace(",", "")
+        bbh_avail_list_str = bbh_avail_list_str.replace("[", "(")
+        bbh_avail_list_str = bbh_avail_list_str.replace("]", ")")
+        gpr_regex = pyparsing.Word(pyparsing.alphanums + '_' + '.')
+        and_booleanop = pyparsing.oneOf('AND and')
+        or_booleanop = pyparsing.oneOf('OR or')
+        expr = pyparsing.infixNotation(gpr_regex,
+                [
+                    (and_booleanop, 2, pyparsing.opAssoc.LEFT),
+                    (or_booleanop, 2, pyparsing.opAssoc.LEFT)
+                ])
+        bbh_avail_list = expr.parseString(bbh_avail_list_str)[0].asList()
+        return locustag_list, bbh_avail_list
 
 
 def get_rxn_fate(locustag_list, temp_target_BBH_dict):
     while True:
         locustag_list_str = str(locustag_list)
         locustag, rxn_fate = get_rxn_fate2(locustag_list, temp_target_BBH_dict)
-        rxn_fate = "'" + str(rxn_fate) + "'"
+        if isinstance(rxn_fate, str):
+            rxn_fate = "'" + str(rxn_fate) + "'"
         locustag_list_str = locustag_list_str.replace(str(locustag), str(rxn_fate))
         locustag_list = ast.literal_eval(locustag_list_str)
         if type(locustag_list) != list:
