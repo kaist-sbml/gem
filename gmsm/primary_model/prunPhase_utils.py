@@ -144,6 +144,8 @@ def change_locustag_in_gpr(locustag, gpr_list, locustag_candidate_list):
     for locustag_loc in range(len(changed_gpr_list)):
         if isinstance(changed_gpr_list[locustag_loc], list):
             change_locustag_in_gpr(locustag, changed_gpr_list[locustag_loc], locustag_candidate_list)
+
+    for locustag_loc in range(len(changed_gpr_list)):
         if changed_gpr_list[locustag_loc] == locustag:
             target_locustag_list = []
             boolean_list = []
@@ -224,7 +226,7 @@ def swap_locustag_with_homolog(modelPruned, homology_ns):
                     if len(locustag_candidate_list) == 1:
                         new_gpr = rxn.gene_reaction_rule.replace(locustag, '%s' %homologs)
                     else:
-                        new_gpr = rxn.gene_reaction_rule.replace(locustag, '( %s )' %homologs)
+                        new_gpr = rxn.gene_reaction_rule.replace(locustag, '(%s)' %homologs)
                     rxn.gene_reaction_rule = new_gpr
                 else:
                     gpr = copy.deepcopy(rxn.gene_reaction_rule)
