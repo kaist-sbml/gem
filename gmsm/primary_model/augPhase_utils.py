@@ -327,7 +327,7 @@ def add_nonBBH_rxn(modelPrunedGPR, io_ns, config_ns, primary_model_ns):
 
         #GPR association
         if len(primary_model_ns.rxnid_locusTag_dict[kegg_id]) == 1:
-            gpr = '( %s )' %(primary_model_ns.rxnid_locusTag_dict[kegg_id][0])
+            gpr = primary_model_ns.rxnid_locusTag_dict[kegg_id][0]
         else:
             count = 1
             for locusTag in primary_model_ns.rxnid_locusTag_dict[kegg_id]:
@@ -342,7 +342,6 @@ def add_nonBBH_rxn(modelPrunedGPR, io_ns, config_ns, primary_model_ns):
                 gpr = ' and '.join(primary_model_ns.rxnid_locusTag_dict[kegg_id])
             else:
                 gpr = ' or '.join(primary_model_ns.rxnid_locusTag_dict[kegg_id])
-            gpr = '( %s )' %(gpr)
 
         rxn.gene_reaction_rule = gpr
 
