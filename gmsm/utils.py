@@ -283,7 +283,7 @@ def check_exrxn_flux_direction(
 
             #Similar species are allowed to uptake nutrients within a decent range
             if float(target_exrxn_flux)*float(template_exrxn_flux) > 0 and ratio_exrxn_flux \
-               and ratio_exrxn_flux < float(config_ns.cobrapy.nutrient_uptake_rate):
+               and ratio_exrxn_flux <= float(config_ns.cobrapy.nutrient_uptake_rate):
                     exrxn_flux_change_list.append('T')
             #Cause drastic changes in Exchange reaction fluxes
             #(direction and/or magnitude)
