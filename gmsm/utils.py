@@ -275,15 +275,14 @@ def check_exrxn_flux_direction(
             target_exrxn_flux = target_exrxnid_flux_dict[exrxn_id]
 
             if float(template_exrxn_flux) != 0 \
-               and float(target_exrxn_flux) > float(config_ns.cobrapy.non_zero_flux_cutoff):
+               and abs(float(target_exrxn_flux)) > float(config_ns.cobrapy.non_zero_flux_cutoff):
                 ratio_exrxn_flux = float(target_exrxn_flux)/float(template_exrxn_flux)
             else:
                 ratio_exrxn_flux = None
                 logging.debug("%s has a zero flux", exrxn_id)
 
             #Similar species are allowed to uptake nutrients within a decent range
-            if float(target_exrxn_flux)*float(template_exrxn_flux) > 0 and ratio_exrxn_flux \
-               and ratio_exrxn_flux <= float(config_ns.cobrapy.nutrient_uptake_rate):
+            if ratio_exrxn_flux > 0 and ratio_exrxn_flux < float(config_ns.cobrapy.nutrient_uptake_rate):
                     exrxn_flux_change_list.append('T')
             #Cause drastic changes in Exchange reaction fluxes
             #(direction and/or magnitude)
