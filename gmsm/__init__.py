@@ -7,7 +7,7 @@ import logging
 import utils
 #from os.path import join, abspath, dirname
 
-__version__ = '0.7.2'
+__version__ = '0.7.3'
 
 
 def check_prereqs(run_ns):
