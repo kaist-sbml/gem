@@ -212,7 +212,7 @@ def main():
     # Primary metabolic modeling
     if run_ns.pmr_generation:
         if not run_ns.eficaz:
-            seq_records = get_target_genome_from_input(filetype, run_ns, io_ns)
+            get_target_genome_from_input(filetype, run_ns, io_ns)
 
         if run_ns.eficaz_file:
             get_eficaz_file(run_ns, io_ns)
@@ -254,7 +254,7 @@ def main():
     # Secondary metabolic modeling
     if run_ns.smr_generation:
         if not run_ns.eficaz:
-            seq_records = get_target_genome_from_input(filetype, run_ns, io_ns)
+            get_target_genome_from_input(filetype, run_ns, io_ns)
 
         model_file = []
         files = glob.glob(io_ns.outputfolder3 + os.sep + '*.xml')
