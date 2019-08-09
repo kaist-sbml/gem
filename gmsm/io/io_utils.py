@@ -62,7 +62,7 @@ def get_features_from_gbk(seq_record, run_ns, io_ns):
             BGC_num += 1
 
     seq_record_BGC_num_list.append(BGC_num)
-    io_ns.seq_record_BGC_num_list_list.append(seq_record_BGC_num_list)
+    io_ns.seq_record_BGC_num_lists.append(seq_record_BGC_num_list)
 
 
 def get_features_from_fasta(seq_record, io_ns):
