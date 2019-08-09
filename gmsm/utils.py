@@ -242,7 +242,11 @@ def stabilize_model(model, folder, label, diff_name=False):
         else:
             model_name = 'model.xml'
 
-    cobra.io.write_sbml_model(model, join('%s' %folder, model_name), use_fbc_package=False)
+    for rxn in model.reactions:
+        if rxn.gene_reaction_rule == "()":
+            rxn.gene_reaction_rule = ""
+                
+    cobra.io.write_sbml_model(model, join('%s' %folder, model_name), use_fbc_package=True)
     model = cobra.io.read_sbml_model(join('%s' %folder, model_name))
 
     return model
