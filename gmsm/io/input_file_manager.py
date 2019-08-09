@@ -24,8 +24,8 @@ def setup_outputfolders(run_ns, io_ns):
             '3_primary_metabolic_model', '4_complete_model',
             'tmp_model_files', 'tmp_data_files']
 
-    # Second if statement is to keep "-o ./test" from creating "tes", not "test"
-    if '/' in run_ns.outputfolder and './' not in run_ns.outputfolder:
+    # Keep "-o test/test" from creating "test/tes", not "test/test"
+    if '/' in run_ns.outputfolder[-1]:
         run_ns.outputfolder = run_ns.outputfolder[:-1]
 
     if run_ns.eficaz:
