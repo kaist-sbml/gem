@@ -16,13 +16,23 @@ warnings.filterwarnings("ignore")
 class TestSecondary_model:
     """Test functions in gmsm.secondary_model"""
 
-    def test_get_cluster_info_from_seq_record(self, seq_record, options):
+    def test_get_cluster_location(self, seq_record, options):
 
         # Cluster 3 of NC_021985.1.final.gbk file
         # Hybrid cluster: nrps-t1pks-transatpks
         # locations: 341018 - 503094
         # Kirromycin biosynthetic gene cluster (79% of genes show similarity)
-        
+
+        options.temp_loc1 = 205828
+        get_cluster_location(seq_record, options)
+
+        assert options.cluster_loc1 == 341018
+        assert options.cluster_loc2 == 503094
+        assert options.temp_loc1 == 341018
+
+
+    def test_get_cluster_info_from_seq_record(self, seq_record, options):
+
         options.temp_loc1 = 205828
 
         get_cluster_location(seq_record, options)
