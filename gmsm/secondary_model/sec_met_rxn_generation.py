@@ -335,22 +335,22 @@ def add_sec_met_rxn(target_model, io_ns, secondary_model_ns):
     if io_ns.anti_version == 5:
         for each_gene in secondary_model_ns.region_info_dict.keys():
             if gpr_count == 0:
-                gpr_list = each_gene
+                gpr = each_gene
                 gpr_count += 1
             else:
-                gpr_list = ' and '.join([gpr_list, each_gene])
+                gpr = ' and '.join([gpr, each_gene])
 
     elif io_ns.anti_version == 4:
         for each_gene in secondary_model_ns.cluster_info_dict.keys():
             if gpr_count == 0:
-                gpr_list = each_gene
+                gpr = each_gene
                 gpr_count += 1
             else:
-                gpr_list = ' and '.join([gpr_list, each_gene])
+                gpr = ' and '.join([gpr, each_gene])
 
-    gpr_list = '( %s )' %(gpr_list)
+    gpr = '( %s )' %(gpr)
 
-    rxn.gene_reaction_rule = gpr_list
+    rxn.gene_reaction_rule = gpr
 
     #Add a new reaction to the model
     target_model.add_reaction(rxn)
