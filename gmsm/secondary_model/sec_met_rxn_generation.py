@@ -103,7 +103,7 @@ def get_cluster_product(seq_record, total_cluster_nr, secondary_model_ns):
 
 
 #Output: e.g., {'SAV_943_M1':['mmal', 'Ethyl_mal', 'pk']}
-def get_region_monomers(seq_record, region_nr, secondary_model_ns):
+def get_region_monomers(seq_record, secondary_model_ns):
 
     secondary_model_ns.cds_info_dict = {}
     secondary_model_ns.locustag_monomer_dict = {}
