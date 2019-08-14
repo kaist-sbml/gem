@@ -157,6 +157,18 @@ class TestPrimary_model:
         assert not rxnid_list
 
 
+    def test_get_rxnInfo_from_rxnid(self, options):
+        _cfg_name = 'gmsm.cfg'
+        load_config(options)
+
+        rxnid1 = 'R00001' # polyphosphate polyphosphohydrolase
+        rxnid2 = 'R00771' # D-glucose-6-phosphate aldose-ketose-isomerase
+        rxnid_info1 = augPhase_utils.get_rxnInfo_from_rxnid(rxnid1, options)
+        rxnid_info2 = augPhase_utils.get_rxnInfo_from_rxnid(rxnid2, options)
+        assert rxnid_info1 == None
+        assert rxnid_info2 == {'NAME': 'D-glucose-6-phosphate aldose-ketose-isomerase', 'ENZYME': '5.3.1.9', 'PATHWAY': 'rn00500 Starch and sucrose metabolism', 'DEFINITION': 'D-Glucose 6-phosphate <=> D-Fructose 6-phosphate', 'EQUATION': 'C00092 <=> C00085'}
+
+
     def test_get_rxnid_info_dict_from_kegg(self, options):
         _cfg_name = 'gmsm.cfg'
         load_config(options)
