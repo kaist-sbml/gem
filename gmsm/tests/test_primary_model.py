@@ -10,6 +10,10 @@ warnings.filterwarnings("ignore")
 class TestPrimary_model:
     """Test functions in gmsm.primary_model"""
 
+    #-------------------------------------------
+    # test functions of prunPhase_utils.py
+    #-------------------------------------------
+
     def test_get_rxn_fate(self):
         temp_target_BBH_dict = {}
         tempModel_biggRxnid_locusTag_dict = {}
@@ -130,6 +134,10 @@ class TestPrimary_model:
         assert modelPrunedGPR.reactions.get_by_id('PDH').gene_reaction_rule == \
                 '((( B446_12400 or B446_11440 ) or ( B446_12400 or B446_11440 ) or ( B446_12400 or B446_11440 ) or (SCO1269 and SCO1270)) and (( B446_19415 or B446_19475 ) or ( B446_19415 or B446_19475 )) and (B446_32095 or ( B446_11425 or B446_32095 or B446_23075 ) or ( B446_11425 or B446_23075 )))'
 
+
+    #-------------------------------------------
+    # test functions of augPhase_utils.py
+    #-------------------------------------------
 
     def test_get_rxnid_from_ECNumber(self, options):
         _cfg_name = 'gmsm.cfg'
