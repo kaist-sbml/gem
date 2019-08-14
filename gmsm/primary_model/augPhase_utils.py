@@ -364,7 +364,7 @@ def add_nonBBH_rxn(modelPrunedGPR, io_ns, config_ns, primary_model_ns):
         if 'F' in exrxn_flux_change_list:
             #'remove_reactions' does not seem to require
             #writing/reloading of the model
-            modelPrunedGPR.remove_reactions(rxn)
+            modelPrunedGPR.remove_reactions(rxn.id)
 
     target_model = copy.deepcopy(modelPrunedGPR)
     return target_model
