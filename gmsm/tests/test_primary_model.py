@@ -273,7 +273,7 @@ class TestPrimary_model:
         assert 'MNXR101421' in options.modelPrunedGPR_mnxr_list
 
 
-    def test_mnxr_to_add_list(self, mnxref, options):
+    def test_get_mnxr_to_add_list(self, mnxref, options):
         options.rxnid_info_dict = {
             'R08926':{
                 'ENZYME': '1.1.1.122',
