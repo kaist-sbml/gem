@@ -216,6 +216,17 @@ class TestPrimary_model:
         assert options.targetGenome_locusTag_ec_nonBBH_dict == {'B446_23835':['4.1.1.45', '3.5.2.3']}
 
 
+    def test_edit_mnxr_kegg_dict(self, mnxr_kegg_dict, options):
+        options.mnxr_kegg_dict = mnxr_kegg_dict
+        mnxr_kegg_len = len(options.mnxr_kegg_dict)
+        keggid = 'R08385'
+
+        augPhase_utils.edit_mnxr_kegg_dict(keggid, options)
+
+        assert 'R08385' not in options.mnxr_kegg_dict.values()
+        assert len(options.mnxr_kegg_dict) == mnxr_kegg_len - 1
+
+
     def test_get_rxnid_info_dict_from_kegg(self, options):
         _cfg_name = 'gmsm.cfg'
         load_config(options)

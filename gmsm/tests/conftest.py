@@ -52,6 +52,13 @@ def bbh_dict():
 
 
 @pytest.fixture(scope="function")
+def mnxr_kegg_dict():
+    mnxr_kegg_dict = pickle.load(
+            open(join(data_model_dir, 'mnxr_kegg_dict.p'),'rb'))
+    return mnxr_kegg_dict
+
+
+@pytest.fixture(scope="function")
 def sco_tmp_model_flux():
     template_exrxnid_flux_dict = pickle.load(
             open(join(data_model_dir, 'sco_tempModel_exrxnid_flux_dict.p'),'rb'))
