@@ -176,6 +176,7 @@ class TestPrimary_model:
         cache_dumped_rxnid_list = []
         cache_nonexistence_dict = {}
         cache_nonexistence_list = []
+        cache_nonexistence = ""
 
         data_model_dir = join(dirname(abspath(__file__)), 'data')
         cache_ec_rxn_dict_dir = join(data_model_dir, 'cache_ec_rxn_dict.p')
@@ -184,6 +185,7 @@ class TestPrimary_model:
         cache_dumped_rxnid_list_dir = join(data_model_dir, 'cache_dumped_rxnid_list.p')
         cache_nonexistence_dict_dir = join(data_model_dir, 'nonexistence_dict.p')
         cache_nonexistence_list_dir = join(data_model_dir, 'nonexistence_list.p')
+        cache_nonexistence_dir = join(data_model_dir, 'nonexistence.p')
 
         cache_ec_rxn_dict = augPhase_utils.load_cache(
                 cache_ec_rxn_dict_dir, cache_ec_rxn_dict)
@@ -197,6 +199,8 @@ class TestPrimary_model:
                 cache_nonexistence_dict_dir, cache_nonexistence_dict)
         cache_nonexistence_list = augPhase_utils.load_cache(
                 cache_nonexistence_list_dir, cache_nonexistence_list)
+        cache_nonexistence = augPhase_utils.load_cache(
+                cache_nonexistence_dir, cache_nonexistence)
 
         assert cache_ec_rxn_dict != {}
         assert cache_rxnid_info_dict != {}
@@ -204,6 +208,7 @@ class TestPrimary_model:
         assert cache_dumped_rxnid_list != []
         assert cache_nonexistence_dict == {}
         assert cache_nonexistence_list == []
+        assert cache_nonexistence == ""
 
 
     def test_get_targetGenome_locusTag_ec_nonBBH_dict(self, options):
