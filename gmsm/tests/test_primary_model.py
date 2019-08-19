@@ -206,6 +206,16 @@ class TestPrimary_model:
         assert cache_nonexistence_list == []
 
 
+    def test_get_targetGenome_locusTag_ec_nonBBH_dict(self, options):
+        options.nonBBH_list = ['B446_27575', 'B446_23835']
+        options.targetGenome_locusTag_ec_dict = \
+                              {'B446_23835':['4.1.1.45', '3.5.2.3']}
+
+        augPhase_utils.get_targetGenome_locusTag_ec_nonBBH_dict(options, options, options)
+
+        assert options.targetGenome_locusTag_ec_nonBBH_dict == {'B446_23835':['4.1.1.45', '3.5.2.3']}
+
+
     def test_get_rxnid_info_dict_from_kegg(self, options):
         _cfg_name = 'gmsm.cfg'
         load_config(options)
