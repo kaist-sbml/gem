@@ -227,6 +227,21 @@ class TestPrimary_model:
         assert len(options.mnxr_kegg_dict) == mnxr_kegg_len - 1
 
 
+    def test_get_rxnid_locusTag_dict(self):
+        rxnid_locusTag_dict = {}
+        rxnid = 'R04558'
+        locusTag = 'SCO2048'
+        locusTag2 = 'SCO2051'
+
+        rxnid_locustag_dict = \
+        augPhase_utils.get_rxnid_locusTag_dict(rxnid_locusTag_dict, rxnid, locusTag)
+
+        rxnid_locustag_dict = \
+        augPhase_utils.get_rxnid_locusTag_dict(rxnid_locusTag_dict, rxnid, locusTag2)
+
+        assert rxnid_locustag_dict == {'R04558' : ['SCO2048', 'SCO2051']}
+
+
     def test_get_rxnid_info_dict_from_kegg(self, options):
         _cfg_name = 'gmsm.cfg'
         load_config(options)
