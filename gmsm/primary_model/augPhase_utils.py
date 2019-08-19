@@ -79,23 +79,23 @@ def load_cache(cache_dir, cache_data):
                 return cache_data
         except pickle.UnpicklingError as e:
             logging.warning("Could not read '%s': %s", cache_dir, e)
-            if '_dict' in cache_data:
+            if '_dict' in cache_dir:
                 cache_data = {}
-            elif '_list' in cache_data:
+            elif '_list' in cache_dir:
                 cache_data = []
             return cache_data
         except IOError as e:
             logging.warning("Can't open %s in 'rb' mode: %s", cache_dir, e)
-            if '_dict' in cache_data:
+            if '_dict' in cache_dir:
                 cache_data = {}
-            elif '_list' in cache_data:
+            elif '_list' in cache_dir:
                 cache_data = []
             return cache_data
     else:
         logging.debug('No cache exists: %s', cache_dir)
-        if '_dict' in cache_data:
+        if '_dict' in cache_dir:
             cache_data = {}
-        elif '_list' in cache_data:
+        elif '_list' in cache_dir:
             cache_data = []
         return cache_data
 
