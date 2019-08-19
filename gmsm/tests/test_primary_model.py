@@ -1,6 +1,6 @@
 
 import warnings
-from os.path import join
+from os.path import join, abspath, dirname
 from gmsm.config import load_config
 from gmsm.io.input_file_manager import get_eficaz_file, get_locustag_comp_dict
 from gmsm.primary_model import prunPhase_utils, augPhase_utils
@@ -167,6 +167,43 @@ class TestPrimary_model:
         rxnid_info2 = augPhase_utils.get_rxnInfo_from_rxnid(rxnid2, options)
         assert rxnid_info1 == None
         assert rxnid_info2 == {'NAME': 'D-glucose-6-phosphate aldose-ketose-isomerase', 'ENZYME': '5.3.1.9', 'PATHWAY': 'rn00500 Starch and sucrose metabolism', 'DEFINITION': 'D-Glucose 6-phosphate <=> D-Fructose 6-phosphate', 'EQUATION': 'C00092 <=> C00085'}
+
+
+    def test_load_cache(self):
+        cache_ec_rxn_dict = {}
+        cache_rxnid_info_dict = {}
+        cache_dumped_ec_list = []
+        cache_dumped_rxnid_list = []
+        cache_nonexistence_dict = {}
+        cache_nonexistence_list = []
+
+        data_model_dir = join(dirname(abspath(__file__)), 'data')
+        cache_ec_rxn_dict_dir = join(data_model_dir, 'cache_ec_rxn_dict.p')
+        cache_rxnid_info_dict_dir = join(data_model_dir, 'cache_rxnid_info_dict.p')
+        cache_dumped_ec_list_dir = join(data_model_dir, 'cache_dumped_ec_list.p')
+        cache_dumped_rxnid_list_dir = join(data_model_dir, 'cache_dumped_rxnid_list.p')
+        cache_nonexistence_dict_dir = join(data_model_dir, 'nonexistence_dict.p')
+        cache_nonexistence_list_dir = join(data_model_dir, 'nonexistence_list.p')
+
+        cache_ec_rxn_dict = augPhase_utils.load_cache(
+                cache_ec_rxn_dict_dir, cache_ec_rxn_dict)
+        cache_rxnid_info_dict = augPhase_utils.load_cache(
+                cache_rxnid_info_dict_dir, cache_rxnid_info_dict)
+        cache_dumped_ec_list = augPhase_utils.load_cache(
+                cache_dumped_ec_list_dir, cache_dumped_ec_list)
+        cache_dumped_rxnid_list = augPhase_utils.load_cache(
+                cache_dumped_rxnid_list_dir, cache_dumped_rxnid_list)
+        cache_nonexistence_dict = augPhase_utils.load_cache(
+                cache_nonexistence_dict_dir, cache_nonexistence_dict)
+        cache_nonexistence_list = augPhase_utils.load_cache(
+                cache_nonexistence_list_dir, cache_nonexistence_list)
+
+        assert cache_ec_rxn_dict != {}
+        assert cache_rxnid_info_dict != {}
+        assert cache_dumped_ec_list != []
+        assert cache_dumped_rxnid_list != []
+        assert cache_nonexistence_dict == {}
+        assert cache_nonexistence_list == []
 
 
     def test_get_rxnid_info_dict_from_kegg(self, options):
