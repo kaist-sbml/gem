@@ -329,9 +329,9 @@ class TestPrimary_model:
         assert 'MNXR112417' in options.mnxr_to_add_list
 
 
-    # Focus on metabolite addition in this test
-    # New metabolites: 'MNXM16902' and 'fuc__L'
     def test_add_nonBBH_rxn(self, sco_tmp_model, mnxref, tmpdir, sco_tmp_model_flux, options):
+        # Focus on metabolite addition in this test
+        # New metabolites: 'MNXM16902' and 'fuc__L'
         options.mnxr_to_add_list = ['MNXR112417']
         options.rxnid_info_dict = {
             'R08926':{
@@ -342,7 +342,7 @@ class TestPrimary_model:
                 'PATHWAY': 'rn00051 Fructose and mannose metabolism'}
                 }
         options.mnxr_kegg_dict = {'MNXR112417': ['R08926']}
-        options.rxnid_locusTag_dict = {'R08926':['STEN_00480']}
+        options.rxnid_locusTag_dict = {'R08926': ['STEN_00480']}
         options.targetGenome_locusTag_prod_dict = {'STEN_00480':'D-threo-aldose 1-dehydrogenase'}
         outputfolder5 = './tmp'
         options.mnxref = mnxref
@@ -367,6 +367,24 @@ class TestPrimary_model:
         assert 'h_c' in model.metabolites
         assert 'nadh_c' in model.metabolites
         assert 'nad_c' in model.metabolites
+
+        # Focus on passing GPR association with subunit
+        options.mnxr_to_add_list = ['MNXR102634']
+        options.rxnid_info_dict = {
+            'R03660': {
+                'ENZYME': '6.1.1.20',
+                'DEFINITION': 'ATP + L-Phenylalanine + tRNA(Phe) <=> AMP + Diphosphate + L-Phenylalanyl-tRNA(Phe)',
+                'EQUATION': 'C00002 + C00079 + C01648 <=> C00020 + C00013 + C03511',
+                'NAME': 'L-Phenylalanine:tRNA(Ala) ligase (AMP-forming)',
+                'PATHWAY': 'rn00970 Aminoacyl-tRNA biosynthesis'}}
+        options.mnxr_kegg_dict = {'MNXR102634': ['R03660']}
+        options.rxnid_locusTag_dict = {'R03660': ['SCO1594','SCO1595']}
+        options.targetGenome_locusTag_prod_dict = {'SCO1594': 'phenylalanyl-tRNA synthetase subunit beta', 'SCO1595': 'phenylalanyl-tRNA synthetase subunit alpha'}
+
+        assert 'R03660' not in sco_tmp_model.reactions
+
+        model = augPhase_utils.add_nonBBH_rxn(sco_tmp_model, options, options, options)
+        assert 'R03660' in model.reactions
 
 
     def test_get_rxn_newComp_list_from_model(self, sci_primary_model, options):
