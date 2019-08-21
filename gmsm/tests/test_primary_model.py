@@ -174,18 +174,18 @@ class TestPrimary_model:
         cache_rxnid_info_dict = {}
         cache_dumped_ec_list = []
         cache_dumped_rxnid_list = []
-        cache_nonexistence_dict = {}
-        cache_nonexistence_list = []
-        cache_nonexistence = ""
+        nonexistence_dict = {}
+        nonexistence_list = []
+        nonpickle = ""
 
         data_model_dir = join(dirname(abspath(__file__)), 'data')
         cache_ec_rxn_dict_dir = join(data_model_dir, 'cache_ec_rxn_dict.p')
         cache_rxnid_info_dict_dir = join(data_model_dir, 'cache_rxnid_info_dict.p')
         cache_dumped_ec_list_dir = join(data_model_dir, 'cache_dumped_ec_list.p')
         cache_dumped_rxnid_list_dir = join(data_model_dir, 'cache_dumped_rxnid_list.p')
-        cache_nonexistence_dict_dir = join(data_model_dir, 'nonexistence_dict.p')
-        cache_nonexistence_list_dir = join(data_model_dir, 'nonexistence_list.p')
-        cache_nonexistence_dir = join(data_model_dir, 'nonexistence.p')
+        nonexistence_dict_dir = join(data_model_dir, 'nonexistence_dict.p')
+        nonexistence_list_dir = join(data_model_dir, 'nonexistence_list.p')
+        nonpickle_dir = join(data_model_dir, 'nonpickle.png')
 
         cache_ec_rxn_dict = augPhase_utils.load_cache(
                 cache_ec_rxn_dict_dir, cache_ec_rxn_dict)
@@ -195,20 +195,20 @@ class TestPrimary_model:
                 cache_dumped_ec_list_dir, cache_dumped_ec_list)
         cache_dumped_rxnid_list = augPhase_utils.load_cache(
                 cache_dumped_rxnid_list_dir, cache_dumped_rxnid_list)
-        cache_nonexistence_dict = augPhase_utils.load_cache(
-                cache_nonexistence_dict_dir, cache_nonexistence_dict)
-        cache_nonexistence_list = augPhase_utils.load_cache(
-                cache_nonexistence_list_dir, cache_nonexistence_list)
-        cache_nonexistence = augPhase_utils.load_cache(
-                cache_nonexistence_dir, cache_nonexistence)
+        nonexistence_dict = augPhase_utils.load_cache(
+                nonexistence_dict_dir, nonexistence_dict)
+        nonexistence_list = augPhase_utils.load_cache(
+                nonexistence_list_dir, nonexistence_list)
+        nonpickle = augPhase_utils.load_cache(
+                nonpickle_dir, nonpickle)
 
         assert cache_ec_rxn_dict != {}
         assert cache_rxnid_info_dict != {}
         assert cache_dumped_ec_list != []
         assert cache_dumped_rxnid_list != []
-        assert cache_nonexistence_dict == {}
-        assert cache_nonexistence_list == []
-        assert cache_nonexistence == ""
+        assert nonexistence_dict == {}
+        assert nonexistence_list == []
+        assert nonpickle == ""
 
 
     def test_get_targetGenome_locusTag_ec_nonBBH_dict(self, options):
@@ -225,10 +225,13 @@ class TestPrimary_model:
         options.mnxr_kegg_dict = mnxr_kegg_dict
         mnxr_kegg_len = len(options.mnxr_kegg_dict)
         keggid = 'R08385'
+        keggid2 = 'R04783'
 
         augPhase_utils.edit_mnxr_kegg_dict(keggid, options)
+        augPhase_utils.edit_mnxr_kegg_dict(keggid2, options)
 
         assert 'R08385' not in options.mnxr_kegg_dict.values()
+        assert 'R04783' not in options.mnxr_kegg_dict.values()
         assert len(options.mnxr_kegg_dict) == mnxr_kegg_len - 1
 
 
