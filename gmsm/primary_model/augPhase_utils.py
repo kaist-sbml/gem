@@ -139,7 +139,7 @@ def get_rxnid_locusTag_dict(rxnid_locusTag_dict, rxnid, locusTag):
     # Create 'rxnid_locusTag_dict'
     if rxnid not in rxnid_locusTag_dict:
         rxnid_locusTag_dict[rxnid] = [locusTag]
-    elif rxnid in rxnid_locusTag_dict.keys():
+    else:
         rxnid_locusTag_dict[rxnid].append(locusTag)
 
     return rxnid_locusTag_dict
