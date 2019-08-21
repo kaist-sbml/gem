@@ -247,10 +247,13 @@ class TestPrimary_model:
         assert rxnid_locustag_dict == {'R04558' : ['SCO2048', 'SCO2051']}
 
 
-    def test_get_rxnid_info_dict_from_kegg(self, options):
+    def test_get_rxnid_info_dict_from_kegg(self, mnxr_kegg_dict, options):
         _cfg_name = 'gmsm.cfg'
         load_config(options)
 
+        options.mnxr_kegg_dict = mnxr_kegg_dict
+
+        # This dictionary is for a case : EC_number info from a cache file
         options.targetGenome_locusTag_ec_nonBBH_dict = {'B446_27575':['2.7.4.9']}
         augPhase_utils.get_rxnid_info_dict_from_kegg(options, options, options)
         assert 'R02098' in options.rxnid_info_dict
@@ -259,6 +262,7 @@ class TestPrimary_model:
         assert 'R02098' in options.rxnid_locusTag_dict
         assert 'B446_27575' in options.rxnid_locusTag_dict['R02098']
 
+        # This dictionary is for a case : EC_number info from a cache file
         options.targetGenome_locusTag_ec_nonBBH_dict = \
                 {'B446_23835':['4.1.1.45', '3.5.2.3']}
         augPhase_utils.get_rxnid_info_dict_from_kegg(options, options, options)
@@ -267,6 +271,34 @@ class TestPrimary_model:
                 '2-Amino-3-carboxymuconate semialdehyde carboxy-lyase'
         assert 'R04323' in options.rxnid_locusTag_dict
         assert 'B446_23835' in options.rxnid_locusTag_dict['R04323']
+
+        # This dictionary is for a case : EC number not available at KEGG
+        options.targetGenome_locusTag_ec_nonBBH_dict = \
+                {'B446_07840':['3.1.22.4']}
+        augPhase_utils.get_rxnid_info_dict_from_kegg(options, options, options)
+
+        # This dictionary is for a case : EC number info fetched from KEGG
+        # Depending on the accumulation of the cache file,
+        # it may be the case of EC_number info from a cache file
+        options.targetGenome_locusTag_ec_nonBBH_dict = \
+                {'B446_00385':['3.5.1.90']}
+        augPhase_utils.get_rxnid_info_dict_from_kegg(options, options, options)
+        assert 'R05226' in options.rxnid_info_dict
+        assert options.rxnid_info_dict['R05226']['NAME'] == \
+                'adenosylcobinamide amidohydrolase'
+        assert 'R05226' in options.rxnid_locusTag_dict
+        assert 'B446_00385' in options.rxnid_locusTag_dict['R05226']
+
+        # This dictionary is for a case :
+        # rxnid not in cache_rxnid_info_dict but in cache_dumped_rxnid_list
+        options.targetGenome_locusTag_ec_nonBBH_dict = \
+                {'B446_06350':['2.7.1.11']}
+        augPhase_utils.get_rxnid_info_dict_from_kegg(options, options, options)
+        assert 'R01843' not in options.rxnid_info_dict
+        assert 'R01843' in options.rxnid_locusTag_dict
+        assert 'B446_06350' in options.rxnid_locusTag_dict['R01843']
+        assert 'MNXR102510' not in options.mnxr_kegg_dict.keys()
+        assert 'R01843' not in options.mnxr_kegg_dict.values()
 
 
     def test_get_mnxr_list_from_modelPrunedGPR(self, sco_tmp_model, options):
