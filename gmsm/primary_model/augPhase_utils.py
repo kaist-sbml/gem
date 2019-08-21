@@ -77,26 +77,11 @@ def load_cache(cache_dir, cache_data):
             with open(cache_dir, 'rb') as f:
                 cache_data = pickle.load(f)
                 return cache_data
-        except pickle.UnpicklingError as e:
-            logging.warning("Could not read '%s': %s", cache_dir, e)
-            if '_dict' in cache_dir:
-                cache_data = {}
-            elif '_list' in cache_dir:
-                cache_data = []
-            return cache_data
-        except IOError as e:
-            logging.warning("Can't open %s in 'rb' mode: %s", cache_dir, e)
-            if '_dict' in cache_dir:
-                cache_data = {}
-            elif '_list' in cache_dir:
-                cache_data = []
+        except Exception as e:
+            logging.warning("Error occured from '%s': %s", cache_dir, e)
             return cache_data
     else:
         logging.debug('No cache exists: %s', cache_dir)
-        if '_dict' in cache_dir:
-            cache_data = {}
-        elif '_list' in cache_dir:
-            cache_data = []
         return cache_data
 
 
@@ -104,10 +89,8 @@ def create_cache(cache_dir, cache_data):
     try:
         with open(cache_dir, 'wb') as f:
             pickle.dump(cache_data, f, protocol=pickle.HIGHEST_PROTOCOL)
-    except pickle.PicklingError as e:
-        logging.warning("Error in serializing '%s': %s", cache_data, e)
-    except IOError as e:
-        logging.warning("Can't open %s in 'wb' mode: %s", cache_data, e)
+    except Exception as e:
+        logging.warning("Can't create cache '%s': %s", cache_data, e)
 
 
 def get_targetGenome_locusTag_ec_nonBBH_dict(io_ns, homology_ns, primary_model_ns):
