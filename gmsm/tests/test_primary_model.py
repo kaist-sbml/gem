@@ -3,7 +3,7 @@ import warnings
 from os.path import join, abspath, dirname
 from gmsm.config import load_config
 from gmsm.io.input_file_manager import get_eficaz_file, get_locustag_comp_dict
-from gmsm.primary_model import prunPhase_utils, augPhase_utils
+from gmsm.primary_model import prunPhase_utils, augPhase_utils, run_primary_modeling
 
 warnings.filterwarnings("ignore")
 
@@ -133,7 +133,6 @@ class TestPrimary_model:
                 '((( B446_30165 or B446_27925 or B446_12465 ) or ( B446_30165 or B446_27925 or B446_12465 ) or ( B446_30165 or B446_27925 or B446_12465 )) and (B446_12470 or SCO0549 or SCO1267 or SCO1272))'
         assert modelPrunedGPR.reactions.get_by_id('PDH').gene_reaction_rule == \
                 '((( B446_12400 or B446_11440 ) or ( B446_12400 or B446_11440 ) or ( B446_12400 or B446_11440 ) or (SCO1269 and SCO1270)) and (( B446_19415 or B446_19475 ) or ( B446_19415 or B446_19475 )) and (B446_32095 or ( B446_11425 or B446_32095 or B446_23075 ) or ( B446_11425 or B446_23075 )))'
-
 
     #-------------------------------------------
     # test functions of augPhase_utils.py
@@ -474,3 +473,21 @@ class TestPrimary_model:
         assert len(model.reactions) == 1804
         assert 'CSND' not in model.reactions
         assert 'CSND' in options.inactive_rxn_newComp_list
+
+    #-------------------------------------------
+    # test functions of run_primary_modeling.py
+    #-------------------------------------------
+
+    # This function is just for checking the lines in the python file.
+    # Above functions are already testing the validity of each of functions.
+    def test_run_primary_modeling(self, sco_tmp_model, options):
+
+        options.tempModel_biggRxnid_locusTag_dict = {}
+        options.temp_target_BBH_dict = {}
+        options.nonBBH_list = []
+        options.bigg_mnxr_dict = {}
+        options.comp = ['c']
+        options.locustag_comp_dict = {}
+        options.outputfolder5 = './tmp'
+        model = run_primary_modeling.run_prunPhase(sco_tmp_model, options, options, options, options)
+        run_primary_modeling.run_augPhase(model, options, options, options, options, options)
