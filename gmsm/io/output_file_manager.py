@@ -162,16 +162,22 @@ def get_model_genes(folder, cobra_model, run_ns):
 
     if run_ns.orgName == 'bsu':
         locustag_pattern = 'BSU[0-9]+[0-9]+[0-9]+[0-9]'
+    elif run_ns.orgName == 'clj':
+        locustag_pattern = 'CLJU_RS[0-9]+[0-9]+[0-9]+[0-9]+[0-9]'
     elif run_ns.orgName == 'cre':
         locustag_pattern = 'Cre'
     elif run_ns.orgName == 'eco':
         locustag_pattern = 'b[0-9]+[0-9]+[0-9]+[0-9]'
+    elif run_ns.orgName == 'hpy':
+        locustag_pattern = 'HP[0-9]+[0-9]+[0-9]+[0-9]'
     elif run_ns.orgName == 'mtu':
         locustag_pattern = 'Rv[0-9]+[0-9]+[0-9]+[0-9]'
     elif run_ns.orgName == 'nsal':
         locustag_pattern = 'NSV'
     elif run_ns.orgName == 'ppu':
         locustag_pattern = 'PP_[0-9]+[0-9]+[0-9]+[0-9]'
+    elif run_ns.orgName == 'sce':
+        locustag_pattern = 'Y[A-Z]+[A-Z]+[0-9]+[0-9]+[0-9]+[A-Z]'
     elif run_ns.orgName == 'sco':
         locustag_pattern = 'SCO[0-9]+[0-9]+[0-9]+[0-9]'
 
