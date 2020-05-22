@@ -80,6 +80,50 @@ def eficaz_file():
 
 
 @pytest.fixture(scope="function")
+def temp_fasta():
+    temp_fasta = join(data_model_dir, 'tempModel_locusTag_aaSeq.fa')
+    return temp_fasta
+
+
+@pytest.fixture(scope="function")
+def target_fasta():
+    target_fasta = join(data_model_dir, 'targetGenome_locusTag_aaSeq.fa')
+    return target_fasta
+
+
+@pytest.fixture(scope="function")
+def inputFile_parseBlaspResults():
+    inputFile_parseBlaspResults = join(data_model_dir, 'blastp_targetGenome_against_tempGenome.txt')
+    return inputFile_parseBlaspResults
+
+
+@pytest.fixture(scope="function")
+def outputFile_parseBlaspResults():
+    outputFile_parseBlaspResults = join(data_model_dir, 'blastp_targetGenome_against_tempGenome_parsed.txt')
+    return outputFile_parseBlaspResults
+
+
+@pytest.fixture(scope="function")
+def inputFile_makeBestHits_dict():
+    inputFile_makeBestHits_dict = join(data_model_dir, 'blastp_targetGenome_against_tempGenome_parsed.txt')
+    return inputFile_makeBestHits_dict
+
+
+@pytest.fixture(scope="function")
+def bestHits_dict1():
+    bestHits_dict1 = pickle.load(
+            open(join(data_model_dir, 'bestHits_dict_blastp_targetGenome_against_tempGenome_parsed.p'), 'rb'))
+    return bestHits_dict1
+
+
+@pytest.fixture(scope="function")
+def bestHits_dict2():
+    bestHits_dict2 = pickle.load(
+            open(join(data_model_dir, 'bestHits_dict_blastp_tempGenome_against_targetGenome_parsed.p'), 'rb'))
+    return bestHits_dict2
+
+
+@pytest.fixture(scope="function")
 def comp_file():
     comp_file = join(data_model_dir, 'Nanno_Compartment_result_dic_v3_test.txt')
     return comp_file
