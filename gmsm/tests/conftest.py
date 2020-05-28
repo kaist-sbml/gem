@@ -124,6 +124,18 @@ def bestHits_dict2():
 
 
 @pytest.fixture(scope="function")
+def input_fasta():
+    input_fasta = join(data_model_dir, 'sample_input_ten_CDS.fasta')
+    return input_fasta
+
+
+@pytest.fixture(scope="function")
+def input_genbank():
+    input_genbank = join(data_model_dir, 'NC_021985.1.final_antismash4.gbk')
+    return input_genbank
+
+
+@pytest.fixture(scope="function")
 def comp_file():
     comp_file = join(data_model_dir, 'Nanno_Compartment_result_dic_v3_test.txt')
     return comp_file
