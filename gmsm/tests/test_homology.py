@@ -50,7 +50,7 @@ class TestHomology:
         
     
     # Streptomyces collinus Tu 365 : target
-    def test_get_nonBBH(options):
+    def test_get_nonBBH(self, options):
         
         options.targetGenome_locusTag_ec_dict = {'B446_23835':['4.1.1.45', '3.5.2.3']}
         options.targetBBH_list = ['B446_27575']
@@ -58,4 +58,16 @@ class TestHomology:
         blastp_utils.get_nonBBH(options, options)
         
         assert 'B446_23835' in options.nonBBH_list
+
+
+    # get_homologs function works for executing functions of blastp_utils which already have test functions
+    # Therefore, test_get_homologs function only checks the availability of get_homologs function
+    def test_get_homologs(self, temp_fasta, target_fasta, options):
         
+        options.outputfolder2 = 'gmsm/tests/data'
+        options.target_fasta = target_fasta
+        options.temp_fasta = temp_fasta
+        options.targetGenome_locusTag_ec_dict = {'B446_23835':['4.1.1.45', '3.5.2.3']}
+        options.targetBBH_list = ['B446_27575']
+        
+        bidirect_blastp_analysis.get_homologs(options, options)
