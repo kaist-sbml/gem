@@ -1,4 +1,4 @@
-biopython
+biopython==1.76
 cobra==0.8.2
 pyparsing
 pytest-cov
