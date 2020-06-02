@@ -4,7 +4,6 @@ import shutil
 from os.path import join
 from gmsm.config import load_config
 from gmsm.io import input_file_manager
-from gmsm.io.input_file_manager import get_eficaz_file, get_locustag_comp_dict
 
 class TestInput_file_manager:
     """Test functions in gmsm.io.input_file_manager"""
@@ -96,7 +95,7 @@ class TestInput_file_manager:
 
         options.eficaz_file = eficaz_file
         options.targetGenome_locusTag_ec_dict = {}
-        get_eficaz_file(options, options)
+        input_file_manager.get_eficaz_file(options, options)
 
         assert len(options.targetGenome_locusTag_ec_dict) == 2
         assert options.targetGenome_locusTag_ec_dict['NSK_00005-RA'] == ['2.7.1.83']
@@ -139,7 +138,7 @@ class TestInput_file_manager:
     def test_get_locustag_comp_dict(self, comp_file, options):
 
         options.comp = comp_file
-        get_locustag_comp_dict(options, options)
+        input_file_manager.get_locustag_comp_dict(options, options)
 
         assert len(options.locustag_comp_dict) == 8
         assert options.locustag_comp_dict['NSK_00004-RA'] == ['h']
