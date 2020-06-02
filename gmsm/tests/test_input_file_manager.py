@@ -1,9 +1,8 @@
 
-import os
 import shutil
-from os.path import join
 from gmsm.config import load_config
 from gmsm.io import input_file_manager
+from os.path import isdir, join
 
 class TestInput_file_manager:
     """Test functions in gmsm.io.input_file_manager"""
@@ -15,7 +14,7 @@ class TestInput_file_manager:
         
         input_file_manager.make_folder(folder)
         
-        assert os.path.isdir(folder) == True
+        assert isdir(folder) == True
         
         shutil.rmtree(folder)
     
@@ -29,12 +28,12 @@ class TestInput_file_manager:
         
         input_file_manager.setup_outputfolders(options, options)
         
-        assert os.path.isdir(options.outputfolder1) == True
-        assert os.path.isdir(options.outputfolder2) == True
-        assert os.path.isdir(options.outputfolder3) == True
-        assert os.path.isdir(options.outputfolder4) == True
-        assert os.path.isdir(options.outputfolder5) == True
-        assert os.path.isdir(options.outputfolder6) == True
+        assert isdir(options.outputfolder1) == True
+        assert isdir(options.outputfolder2) == True
+        assert isdir(options.outputfolder3) == True
+        assert isdir(options.outputfolder4) == True
+        assert isdir(options.outputfolder5) == True
+        assert isdir(options.outputfolder6) == True
         
         shutil.rmtree(options.outputfolder1)
         shutil.rmtree(options.outputfolder2)

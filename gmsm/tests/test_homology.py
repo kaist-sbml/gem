@@ -1,8 +1,8 @@
 
-from os.path import abspath, dirname, join, isfile
+import pickle
 from gmsm.config import load_config
 from gmsm.homology import bidirect_blastp_analysis, blastp_utils
-import pickle
+from os.path import abspath, dirname, isfile, join
 
 class TestHomology:
     """Test functions in gmsm.homology"""

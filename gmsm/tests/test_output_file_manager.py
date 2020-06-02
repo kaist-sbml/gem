@@ -1,10 +1,10 @@
 
-import os
 import shutil
 import time
 import warnings
-from os.path import join, isfile
 from gmsm.io import output_file_manager
+from os import makedirs
+from os.path import isdir, isfile, join
 
 warnings.filterwarnings("ignore")
 
@@ -37,12 +37,12 @@ class TestOutput_file_manager:
         options.outputfolder2 = './tmp/2_blastp_results'
         options.outputfolder3 = './tmp/3_primary_metabolic_model'
         options.outputfolder6 = './tmp/tmp_data_files'
-        if not os.path.isdir(options.outputfolder2):
-            os.makedirs(options.outputfolder2)
-        if not os.path.isdir(options.outputfolder3):
-            os.makedirs(options.outputfolder3)
-        if not os.path.isdir(options.outputfolder6):
-            os.makedirs(options.outputfolder6)
+        if not isdir(options.outputfolder2):
+            makedirs(options.outputfolder2)
+        if not isdir(options.outputfolder3):
+            makedirs(options.outputfolder3)
+        if not isdir(options.outputfolder6):
+            makedirs(options.outputfolder6)
         start = time.time()
         runtime = time.strftime("Elapsed time %H:%M:%S", time.gmtime(time.time() - start))
         
@@ -54,8 +54,8 @@ class TestOutput_file_manager:
         options.rxnToRemove_dict = {}
         options.rxnToRemove_dict['PAPA160'] = '0'
         folder = './tmp/4_complete_model'
-        if not os.path.isdir(folder):
-            os.makedirs(folder)     
+        if not isdir(folder):
+            makedirs(folder)     
         
         num_essen_rxn, num_kegg_rxn, num_bgc_rxn = output_file_manager.get_model_reactions(folder, options, cobra_model = sci_secondary_model)
         
@@ -68,8 +68,8 @@ class TestOutput_file_manager:
         
         options.adj_unique_nonprod_monomers_list = ['MNXM61686']
         folder = './tmp/4_complete_model'
-        if not os.path.isdir(folder):
-            os.makedirs(folder)
+        if not isdir(folder):
+            makedirs(folder)
         
         output_file_manager.get_model_metabolites(folder, sci_secondary_model, options)
         
@@ -113,8 +113,8 @@ class TestOutput_file_manager:
         start = time.time()
         runtime = time.strftime("Elapsed time %H:%M:%S", time.gmtime(time.time() - start)) 
         folder = './tmp/4_complete_model'
-        if not os.path.isdir(folder):
-            os.makedirs(folder)
+        if not isdir(folder):
+            makedirs(folder)
         
         output_file_manager.get_summary_report(folder, sci_secondary_model, runtime, num_essen_rxn, num_kegg_rxn, \
                                                num_bgc_rxn, template_model_gene_list, duplicate_gene_list, options, options)
@@ -133,10 +133,10 @@ class TestOutput_file_manager:
         options.rxn_newComp_fate_dict = {}
         options.outputfolder2 = './tmp/2_blastp_results'
         options.outputfolder6 = './tmp/tmp_data_files'
-        if not os.path.isdir(options.outputfolder2):
-            os.makedirs(options.outputfolder2)
-        if not os.path.isdir(options.outputfolder6):
-            os.makedirs(options.outputfolder6)
+        if not isdir(options.outputfolder2):
+            makedirs(options.outputfolder2)
+        if not isdir(options.outputfolder6):
+            makedirs(options.outputfolder6)
         
         output_file_manager.write_data_for_debug(options, options, options, options)
         
@@ -150,8 +150,8 @@ class TestOutput_file_manager:
     def test_remove_tmp_model_files(self, options):
         
         options.outputfolder5 = './tmp/tmp_model_files'
-        if not os.path.isdir(options.outputfolder5):
-            os.makedirs(options.outputfolder5)
+        if not isdir(options.outputfolder5):
+            makedirs(options.outputfolder5)
             
         output_file_manager.remove_tmp_model_files(options)
         
