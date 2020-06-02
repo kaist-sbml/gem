@@ -12,7 +12,7 @@ class TestInput_file_manager:
     
     def test_make_folder(self):
         
-        folder = 'gmsm/tests/data/test_folder'
+        folder = './tmp/test_folder'
         
         input_file_manager.make_folder(folder)
         
@@ -23,7 +23,7 @@ class TestInput_file_manager:
     
     def test_setup_outputfolders(self, options):
         
-        options.outputfolder = 'gmsm/tests/data/'
+        options.outputfolder = './tmp'
         options.eficaz = True
         options.pmr_generation = True
         options.smr_generation= True

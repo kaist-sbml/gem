@@ -30,6 +30,16 @@ def sci_primary_model():
 
 
 @pytest.fixture(scope="function")
+def sci_secondary_model():
+
+    # Streptomyces collinus Tu 365 : target, Streptomyces coelicolor A3(2) : template
+    model = read_sbml_model(join(data_model_dir, 'sci_secondary_model.xml'))
+
+    # Returning model is necessary, otherwise error occurs
+    return model
+
+
+@pytest.fixture(scope="function")
 def mnxref():
 
     # MNXref SBML model
