@@ -1,5 +1,4 @@
 
-import shutil
 from Bio import SeqIO
 from gmsm.io import io_utils
 from os import makedirs

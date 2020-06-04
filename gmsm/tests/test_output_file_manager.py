@@ -1,5 +1,4 @@
 
-import shutil
 import time
 import warnings
 from gmsm.io import output_file_manager
