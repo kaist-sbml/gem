@@ -84,6 +84,22 @@ def seq_record():
 
 
 @pytest.fixture(scope="function")
+def seq_record_antismash4():
+
+    # Streptomyces collinus Tu 365 annotated by antiSMASH version 4
+    seq_record = SeqIO.read(join(data_antismash_dir, 'NC_021985.1_antismash4.gbk'), 'genbank')
+    return seq_record
+
+
+@pytest.fixture(scope="function")
+def seq_record_antismash5():
+
+    # Streptomyces collinus Tu 365 annotated by antiSMASH version 5
+    seq_record = SeqIO.read(join(data_antismash_dir, 'NC_021985.1_antismash5.gbk'), 'genbank')
+    return seq_record
+
+
+@pytest.fixture(scope="function")
 def eficaz_file():
     eficaz_file = join(data_model_dir, 'NSK_all_genomes_ec_test.txt')
     return eficaz_file
