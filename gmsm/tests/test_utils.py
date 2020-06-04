@@ -54,11 +54,11 @@ class TestUtils:
         
     def test_locate_executable(self):
         
-        name = 'diamond'
+        name = ''
         
         output = utils.locate_executable(name)
         
-        assert output == '/usr/bin/diamond'
+        assert output == None
         
         
     def test_execute(self):
