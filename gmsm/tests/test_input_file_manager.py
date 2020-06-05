@@ -87,7 +87,7 @@ class TestInput_file_manager:
         assert seq_records1[0].id == 'NSK_00001-RA'
         assert seq_records1[0].description == 'NSK_00001-RA "Protein of unknown function" AED:0.27 eAED:0.27 QI:0|0|0|1|1|1|8|0|641'
         assert seq_records2[0].id == 'NC_021985.1'
-        assert seq_records2[0].description == 'Streptomyces collinus Tu 365, complete genome'
+        assert seq_records2[0].description == 'Streptomyces collinus Tu 365, complete sequence'
           
 
     def test_get_eficaz_file(self, eficaz_file, options):

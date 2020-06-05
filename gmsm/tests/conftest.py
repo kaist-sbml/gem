@@ -157,7 +157,7 @@ def input_fasta():
 
 @pytest.fixture(scope="function")
 def input_genbank():
-    input_genbank = join(data_model_dir, 'NC_021985.1.final_antismash4.gbk')
+    input_genbank = join(data_antismash_dir, 'NC_021985.1_antismash4.gbk')
     return input_genbank
 
 
