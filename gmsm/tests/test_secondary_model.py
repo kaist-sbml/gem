@@ -32,6 +32,7 @@ class TestSecondary_model:
         
         assert 'Cluster07_t1pks_nrps' in model.reactions
     
+    
     def test_get_region_location(self, seq_record_antismash5, options):
 
         # Region 3 of NC_021985.1_antismash5.gbk file
@@ -263,7 +264,7 @@ class TestSecondary_model:
         options.mnxm_compoundInfo_dict = {}
 
         assert 'Region3_nrps_and_transat_pks_and_t1pks' not in sci_primary_model.reactions
-        assert 'Region3_nrps_and_transat_pks_and_t1pks_c' 
+        assert 'Region3_nrps_and_transat_pks_and_t1pks_c' not in sci_primary_model.metabolites
 
         options.temp_loc1 = 207493
         region_nr = 3
@@ -274,6 +275,7 @@ class TestSecondary_model:
         assert 'Region3_nrps_and_transat_pks_and_t1pks' in sci_primary_model.reactions
         assert 'Region3_nrps_and_transat_pks_and_t1pks_c' in sci_primary_model.metabolites
 
+        
     def test_add_sec_met_rxn_region10(self,
             seq_record_antismash5, sci_primary_model, mnxref, options):
 
@@ -316,7 +318,6 @@ class TestSecondary_model:
         assert 'Cluster3_nrps_t1pks_transatpks' not in sci_primary_model.reactions
         assert 'Cluster3_nrps_t1pks_transatpks_c' not in sci_primary_model.metabolites
 
-        options.temp_loc1 = 195827
         cluster_nr = 3
         sec_met_rxn_generation.get_cluster_location(seq_record_antismash4, cluster_nr, options)
         sec_met_rxn_generation.get_cluster_info_from_seq_record(seq_record_antismash4, options)
@@ -342,7 +343,6 @@ class TestSecondary_model:
         assert '23dhb_c' not in sci_primary_model.metabolites
         assert 'Cluster7_nrps_t1pks_c' not in sci_primary_model.metabolites
 
-        options.temp_loc1 = 1073125
         cluster_nr = 7
         sec_met_rxn_generation.get_cluster_location(seq_record_antismash4, cluster_nr, options)
         sec_met_rxn_generation.get_cluster_info_from_seq_record(seq_record_antismash4, options)
