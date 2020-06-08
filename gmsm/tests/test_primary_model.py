@@ -128,11 +128,11 @@ class TestPrimary_model:
         options.temp_target_BBH_dict = bbh_dict
         modelPrunedGPR = prunPhase_utils.swap_locustag_with_homolog(sco_tmp_model, options)
         assert modelPrunedGPR.reactions.get_by_id('MCOATA').gene_reaction_rule == \
-                '(B446_12460 and (B446_12470 or SCO0549 or SCO1267 or SCO1272))'
+                'B446_12460 and (B446_12470 or SCO0549 or SCO1267 or SCO1272)'
         assert modelPrunedGPR.reactions.get_by_id('ACOATA').gene_reaction_rule == \
-                '((( B446_30165 or B446_27925 or B446_12465 ) or ( B446_30165 or B446_27925 or B446_12465 ) or ( B446_30165 or B446_27925 or B446_12465 )) and (B446_12470 or SCO0549 or SCO1267 or SCO1272))'
+                '(( B446_30165 or B446_27925 or B446_12465 ) or ( B446_30165 or B446_27925 or B446_12465 ) or ( B446_30165 or B446_27925 or B446_12465 )) and (B446_12470 or SCO0549 or SCO1267 or SCO1272)'
         assert modelPrunedGPR.reactions.get_by_id('PDH').gene_reaction_rule == \
-                '((( B446_12400 or B446_11440 ) or ( B446_12400 or B446_11440 ) or ( B446_12400 or B446_11440 ) or (SCO1269 and SCO1270)) and (( B446_19415 or B446_19475 ) or ( B446_19415 or B446_19475 )) and (B446_32095 or ( B446_11425 or B446_32095 or B446_23075 ) or ( B446_11425 or B446_23075 )))'
+                '(( B446_12400 or B446_11440 ) or ( B446_12400 or B446_11440 ) or ( B446_12400 or B446_11440 ) or (SCO1269 and SCO1270)) and (( B446_19415 or B446_19475 ) or ( B446_19415 or B446_19475 )) and (B446_32095 or ( B446_11425 or B446_32095 or B446_23075 ) or ( B446_11425 or B446_23075 ))'
 
     #-------------------------------------------
     # test functions of augPhase_utils.py
@@ -410,7 +410,9 @@ class TestPrimary_model:
         options.outputfolder5 = './tmp'
         model, added_rxn_newComp_list = augPhase_utils.create_rxn_newComp(
                                            rxn_newComp_list, sci_primary_model, options, options)
-        assert len(model.reactions) == int(1805)
+        
+        #According to cobrapy updates, the number of reactions are changed 1805 to 2009
+        assert len(model.reactions) == int(2009)
 
 
     def test_create_rxn_newComp2(self, sci_primary_model, options):
@@ -429,9 +431,11 @@ class TestPrimary_model:
         assert 'ac_m' not in sci_primary_model.metabolites
         assert 'ppap_p' not in sci_primary_model.metabolites
         assert 'ppap_m' not in sci_primary_model.metabolites
-
-        assert len(sci_primary_model.reactions) == int(1805)
-        assert len(sci_primary_model.metabolites) == int(1582)
+        
+        #According to cobrapy updates, the number of reactions are changed 1805 to 2009
+        #According to cobrapy updates, the number of metabolites are changed 1582 to 1786
+        assert len(sci_primary_model.reactions) == int(2009)
+        assert len(sci_primary_model.metabolites) == int(1786)
 
         options.outputfolder5 = './tmp'
         model, added_rxn_newComp_list = augPhase_utils.create_rxn_newComp(
@@ -451,8 +455,8 @@ class TestPrimary_model:
         assert 'ppap_p' in model.metabolites
         assert 'ppap_m' in model.metabolites
 
-        assert len(model.reactions) == int(1809)
-        assert len(model.metabolites) == int(1594)
+        assert len(model.reactions) == int(2013)
+        assert len(model.metabolites) == int(1798)
         assert len(added_rxn_newComp_list) == 4
 
 
@@ -462,7 +466,8 @@ class TestPrimary_model:
         added_rxn_newComp_list = ['CSND']
         options.outputfolder5 = './tmp'
 
-        assert len(sci_primary_model.reactions) == int(1805)
+        #According to cobrapy updates, the number of reactions are changed 1805 to 2009
+        assert len(sci_primary_model.reactions) == int(2009)
         assert 'CSND' in sci_primary_model.reactions
 
         model = augPhase_utils.remove_inactive_rxn_newComp(
@@ -470,7 +475,7 @@ class TestPrimary_model:
                                                             sci_primary_model,
                                                             options, options)
 
-        assert len(model.reactions) == 1804
+        assert len(model.reactions) == int(2008)
         assert 'CSND' not in model.reactions
         assert 'CSND' in options.inactive_rxn_newComp_list
 

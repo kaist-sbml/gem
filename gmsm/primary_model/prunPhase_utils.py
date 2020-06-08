@@ -81,9 +81,9 @@ def label_rxn_to_remove(model, io_ns, homology_ns, primary_model_ns):
     rxnToRemove_dict = {}
 
     for biggRxnid in io_ns.tempModel_biggRxnid_locusTag_dict:
-	rxn = model.reactions.get_by_id(biggRxnid)
+        rxn = model.reactions.get_by_id(biggRxnid)
         #Prevent removal of transport reactions from the template model
-	if 'Transport' not in rxn.name and 'transport' not in rxn.name \
+        if 'Transport' not in rxn.name and 'transport' not in rxn.name \
             and 'Exchange' not in rxn.name and 'exchange' not in rxn.name:
             rxnToRemove_dict[biggRxnid] = get_rxn_fate(
                     io_ns.tempModel_biggRxnid_locusTag_dict[biggRxnid],
@@ -104,22 +104,22 @@ def prune_model(model, config_ns, primary_model_ns):
                         model, reaction_list=list([rxnid]), method='fba')
 
             #Check optimality first.
-            if flux_dist.status[rxnid] == 'optimal':
+            if flux_dist.status[frozenset({rxnid})] == 'optimal':
 
                 #Check growth rate upon reaction deletion
-                if float(flux_dist.flux[rxnid]) >= \
+                if float(flux_dist.growth[frozenset({rxnid})]) >= \
                         float(config_ns.cobrapy.non_zero_flux_cutoff):
                     model.remove_reactions(rxnid)
                     logging.debug("Removed reaction: %s; %s; %s; %s"
-                            %(rxnid, flux_dist.flux[rxnid],
+                            %(rxnid, flux_dist.growth[frozenset({rxnid})],
                             len(model.reactions), len(model.metabolites)))
                 else:
                     logging.debug("Retained reaction: %s; %s; %s; %s"
-                            %(rxnid, flux_dist.flux[rxnid],
+                            %(rxnid, flux_dist.growth[frozenset({rxnid})],
                             len(model.reactions), len(model.metabolites)))
             else:
                 logging.debug("Reaction not optimal: %s; %s",
-                              rxnid, flux_dist.status[rxnid])
+                              rxnid, flux_dist.status[frozenset({rxnid})])
 
     modelPruned = copy.deepcopy(model)
 

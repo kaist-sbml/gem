@@ -61,25 +61,25 @@ def get_model_reactions(folder, primary_model_ns, **kwargs):
     num_bgc_rxn = 0
     for j in range(len(cobra_model.reactions)):
         rxn = cobra_model.reactions[j]
-        print >>fp1, '%s\t%s\t%s\t%s\t%s' %(rxn.id, rxn.name, rxn.reaction,
-                                            rxn.gene_reaction_rule, rxn.subsystem)
+        print('%s\t%s\t%s\t%s\t%s' %(rxn.id, rxn.name, rxn.reaction,
+                                            rxn.gene_reaction_rule, rxn.subsystem), file=fp1)
 
         #Remaining essential reactions
         if 'rxnToRemove_dict' in primary_model_ns:
             if rxn.id in primary_model_ns.rxnToRemove_dict.keys():
                 if primary_model_ns.rxnToRemove_dict[rxn.id] == '0':
                     num_essen_rxn+=1
-                    print >>fp2, '%s\t%s\t%s\t%s\t%s' %(rxn.id, rxn.name, rxn.reaction,
-                                            rxn.gene_reaction_rule, rxn.subsystem)
+                    print('%s\t%s\t%s\t%s\t%s' %(rxn.id, rxn.name, rxn.reaction,
+                                            rxn.gene_reaction_rule, rxn.subsystem), file=fp2)
         else:
-            print >>fp2, 'Primary metabolic modeling not performed'
+            print('Primary metabolic modeling not performed', file=fp2)
             num_essen_rxn = 'Primary metabolic modeling not performed'
 
         #Reactions added from KEGG
         if re.search('R[0-9]+[0-9]+[0-9]+[0-9]+[0-9]', rxn.id):
             num_kegg_rxn+=1
-            print >>fp3, '%s\t%s\t%s\t%s\t%s' %(rxn.id, rxn.name, rxn.reaction,
-                                            rxn.gene_reaction_rule, rxn.subsystem)
+            print('%s\t%s\t%s\t%s\t%s' %(rxn.id, rxn.name, rxn.reaction,
+                                            rxn.gene_reaction_rule, rxn.subsystem), file=fp3)
 
         #Secondary metabolite biosynthetic reactions
         if (re.search('Ex_Region', rxn.id) or re.search('Ex_Cluster', rxn.id)) and '4_complete_model' in folder:
@@ -87,12 +87,12 @@ def get_model_reactions(folder, primary_model_ns, **kwargs):
 
             #Calculated flux values are inaccurate without
             #manual setting of objective_coefficient to zero
-            obj_rxn = linear_reaction_coefficients(cobra_model).keys()[0].id
+            obj_rxn = list(linear_reaction_coefficients(cobra_model).keys())[0].id
             cobra_model.reactions.get_by_id(obj_rxn).objective_coefficient = 0
             cobra_model.reactions.get_by_id(rxn.id).objective_coefficient = 1
             flux_dist = cobra_model.optimize()
 
-            print >>fp4, '%s\t%f' %(rxn.id, flux_dist.objective_value)
+            print('%s\t%f' %(rxn.id, flux_dist.objective_value), file=fp4)
 
             # NOTE: Currently disabled due to no gapfilling procedure at the moment
             #if 'cobra_model_no_gapFilled' in kwargs:
@@ -129,8 +129,8 @@ def get_model_metabolites(folder, cobra_model, secondary_model_ns):
 
     for i in range(len(cobra_model.metabolites)):
         metab = cobra_model.metabolites[i]
-        print >>fp1, '%s\t%s\t%s\t%s' %(metab.id, metab.name, metab.formula,
-                metab.compartment)
+        print('%s\t%s\t%s\t%s' %(metab.id, metab.name, metab.formula,
+                metab.compartment), file=fp1)
 
         if '4_complete_model' in folder:
             #Remove compartment suffix (e.g., '_c') from 'metab.id'
@@ -142,9 +142,9 @@ def get_model_metabolites(folder, cobra_model, secondary_model_ns):
 
                     if metab.id in rxn.reaction:
                         logging.debug("Relevant reactions: %s" %rxn.id)
-                        print >>fp2, '%s\t%s\t%s\t%s\t%s\t%s' %(metab.id,
+                        print('%s\t%s\t%s\t%s\t%s\t%s' %(metab.id,
                             rxn.id, rxn.name, rxn.reaction,
-                            rxn.gene_reaction_rule, rxn.subsystem)
+                            rxn.gene_reaction_rule, rxn.subsystem), file=fp2)
 
     fp1.close()
 
@@ -186,14 +186,14 @@ def get_model_genes(folder, cobra_model, run_ns):
                 rxn = cobra_model.reactions[j]
 
                 if gene.id in rxn.gene_reaction_rule:
-                    print >>fp1, '%s\t%s\t%s\t%s\t%s\t%s\t%s' %(
+                    print('%s\t%s\t%s\t%s\t%s\t%s\t%s' %(
                                                     gene.id,
                                                     'remaining_gene_from_template_model',
                                                     rxn.id,
                                                     rxn.name,
                                                     rxn.reaction,
                                                     rxn.gene_reaction_rule,
-                                                    rxn.subsystem)
+                                                    rxn.subsystem), file=fp1)
 
         for j in range(len(cobra_model.reactions)):
             rxn = cobra_model.reactions[j]
@@ -201,14 +201,14 @@ def get_model_genes(folder, cobra_model, run_ns):
             if len(re.findall(gene.id, rxn.gene_reaction_rule)) > 1:
                 if gene.id not in duplicate_gene_list:
                     duplicate_gene_list.append(gene.id)
-                    print >>fp1, '%s\t%s\t%s\t%s\t%s\t%s\t%s' %(
+                    print('%s\t%s\t%s\t%s\t%s\t%s\t%s' %(
                                                     gene.id,
                                                     'duplicate_gene_from_target_model',
                                                     rxn.id,
                                                     rxn.name,
                                                     rxn.reaction,
                                                     rxn.gene_reaction_rule,
-                                                    rxn.subsystem)
+                                                    rxn.subsystem), file=fp1)
 
     fp1.close()
     return template_model_gene_list, duplicate_gene_list
@@ -265,7 +265,7 @@ def get_summary_report(folder, cobra_model, runtime,
     model_summary_dict2 = collections.OrderedDict(sorted(model_summary_dict.items()))
 
     for key in model_summary_dict2.keys():
-        print >>fp1, '%s\t%s' %(key, model_summary_dict2[key])
+        print('%s\t%s' %(key, model_summary_dict2[key]), file=fp1)
 
     fp1.close()
 
@@ -274,42 +274,42 @@ def write_data_for_debug(run_ns, io_ns, homology_ns, primary_model_ns):
 
     with open('./%s/temp_target_BBH_dict.txt' %io_ns.outputfolder2,'w') as f:
         for locustag in homology_ns.temp_target_BBH_dict:
-            print >> f, '%s\t%s' %(locustag, homology_ns.temp_target_BBH_dict[locustag])
+            print('%s\t%s' %(locustag, homology_ns.temp_target_BBH_dict[locustag]), file=f)
 
     try:
         with open('./%s/mnxr_to_add_list.txt' %io_ns.outputfolder6,'w') as f:
             for mnxr in primary_model_ns.mnxr_to_add_list:
-                print >>f, '%s' %mnxr
-    except AttributeError, e:
+                print('%s' %mnxr, file=f)
+    except AttributeError as e:
         logging.warning(e)
 
     try:
         with open('./%s/targetGenome_locusTag_ec_nonBBH_dict.txt' %io_ns.outputfolder6,'w') as f:
             for rxnid in primary_model_ns.targetGenome_locusTag_ec_nonBBH_dict:
-                print >>f, '%s\t%s' %(rxnid, primary_model_ns.targetGenome_locusTag_ec_nonBBH_dict[rxnid])
-    except AttributeError, e:
+                print('%s\t%s' %(rxnid, primary_model_ns.targetGenome_locusTag_ec_nonBBH_dict[rxnid]), file=f)
+    except AttributeError as e:
         logging.warning(e)
 
     try:
         with open('./%s/rxnid_info_dict.txt' %io_ns.outputfolder6,'w') as f:
             for rxnid in primary_model_ns.rxnid_info_dict:
-                print >>f, '%s\t%s' %(rxnid, primary_model_ns.rxnid_info_dict[rxnid])
-    except AttributeError, e:
+                print('%s\t%s' %(rxnid, primary_model_ns.rxnid_info_dict[rxnid]), file=f)
+    except AttributeError as e:
         logging.warning(e)
 
     try:
         with open('./%s/rxnid_locusTag_dict.txt' %io_ns.outputfolder6,'w') as f:
             for rxnid in primary_model_ns.rxnid_locusTag_dict:
-                print >>f, '%s\t%s' %(rxnid, primary_model_ns.rxnid_locusTag_dict[rxnid])
-    except AttributeError, e:
+                print('%s\t%s' %(rxnid, primary_model_ns.rxnid_locusTag_dict[rxnid]), file=f)
+    except AttributeError as e:
         logging.warning(e)
 
     if run_ns.comp:
         try:
             with open('./%s/rxn_newComp_fate_dict.txt' %io_ns.outputfolder6,'w') as f:
                 for rxnid in primary_model_ns.rxn_newComp_fate_dict:
-                    print >>f, '%s\t%s' %(rxnid, primary_model_ns.rxn_newComp_fate_dict[rxnid])
-        except AttributeError, e:
+                    print('%s\t%s' %(rxnid, primary_model_ns.rxn_newComp_fate_dict[rxnid]), file=f)
+        except AttributeError as e:
             logging.warning(e)
 
 

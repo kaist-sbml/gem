@@ -64,11 +64,11 @@ class ParseMNXref(object):
 
     # This function cannot parse the initial version of NMXref data
     def read_chem_xref(self, bigg_old_new_dict, filename):
-    	""" Process lines from cross reference file chem_xref. 
-    	Output 
-		mnxm_bigg_compound_dict
-		mnxm_kegg_compound_dict
-		Parameters
+        """ Process lines from cross reference file chem_xref. 
+        Output 
+        mnxm_bigg_compound_dict
+        mnxm_kegg_compound_dict
+        Parameters
         ----------
         bigg_old_new_dict : dict
             dict to reference old and new BiGG IDs Based on King et al. (2016) in NAR
@@ -130,17 +130,17 @@ class ParseMNXref(object):
 
 
     def read_chem_prop(self, filename):
-    	''' Create metabolites information dictionary 
-    	chem_prop has following fields :
-    	MNX_ID	Description	Formula	Charge	Mass	InChI	SMILES	Source	InChIKey
-    	At the moment we store information of first 3 fields as required for GMSM
-		Output 
-		mnxm_compoundInfo_dict
-		{'MNXM128019': ['Methyl trans-p-methoxycinnamate', 'C11H12O3']}
-		Parameters
+        ''' Create metabolites information dictionary 
+        chem_prop has following fields :
+        MNX_ID	Description	Formula	Charge	Mass	InChI	SMILES	Source	InChIKey
+        At the moment we store information of first 3 fields as required for GMSM
+        Output 
+        mnxm_compoundInfo_dict
+        {'MNXM128019': ['Methyl trans-p-methoxycinnamate', 'C11H12O3']}
+        Parameters
         filename : str
             Path to input file 
-    	'''
+        '''
         mnxm_compoundInfo_dict = {}
 
         f = open(filename,'r')
@@ -171,11 +171,11 @@ class ParseMNXref(object):
 
 
     def read_reac_xref(self, filename):
-    	""" Process lines from cross reference file reac_xref. 
-    	Output 
-		mnxr_kegg_dict, bigg_mnxr_dict, mnxr_xref_dict
-		
-		Parameters
+        """ Process lines from cross reference file reac_xref. 
+        Output 
+        mnxr_kegg_dict, bigg_mnxr_dict, mnxr_xref_dict
+        
+        Parameters
         filename : str
             Path to input file xref
 
@@ -203,23 +203,23 @@ class ParseMNXref(object):
 
                         # For reaction.name in MNXref.xml	
                         if (xref_db == 'bigg' and 'R_' not in xref_id) or xref_db == 'kegg':
-                        	if mnxr not in mnxr_xref_dict:
-                        		mnxr_xref_dict[mnxr] = [xref_id]
-                        	elif mnxr in mnxr_xref_dict:
-                        		mnxr_xref_dict[mnxr].append(xref_id)
+                            if mnxr not in mnxr_xref_dict:
+                                mnxr_xref_dict[mnxr] = [xref_id]
+                            elif mnxr in mnxr_xref_dict:
+                                mnxr_xref_dict[mnxr].append(xref_id)
 
                         if xref_db == 'kegg':
-		                    if mnxr not in mnxr_kegg_dict:
-		                        mnxr_kegg_dict[mnxr] = [xref_id]
-		                    elif mnxr in mnxr_kegg_dict:
-		                        mnxr_kegg_dict[mnxr].append(xref_id)
+                            if mnxr not in mnxr_kegg_dict:
+                                mnxr_kegg_dict[mnxr] = [xref_id]
+                            elif mnxr in mnxr_kegg_dict:
+                                mnxr_kegg_dict[mnxr].append(xref_id)
 
-		                    logging.debug('%s; %s; %s' %(xref_db, xref_id, mnxr))
+                            logging.debug('%s; %s; %s' %(xref_db, xref_id, mnxr))
 
                         if xref_db == 'bigg' and 'R_' not in xref_id:
-                    		bigg_mnxr_dict[xref_id] = mnxr
+                            bigg_mnxr_dict[xref_id] = mnxr
 
-                    		logging.debug('%s; %s; %s' %(xref_db, xref_id, mnxr))
+                            logging.debug('%s; %s; %s' %(xref_db, xref_id, mnxr))
 
             except:
                 logging.debug('Cannot parse MNXM: %s' %line)
@@ -237,16 +237,16 @@ class ParseMNXref(object):
 
 
     def read_reac_prop(self, filename):
-    	''' Create reaction information dictionary 
-    	reac_prop has following fields :
-    	MNX_ID	Equation  Description  Balance	EC	Source
-    	
-    	Output 
-		reaction_info : dict		
-		Parameters
+        ''' Create reaction information dictionary 
+        reac_prop has following fields :
+        MNX_ID	Equation  Description  Balance	EC	Source
+        
+        Output 
+        reaction_info : dict		
+        Parameters
         filename : str
             Path to input file 
-    	'''
+        '''
         reaction_info = {}
         mass_balance = ''
         ec_number = ''
@@ -258,7 +258,7 @@ class ParseMNXref(object):
         for line in f:
             try:
                 if len(line) == 0 or line[0] == '#':
-                	continue  # Skip empty lines and comment lines 
+                    continue  # Skip empty lines and comment lines 
                 sptlist = line.split('\t')
                 reaction_id = sptlist[0].strip()
                 reversibility = True
@@ -266,41 +266,41 @@ class ParseMNXref(object):
                 equation = sptlist[1].strip()
 
                 if sptlist[3].strip() == 'true':
-                	mass_balance = 'balanced'
+                    mass_balance = 'balanced'
                 elif sptlist[3].strip() == 'false':
-                	mass_balance = 'unbalanced'
-                	# Version 3 has 5 entries for balance of reaction - 'True', 'False', 'ambiguous', 'NA' or 'redox'
-                	# Here anything not True is taken as unbalanced
-                	# NEED REVIEW
+                    mass_balance = 'unbalanced'
+                    # Version 3 has 5 entries for balance of reaction - 'True', 'False', 'ambiguous', 'NA' or 'redox'
+                    # Here anything not True is taken as unbalanced
+                    # NEED REVIEW
                 else :
-                	mass_balance = 'unbalanced' 
+                    mass_balance = 'unbalanced' 
 
                 ec_number = sptlist[4].strip()
 
                 reactant_info, product_info = self.parse_equation(equation)
 
                 for metabolite in reactant_info:
-                	stoich_dict[metabolite] = reactant_info[metabolite]
+                    stoich_dict[metabolite] = reactant_info[metabolite]
                 for metabolite in product_info:
-                	stoich_dict[metabolite] = product_info[metabolite]
+                    stoich_dict[metabolite] = product_info[metabolite]
 
                 flag = True
                 for each_reactant in reactant_info.keys():
-                	if each_reactant in product_info.keys():
-                		flag = False
-                		break
+                    if each_reactant in product_info.keys():
+                        flag = False
+                        break
 
                 if flag == False:
-                	continue
+                    continue
 
                 ec_number_list = ec_number.split(';')
 
                 if len(ec_number_list) > 0:
-	                reaction_info[reaction_id] = {
-	                        'stoichiometry': stoich_dict,
-	                        'balance': mass_balance,
-	                        'ec': ec_number_list,
-	                        'reversibility': reversibility}
+                    reaction_info[reaction_id] = {
+                            'stoichiometry': stoich_dict,
+                            'balance': mass_balance,
+                            'ec': ec_number_list,
+                            'reversibility': reversibility}
             except:
                 logging.debug('Cannot parse MNXR: %s' %line)
 
@@ -314,14 +314,14 @@ class ParseMNXref(object):
 
 
     def parse_equation(self, equation):
-    	''' Parse reaction equation to give reactant and products 
-    	Equation form: chemID is replaced by chemID@compID  e.g.
-    	1 MNXM12@MNXD1 + 1 MNXM146442@MNXD1 = 1 MNXM32694@MNXD1 + 1 MNXM686@MNXD1 
-    	NOTE : At the moment, we ignore the compartmentalization feature introduced in version 3    	
+        ''' Parse reaction equation to give reactant and products 
+        Equation form: chemID is replaced by chemID@compID  e.g.
+        1 MNXM12@MNXD1 + 1 MNXM146442@MNXD1 = 1 MNXM32694@MNXD1 + 1 MNXM686@MNXD1 
+        NOTE : At the moment, we ignore the compartmentalization feature introduced in version 3    	
 
-    	Output :
-    	reactant_info, product_info 
-		'''
+        Output :
+        reactant_info, product_info 
+        '''
         equation = equation.replace('>', '')
         equation = equation.replace('<', '')
         spt_equation = equation.split('=')
@@ -365,11 +365,11 @@ class ParseMNXref(object):
 
 
     def get_cobra_reactions(self):
-    	''' Creates Universal list of cobra reaction objects 	
+        ''' Creates Universal list of cobra reaction objects 	
 
-    	Output :
-    	cobra_reactions
-		'''
+        Output :
+        cobra_reactions
+        '''
         logging.debug('Creating MNXR reactions: time-consuming')
 
         cobra_reactions = []
@@ -476,11 +476,11 @@ class ParseMNXref(object):
 
 
     def make_cobra_model(self):
-    	''' Creates Universal cobra model object 	
+        ''' Creates Universal cobra model object 	
 
-    	Output :
-    	cobra_model
-		'''
+        Output :
+        cobra_model
+        '''
         cobra_model = Model('mnxref_model')
         
         reaction_list = []

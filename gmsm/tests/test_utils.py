@@ -68,7 +68,7 @@ class TestUtils:
         out, err, retcode = utils.execute(args)
         
         assert not out == None
-        assert err == ''
+        assert err == b''
         assert retcode == 0
         
         
@@ -191,10 +191,10 @@ class TestUtils:
     def test_compare_rxns(self, sco_tmp_model, options):
 
         #'ALAD_L': 'ala_DASH_L_c + h2o_c + nad_c --> h_c + nadh_c + nh4_c + pyr_c'
-        rxn1 = sco_tmp_model.reactions[0]
+        rxn1 = sco_tmp_model.reactions.ALAD_L
 
         #'ALAR' = 'ala_DASH_L_c <=> ala_DASH_D_c'
-        rxn2 = sco_tmp_model.reactions[1]
+        rxn2 = sco_tmp_model.reactions.ALAR
 
         ala__L = Metabolite('ala_DASH_L_c')
         h2o = Metabolite('h2o_c')
@@ -229,7 +229,7 @@ class TestUtils:
         
         model = utils.stabilize_model(sci_primary_model, folder, label)
         
-        assert len(model.reactions) == 1805
+        assert len(model.reactions) == int(2009)
     
     
     def test_get_exrnxid_flux(self, sci_primary_model, sco_tmp_model_flux):

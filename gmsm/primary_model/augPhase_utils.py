@@ -5,7 +5,7 @@ import logging
 import os
 import pickle
 import re
-import urllib2
+import urllib.request
 from cobra import Metabolite, Reaction
 from os.path import isdir, join, abspath, dirname
 from gmsm import utils
@@ -15,7 +15,7 @@ from gmsm import utils
 #Output: reactionID in list form (e.g., ['R00362'])
 def get_rxnid_from_ECNumber(rxnid_list, enzymeEC, config_ns):
     url = config_ns.urls.kegg_enzyme + '%s' %enzymeEC
-    ecinfo_text = urllib2.urlopen(url).read()
+    ecinfo_text = urllib.request.urlopen(url).read().decode('utf-8')
 
     #Original line also extracted genes in other organisms: R50912; R50345 (NOT rxnid)
     #The HTTP error was solved by putting "\\b" only at the end (not at the front)
@@ -38,7 +38,7 @@ def get_rxnid_from_ECNumber(rxnid_list, enzymeEC, config_ns):
 #'EQUATION': C00158 <=> C00033 + C00036}
 def get_rxnInfo_from_rxnid(rxnid, config_ns):
     url = config_ns.urls.kegg_rn + '%s' %rxnid
-    reaction_info_text = urllib2.urlopen(url).read()
+    reaction_info_text = urllib.request.urlopen(url).read().decode('utf-8')
     split_text = reaction_info_text.strip().split('\n')
     NAME = ''
     DEFINITION = ''
@@ -97,14 +97,15 @@ def get_targetGenome_locusTag_ec_nonBBH_dict(io_ns, homology_ns, primary_model_n
     targetGenome_locusTag_ec_nonBBH_dict = {}
 
     for locusTag in homology_ns.nonBBH_list:
-	if locusTag in io_ns.targetGenome_locusTag_ec_dict.keys():
+        if locusTag in io_ns.targetGenome_locusTag_ec_dict.keys():
             targetGenome_locusTag_ec_nonBBH_dict[locusTag] = \
             io_ns.targetGenome_locusTag_ec_dict[locusTag]
     primary_model_ns.targetGenome_locusTag_ec_nonBBH_dict = targetGenome_locusTag_ec_nonBBH_dict
 
 
 def edit_mnxr_kegg_dict(keggid, io_ns):
-    for mnxr in io_ns.mnxr_kegg_dict.keys():
+    mnxr_kegg_dict_keys = copy.deepcopy(list(io_ns.mnxr_kegg_dict.keys()))
+    for mnxr in mnxr_kegg_dict_keys:
         # Remove candidate KEGG rxn IDs from consideration
         if keggid in io_ns.mnxr_kegg_dict[mnxr]:
             cnt = len(io_ns.mnxr_kegg_dict[mnxr])
@@ -160,7 +161,7 @@ def get_rxnid_info_dict_from_kegg(io_ns, config_ns, primary_model_ns):
             cache_dumped_rxnid_list_dir, cache_dumped_rxnid_list)
 
     for locusTag in primary_model_ns.targetGenome_locusTag_ec_nonBBH_dict.keys():
-	for enzymeEC in primary_model_ns.targetGenome_locusTag_ec_nonBBH_dict[locusTag]:
+        for enzymeEC in primary_model_ns.targetGenome_locusTag_ec_nonBBH_dict[locusTag]:
             # This should be declared in case enzymeEC is not available at KEGG: e.g.,
             #"UnboundLocalError: local variable 'rxnid_list' referenced before assignment"
             rxnid_list = []
@@ -253,7 +254,7 @@ def get_mnxr_to_add_list(io_ns, primary_model_ns):
 
     mnxr_to_add_list = []
     for rxnid in primary_model_ns.rxnid_info_dict:
-        for mnxr, kegg_list in io_ns.mnxr_kegg_dict.iteritems():
+        for mnxr, kegg_list in io_ns.mnxr_kegg_dict.items():
             if rxnid in kegg_list:
                 # Check reaction duplicates
                 if mnxr not in primary_model_ns.modelPrunedGPR_mnxr_list:
@@ -440,7 +441,7 @@ def create_rxn_newComp(rxn_newComp_list, model, io_ns, primary_model_ns):
 
                         if res == 'unique' and rxn_newComp.id not in model.reactions:
                             #'add_reaction' requires writing/reloading of the model
-                            model.add_reactions(rxn_newComp)
+                            model.add_reactions([rxn_newComp])
                             model = utils.stabilize_model(
                                     model, io_ns.outputfolder5, rxn_newComp.id)
                             added_rxn_newComp_list.append(rxn_newComp.id)

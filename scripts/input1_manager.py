@@ -10,11 +10,11 @@ import pyparsing
 import pickle
 import subprocess
 import sys
-import urllib2
+import urllib
 import zipfile
 from Bio import Entrez, SeqIO
 from cobra.util.solver import linear_reaction_coefficients
-from input2_manager import ParseMNXref
+from scripts.input2_manager import ParseMNXref
 from os.path import join, abspath, dirname
 
 sys.path.insert(0, abspath(join(dirname(__file__), '..')))
@@ -73,7 +73,7 @@ def download_model_from_biggDB(input1_tmp_dir, options):
     logging.debug('URL for downloading a model from the BiGG Models:')
     logging.debug(url)
 
-    model = urllib2.urlopen(url).read()
+    model = urllib.request.urlopen(url).read()
 
     with open(join(input1_tmp_dir, model_file), 'wb') as f:
         f.write(model)
@@ -97,7 +97,7 @@ def get_model_details(options):
     logging.debug('URL for accessing model details the BiGG Models:')
     logging.debug(url)
 
-    model_info = urllib2.urlopen(url).read()
+    model_info = urllib.request.urlopen(url).read()
 
     # 'null' causes "ValueError: malformed string"
     if 'null' in model_info:
@@ -408,8 +408,8 @@ def get_tempModel_exrxnid_flux_dict(model):
     else:
         logging.error("'EX_o2_e' not available in the model")
 
-    if linear_reaction_coefficients(model).keys()[0].id:
-        tempModel_exrxnid_flux_dict[linear_reaction_coefficients(model).keys()[0].id] = \
+    if list(linear_reaction_coefficients(model).keys())[0].id:
+        tempModel_exrxnid_flux_dict[list(linear_reaction_coefficients(model).keys())[0].id] = \
                 float(flux_dist.objective_value)
     else:
         logging.error("Objective function should be designated in the model")
