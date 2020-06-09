@@ -162,7 +162,7 @@ def main():
     setup_outputfolders(run_ns, io_ns)
 
     if run_ns.version:
-        print 'GEMS version %s (%s)' %(utils.get_version(), utils.get_git_log())
+        print('GEMS version %s (%s)' %(utils.get_version(), utils.get_git_log()))
         sys.exit(0)
 
     utils.check_input_options(run_ns)

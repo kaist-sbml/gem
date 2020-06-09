@@ -14,7 +14,7 @@ import urllib
 import zipfile
 from Bio import Entrez, SeqIO
 from cobra.util.solver import linear_reaction_coefficients
-from scripts.input2_manager import ParseMNXref
+from input2_manager import ParseMNXref
 from os.path import join, abspath, dirname
 
 sys.path.insert(0, abspath(join(dirname(__file__), '..')))
@@ -97,7 +97,7 @@ def get_model_details(options):
     logging.debug('URL for accessing model details the BiGG Models:')
     logging.debug(url)
 
-    model_info = urllib.request.urlopen(url).read()
+    model_info = urllib.request.urlopen(url).read().decode('utf-8')
 
     # 'null' causes "ValueError: malformed string"
     if 'null' in model_info:
@@ -498,19 +498,19 @@ def generate_output_files(
     # Text and FASTA files in tmp folder
     with open(join(input1_tmp_dir, 'tempModel_exrxnid_flux_dict.txt'), 'w') as f:
         for k, v in tempModel_exrxnid_flux_dict.iteritems():
-            print >>f, '%s\t%s' %(k, v)
+            print('%s\t%s' %(k, v), file=f)
 
     with open(join(input1_tmp_dir, 'tempGenome_locusTag_aaSeq_dict.txt'), 'w') as f:
         for k, v in tempGenome_locusTag_aaSeq_dict.iteritems():
-            print >>f, '%s\t%s' %(k, v)
+            print('%s\t%s' %(k, v), file=f)
 
     with open(join(input1_tmp_dir, 'tempModel_biggRxnid_locusTag_dict.txt'), 'w') as f:
         for k, v in tempModel_biggRxnid_locusTag_dict.iteritems():
-            print >>f, '%s\t%s' %(k, v)
+            print('%s\t%s' %(k, v), file=f)
 
     with open(join(input1_dir, 'tempModel_locusTag_aaSeq.fa'), 'w') as f:
         for k, v in tempModel_locusTag_aaSeq_dict.iteritems():
-            print >>f, '>%s\n%s' %(k, v)
+            print('>%s\n%s' %(k, v), file=f)
 
     # Pickles in `input1` data folder
     with open(join(input1_dir, 'model.p'), 'wb') as f:
