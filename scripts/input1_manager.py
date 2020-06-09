@@ -15,8 +15,12 @@ import urllib
 import zipfile
 from Bio import Entrez, SeqIO
 from cobra.util.solver import linear_reaction_coefficients
-from scripts.input2_manager import ParseMNXref
 from os.path import join, abspath, dirname
+
+try:
+    from scripts.input2_manager import ParseMNXref
+except:
+    from input2_manager import ParseMNXref
 
 sys.path.insert(0, abspath(join(dirname(__file__), '..')))
 import gmsm
@@ -518,19 +522,19 @@ def generate_output_files(
 
     # Text and FASTA files in tmp folder
     with open(join(input1_tmp_dir, 'tempModel_exrxnid_flux_dict.txt'), 'w') as f:
-        for k, v in tempModel_exrxnid_flux_dict.iteritems():
+        for k, v in tempModel_exrxnid_flux_dict.items():
             print('%s\t%s' %(k, v), file=f)
 
     with open(join(input1_tmp_dir, 'tempGenome_locusTag_aaSeq_dict.txt'), 'w') as f:
-        for k, v in tempGenome_locusTag_aaSeq_dict.iteritems():
+        for k, v in tempGenome_locusTag_aaSeq_dict.items():
             print('%s\t%s' %(k, v), file=f)
 
     with open(join(input1_tmp_dir, 'tempModel_biggRxnid_locusTag_dict.txt'), 'w') as f:
-        for k, v in tempModel_biggRxnid_locusTag_dict.iteritems():
+        for k, v in tempModel_biggRxnid_locusTag_dict.items():
             print('%s\t%s' %(k, v), file=f)
 
     with open(join(input1_dir, 'tempModel_locusTag_aaSeq.fa'), 'w') as f:
-        for k, v in tempModel_locusTag_aaSeq_dict.iteritems():
+        for k, v in tempModel_locusTag_aaSeq_dict.items():
             print('>%s\n%s' %(k, v), file=f)
 
     # Pickles in `input1` data folder
