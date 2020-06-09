@@ -77,16 +77,19 @@ def main():
     group.add_argument('-m', '--model',
                         dest='orgName',
                         default='sco',
-                        choices=['bsu', 'cre', 'eco','mtu','nsal','ppu','sco'],
+                        choices=['bsu', 'clj', 'cre', 'eco', 'hpy', 'mtu', 'nsal', 'ppu', 'sce', 'sco'],
                         help=
                         "'bsu': iYO844 (17573341); Bacillus subtilis subsp. subtilis str. 168\n"
                         #NOTE: metabolite compartments (other than 'c') NOT standardized
+                        "'clj': iHN637 (24274140); Clostridium ljungdahlii DSM 13528\n"
                         "'cre': iCre1355 (26485611); Chlamydomonas reinhardtii\n"
-                        "'eco': iAF1260 (17593909); Escherichia coli str. K-12 substr. MG1655\n"
+                        "'eco': iML1515 (29020004); Escherichia coli str. K-12 substr. MG1655\n"
+                        "'hpy': iIT341 (16077130); Helicobacter pylori 26695\n"
                         "'mtu': iNJ661 (17555602); Mycobacterium tuberculosis H37Rv\n"
                         "'nsal': iNS934 (28676050); Nannochloropsis salina\n"
                         "'ppu': iJN746 (18793442); Pseudomonas putida KT2440\n"
-                        "'sco': iMK1208 (24623710); Streptomyces coelicolor A3(2)"
+                        "'sce': iMM904 (19321003); Saccharomyces cerevisiae S288C\n"
+                        "'sco': iKS1317 (30525286); Streptomyces coelicolor A3(2)"
                         )
 
     group = parser.add_argument_group('GEMS modeling options',

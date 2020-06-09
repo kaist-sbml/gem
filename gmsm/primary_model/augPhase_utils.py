@@ -167,7 +167,8 @@ def get_rxnid_info_dict_from_kegg(io_ns, config_ns, primary_model_ns):
             rxnid_list = []
 
             #KEGG REST does not accept unspecific EC_number: e.g., 3.2.2.-
-            if '-' not in enzymeEC:
+            #KEGG REST does not cover preliminary EC number: e.g., 3.6.5.n1
+            if '-' not in enzymeEC and 'n' not in enzymeEC:
 
                 #Check cache file
                 if enzymeEC in cache_ec_rxn_dict:
@@ -310,7 +311,7 @@ def add_nonBBH_rxn(modelPrunedGPR, io_ns, config_ns, primary_model_ns):
 
         #GPR association
         if len(primary_model_ns.rxnid_locusTag_dict[kegg_id]) == 1:
-            gpr = '( %s )' %(primary_model_ns.rxnid_locusTag_dict[kegg_id][0])
+            gpr = primary_model_ns.rxnid_locusTag_dict[kegg_id][0]
         else:
             count = 1
             for locusTag in primary_model_ns.rxnid_locusTag_dict[kegg_id]:
@@ -325,7 +326,6 @@ def add_nonBBH_rxn(modelPrunedGPR, io_ns, config_ns, primary_model_ns):
                 gpr = ' and '.join(primary_model_ns.rxnid_locusTag_dict[kegg_id])
             else:
                 gpr = ' or '.join(primary_model_ns.rxnid_locusTag_dict[kegg_id])
-            gpr = '( %s )' %(gpr)
 
         rxn.gene_reaction_rule = gpr
 
@@ -348,7 +348,7 @@ def add_nonBBH_rxn(modelPrunedGPR, io_ns, config_ns, primary_model_ns):
         if 'F' in exrxn_flux_change_list:
             #'remove_reactions' does not seem to require
             #writing/reloading of the model
-            modelPrunedGPR.remove_reactions(rxn)
+            modelPrunedGPR.remove_reactions(rxn.id)
 
     target_model = copy.deepcopy(modelPrunedGPR)
     return target_model

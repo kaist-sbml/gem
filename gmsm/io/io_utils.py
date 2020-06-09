@@ -18,9 +18,13 @@ def get_antismash_version_from_gbk(seq_record, io_ns):
 
 def get_features_from_gbk(seq_record, run_ns, io_ns):
     # Ignore existing annotations of EC numbers in an input gbk file as they are from a different source.
-    if run_ns.eficaz or run_ns.eficaz_file:
-        logging.info("Ignoring EC annotations from input gbk file")
-    else:
+    # Try-except to avoid options' attributes, eficaz and eficaz_file, in input1_manager.py
+    try:
+        if run_ns.eficaz or run_ns.eficaz_file:
+            logging.info("Ignoring EC annotations from input gbk file")
+        else:
+            logging.info("Using EC annotations from input gbk file")
+    except:
         logging.info("Using EC annotations from input gbk file")
 
     for feature in seq_record.features:
@@ -28,7 +32,7 @@ def get_features_from_gbk(seq_record, run_ns, io_ns):
 
             # Retrieving "locus_tag (i.e., ORF name)" for each CDS
             if feature.qualifiers.get('locus_tag'):
-                locusTag = feature.qualifiers['locus_tag'][0]
+                locusTag = feature.qualifiers['locus_tag'][0].replace("-", "_")
             else:
                 logging.error("No 'locus_tag' found in gbk file")
                 sys.exit(1)
@@ -45,12 +49,18 @@ def get_features_from_gbk(seq_record, run_ns, io_ns):
                 # Thus, it's OK to use '[0]'.
                 product = feature.qualifiers.get('product')[0]
                 io_ns.targetGenome_locusTag_prod_dict[locusTag] = product
-
-            if run_ns.eficaz or run_ns.eficaz_file:
-                pass
-            else:
-                # Multiple 'EC_number's may exit for a single CDS.
-                # Never use '[0]' for the 'qualifiers.get' list.
+                
+            # Try-except to avoid options' attributes, eficaz and eficaz_file, in input1_manager.py
+            try:
+                if run_ns.eficaz or run_ns.eficaz_file:
+                    pass
+                else:
+                    # Multiple 'EC_number's may exit for a single CDS.
+                    # Never use '[0]' for the 'qualifiers.get' list.
+                    if feature.qualifiers.get('EC_number'):
+                        ecnum = feature.qualifiers.get('EC_number')
+                        io_ns.targetGenome_locusTag_ec_dict[locusTag] = ecnum
+            except:
                 if feature.qualifiers.get('EC_number'):
                     ecnum = feature.qualifiers.get('EC_number')
                     io_ns.targetGenome_locusTag_ec_dict[locusTag] = ecnum

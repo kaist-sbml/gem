@@ -3,6 +3,7 @@
 import argparse
 import ast
 import cobra
+import gzip
 import glob
 import os
 import logging
@@ -73,7 +74,7 @@ def download_model_from_biggDB(input1_tmp_dir, options):
     logging.debug('URL for downloading a model from the BiGG Models:')
     logging.debug(url)
 
-    model = urllib.request.urlopen(url).read()
+    model = urllib.request.urlopen(url).read().decode('utf-8')
 
     with open(join(input1_tmp_dir, model_file), 'wb') as f:
         f.write(model)
@@ -281,18 +282,37 @@ def check_model_fluxes(model, tempModel_exrxnid_flux_dict, bigg_old_new_dict, op
 
 
 def download_gbk_from_ncbi(input1_tmp_dir, model_info_dict):
-    gbk_file = ''.join([model_info_dict['genome_name'], '.gb'])
     Entrez.email = "ehukim@kaist.ac.kr"
+    if model_info_dict['genome_name'].startswith('GCF_'):
+        id_num = Entrez.read(Entrez.esearch(db="assembly", term=model_info_dict['genome_name']))['IdList'][0]
+        assembly_ftp_address = Entrez.read(Entrez.esummary(db="assembly", id=id_num))['DocumentSummarySet']['DocumentSummary'][0]['FtpPath_RefSeq']
+        genome_genbank_gzip = assembly_ftp_address.split('/')[-1] + '_genomic.gbff.gz'
+        genome_ftp_address = assembly_ftp_address + '/' + genome_genbank_gzip
+        genome_load_ftp = urllib2.urlopen(genome_ftp_address)
+        
+        with open(join(input1_tmp_dir, genome_genbank_gzip), 'w') as f:
+            f.write(genome_load_ftp.read())
+        
+        gbk_file = ''.join([model_info_dict['genome_name'], '.gbff'])
+        
+        with open(join(input1_tmp_dir, gbk_file), 'w') as f:
+            f.write(gzip.open(join(input1_tmp_dir, genome_genbank_gzip),'rb').read())
+        
+        os.remove(join(input1_tmp_dir, genome_genbank_gzip))
+            
+        return gbk_file
+        
+    else:
+        gbk_file = ''.join([model_info_dict['genome_name'], '.gb'])
+        handle = Entrez.efetch(db='nucleotide',
+                id=model_info_dict['genome_name'], rettype='gbwithparts', retmode='text')
 
-    handle = Entrez.efetch(db='nucleotide',
-            id=model_info_dict['genome_name'], rettype='gbwithparts', retmode='text')
+        seq_record = handle.read()
 
-    seq_record = handle.read()
+        with open(join(input1_tmp_dir, gbk_file), 'wb') as f:
+            f.write(seq_record)
 
-    with open(join(input1_tmp_dir, gbk_file), 'wb') as f:
-        f.write(seq_record)
-
-    return gbk_file
+        return gbk_file
 
 
 def get_tempGenome_locusTag_aaSeq_dict(input1_tmp_dir, options, **kwargs):
@@ -307,7 +327,7 @@ def get_tempGenome_locusTag_aaSeq_dict(input1_tmp_dir, options, **kwargs):
         gbk_file = kwargs['gbk_file']
         filetype = 'genbank'
         seq_records = list(SeqIO.parse(join(input1_tmp_dir, gbk_file), filetype))
-
+        
     elif 'gbk_file' not in kwargs and options.genome:
         input_ext = os.path.splitext(options.genome)[1]
 
@@ -320,7 +340,7 @@ def get_tempGenome_locusTag_aaSeq_dict(input1_tmp_dir, options, **kwargs):
 
     if filetype == 'genbank':
         for seq_record in seq_records:
-            io_utils.get_features_from_gbk(seq_record, options)
+            io_utils.get_features_from_gbk(seq_record, options, options)
 
     elif filetype == 'fasta':
         for seq_record in seq_records:
@@ -437,8 +457,9 @@ def get_gpr_fromString_toList(gpr):
                                 (and_booleanop, 2, pyparsing.opAssoc.LEFT),
                                 (or_booleanop, 2, pyparsing.opAssoc.LEFT)
                                 ])
-    gpr_list = expr.parseString(gpr)[0].asList()
-
+    if expr.parseString(gpr)[0] != str:
+        gpr_list = expr.parseString(gpr)[0].asList()
+    
     return gpr_list
 
 
@@ -450,8 +471,8 @@ def get_tempModel_biggRxnid_locusTag_dict(model):
         logging.debug('%s; %s', rxn.id, rxn.gene_reaction_rule)
 
         if rxn.gene_reaction_rule and \
-                ('and' in rxn.gene_reaction_rule or 'AND' in rxn.gene_reaction_rule \
-                or 'or' in rxn.gene_reaction_rule or 'OR' in rxn.gene_reaction_rule):
+                (' and ' in rxn.gene_reaction_rule or ' AND ' in rxn.gene_reaction_rule \
+                or ' or ' in rxn.gene_reaction_rule or ' OR ' in rxn.gene_reaction_rule):
             gene_list = get_gpr_fromString_toList(rxn.gene_reaction_rule)
             tempModel_biggRxnid_locusTag_dict[rxn.id] = gene_list
             logging.debug('%s; %s', rxn.id, rxn.gene_reaction_rule)
