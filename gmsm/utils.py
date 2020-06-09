@@ -282,7 +282,7 @@ def check_exrxn_flux_direction(
                and abs(float(target_exrxn_flux)) > float(config_ns.cobrapy.non_zero_flux_cutoff):
                 ratio_exrxn_flux = float(target_exrxn_flux)/float(template_exrxn_flux)
             else:
-                ratio_exrxn_flux = None
+                ratio_exrxn_flux = 0
                 logging.debug("%s has a zero flux", exrxn_id)
 
             #Similar species are allowed to uptake nutrients within a decent range

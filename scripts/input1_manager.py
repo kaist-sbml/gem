@@ -15,7 +15,7 @@ import urllib
 import zipfile
 from Bio import Entrez, SeqIO
 from cobra.util.solver import linear_reaction_coefficients
-from input2_manager import ParseMNXref
+from scripts.input2_manager import ParseMNXref
 from os.path import join, abspath, dirname
 
 sys.path.insert(0, abspath(join(dirname(__file__), '..')))
