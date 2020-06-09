@@ -29,8 +29,6 @@ class TestUtils:
     
         version = utils.get_version()
         
-        assert version == '0.7.3'
-        
         
     def test_get_git_log(self):
         
