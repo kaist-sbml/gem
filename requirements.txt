@@ -1,6 +1,5 @@
-biopython==1.76
+biopython
 cobra==0.17.1
 pyparsing
 pytest-cov
 python-libsbml
-ruamel.yaml==0.16.10
