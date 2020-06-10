@@ -150,7 +150,7 @@ class ParseMNXref(object):
         for line in f:
             try:
                 if len(line) == 0 or line[0] == '#':
-                	continue  # Skip empty lines and comment lines  
+                    continue  # Skip empty lines and comment lines  
                 metab_prop_list = line.split('\t')
                 mnxm_id = metab_prop_list[0].strip()
                 mnxm_name = metab_prop_list[1].strip()
@@ -535,24 +535,24 @@ def run_ParseMNXref():
 
     # Write txt files
     with open(join(input2_tmp_dir, 'mnxm_bigg_compound_dict.txt'), 'w') as f:
-        for k, v in mnxm_bigg_compound_dict.iteritems():
-            print >>f, '%s\t%s' %(k, v)
+        for k, v in mnxm_bigg_compound_dict.items():
+            print('%s\t%s' %(k, v), file=f)
 
     with open(join(input2_tmp_dir, 'bigg_old_new_dict.txt'), 'w') as f:
-        for k, v in bigg_old_new_dict.iteritems():
-            print >>f, '%s\t%s' %(k, v)
+        for k, v in bigg_old_new_dict.items():
+            print('%s\t%s' %(k, v), file=f)
 
     with open(join(input2_tmp_dir, 'mnxm_compoundInfo_dict.txt'), 'w') as f:
-        for k, v in mnxm_compoundInfo_dict.iteritems():
-            print >>f, '%s\t%s' %(k, v)
+        for k, v in mnxm_compoundInfo_dict.items():
+            print('%s\t%s' %(k, v), file=f)
 
     with open(join(input2_tmp_dir, 'mnxr_kegg_dict.txt'), 'w') as f:
-        for k, v in mnxr_kegg_dict.iteritems():
-            print >>f, '%s\t%s' %(k, v)
+        for k, v in mnxr_kegg_dict.items():
+            print('%s\t%s' %(k, v), file=f)
 
     with open(join(input2_tmp_dir, 'bigg_mnxr_dict.txt'), 'w') as f:
-        for k, v in bigg_mnxr_dict.iteritems():
-            print >>f, '%s\t%s' %(k, v)
+        for k, v in bigg_mnxr_dict.items():
+            print('%s\t%s' %(k, v), file=f)
 
     # Create pickles in 'scripts/input2_data' and 'input2'
     if not os.path.isfile(join(input2_tmp_dir, 'bigg_old_new_dict.p')):
