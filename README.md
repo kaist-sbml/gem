@@ -59,7 +59,7 @@ Docker image is available at https://hub.docker.com/r/mbelinsilico/gmsm. Docker 
 
 2. Create and activate virtual environment
 
-        virtualenv venv
+        virtualenv --python=python3.7 venv
         source venv/bin/activate
 
 3. Install packages
