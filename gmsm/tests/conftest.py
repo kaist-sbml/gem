@@ -30,6 +30,16 @@ def sci_primary_model():
 
 
 @pytest.fixture(scope="function")
+def sci_secondary_model():
+
+    # Streptomyces collinus Tu 365 : target, Streptomyces coelicolor A3(2) : template
+    model = read_sbml_model(join(data_model_dir, 'sci_secondary_model.xml'))
+
+    # Returning model is necessary, otherwise error occurs
+    return model
+
+
+@pytest.fixture(scope="function")
 def mnxref():
 
     # MNXref SBML model
@@ -52,6 +62,13 @@ def bbh_dict():
 
 
 @pytest.fixture(scope="function")
+def mnxr_kegg_dict():
+    mnxr_kegg_dict = pickle.load(
+            open(join(data_model_dir, 'mnxr_kegg_dict.p'),'rb'))
+    return mnxr_kegg_dict
+
+
+@pytest.fixture(scope="function")
 def sco_tmp_model_flux():
     template_exrxnid_flux_dict = pickle.load(
             open(join(data_model_dir, 'sco_tempModel_exrxnid_flux_dict.p'),'rb'))
@@ -67,9 +84,81 @@ def seq_record():
 
 
 @pytest.fixture(scope="function")
+def seq_record_antismash4():
+
+    # Streptomyces collinus Tu 365 annotated by antiSMASH version 4
+    seq_record = SeqIO.read(join(data_antismash_dir, 'NC_021985.1_antismash4.gbk'), 'genbank')
+    return seq_record
+
+
+@pytest.fixture(scope="function")
+def seq_record_antismash5():
+
+    # Streptomyces collinus Tu 365 annotated by antiSMASH version 5
+    seq_record = SeqIO.read(join(data_antismash_dir, 'NC_021985.1_antismash5.gbk'), 'genbank')
+    return seq_record
+
+
+@pytest.fixture(scope="function")
 def eficaz_file():
     eficaz_file = join(data_model_dir, 'NSK_all_genomes_ec_test.txt')
     return eficaz_file
+
+
+@pytest.fixture(scope="function")
+def temp_fasta():
+    temp_fasta = join(data_model_dir, 'tempModel_locusTag_aaSeq.fa')
+    return temp_fasta
+
+
+@pytest.fixture(scope="function")
+def target_fasta():
+    target_fasta = join(data_model_dir, 'targetGenome_locusTag_aaSeq.fa')
+    return target_fasta
+
+
+@pytest.fixture(scope="function")
+def inputFile_parseBlaspResults():
+    inputFile_parseBlaspResults = join(data_model_dir, 'blastp_targetGenome_against_tempGenome.txt')
+    return inputFile_parseBlaspResults
+
+
+@pytest.fixture(scope="function")
+def outputFile_parseBlaspResults():
+    outputFile_parseBlaspResults = join(data_model_dir, 'blastp_targetGenome_against_tempGenome_parsed.txt')
+    return outputFile_parseBlaspResults
+
+
+@pytest.fixture(scope="function")
+def inputFile_makeBestHits_dict():
+    inputFile_makeBestHits_dict = join(data_model_dir, 'blastp_targetGenome_against_tempGenome_parsed.txt')
+    return inputFile_makeBestHits_dict
+
+
+@pytest.fixture(scope="function")
+def bestHits_dict1():
+    bestHits_dict1 = pickle.load(
+            open(join(data_model_dir, 'bestHits_dict_blastp_targetGenome_against_tempGenome_parsed.p'), 'rb'))
+    return bestHits_dict1
+
+
+@pytest.fixture(scope="function")
+def bestHits_dict2():
+    bestHits_dict2 = pickle.load(
+            open(join(data_model_dir, 'bestHits_dict_blastp_tempGenome_against_targetGenome_parsed.p'), 'rb'))
+    return bestHits_dict2
+
+
+@pytest.fixture(scope="function")
+def input_fasta():
+    input_fasta = join(data_model_dir, 'sample_input_ten_CDS.fasta')
+    return input_fasta
+
+
+@pytest.fixture(scope="function")
+def input_genbank():
+    input_genbank = join(data_antismash_dir, 'NC_021985.1_antismash4.gbk')
+    return input_genbank
 
 
 @pytest.fixture(scope="function")

@@ -1,14 +1,18 @@
 
 import warnings
-from os.path import join
+from os.path import join, abspath, dirname
 from gmsm.config import load_config
 from gmsm.io.input_file_manager import get_eficaz_file, get_locustag_comp_dict
-from gmsm.primary_model import prunPhase_utils, augPhase_utils
+from gmsm.primary_model import prunPhase_utils, augPhase_utils, run_primary_modeling
 
 warnings.filterwarnings("ignore")
 
 class TestPrimary_model:
     """Test functions in gmsm.primary_model"""
+
+    #-------------------------------------------
+    # test functions of prunPhase_utils.py
+    #-------------------------------------------
 
     def test_get_rxn_fate(self):
         temp_target_BBH_dict = {}
@@ -131,6 +135,9 @@ class TestPrimary_model:
                 '(B446_11440 or B446_12400 or (SCO1269 and SCO1270)) and (B446_19415 or B446_19475) and (B446_11425 or B446_23075 or B446_32095)' or modelPrunedGPR.reactions.get_by_id('PDH').gene_reaction_rule == \
                 '(B446_11440 or B446_12400 or (SCO1269 and SCO1270)) and (B446_19415 or B446_19475) and (B446_32095 or B446_11425 or B446_23075)'
 
+    #-------------------------------------------
+    # test functions of augPhase_utils.py
+    #-------------------------------------------
 
     def test_get_rxnid_from_ECNumber(self, options):
         _cfg_name = 'gmsm.cfg'
@@ -150,10 +157,106 @@ class TestPrimary_model:
         assert not rxnid_list
 
 
-    def test_get_rxnid_info_dict_from_kegg(self, options):
+    def test_get_rxnInfo_from_rxnid(self, options):
         _cfg_name = 'gmsm.cfg'
         load_config(options)
 
+        rxnid1 = 'R00001' # polyphosphate polyphosphohydrolase
+        rxnid2 = 'R00771' # D-glucose-6-phosphate aldose-ketose-isomerase
+        rxnid_info1 = augPhase_utils.get_rxnInfo_from_rxnid(rxnid1, options)
+        rxnid_info2 = augPhase_utils.get_rxnInfo_from_rxnid(rxnid2, options)
+        assert rxnid_info1 == None
+        assert rxnid_info2 == {'NAME': 'D-glucose-6-phosphate aldose-ketose-isomerase', 'ENZYME': '5.3.1.9', 'PATHWAY': 'rn00500 Starch and sucrose metabolism', 'DEFINITION': 'D-Glucose 6-phosphate <=> D-Fructose 6-phosphate', 'EQUATION': 'C00092 <=> C00085'}
+
+
+    def test_load_cache(self):
+        cache_ec_rxn_dict = {}
+        cache_rxnid_info_dict = {}
+        cache_dumped_ec_list = []
+        cache_dumped_rxnid_list = []
+        nonexistence_dict = {}
+        nonexistence_list = []
+        nonpickle = ""
+
+        data_model_dir = join(dirname(abspath(__file__)), 'data')
+        cache_ec_rxn_dict_dir = join(data_model_dir, 'cache_ec_rxn_dict.p')
+        cache_rxnid_info_dict_dir = join(data_model_dir, 'cache_rxnid_info_dict.p')
+        cache_dumped_ec_list_dir = join(data_model_dir, 'cache_dumped_ec_list.p')
+        cache_dumped_rxnid_list_dir = join(data_model_dir, 'cache_dumped_rxnid_list.p')
+        nonexistence_dict_dir = join(data_model_dir, 'nonexistence_dict.p')
+        nonexistence_list_dir = join(data_model_dir, 'nonexistence_list.p')
+        nonpickle_dir = join(data_model_dir, 'nonpickle.png')
+
+        cache_ec_rxn_dict = augPhase_utils.load_cache(
+                cache_ec_rxn_dict_dir, cache_ec_rxn_dict)
+        cache_rxnid_info_dict = augPhase_utils.load_cache(
+                cache_rxnid_info_dict_dir, cache_rxnid_info_dict)
+        cache_dumped_ec_list = augPhase_utils.load_cache(
+                cache_dumped_ec_list_dir, cache_dumped_ec_list)
+        cache_dumped_rxnid_list = augPhase_utils.load_cache(
+                cache_dumped_rxnid_list_dir, cache_dumped_rxnid_list)
+        nonexistence_dict = augPhase_utils.load_cache(
+                nonexistence_dict_dir, nonexistence_dict)
+        nonexistence_list = augPhase_utils.load_cache(
+                nonexistence_list_dir, nonexistence_list)
+        nonpickle = augPhase_utils.load_cache(
+                nonpickle_dir, nonpickle)
+
+        assert cache_ec_rxn_dict != {}
+        assert cache_rxnid_info_dict != {}
+        assert cache_dumped_ec_list != []
+        assert cache_dumped_rxnid_list != []
+        assert nonexistence_dict == {}
+        assert nonexistence_list == []
+        assert nonpickle == ""
+
+
+    def test_get_targetGenome_locusTag_ec_nonBBH_dict(self, options):
+        options.nonBBH_list = ['B446_27575', 'B446_23835']
+        options.targetGenome_locusTag_ec_dict = \
+                              {'B446_23835':['4.1.1.45', '3.5.2.3']}
+
+        augPhase_utils.get_targetGenome_locusTag_ec_nonBBH_dict(options, options, options)
+
+        assert options.targetGenome_locusTag_ec_nonBBH_dict == {'B446_23835':['4.1.1.45', '3.5.2.3']}
+
+
+    def test_edit_mnxr_kegg_dict(self, mnxr_kegg_dict, options):
+        options.mnxr_kegg_dict = mnxr_kegg_dict
+        mnxr_kegg_len = len(options.mnxr_kegg_dict)
+        keggid = 'R08385'
+        keggid2 = 'R04783'
+
+        augPhase_utils.edit_mnxr_kegg_dict(keggid, options)
+        augPhase_utils.edit_mnxr_kegg_dict(keggid2, options)
+
+        assert 'R08385' not in options.mnxr_kegg_dict.values()
+        assert 'R04783' not in options.mnxr_kegg_dict.values()
+        assert len(options.mnxr_kegg_dict) == mnxr_kegg_len - 1
+
+
+    def test_get_rxnid_locusTag_dict(self):
+        rxnid_locusTag_dict = {}
+        rxnid = 'R04558'
+        locusTag = 'SCO2048'
+        locusTag2 = 'SCO2051'
+
+        rxnid_locustag_dict = \
+        augPhase_utils.get_rxnid_locusTag_dict(rxnid_locusTag_dict, rxnid, locusTag)
+
+        rxnid_locustag_dict = \
+        augPhase_utils.get_rxnid_locusTag_dict(rxnid_locusTag_dict, rxnid, locusTag2)
+
+        assert rxnid_locustag_dict == {'R04558' : ['SCO2048', 'SCO2051']}
+
+
+    def test_get_rxnid_info_dict_from_kegg(self, mnxr_kegg_dict, options):
+        _cfg_name = 'gmsm.cfg'
+        load_config(options)
+
+        options.mnxr_kegg_dict = mnxr_kegg_dict
+
+        # This dictionary is for a case : EC_number info from a cache file
         options.targetGenome_locusTag_ec_nonBBH_dict = {'B446_27575':['2.7.4.9']}
         augPhase_utils.get_rxnid_info_dict_from_kegg(options, options, options)
         assert 'R02098' in options.rxnid_info_dict
@@ -162,6 +265,7 @@ class TestPrimary_model:
         assert 'R02098' in options.rxnid_locusTag_dict
         assert 'B446_27575' in options.rxnid_locusTag_dict['R02098']
 
+        # This dictionary is for a case : EC_number info from a cache file
         options.targetGenome_locusTag_ec_nonBBH_dict = \
                 {'B446_23835':['4.1.1.45', '3.5.2.3']}
         augPhase_utils.get_rxnid_info_dict_from_kegg(options, options, options)
@@ -170,6 +274,34 @@ class TestPrimary_model:
                 '2-Amino-3-carboxymuconate semialdehyde carboxy-lyase'
         assert 'R04323' in options.rxnid_locusTag_dict
         assert 'B446_23835' in options.rxnid_locusTag_dict['R04323']
+
+        # This dictionary is for a case : EC number not available at KEGG
+        options.targetGenome_locusTag_ec_nonBBH_dict = \
+                {'B446_07840':['3.1.22.4']}
+        augPhase_utils.get_rxnid_info_dict_from_kegg(options, options, options)
+
+        # This dictionary is for a case : EC number info fetched from KEGG
+        # Depending on the accumulation of the cache file,
+        # it may be the case of EC_number info from a cache file
+        options.targetGenome_locusTag_ec_nonBBH_dict = \
+                {'B446_00385':['3.5.1.90']}
+        augPhase_utils.get_rxnid_info_dict_from_kegg(options, options, options)
+        assert 'R05226' in options.rxnid_info_dict
+        assert options.rxnid_info_dict['R05226']['NAME'] == \
+                'adenosylcobinamide amidohydrolase'
+        assert 'R05226' in options.rxnid_locusTag_dict
+        assert 'B446_00385' in options.rxnid_locusTag_dict['R05226']
+
+        # This dictionary is for a case :
+        # rxnid not in cache_rxnid_info_dict but in cache_dumped_rxnid_list
+        options.targetGenome_locusTag_ec_nonBBH_dict = \
+                {'B446_06350':['2.7.1.11']}
+        augPhase_utils.get_rxnid_info_dict_from_kegg(options, options, options)
+        assert 'R01843' not in options.rxnid_info_dict
+        assert 'R01843' in options.rxnid_locusTag_dict
+        assert 'B446_06350' in options.rxnid_locusTag_dict['R01843']
+        assert 'MNXR102510' not in options.mnxr_kegg_dict.keys()
+        assert 'R01843' not in options.mnxr_kegg_dict.values()
 
 
     def test_get_mnxr_list_from_modelPrunedGPR(self, sco_tmp_model, options):
@@ -181,7 +313,7 @@ class TestPrimary_model:
         assert 'MNXR101421' in options.modelPrunedGPR_mnxr_list
 
 
-    def test_mnxr_to_add_list(self, mnxref, options):
+    def test_get_mnxr_to_add_list(self, mnxref, options):
         options.rxnid_info_dict = {
             'R08926':{
                 'ENZYME': '1.1.1.122',
@@ -200,9 +332,9 @@ class TestPrimary_model:
         assert 'MNXR112417' in options.mnxr_to_add_list
 
 
-    # Focus on metabolite addition in this test
-    # New metabolites: 'MNXM16902' and 'fuc__L'
     def test_add_nonBBH_rxn(self, sco_tmp_model, mnxref, tmpdir, sco_tmp_model_flux, options):
+        # Focus on metabolite addition in this test
+        # New metabolites: 'MNXM16902' and 'fuc__L'
         options.mnxr_to_add_list = ['MNXR112417']
         options.rxnid_info_dict = {
             'R08926':{
@@ -213,7 +345,7 @@ class TestPrimary_model:
                 'PATHWAY': 'rn00051 Fructose and mannose metabolism'}
                 }
         options.mnxr_kegg_dict = {'MNXR112417': ['R08926']}
-        options.rxnid_locusTag_dict = {'R08926':['STEN_00480']}
+        options.rxnid_locusTag_dict = {'R08926': ['STEN_00480']}
         options.targetGenome_locusTag_prod_dict = {'STEN_00480':'D-threo-aldose 1-dehydrogenase'}
         outputfolder5 = './tmp'
         options.mnxref = mnxref
@@ -239,6 +371,24 @@ class TestPrimary_model:
         assert 'nadh_c' in model.metabolites
         assert 'nad_c' in model.metabolites
 
+        # Focus on passing GPR association with subunit
+        options.mnxr_to_add_list = ['MNXR102634']
+        options.rxnid_info_dict = {
+            'R03660': {
+                'ENZYME': '6.1.1.20',
+                'DEFINITION': 'ATP + L-Phenylalanine + tRNA(Phe) <=> AMP + Diphosphate + L-Phenylalanyl-tRNA(Phe)',
+                'EQUATION': 'C00002 + C00079 + C01648 <=> C00020 + C00013 + C03511',
+                'NAME': 'L-Phenylalanine:tRNA(Ala) ligase (AMP-forming)',
+                'PATHWAY': 'rn00970 Aminoacyl-tRNA biosynthesis'}}
+        options.mnxr_kegg_dict = {'MNXR102634': ['R03660']}
+        options.rxnid_locusTag_dict = {'R03660': ['SCO1594','SCO1595']}
+        options.targetGenome_locusTag_prod_dict = {'SCO1594': 'phenylalanyl-tRNA synthetase subunit beta', 'SCO1595': 'phenylalanyl-tRNA synthetase subunit alpha'}
+
+        assert 'R03660' not in sco_tmp_model.reactions
+
+        model = augPhase_utils.add_nonBBH_rxn(sco_tmp_model, options, options, options)
+        assert 'R03660' in model.reactions
+
 
     def test_get_rxn_newComp_list_from_model(self, sci_primary_model, options):
 
@@ -261,7 +411,9 @@ class TestPrimary_model:
         options.outputfolder5 = './tmp'
         model, added_rxn_newComp_list = augPhase_utils.create_rxn_newComp(
                                            rxn_newComp_list, sci_primary_model, options, options)
-        assert len(model.reactions) == int(1805)
+        
+        #According to cobrapy updates, the number of reactions are changed 1805 to 2009
+        assert len(model.reactions) == int(2009)
 
 
     def test_create_rxn_newComp2(self, sci_primary_model, options):
@@ -280,9 +432,11 @@ class TestPrimary_model:
         assert 'ac_m' not in sci_primary_model.metabolites
         assert 'ppap_p' not in sci_primary_model.metabolites
         assert 'ppap_m' not in sci_primary_model.metabolites
-
-        assert len(sci_primary_model.reactions) == int(1805)
-        assert len(sci_primary_model.metabolites) == int(1582)
+        
+        #According to cobrapy updates, the number of reactions are changed 1805 to 2009
+        #According to cobrapy updates, the number of metabolites are changed 1582 to 1786
+        assert len(sci_primary_model.reactions) == int(2009)
+        assert len(sci_primary_model.metabolites) == int(1786)
 
         options.outputfolder5 = './tmp'
         model, added_rxn_newComp_list = augPhase_utils.create_rxn_newComp(
@@ -302,8 +456,8 @@ class TestPrimary_model:
         assert 'ppap_p' in model.metabolites
         assert 'ppap_m' in model.metabolites
 
-        assert len(model.reactions) == int(1809)
-        assert len(model.metabolites) == int(1594)
+        assert len(model.reactions) == int(2013)
+        assert len(model.metabolites) == int(1798)
         assert len(added_rxn_newComp_list) == 4
 
 
@@ -313,7 +467,8 @@ class TestPrimary_model:
         added_rxn_newComp_list = ['CSND']
         options.outputfolder5 = './tmp'
 
-        assert len(sci_primary_model.reactions) == int(1805)
+        #According to cobrapy updates, the number of reactions are changed 1805 to 2009
+        assert len(sci_primary_model.reactions) == int(2009)
         assert 'CSND' in sci_primary_model.reactions
 
         model = augPhase_utils.remove_inactive_rxn_newComp(
@@ -321,6 +476,24 @@ class TestPrimary_model:
                                                             sci_primary_model,
                                                             options, options)
 
-        assert len(model.reactions) == 1804
+        assert len(model.reactions) == int(2008)
         assert 'CSND' not in model.reactions
         assert 'CSND' in options.inactive_rxn_newComp_list
+
+    #-------------------------------------------
+    # test functions of run_primary_modeling.py
+    #-------------------------------------------
+
+    # This function is just for checking the lines in the python file.
+    # Above functions are already testing the validity of each of functions.
+    def test_run_primary_modeling(self, sco_tmp_model, options):
+
+        options.tempModel_biggRxnid_locusTag_dict = {}
+        options.temp_target_BBH_dict = {}
+        options.nonBBH_list = []
+        options.bigg_mnxr_dict = {}
+        options.comp = ['c']
+        options.locustag_comp_dict = {}
+        options.outputfolder5 = './tmp'
+        model = run_primary_modeling.run_prunPhase(sco_tmp_model, options, options, options, options)
+        run_primary_modeling.run_augPhase(model, options, options, options, options, options)

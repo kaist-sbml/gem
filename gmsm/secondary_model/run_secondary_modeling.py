@@ -2,7 +2,7 @@
 import cobra
 import logging
 import pickle
-from sec_met_rxn_generation import(
+from gmsm.secondary_model.sec_met_rxn_generation import(
     get_region_location,
     get_cluster_location,
     get_region_info_from_seq_record,
@@ -17,7 +17,7 @@ from sec_met_rxn_generation import(
     check_producibility_sec_met,
     get_sec_met_monomers
 )
-from gapfilling import(
+from gmsm.secondary_model.gapfilling import(
     get_unique_nonprod_monomers_list,
     add_transport_exchange_rxn_nonprod_monomer,
     check_producibility_nonprod_monomer,

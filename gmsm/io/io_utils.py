@@ -84,8 +84,8 @@ def get_target_fasta(io_ns):
                 io_ns.outputfolder2, 'targetGenome_locusTag_aaSeq.fa')
         with open(target_fasta_dir,'w') as f:
             for locusTag in io_ns.targetGenome_locusTag_aaSeq_dict.keys():
-                print >>f, '>%s\n%s' \
-                %(str(locusTag), str(io_ns.targetGenome_locusTag_aaSeq_dict[locusTag]))
+                print('>%s\n%s' \
+                %(str(locusTag), str(io_ns.targetGenome_locusTag_aaSeq_dict[locusTag])), file=f)
         io_ns.target_fasta = target_fasta_dir
     else:
         logging.warning("FASTA file 'targetGenome_locusTag_aaSeq.fa' not found")

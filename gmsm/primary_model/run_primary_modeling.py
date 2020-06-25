@@ -1,6 +1,6 @@
 
 import logging
-from augPhase_utils import(
+from gmsm.primary_model.augPhase_utils import(
     get_targetGenome_locusTag_ec_nonBBH_dict,
     get_rxnid_info_dict_from_kegg,
     get_mnxr_list_from_modelPrunedGPR,
@@ -10,7 +10,7 @@ from augPhase_utils import(
     create_rxn_newComp,
     remove_inactive_rxn_newComp
 )
-from prunPhase_utils import (
+from gmsm.primary_model.prunPhase_utils import (
     label_rxn_to_remove,
     prune_model,
     swap_locustag_with_homolog

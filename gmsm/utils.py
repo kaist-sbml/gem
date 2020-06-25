@@ -116,7 +116,7 @@ def execute(commands, input=None):
         out, err = proc.communicate(input=input)
         retcode = proc.returncode
         return out, err, retcode
-    except OSError, e:
+    except OSError as e:
          logging.debug("%r %r returned %r", commands, input[:40] if input is not None else None, e)
          raise
 
@@ -213,15 +213,15 @@ def compare_rxns(rxn1, rxn2):
 
     rxn1_metab_dict = {}
     for i in range(len(rxn1.metabolites)):
-        rxn1_metab_dict[str(rxn1.metabolites.keys()[i])] = \
-                    float(rxn1.metabolites[rxn1.metabolites.keys()[i]])
+        rxn1_metab_dict[str(list(rxn1.metabolites.keys())[i])] = \
+                    float(rxn1.metabolites[list(rxn1.metabolites.keys())[i]])
 
     rxn2_metab_dict = {}
     for i in range(len(rxn2.metabolites)):
-        rxn2_metab_dict[str(rxn2.metabolites.keys()[i])] = \
-                    float(rxn2.metabolites[rxn2.metabolites.keys()[i]])
+        rxn2_metab_dict[str(list(rxn2.metabolites.keys())[i])] = \
+                    float(rxn2.metabolites[list(rxn2.metabolites.keys())[i]])
 
-    if cmp(rxn1_metab_dict, rxn2_metab_dict) == 0:
+    if rxn1_metab_dict.items() == rxn2_metab_dict.items():
 
         if rxn1.reversibility == rxn2.reversibility:
             return 'same'
@@ -246,7 +246,7 @@ def stabilize_model(model, folder, label, diff_name=False):
         if rxn.gene_reaction_rule == "()":
             rxn.gene_reaction_rule = ""
                 
-    cobra.io.write_sbml_model(model, join('%s' %folder, model_name), use_fbc_package=True)
+    cobra.io.write_sbml_model(model, join('%s' %folder, model_name))
     model = cobra.io.read_sbml_model(join('%s' %folder, model_name))
 
     return model
@@ -282,7 +282,7 @@ def check_exrxn_flux_direction(
                and abs(float(target_exrxn_flux)) > float(config_ns.cobrapy.non_zero_flux_cutoff):
                 ratio_exrxn_flux = float(target_exrxn_flux)/float(template_exrxn_flux)
             else:
-                ratio_exrxn_flux = None
+                ratio_exrxn_flux = 0
                 logging.debug("%s has a zero flux", exrxn_id)
 
             #Similar species are allowed to uptake nutrients within a decent range

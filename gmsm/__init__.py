@@ -4,7 +4,7 @@ import logging
 #import os
 #import shutil
 #import sys
-import utils
+from gmsm import utils
 #from os.path import join, abspath, dirname
 
 __version__ = '0.7.4'

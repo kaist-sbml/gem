@@ -11,12 +11,16 @@ import pyparsing
 import pickle
 import subprocess
 import sys
-import urllib2
+import urllib
 import zipfile
 from Bio import Entrez, SeqIO
 from cobra.util.solver import linear_reaction_coefficients
-from input2_manager import ParseMNXref
 from os.path import join, abspath, dirname
+
+try:
+    from scripts.input2_manager import ParseMNXref
+except:
+    from input2_manager import ParseMNXref
 
 sys.path.insert(0, abspath(join(dirname(__file__), '..')))
 import gmsm
@@ -74,7 +78,7 @@ def download_model_from_biggDB(input1_tmp_dir, options):
     logging.debug('URL for downloading a model from the BiGG Models:')
     logging.debug(url)
 
-    model = urllib2.urlopen(url).read()
+    model = urllib.request.urlopen(url).read().decode('utf-8')
 
     with open(join(input1_tmp_dir, model_file), 'wb') as f:
         f.write(model)
@@ -98,7 +102,7 @@ def get_model_details(options):
     logging.debug('URL for accessing model details the BiGG Models:')
     logging.debug(url)
 
-    model_info = urllib2.urlopen(url).read()
+    model_info = urllib.request.urlopen(url).read().decode('utf-8')
 
     # 'null' causes "ValueError: malformed string"
     if 'null' in model_info:
@@ -345,7 +349,7 @@ def get_tempGenome_locusTag_aaSeq_dict(input1_tmp_dir, options, **kwargs):
     elif filetype == 'fasta':
         for seq_record in seq_records:
             io_utils.get_features_from_fasta(seq_record, options)
-    
+
     tempGenome_locusTag_aaSeq_dict = options.targetGenome_locusTag_aaSeq_dict
 
     return tempGenome_locusTag_aaSeq_dict
@@ -428,8 +432,8 @@ def get_tempModel_exrxnid_flux_dict(model):
     else:
         logging.error("'EX_o2_e' not available in the model")
 
-    if linear_reaction_coefficients(model).keys()[0].id:
-        tempModel_exrxnid_flux_dict[linear_reaction_coefficients(model).keys()[0].id] = \
+    if list(linear_reaction_coefficients(model).keys())[0].id:
+        tempModel_exrxnid_flux_dict[list(linear_reaction_coefficients(model).keys())[0].id] = \
                 float(flux_dist.objective_value)
     else:
         logging.error("Objective function should be designated in the model")
@@ -518,20 +522,20 @@ def generate_output_files(
 
     # Text and FASTA files in tmp folder
     with open(join(input1_tmp_dir, 'tempModel_exrxnid_flux_dict.txt'), 'w') as f:
-        for k, v in tempModel_exrxnid_flux_dict.iteritems():
-            print >>f, '%s\t%s' %(k, v)
+        for k, v in tempModel_exrxnid_flux_dict.items():
+            print('%s\t%s' %(k, v), file=f)
 
     with open(join(input1_tmp_dir, 'tempGenome_locusTag_aaSeq_dict.txt'), 'w') as f:
-        for k, v in tempGenome_locusTag_aaSeq_dict.iteritems():
-            print >>f, '%s\t%s' %(k, v)
+        for k, v in tempGenome_locusTag_aaSeq_dict.items():
+            print('%s\t%s' %(k, v), file=f)
 
     with open(join(input1_tmp_dir, 'tempModel_biggRxnid_locusTag_dict.txt'), 'w') as f:
-        for k, v in tempModel_biggRxnid_locusTag_dict.iteritems():
-            print >>f, '%s\t%s' %(k, v)
+        for k, v in tempModel_biggRxnid_locusTag_dict.items():
+            print('%s\t%s' %(k, v), file=f)
 
     with open(join(input1_dir, 'tempModel_locusTag_aaSeq.fa'), 'w') as f:
-        for k, v in tempModel_locusTag_aaSeq_dict.iteritems():
-            print >>f, '>%s\n%s' %(k, v)
+        for k, v in tempModel_locusTag_aaSeq_dict.items():
+            print('>%s\n%s' %(k, v), file=f)
 
     # Pickles in `input1` data folder
     with open(join(input1_dir, 'model.p'), 'wb') as f:
