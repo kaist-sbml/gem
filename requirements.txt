@@ -1,5 +1,5 @@
 biopython
-cobra==0.8.2
+cobra==0.17.1
 pyparsing
 pytest-cov
 python-libsbml

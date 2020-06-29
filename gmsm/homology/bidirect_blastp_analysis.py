@@ -4,7 +4,7 @@
 
 import logging
 import pickle
-from blastp_utils import (
+from gmsm.homology.blastp_utils import (
     make_blastDB,
     run_blastp,
     parseBlaspResults,

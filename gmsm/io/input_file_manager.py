@@ -5,7 +5,7 @@ import os
 import pickle
 import re
 from Bio import SeqIO
-from io_utils import (
+from gmsm.io.io_utils import (
     get_temp_fasta,
     get_antismash_version_from_gbk,
     get_features_from_gbk,
@@ -177,7 +177,7 @@ def get_eficaz_file(run_ns, io_ns):
             if r:
                 EC = r.group(1)
                 #ECDesc = r.group(2)
-                if not io_ns.targetGenome_locusTag_ec_dict.has_key(locustag):
+                if not locustag in io_ns.targetGenome_locusTag_ec_dict.keys():
                     io_ns.targetGenome_locusTag_ec_dict[locustag] = []
                     #EC4Info[locustag] = []
                 io_ns.targetGenome_locusTag_ec_dict[locustag].append(EC)

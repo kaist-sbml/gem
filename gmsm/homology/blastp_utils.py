@@ -51,7 +51,7 @@ def parseBlaspResults(inputFile, outputFile):
         pident = float(sptList[5].strip())
 
         blastpResults_dict[key] = {"query_locusTag": qseqid, "db_locusTag": sseqid, "evalue": evalue, "score": score, "length": length, "identity": pident}
-        print >>fp2, '%s\t%s\t%s\t%f\t%d\t%f' % (qseqid, sseqid, evalue, score, length, pident)
+        print('%s\t%s\t%s\t%f\t%d\t%f' % (qseqid, sseqid, evalue, score, length, pident), file=fp2)
         itemnum += 1
     fp.close()
     fp2.close()
@@ -119,7 +119,7 @@ def get_nonBBH(io_ns, homology_ns):
     nonBBH_list = []
 
     for locusTag in io_ns.targetGenome_locusTag_ec_dict.keys():
-	if locusTag not in homology_ns.targetBBH_list:
+        if locusTag not in homology_ns.targetBBH_list:
             nonBBH_list.append(locusTag)
 
     nonBBH_list = sorted(set(nonBBH_list))

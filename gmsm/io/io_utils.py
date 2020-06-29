@@ -17,16 +17,27 @@ def get_antismash_version_from_gbk(seq_record, io_ns):
 
 
 def get_features_from_gbk(seq_record, run_ns, io_ns):
+
     seq_record_BGC_num_list = []
     seq_record_BGC_num_list.append(seq_record)
     BGC_num = 0
+
+    # Ignore existing annotations of EC numbers in an input gbk file as they are from a different source.
+    # Try-except to avoid options' attributes, eficaz and eficaz_file, in input1_manager.py
+    try:
+        if run_ns.eficaz or run_ns.eficaz_file:
+            logging.info("Ignoring EC annotations from input gbk file")
+        else:
+            logging.info("Using EC annotations from input gbk file")
+    except:
+        logging.info("Using EC annotations from input gbk file")
 
     for feature in seq_record.features:
         if feature.type == 'CDS':
 
             # Retrieving "locus_tag (i.e., ORF name)" for each CDS
             if feature.qualifiers.get('locus_tag'):
-                locusTag = feature.qualifiers['locus_tag'][0]
+                locusTag = feature.qualifiers['locus_tag'][0].replace("-", "_")
             else:
                 logging.error("No 'locus_tag' found in gbk file")
                 sys.exit(1)
@@ -43,12 +54,18 @@ def get_features_from_gbk(seq_record, run_ns, io_ns):
                 # Thus, it's OK to use '[0]'.
                 product = feature.qualifiers.get('product')[0]
                 io_ns.targetGenome_locusTag_prod_dict[locusTag] = product
-
-            if run_ns.eficaz or run_ns.eficaz_file:
-                pass
-            else:
-                # Multiple 'EC_number's may exit for a single CDS.
-                # Never use '[0]' for the 'qualifiers.get' list.
+                
+            # Try-except to avoid options' attributes, eficaz and eficaz_file, in input1_manager.py
+            try:
+                if run_ns.eficaz or run_ns.eficaz_file:
+                    pass
+                else:
+                    # Multiple 'EC_number's may exit for a single CDS.
+                    # Never use '[0]' for the 'qualifiers.get' list.
+                    if feature.qualifiers.get('EC_number'):
+                        ecnum = feature.qualifiers.get('EC_number')
+                        io_ns.targetGenome_locusTag_ec_dict[locusTag] = ecnum
+            except:
                 if feature.qualifiers.get('EC_number'):
                     ecnum = feature.qualifiers.get('EC_number')
                     io_ns.targetGenome_locusTag_ec_dict[locusTag] = ecnum
@@ -78,8 +95,8 @@ def get_target_fasta(io_ns):
                 io_ns.outputfolder2, 'targetGenome_locusTag_aaSeq.fa')
         with open(target_fasta_dir,'w') as f:
             for locusTag in io_ns.targetGenome_locusTag_aaSeq_dict.keys():
-                print >>f, '>%s\n%s' \
-                %(str(locusTag), str(io_ns.targetGenome_locusTag_aaSeq_dict[locusTag]))
+                print('>%s\n%s' \
+                %(str(locusTag), str(io_ns.targetGenome_locusTag_aaSeq_dict[locusTag])), file=f)
         io_ns.target_fasta = target_fasta_dir
     else:
         logging.warning("FASTA file 'targetGenome_locusTag_aaSeq.fa' not found")

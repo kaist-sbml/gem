@@ -18,40 +18,40 @@ def get_std_id_from_antismash_id(each_substrate):
 
     # L-alanine: MNXM32; C00041
     elif each_substrate == 'ala':
-        met_name = 'ala_DASH_L'
+        met_name = 'ala__L'
 
     # NOTE: 'ala_B' without '_DASH_' in MNXref
     # beta-Alanine; MNXM144; C00099
     elif each_substrate == 'b-ala':
-        met_name = 'ala_DASH_B'
+        met_name = 'ala__B'
 
     # L-Arginine: MNXM70; C00062
     elif each_substrate == 'arg':
-        met_name = 'arg_DASH_L'
+        met_name = 'arg__L'
 
     # L-asparagine: MNXM147; C00152
     elif each_substrate == 'asn':
-        met_name ='asn_DASH_L'
+        met_name ='asn__L'
 
     # L-Aspartate: MNXM42; C00049
     elif each_substrate == 'asp':
-        met_name = 'asp_DASH_L'
+        met_name = 'asp__L'
 
     # L-Citrulline; MNXM211; C00327
     elif each_substrate == 'cit':
-        met_name = 'citr_DASH_L'
+        met_name = 'citr__L'
 
     # L-Cysteine: MNXM55; C00097'
     elif each_substrate == 'cys':
-        met_name = 'cys_DASH_L'
+        met_name = 'cys__L'
 
     # L-Glutamine: MNXM37; C00064
     elif each_substrate == 'gln':
-        met_name = 'gln_DASH_L'
+        met_name = 'gln__L'
 
     # L-Glutamate: MNXM89557; C00025
     elif each_substrate == 'glu':
-        met_name = 'glu_DASH_L'
+        met_name = 'glu__L'
 
     # glycine: MNXM29; C00037
     elif each_substrate == 'gly':
@@ -59,11 +59,11 @@ def get_std_id_from_antismash_id(each_substrate):
 
     # L-Histidine: MNXM134; C00135
     elif each_substrate == 'his':
-        met_name = 'his_DASH_L'
+        met_name = 'his__L'
 
     # L-Isoleucine: MNXM231; C00407
     elif each_substrate == 'ile':
-        met_name = 'ile_DASH_L'
+        met_name = 'ile__L'
 
     # Isobutyryl-CoA: MNXM470; C00630
     elif each_substrate == 'isobut':
@@ -71,11 +71,11 @@ def get_std_id_from_antismash_id(each_substrate):
 
     # L-Leucine: MNXM140; C00123
     elif each_substrate == 'leu':
-        met_name = 'leu_DASH_L'
+        met_name = 'leu__L'
 
     # L-Lysine: MNXM78; C00047
     elif each_substrate == 'lys':
-        met_name = 'lys_DASH_L'
+        met_name = 'lys__L'
 
     # Malonyl-CoA: MNXM40; C00083
     elif each_substrate in ['mal', 'ohmal', 'ccmal', 'redmal']:
@@ -83,7 +83,7 @@ def get_std_id_from_antismash_id(each_substrate):
 
     # L-Methionine: MNXM61; C00073
     elif each_substrate == 'met':
-        met_name = 'met_DASH_L'
+        met_name = 'met__L'
 
     # 2-Methylbutanoyl-CoA: MNXM569; C01033
     elif each_substrate == '2metbut':
@@ -95,7 +95,7 @@ def get_std_id_from_antismash_id(each_substrate):
 
     # (R)-Methylmalonyl-CoA: MNXM608; C01213
     elif each_substrate in ['mmal', 'ohmmal', 'ccmmal', 'redmmal']:
-        met_name = 'mmcoa_DASH_R'
+        met_name = 'mmcoa__R'
 
     # Ornithine: MNXM89689; C01602
     elif each_substrate == 'orn':
@@ -107,11 +107,11 @@ def get_std_id_from_antismash_id(each_substrate):
 
     # L-Phenylalanine: MNXM97; C00079
     elif each_substrate == 'phe':
-        met_name = 'phe_DASH_L'
+        met_name = 'phe__L'
 
     # L-Proline: MNXM114; C00148
     elif each_substrate == 'pro':
-        met_name = 'pro_DASH_L'
+        met_name = 'pro__L'
 
     # Propanoyl-CoA: MNXM86; C00100
     elif each_substrate == 'prop':
@@ -119,23 +119,23 @@ def get_std_id_from_antismash_id(each_substrate):
 
     # L-Serine: MNXM53; C00065
     elif each_substrate == 'ser':
-        met_name = 'ser_DASH_L'
+        met_name = 'ser__L'
 
     # L-Threonine: MNXM142; C00188
     elif each_substrate == 'thr':
-        met_name = 'thr_DASH_L'
+        met_name = 'thr__L'
 
     # L-Tryptophan: MNXM94; C00078
     elif each_substrate == 'trp':
-        met_name = 'trp_DASH_L'
+        met_name = 'trp__L'
 
     # L-Tyrosine: MNXM76; C00082
     elif each_substrate == 'tyr':
-        met_name ='tyr_DASH_L'
+        met_name ='tyr__L'
 
     # L-Valine: MNXM199; C00183
     elif each_substrate == 'val':
-        met_name = 'val_DASH_L'
+        met_name = 'val__L'
 
     # ====================================================
     # NOTE: BiGG IDs available only in MNXref, not iMK1208
@@ -176,7 +176,7 @@ def get_std_id_from_antismash_id(each_substrate):
 
     # (2S)-Ethylmalonyl-CoA: MNXM2043; C18026
     elif each_substrate in ['Ethyl_mal', 'emal', 'ohemal', 'ccemal', 'redemal']:
-        met_name = 'emcoa_DASH_S'
+        met_name = 'emcoa__S'
 
     # =======================================================
     # NOTE: BiGG IDs not available both in MNXref and iMK1208
@@ -260,7 +260,7 @@ def get_std_id_from_antismash_id(each_substrate):
         met_name = '12cpda'
 
     if met_name:
-        met_name = cobra.io.sbml.fix_legacy_id(met_name)
+        #met_name = cobra.io.sbml.fix_legacy_id(met_name)
         return met_name
     else:
         return

@@ -2,7 +2,7 @@
 #Copyright 2017 BioInformatics Research Center, KAIST
 #Copyright 2017 Novo Nordisk Foundation Center for Biosustainability, DTU
 
-import ConfigParser
+import configparser
 from argparse import Namespace
 from os.path import join, abspath, dirname
 
@@ -12,7 +12,7 @@ def load_config(config_ns):
 
     _cfg_dir = join(dirname(abspath(__file__)), _cfg_name)
 
-    config = ConfigParser.ConfigParser()
+    config = configparser.ConfigParser()
     config.read(_cfg_dir)
 
     for section in config.sections():

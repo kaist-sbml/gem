@@ -4,10 +4,10 @@ import logging
 #import os
 #import shutil
 #import sys
-import utils
+from gmsm import utils
 #from os.path import join, abspath, dirname
 
-__version__ = '0.7.3'
+__version__ = '0.7.5'
 
 
 def check_prereqs(run_ns):

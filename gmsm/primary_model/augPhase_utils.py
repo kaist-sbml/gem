@@ -5,7 +5,7 @@ import logging
 import os
 import pickle
 import re
-import urllib2
+import urllib.request
 from cobra import Metabolite, Reaction
 from os.path import isdir, join, abspath, dirname
 from gmsm import utils
@@ -15,7 +15,7 @@ from gmsm import utils
 #Output: reactionID in list form (e.g., ['R00362'])
 def get_rxnid_from_ECNumber(rxnid_list, enzymeEC, config_ns):
     url = config_ns.urls.kegg_enzyme + '%s' %enzymeEC
-    ecinfo_text = urllib2.urlopen(url).read()
+    ecinfo_text = urllib.request.urlopen(url).read().decode('utf-8')
 
     #Original line also extracted genes in other organisms: R50912; R50345 (NOT rxnid)
     #The HTTP error was solved by putting "\\b" only at the end (not at the front)
@@ -38,7 +38,7 @@ def get_rxnid_from_ECNumber(rxnid_list, enzymeEC, config_ns):
 #'EQUATION': C00158 <=> C00033 + C00036}
 def get_rxnInfo_from_rxnid(rxnid, config_ns):
     url = config_ns.urls.kegg_rn + '%s' %rxnid
-    reaction_info_text = urllib2.urlopen(url).read()
+    reaction_info_text = urllib.request.urlopen(url).read().decode('utf-8')
     split_text = reaction_info_text.strip().split('\n')
     NAME = ''
     DEFINITION = ''
@@ -77,26 +77,11 @@ def load_cache(cache_dir, cache_data):
             with open(cache_dir, 'rb') as f:
                 cache_data = pickle.load(f)
                 return cache_data
-        except pickle.UnpicklingError as e:
-            logging.warning("Could not read '%s': %s", cache_dir, e)
-            if '_dict' in cache_data:
-                cache_data = {}
-            elif '_list' in cache_data:
-                cache_data = []
-            return cache_data
-        except IOError as e:
-            logging.warning("Can't open %s in 'rb' mode: %s", cache_dir, e)
-            if '_dict' in cache_data:
-                cache_data = {}
-            elif '_list' in cache_data:
-                cache_data = []
+        except Exception as e:
+            logging.warning("Error occured from '%s': %s", cache_dir, e)
             return cache_data
     else:
         logging.debug('No cache exists: %s', cache_dir)
-        if '_dict' in cache_data:
-            cache_data = {}
-        elif '_list' in cache_data:
-            cache_data = []
         return cache_data
 
 
@@ -104,24 +89,23 @@ def create_cache(cache_dir, cache_data):
     try:
         with open(cache_dir, 'wb') as f:
             pickle.dump(cache_data, f, protocol=pickle.HIGHEST_PROTOCOL)
-    except pickle.PicklingError as e:
-        logging.warning("Error in serializing '%s': %s", cache_data, e)
-    except IOError as e:
-        logging.warning("Can't open %s in 'wb' mode: %s", cache_data, e)
+    except Exception as e:
+        logging.warning("Can't create cache '%s': %s", cache_data, e)
 
 
 def get_targetGenome_locusTag_ec_nonBBH_dict(io_ns, homology_ns, primary_model_ns):
     targetGenome_locusTag_ec_nonBBH_dict = {}
 
     for locusTag in homology_ns.nonBBH_list:
-	if locusTag in io_ns.targetGenome_locusTag_ec_dict.keys():
+        if locusTag in io_ns.targetGenome_locusTag_ec_dict.keys():
             targetGenome_locusTag_ec_nonBBH_dict[locusTag] = \
             io_ns.targetGenome_locusTag_ec_dict[locusTag]
     primary_model_ns.targetGenome_locusTag_ec_nonBBH_dict = targetGenome_locusTag_ec_nonBBH_dict
 
 
 def edit_mnxr_kegg_dict(keggid, io_ns):
-    for mnxr in io_ns.mnxr_kegg_dict.keys():
+    mnxr_kegg_dict_keys = copy.deepcopy(list(io_ns.mnxr_kegg_dict.keys()))
+    for mnxr in mnxr_kegg_dict_keys:
         # Remove candidate KEGG rxn IDs from consideration
         if keggid in io_ns.mnxr_kegg_dict[mnxr]:
             cnt = len(io_ns.mnxr_kegg_dict[mnxr])
@@ -139,7 +123,7 @@ def get_rxnid_locusTag_dict(rxnid_locusTag_dict, rxnid, locusTag):
     # Create 'rxnid_locusTag_dict'
     if rxnid not in rxnid_locusTag_dict:
         rxnid_locusTag_dict[rxnid] = [locusTag]
-    elif rxnid in rxnid_locusTag_dict.keys():
+    else:
         rxnid_locusTag_dict[rxnid].append(locusTag)
 
     return rxnid_locusTag_dict
@@ -177,13 +161,14 @@ def get_rxnid_info_dict_from_kegg(io_ns, config_ns, primary_model_ns):
             cache_dumped_rxnid_list_dir, cache_dumped_rxnid_list)
 
     for locusTag in primary_model_ns.targetGenome_locusTag_ec_nonBBH_dict.keys():
-	for enzymeEC in primary_model_ns.targetGenome_locusTag_ec_nonBBH_dict[locusTag]:
+        for enzymeEC in primary_model_ns.targetGenome_locusTag_ec_nonBBH_dict[locusTag]:
             # This should be declared in case enzymeEC is not available at KEGG: e.g.,
             #"UnboundLocalError: local variable 'rxnid_list' referenced before assignment"
             rxnid_list = []
 
             #KEGG REST does not accept unspecific EC_number: e.g., 3.2.2.-
-            if '-' not in enzymeEC:
+            #KEGG REST does not cover preliminary EC number: e.g., 3.6.5.n1
+            if '-' not in enzymeEC and 'n' not in enzymeEC:
 
                 #Check cache file
                 if enzymeEC in cache_ec_rxn_dict:
@@ -270,7 +255,7 @@ def get_mnxr_to_add_list(io_ns, primary_model_ns):
 
     mnxr_to_add_list = []
     for rxnid in primary_model_ns.rxnid_info_dict:
-        for mnxr, kegg_list in io_ns.mnxr_kegg_dict.iteritems():
+        for mnxr, kegg_list in io_ns.mnxr_kegg_dict.items():
             if rxnid in kegg_list:
                 # Check reaction duplicates
                 if mnxr not in primary_model_ns.modelPrunedGPR_mnxr_list:
@@ -326,7 +311,7 @@ def add_nonBBH_rxn(modelPrunedGPR, io_ns, config_ns, primary_model_ns):
 
         #GPR association
         if len(primary_model_ns.rxnid_locusTag_dict[kegg_id]) == 1:
-            gpr = '( %s )' %(primary_model_ns.rxnid_locusTag_dict[kegg_id][0])
+            gpr = primary_model_ns.rxnid_locusTag_dict[kegg_id][0]
         else:
             count = 1
             for locusTag in primary_model_ns.rxnid_locusTag_dict[kegg_id]:
@@ -341,7 +326,6 @@ def add_nonBBH_rxn(modelPrunedGPR, io_ns, config_ns, primary_model_ns):
                 gpr = ' and '.join(primary_model_ns.rxnid_locusTag_dict[kegg_id])
             else:
                 gpr = ' or '.join(primary_model_ns.rxnid_locusTag_dict[kegg_id])
-            gpr = '( %s )' %(gpr)
 
         rxn.gene_reaction_rule = gpr
 
@@ -364,7 +348,7 @@ def add_nonBBH_rxn(modelPrunedGPR, io_ns, config_ns, primary_model_ns):
         if 'F' in exrxn_flux_change_list:
             #'remove_reactions' does not seem to require
             #writing/reloading of the model
-            modelPrunedGPR.remove_reactions(rxn)
+            modelPrunedGPR.remove_reactions(rxn.id)
 
     target_model = copy.deepcopy(modelPrunedGPR)
     return target_model
@@ -457,7 +441,7 @@ def create_rxn_newComp(rxn_newComp_list, model, io_ns, primary_model_ns):
 
                         if res == 'unique' and rxn_newComp.id not in model.reactions:
                             #'add_reaction' requires writing/reloading of the model
-                            model.add_reactions(rxn_newComp)
+                            model.add_reactions([rxn_newComp])
                             model = utils.stabilize_model(
                                     model, io_ns.outputfolder5, rxn_newComp.id)
                             added_rxn_newComp_list.append(rxn_newComp.id)

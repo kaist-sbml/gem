@@ -2,7 +2,7 @@
 import logging
 import os
 import pickle
-from antismash_monomer_info import get_std_id_from_antismash_id
+from gmsm.secondary_model.antismash_monomer_info import get_std_id_from_antismash_id
 from cobra import Reaction, Metabolite
 from cobra.util.solver import linear_reaction_coefficients
 from gmsm import utils
@@ -73,7 +73,7 @@ def get_region_product(seq_record, order, region_nr, io_ns, secondary_model_ns):
                 product_list = feature.qualifiers.get('product')
                 
                 #connecting all product of a region
-                product = '_and_'.join(product_list)
+                product = '_'.join(product_list)
                 #Handle legacy problem
                 product2 = product.replace('-','_')
                 
@@ -402,7 +402,7 @@ def add_sec_met_rxn(target_model, io_ns, secondary_model_ns):
 
 def check_producibility_sec_met(target_model, io_ns, secondary_model_ns):
 
-    obj_rxn = linear_reaction_coefficients(target_model).keys()[0].id
+    obj_rxn = list(linear_reaction_coefficients(target_model).keys())[0].id
     target_model.reactions.get_by_id(obj_rxn).objective_coefficient = 0
     target_model.reactions.get_by_id("Ex_"+secondary_model_ns.product).objective_coefficient = 1
 
