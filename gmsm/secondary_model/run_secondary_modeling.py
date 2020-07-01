@@ -31,10 +31,10 @@ def run_secondary_modeling(target_model, io_ns, config_ns, secondary_model_ns):
     nonprod_sec_met_dict = {}
     total_cluster_nr = 1
 
-    for order in range(len(io_ns.seq_record_BGC_num_lists)):
+    for order, seq_record_BGC_num_list in enumerate(io_ns.seq_record_BGC_num_lists):
 
-        seq_record = io_ns.seq_record_BGC_num_lists[order][0]
-        total_BGC_single_seq_record = io_ns.seq_record_BGC_num_lists[order][1]
+        seq_record = seq_record_BGC_num_list[0]
+        total_BGC_single_seq_record = seq_record_BGC_num_list[1]
         secondary_model_ns.temp_loc1 = 0
 
         if io_ns.anti_version == 5:
@@ -83,7 +83,7 @@ def run_sec_met_rxn_generation_anti5(seq_record, order, region_nr, target_model,
     get_region_product(seq_record, order, region_nr, io_ns, secondary_model_ns)
 
     if 't1pks' in secondary_model_ns.product or 'nrps' in secondary_model_ns.product:
-        get_region_monomers(seq_record, region_nr, secondary_model_ns)
+        get_region_monomers(seq_record, secondary_model_ns)
 
         get_all_metab_coeff(io_ns, secondary_model_ns)
 

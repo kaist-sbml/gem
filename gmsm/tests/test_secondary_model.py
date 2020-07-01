@@ -13,24 +13,26 @@ class TestSecondary_model:
     def test_run_secondary_modeling_anti5(self, seq_record_antismash5, sci_primary_model, options):
 
         load_config(options)
+        options.seq_record_BGC_num_lists = [[seq_record_antismash5, 32]]
         options.temp_loc1 = 0
         options.anti_version = 5
         options.total_region = 32
         options.outputfolder5 = './tmp'
-        model = run_secondary_modeling.run_secondary_modeling(seq_record_antismash5, sci_primary_model, options, options, options)
+        model = run_secondary_modeling.run_secondary_modeling(sci_primary_model, options, options, options)
 
-        assert 'Region07_nrps_t1pks_bacteriocin' in model.reactions
+        assert 'Region7_nrps_t1pks_bacteriocin' in model.reactions
 
 
     def test_run_secondary_modeling_anti4(self, seq_record_antismash4, sci_primary_model, options):
 
         load_config(options)
+        options.seq_record_BGC_num_lists = [[seq_record_antismash4, 32]]
         options.anti_version = 4
         options.total_cluster = 32
         options.outputfolder5 = './tmp'
-        model = run_secondary_modeling.run_secondary_modeling(seq_record_antismash4, sci_primary_model, options, options, options)
+        model = run_secondary_modeling.run_secondary_modeling(sci_primary_model, options, options, options)
 
-        assert 'Cluster07_t1pks_nrps' in model.reactions
+        assert 'Cluster7_t1pks_nrps' in model.reactions
 
 
     def test_get_region_location(self, seq_record_antismash5, options):
@@ -95,28 +97,30 @@ class TestSecondary_model:
 
     def test_get_region_product(self, seq_record_antismash5, options):
 
+        options.seq_record_BGC_num_lists = [[seq_record_antismash5, 32]]
         options.temp_loc1 = 207493
         options.region_loc1 = 341092
         options.region_loc2 = 489118
+        order = 1
         region_nr = 3
 
         sec_met_rxn_generation.get_region_location(seq_record_antismash5, options)
-        sec_met_rxn_generation.get_region_product(seq_record_antismash5, region_nr, options)
+        sec_met_rxn_generation.get_region_product(seq_record_antismash5, order, region_nr, options, options)
 
-        assert options.product == 'Region03_nrps_transat_pks_t1pks'
+        assert options.product == 'Region3_nrps_transat_pks_t1pks'
 
 
     def test_get_cluster_product(self, seq_record_antismash4, options):
 
         options.temp_loc1 = 195828
-        options.cluster_loc1 == 341017
-        options.cluster_loc2 == 489943
+        options.cluster_loc1 = 341017
+        options.cluster_loc2 = 489943
         cluster_nr = 3
 
         sec_met_rxn_generation.get_cluster_location(seq_record_antismash4, options)
         sec_met_rxn_generation.get_cluster_product(seq_record_antismash4, cluster_nr, options)
 
-        assert options.product == 'Cluster03_transatpks_t1pks_nrps'
+        assert options.product == 'Cluster3_transatpks_t1pks_nrps'
 
 
     def test_get_region_monomers(self, seq_record_antismash5, options):
