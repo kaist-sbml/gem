@@ -288,8 +288,9 @@ def get_pickles(io_ns):
 
 def add_sec_met_rxn(target_model, io_ns, secondary_model_ns):
 
-    #ID
+    #ID and name
     rxn = Reaction(secondary_model_ns.product)
+    rxn.name = rxn.id
 
     #Reversibility / Lower and upper bounds
     rxn.lower_bound = 0
@@ -359,8 +360,9 @@ def add_sec_met_rxn(target_model, io_ns, secondary_model_ns):
 
     ##############################
     #Create a transport reaction
-    #Create reaction ID
+    #Create reaction ID and name
     rxn = Reaction("Transport_" + secondary_model_ns.product)
+    rxn.name = rxn.id
 
     #Reversibility / Lower and upper bounds
     rxn.reversibility = 0 # 1: reversible
@@ -381,8 +383,9 @@ def add_sec_met_rxn(target_model, io_ns, secondary_model_ns):
 
     ##############################
     #Create an exchange reaction
-    #Create reaction ID
-    rxn = Reaction("Ex_"+secondary_model_ns.product)
+    #Create reaction ID and name
+    rxn = Reaction("EX_"+secondary_model_ns.product)
+    rxn.name = rxn.id
 
     #Reversibility / Lower and upper bounds
     rxn.reversibility = 0 # 1: reversible 0: irreversible
@@ -404,7 +407,7 @@ def check_producibility_sec_met(target_model, io_ns, secondary_model_ns):
 
     obj_rxn = list(linear_reaction_coefficients(target_model).keys())[0].id
     target_model.reactions.get_by_id(obj_rxn).objective_coefficient = 0
-    target_model.reactions.get_by_id("Ex_"+secondary_model_ns.product).objective_coefficient = 1
+    target_model.reactions.get_by_id("EX_"+secondary_model_ns.product).objective_coefficient = 1
 
     #Model reloading and overwrtting are necessary for model stability
     #Without these, model does not produce an accurate prediction
@@ -415,7 +418,7 @@ def check_producibility_sec_met(target_model, io_ns, secondary_model_ns):
     logging.debug("Flux: %s" %flux_dist.objective_value)
 
     target_model.reactions.get_by_id(obj_rxn).objective_coefficient = 1
-    target_model.reactions.get_by_id("Ex_"+secondary_model_ns.product).objective_coefficient = 0
+    target_model.reactions.get_by_id("EX_"+secondary_model_ns.product).objective_coefficient = 0
 
     return target_model, flux_dist
 
