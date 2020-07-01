@@ -43,10 +43,10 @@ from gmsm.secondary_model.run_secondary_modeling import (
 def main():
     start = time.time()
     usage = \
-            '\rGEMS version {version} ({git_log})\n\nusage: {usage}\n----------------------------------------------------------------------------------'\
+            '\rGMSM version {version} ({git_log})\n\nusage: {usage}\n----------------------------------------------------------------------------------'\
             .format(version=utils.get_version(),
                     git_log=utils.get_git_log(),
-                    usage='run_gmsm.py [-h] [Resource management] [Input and output setting] [GEMS modeling options] [Debugging and logging options]')
+                    usage='run_gmsm.py [-h] [Resource management] [Input and output setting] [GMSM modeling options] [Debugging and logging options]')
     parser = argparse.ArgumentParser(
             formatter_class=argparse.RawTextHelpFormatter,
             usage=usage
@@ -92,7 +92,7 @@ def main():
                         "'sco': iKS1317 (30525286); Streptomyces coelicolor A3(2)"
                         )
 
-    group = parser.add_argument_group('GEMS modeling options',
+    group = parser.add_argument_group('GMSM modeling options',
                         "At least one of the three options should be selected:"
                         " '-e', '-p' and '-s'\n"
                         "Primary metabolic modeling option ('-p') should be selected "
@@ -165,7 +165,7 @@ def main():
     setup_outputfolders(run_ns, io_ns)
 
     if run_ns.version:
-        print('GEMS version %s (%s)' %(utils.get_version(), utils.get_git_log()))
+        print('GMSM version %s (%s)' %(utils.get_version(), utils.get_git_log()))
         sys.exit(0)
 
     utils.check_input_options(run_ns)
@@ -174,7 +174,7 @@ def main():
     if not run_ns.warning:
         warnings.filterwarnings("ignore")
 
-    logging.info('Starting GEMS ver. %s (%s)', utils.get_version(), utils.get_git_log())
+    logging.info('Starting GMSM ver. %s (%s)', utils.get_version(), utils.get_git_log())
 
     show_input_options(run_ns)
 

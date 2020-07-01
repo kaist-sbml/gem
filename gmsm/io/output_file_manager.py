@@ -246,7 +246,7 @@ def get_summary_report(folder, cobra_model, runtime,
     model_summary_dict['eficaz_file']=run_ns.eficaz_file
     model_summary_dict['compartment_file']=run_ns.comp
     model_summary_dict['log_level']=log_level
-    model_summary_dict['program version']='GEMS version %s (%s)'\
+    model_summary_dict['program version']='GMSM version %s (%s)'\
                                             %(utils.get_version(), utils.get_git_log())
     model_summary_dict['number_genes']=len(cobra_model.genes)
     model_summary_dict['number_reactions']=len(cobra_model.reactions)
