@@ -129,8 +129,6 @@ def get_target_genome_from_input(filetype, run_ns, io_ns):
                 "len(io_ns.targetGenome_locusTag_ec_dict.keys): %s"
                 %len(io_ns.targetGenome_locusTag_ec_dict.keys()))
 
-    return seq_records
-
 
 def get_eficaz_file(run_ns, io_ns):
 
