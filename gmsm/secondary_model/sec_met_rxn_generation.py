@@ -349,7 +349,7 @@ def add_sec_met_rxn(target_model, io_ns, secondary_model_ns):
             else:
                 gpr = ' and '.join([gpr, each_gene])
 
-    gpr = '( %s )' %(gpr)
+    gpr = '%s' %(gpr)
 
     rxn.gene_reaction_rule = gpr
 
