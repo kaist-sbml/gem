@@ -73,21 +73,22 @@ class TestInput_file_manager:
         
     
     def test_get_target_genome_from_input(self, input_fasta, input_genbank, options):
-        
+
         options.eficaz = False
         options.eficaz_file = False
+
         options.input = input_fasta
-        
-        seq_records1 = input_file_manager.get_target_genome_from_input('fasta', options, options)
-        
+        input_file_manager.get_target_genome_from_input('fasta', options, options)
+
+        assert len(options.targetGenome_locusTag_aaSeq_dict.keys()) == 10
+        assert "Protein of unknown function" in options.targetGenome_locusTag_prod_dict['NSK_00001-RA']
+
         options.input = input_genbank
-        
-        seq_records2 = input_file_manager.get_target_genome_from_input('genbank', options, options)
-        
-        assert seq_records1[0].id == 'NSK_00001-RA'
-        assert seq_records1[0].description == 'NSK_00001-RA "Protein of unknown function" AED:0.27 eAED:0.27 QI:0|0|0|1|1|1|8|0|641'
-        assert seq_records2[0].id == 'NC_021985.1'
-        assert seq_records2[0].description == 'Streptomyces collinus Tu 365, complete sequence'
+        input_file_manager.get_target_genome_from_input('genbank', options, options)
+
+        assert options.seq_record_BGC_num_lists[0][0].id == 'NC_021985.1'
+        assert options.total_cluster == 32
+        assert options.targetGenome_locusTag_ec_dict['B446_RS01045'] == ['3.5.1.54']
           
 
     def test_get_eficaz_file(self, eficaz_file, options):
