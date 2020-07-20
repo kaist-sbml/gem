@@ -59,7 +59,7 @@ class TestOutput_file_manager:
         num_essen_rxn, num_kegg_rxn, num_bgc_rxn = output_file_manager.get_model_reactions(folder, options, cobra_model = sci_secondary_model)
         
         assert num_essen_rxn == 1
-        assert num_kegg_rxn == 10
+        assert num_kegg_rxn == 31
         assert num_bgc_rxn == 12
         
         
