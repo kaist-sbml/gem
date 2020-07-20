@@ -360,3 +360,42 @@ class TestSecondary_model:
         assert '23dhb_c' in model.metabolites
         assert 'Cluster7_nrps_t1pks_c' in model.metabolites
 
+
+    def test_check_producibility_sec_met_region3(self,
+            seq_record_antismash5, sci_primary_model, mnxref, options):
+
+        #add_sec_met_rxn_region3
+        options.anti_version = 5
+        options.product = 'Region3_nrps_transat_pks_t1pks'
+        options.metab_coeff_dict = {
+                'gly': -3, 'mmcoa__R': -2, 'malcoa': -3, 'thr__L': -1, 
+                'val__L': -2, 'ser__L': -2,
+                'Region3_nrps_transat_pks_t1pks': 1}
+
+        options.mnxref = mnxref
+        options.mnxm_compoundInfo_dict = {}
+
+        options.temp_loc1 = 207493
+        region_nr = 3
+        sec_met_rxn_generation.get_region_location(seq_record_antismash5, options)
+        sec_met_rxn_generation.get_region_info_from_seq_record(seq_record_antismash5, options)
+        model = sec_met_rxn_generation.add_sec_met_rxn(sci_primary_model, options, options)
+
+        options.outputfolder5 = './tmp'
+        model, flux_dist = sec_met_rxn_generation.check_producibility_sec_met(model, options, options)
+
+        assert 'Region3_nrps_transat_pks_t1pks' in model.reactions
+        assert flux_dist["EX_Region3_nrps_transat_pks_t1pks"] == 0.0
+
+
+    def test_get_sec_met_monomers(self, options):
+
+        test_list = []
+        options.metab_coeff_dict = {
+                'gly': -3, 'mmcoa__R': -2, 'malcoa': -3, 'thr__L': -1, 
+                'val__L': -2, 'ser__L': -2,
+                'Region3_nrps_transat_pks_t1pks': 1}
+
+        test_list = sec_met_rxn_generation.get_sec_met_monomers(test_list, options)
+
+        assert len(test_list) == 6
