@@ -259,7 +259,7 @@ def run_CreateBiGGModel():
 #            join(input2_tmp_dir, 'MNXref.xml'), use_fbc_package=False)
 
     # Copy pickles to the destination
-    # NOTE: Currently disabled as the bigg model is not used for gapfilling in GEMS
+    # NOTE: Currently disabled as the bigg model is not used for gapfilling in GMSM
     #shutil.copyfile(join(input2_dir, 'MNXref.p'),
     #        join(os.pardir, 'gmsm', 'tests', 'data', 'MNXref.p'))
 

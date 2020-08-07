@@ -16,7 +16,7 @@ def test_gmsm():
     warnings.filterwarnings("ignore")
 
     if pytest:
-        # Arguement 'gmsm' is needed to test only the GEMS files
+        # Arguement 'gmsm' is needed to test only the GMSM files
         pytest.main(['--pyargs', 'gmsm', '--basetemp=tmp', '--cov=gmsm', '-v'])
     else:
         raise ImportError("pytest is not installed")

@@ -43,10 +43,10 @@ from gmsm.secondary_model.run_secondary_modeling import (
 def main():
     start = time.time()
     usage = \
-            '\rGEMS version {version} ({git_log})\n\nusage: {usage}\n----------------------------------------------------------------------------------'\
+            '\rGMSM version {version} ({git_log})\n\nusage: {usage}\n----------------------------------------------------------------------------------'\
             .format(version=utils.get_version(),
                     git_log=utils.get_git_log(),
-                    usage='run_gmsm.py [-h] [Resource management] [Input and output setting] [GEMS modeling options] [Debugging and logging options]')
+                    usage='run_gmsm.py [-h] [Resource management] [Input and output setting] [GMSM modeling options] [Debugging and logging options]')
     parser = argparse.ArgumentParser(
             formatter_class=argparse.RawTextHelpFormatter,
             usage=usage
@@ -92,7 +92,7 @@ def main():
                         "'sco': iKS1317 (30525286); Streptomyces coelicolor A3(2)"
                         )
 
-    group = parser.add_argument_group('GEMS modeling options',
+    group = parser.add_argument_group('GMSM modeling options',
                         "At least one of the three options should be selected:"
                         " '-e', '-p' and '-s'\n"
                         "Primary metabolic modeling option ('-p') should be selected "
@@ -165,7 +165,7 @@ def main():
     setup_outputfolders(run_ns, io_ns)
 
     if run_ns.version:
-        print('GEMS version %s (%s)' %(utils.get_version(), utils.get_git_log()))
+        print('GMSM version %s (%s)' %(utils.get_version(), utils.get_git_log()))
         sys.exit(0)
 
     utils.check_input_options(run_ns)
@@ -174,7 +174,7 @@ def main():
     if not run_ns.warning:
         warnings.filterwarnings("ignore")
 
-    logging.info('Starting GEMS ver. %s (%s)', utils.get_version(), utils.get_git_log())
+    logging.info('Starting GMSM ver. %s (%s)', utils.get_version(), utils.get_git_log())
 
     show_input_options(run_ns)
 
@@ -215,7 +215,7 @@ def main():
     # Primary metabolic modeling
     if run_ns.pmr_generation:
         if not run_ns.eficaz:
-            seq_records = get_target_genome_from_input(filetype, run_ns, io_ns)
+            get_target_genome_from_input(filetype, run_ns, io_ns)
 
         if run_ns.eficaz_file:
             get_eficaz_file(run_ns, io_ns)
@@ -257,13 +257,13 @@ def main():
     # Secondary metabolic modeling
     if run_ns.smr_generation:
         if not run_ns.eficaz:
-            seq_records = get_target_genome_from_input(filetype, run_ns, io_ns)
+            get_target_genome_from_input(filetype, run_ns, io_ns)
 
         model_file = []
         files = glob.glob(io_ns.outputfolder3 + os.sep + '*.xml')
         model_file = [each_file for each_file in files if '.xml' in each_file]
 
-        if len(seq_records) == 1 and len(model_file) > 0 and '.xml' in model_file[0] \
+        if len(model_file) > 0 and '.xml' in model_file[0] \
             and (io_ns.total_region > 0 or io_ns.total_cluster > 0):
 
             if io_ns.total_region > 0:
@@ -274,13 +274,11 @@ def main():
                 logging.info("Generating secondary metabolite biosynthesizing reactions..")
                 logging.debug("Total number of clusters: %s" %io_ns.total_cluster)
 
-            seq_record = seq_records[0]
-
             model_file = os.path.basename(model_file[0])
             target_model = cobra.io.read_sbml_model(
                            os.path.join(io_ns.outputfolder3, model_file))
 
-            target_model = run_secondary_modeling(seq_record, target_model, io_ns, config_ns, secondary_model_ns)
+            target_model = run_secondary_modeling(target_model, io_ns, config_ns, secondary_model_ns)
 
             #target_model_no_gapsFilled = copy.deepcopy(target_model)
 
@@ -304,9 +302,6 @@ def main():
 
             if filetype == 'fasta':
                 logging.warning("FASTA input file cannot be used for secondary modeling")
-            elif len(seq_records) > 1:
-                logging.warning(
-                    "Input genome data with multiple records is currently not supported")
             elif len(model_file) == 0 or '.xml' not in model_file[0]:
                 logging.warning("COBRA-compliant SBML file needed")
             elif io_ns.total_region == 0 and io_ns.total_cluster == 0:

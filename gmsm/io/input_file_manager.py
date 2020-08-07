@@ -24,8 +24,8 @@ def setup_outputfolders(run_ns, io_ns):
             '3_primary_metabolic_model', '4_complete_model',
             'tmp_model_files', 'tmp_data_files']
 
-    # Second if statement is to keep "-o ./test" from creating "tes", not "test"
-    if '/' in run_ns.outputfolder and './' not in run_ns.outputfolder:
+    # Keep "-o test/test" from creating "test/tes", not "test/test"
+    if '/' in run_ns.outputfolder[-1]:
         run_ns.outputfolder = run_ns.outputfolder[:-1]
 
     if run_ns.eficaz:
@@ -84,6 +84,7 @@ def get_target_genome_from_input(filetype, run_ns, io_ns):
     io_ns.targetGenome_locusTag_aaSeq_dict = {}
     io_ns.targetGenome_locusTag_ec_dict = {}
     io_ns.targetGenome_locusTag_prod_dict = {}
+    io_ns.seq_record_BGC_num_lists = []
     io_ns.total_region = 0
     io_ns.total_cluster = 0
 
@@ -95,6 +96,12 @@ def get_target_genome_from_input(filetype, run_ns, io_ns):
             logging.debug("One record is found in genome data")
         elif len(seq_records) > 1:
             logging.debug("Multiple records are found in genome data")
+
+        # Ignore existing annotations of EC numbers in an input gbk file as they are from a different source.
+        if run_ns.eficaz or run_ns.eficaz_file:
+            logging.info("Ignoring EC annotations from input gbk file")
+        else:
+            logging.info("Using EC annotations from input gbk file")
 
         if filetype == 'genbank':
             for seq_record in seq_records:
@@ -121,8 +128,6 @@ def get_target_genome_from_input(filetype, run_ns, io_ns):
     logging.debug(
                 "len(io_ns.targetGenome_locusTag_ec_dict.keys): %s"
                 %len(io_ns.targetGenome_locusTag_ec_dict.keys()))
-
-    return seq_records
 
 
 def get_eficaz_file(run_ns, io_ns):

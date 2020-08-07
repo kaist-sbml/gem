@@ -22,6 +22,7 @@ class TestIo_utils:
         options.targetGenome_locusTag_aaSeq_dict = {}
         options.targetGenome_locusTag_ec_dict = {}
         options.targetGenome_locusTag_prod_dict = {}
+        options.seq_record_BGC_num_lists = []
         options.total_region = 0
         options.total_cluster = 0
         

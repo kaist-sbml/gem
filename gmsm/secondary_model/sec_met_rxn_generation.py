@@ -16,23 +16,21 @@ def get_region_location(seq_record, secondary_model_ns):
                 secondary_model_ns.region_loc1 = feature.location.start
                 secondary_model_ns.region_loc2 = feature.location.end
                 secondary_model_ns.temp_loc1 = feature.location.start
-                secondary_model_ns.temp_loc2 = feature.location.end
                 break
 
-def get_cluster_location(seq_record, cluster_nr, secondary_model_ns):
+def get_cluster_location(seq_record, secondary_model_ns):
 
     for feature in seq_record.features:
         if feature.type == 'cluster':
-            cluster_number = 'Cluster number: %s' %cluster_nr
-            secondary_model_ns.cluster_number = cluster_number
-
-            if secondary_model_ns.cluster_number in feature.qualifiers.get('note'):
+            if feature.location.start > secondary_model_ns.temp_loc1:
                 secondary_model_ns.cluster_loc1 = feature.location.start
                 secondary_model_ns.cluster_loc2 = feature.location.end
+                secondary_model_ns.temp_loc1 = feature.location.start
+                break
 
-                
+
 #Exract all the information associated with a particular locus_tag for the selected region
-def get_region_info_from_seq_record(seq_record, region_nr, secondary_model_ns):
+def get_region_info_from_seq_record(seq_record, secondary_model_ns):
 
     region_info_dict = {}
 
@@ -64,54 +62,48 @@ def get_cluster_info_from_seq_record(seq_record, secondary_model_ns):
 
     secondary_model_ns.cluster_info_dict = cluster_info_dict
 
-    
-def get_region_product(seq_record, region_nr, secondary_model_ns):
+
+def get_region_product(seq_record, order, region_nr, io_ns, secondary_model_ns):
 
     for feature in seq_record.features:
+        
         if feature.type == 'region':
-
             if feature.location.start == secondary_model_ns.region_loc1 and \
             feature.location.end == secondary_model_ns.region_loc2:
                 product_list = feature.qualifiers.get('product')
+                
+                #connecting all product of a region
+                product = '_'.join(product_list)
+                #Handle legacy problem
+                product2 = product.replace('-','_')
+                
+                if len(io_ns.seq_record_BGC_num_lists) == 1:
+                    product3 = "Region"+str(region_nr)+"_"+product2.lower()
+                else:
+                    product3 = "Region"+str(order)+"."+str(region_nr)+"_"+product2.lower()
 
-                # connecting all product of a region
-                for i in range(len(product_list)):
-                    if i == 0:
-                        product = product_list[i].replace('-','_')
-                        if float(region_nr) < 10:
-                            product2 = "Region0"+str(region_nr)+"_"+product.lower()
-                        else:
-                            product2 = "Region"+str(region_nr)+"_"+product.lower()
-                    else:
-                        product = product_list[i].replace('-','_')
-                        product2 = product2+'_and_'+product.lower()
+    secondary_model_ns.product = product3
 
-                    secondary_model_ns.product = product2
 
-    
-def get_cluster_product(seq_record, cluster_nr, secondary_model_ns):
+def get_cluster_product(seq_record, total_cluster_nr, secondary_model_ns):
 
     for feature in seq_record.features:
 
-        #Retrieving "Cluster number"
         if feature.type == 'cluster':
-            qualifier_cluster = feature.qualifiers.get('note')
-            if secondary_model_ns.cluster_number in qualifier_cluster:
+            if feature.location.start == secondary_model_ns.cluster_loc1 and \
+            feature.location.end == secondary_model_ns.cluster_loc2:
                 product = feature.qualifiers.get('product')[0]
 
     #Handle legacy problem
     product2 = product.replace("-","_")
 
-    if float(cluster_nr) < 10:
-        product3 = "Cluster0"+str(cluster_nr)+"_"+product2
-    else:
-        product3 = "Cluster"+str(cluster_nr)+"_"+product2
+    product3 = "Cluster"+str(total_cluster_nr)+"_"+product2
 
     secondary_model_ns.product = product3
 
 
 #Output: e.g., {'SAV_943_M1':['mmal', 'Ethyl_mal', 'pk']}
-def get_region_monomers(seq_record, region_nr, secondary_model_ns):
+def get_region_monomers(seq_record, secondary_model_ns):
 
     secondary_model_ns.cds_info_dict = {}
     secondary_model_ns.locustag_monomer_dict = {}
@@ -296,8 +288,9 @@ def get_pickles(io_ns):
 
 def add_sec_met_rxn(target_model, io_ns, secondary_model_ns):
 
-    #ID
+    #ID and name
     rxn = Reaction(secondary_model_ns.product)
+    rxn.name = rxn.id
 
     #Reversibility / Lower and upper bounds
     rxn.lower_bound = 0
@@ -343,22 +336,22 @@ def add_sec_met_rxn(target_model, io_ns, secondary_model_ns):
     if io_ns.anti_version == 5:
         for each_gene in secondary_model_ns.region_info_dict.keys():
             if gpr_count == 0:
-                gpr_list = each_gene
+                gpr = each_gene
                 gpr_count += 1
             else:
-                gpr_list = ' and '.join([gpr_list, each_gene])
+                gpr = ' and '.join([gpr, each_gene])
 
     elif io_ns.anti_version == 4:
         for each_gene in secondary_model_ns.cluster_info_dict.keys():
             if gpr_count == 0:
-                gpr_list = each_gene
+                gpr = each_gene
                 gpr_count += 1
             else:
-                gpr_list = ' and '.join([gpr_list, each_gene])
+                gpr = ' and '.join([gpr, each_gene])
 
-    gpr_list = '( %s )' %(gpr_list)
+    gpr = '%s' %(gpr)
 
-    rxn.gene_reaction_rule = gpr_list
+    rxn.gene_reaction_rule = gpr
 
     #Add a new reaction to the model
     target_model.add_reaction(rxn)
@@ -367,8 +360,9 @@ def add_sec_met_rxn(target_model, io_ns, secondary_model_ns):
 
     ##############################
     #Create a transport reaction
-    #Create reaction ID
+    #Create reaction ID and name
     rxn = Reaction("Transport_" + secondary_model_ns.product)
+    rxn.name = rxn.id
 
     #Reversibility / Lower and upper bounds
     rxn.reversibility = 0 # 1: reversible
@@ -389,8 +383,9 @@ def add_sec_met_rxn(target_model, io_ns, secondary_model_ns):
 
     ##############################
     #Create an exchange reaction
-    #Create reaction ID
-    rxn = Reaction("Ex_"+secondary_model_ns.product)
+    #Create reaction ID and name
+    rxn = Reaction("EX_"+secondary_model_ns.product)
+    rxn.name = rxn.id
 
     #Reversibility / Lower and upper bounds
     rxn.reversibility = 0 # 1: reversible 0: irreversible
@@ -412,7 +407,7 @@ def check_producibility_sec_met(target_model, io_ns, secondary_model_ns):
 
     obj_rxn = list(linear_reaction_coefficients(target_model).keys())[0].id
     target_model.reactions.get_by_id(obj_rxn).objective_coefficient = 0
-    target_model.reactions.get_by_id("Ex_"+secondary_model_ns.product).objective_coefficient = 1
+    target_model.reactions.get_by_id("EX_"+secondary_model_ns.product).objective_coefficient = 1
 
     #Model reloading and overwrtting are necessary for model stability
     #Without these, model does not produce an accurate prediction
@@ -423,7 +418,7 @@ def check_producibility_sec_met(target_model, io_ns, secondary_model_ns):
     logging.debug("Flux: %s" %flux_dist.objective_value)
 
     target_model.reactions.get_by_id(obj_rxn).objective_coefficient = 1
-    target_model.reactions.get_by_id("Ex_"+secondary_model_ns.product).objective_coefficient = 0
+    target_model.reactions.get_by_id("EX_"+secondary_model_ns.product).objective_coefficient = 0
 
     return target_model, flux_dist
 

@@ -9,30 +9,32 @@ warnings.filterwarnings("ignore")
 
 class TestSecondary_model:
     """Test functions in gmsm.secondary_model"""
-    
+
     def test_run_secondary_modeling_anti5(self, seq_record_antismash5, sci_primary_model, options):
-        
+
         load_config(options)
+        options.seq_record_BGC_num_lists = [[seq_record_antismash5, 32]]
         options.temp_loc1 = 0
         options.anti_version = 5
         options.total_region = 32
         options.outputfolder5 = './tmp'
-        model = run_secondary_modeling.run_secondary_modeling(seq_record_antismash5, sci_primary_model, options, options, options)
-        
-        assert 'Region07_nrps_and_t1pks_and_bacteriocin' in model.reactions
-        
-        
+        model = run_secondary_modeling.run_secondary_modeling(sci_primary_model, options, options, options)
+
+        assert 'Region7_nrps_t1pks_bacteriocin' in model.reactions
+
+
     def test_run_secondary_modeling_anti4(self, seq_record_antismash4, sci_primary_model, options):
-        
+
         load_config(options)
+        options.seq_record_BGC_num_lists = [[seq_record_antismash4, 32]]
         options.anti_version = 4
         options.total_cluster = 32
         options.outputfolder5 = './tmp'
-        model = run_secondary_modeling.run_secondary_modeling(seq_record_antismash4, sci_primary_model, options, options, options)
-        
-        assert 'Cluster07_t1pks_nrps' in model.reactions
-    
-    
+        model = run_secondary_modeling.run_secondary_modeling(sci_primary_model, options, options, options)
+
+        assert 'Cluster7_t1pks_nrps' in model.reactions
+
+
     def test_get_region_location(self, seq_record_antismash5, options):
 
         # Region 3 of NC_021985.1_antismash5.gbk file
@@ -55,20 +57,20 @@ class TestSecondary_model:
         # locations: 341018 - 489943
         # Kirromycin biosynthetic gene cluster (79% of genes show similarity)
 
-        cluster_nr = 3
-        sec_met_rxn_generation.get_cluster_location(seq_record_antismash4, cluster_nr, options)
+        options.temp_loc1 = 195828
+        sec_met_rxn_generation.get_cluster_location(seq_record_antismash4, options)
 
         assert options.cluster_loc1 == 341017
         assert options.cluster_loc2 == 489943
+        assert options.temp_loc1 == 341017
 
 
     def test_get_region_info_from_seq_record(self, seq_record_antismash5, options):
 
         options.temp_loc1 = 207493
-        region_nr = 3
-        
+
         sec_met_rxn_generation.get_region_location(seq_record_antismash5, options)
-        sec_met_rxn_generation.get_region_info_from_seq_record(seq_record_antismash5, region_nr, options)
+        sec_met_rxn_generation.get_region_info_from_seq_record(seq_record_antismash5, options)
 
         # Number of genes involved in secondary metabolism for Region 3 in Streptomyces collinus Tu 365
         assert len(options.region_info_dict) == 26
@@ -80,9 +82,9 @@ class TestSecondary_model:
 
     def test_get_cluster_info_from_seq_record(self, seq_record_antismash4, options):
 
-        cluster_nr = 3
+        options.temp_loc1 = 195828
 
-        sec_met_rxn_generation.get_cluster_location(seq_record_antismash4, cluster_nr, options)
+        sec_met_rxn_generation.get_cluster_location(seq_record_antismash4, options)
         sec_met_rxn_generation.get_cluster_info_from_seq_record(seq_record_antismash4, options)
 
         # Number of genes for involved in secondary metabolism Cluster 3 in Streptomyces collinus Tu 365
@@ -95,25 +97,30 @@ class TestSecondary_model:
 
     def test_get_region_product(self, seq_record_antismash5, options):
 
+        options.seq_record_BGC_num_lists = [[seq_record_antismash5, 32]]
         options.temp_loc1 = 207493
         options.region_loc1 = 341092
         options.region_loc2 = 489118
+        order = 1
         region_nr = 3
 
         sec_met_rxn_generation.get_region_location(seq_record_antismash5, options)
-        sec_met_rxn_generation.get_region_product(seq_record_antismash5, region_nr, options)
+        sec_met_rxn_generation.get_region_product(seq_record_antismash5, order, region_nr, options, options)
 
-        assert options.product == 'Region03_nrps_and_transat_pks_and_t1pks'
+        assert options.product == 'Region3_nrps_transat_pks_t1pks'
 
 
     def test_get_cluster_product(self, seq_record_antismash4, options):
 
+        options.temp_loc1 = 195828
+        options.cluster_loc1 = 341017
+        options.cluster_loc2 = 489943
         cluster_nr = 3
 
-        sec_met_rxn_generation.get_cluster_location(seq_record_antismash4, cluster_nr, options)
+        sec_met_rxn_generation.get_cluster_location(seq_record_antismash4, options)
         sec_met_rxn_generation.get_cluster_product(seq_record_antismash4, cluster_nr, options)
 
-        assert options.product == 'Cluster03_transatpks_t1pks_nrps'
+        assert options.product == 'Cluster3_transatpks_t1pks_nrps'
 
 
     def test_get_region_monomers(self, seq_record_antismash5, options):
@@ -122,10 +129,11 @@ class TestSecondary_model:
         region_nr = 3
 
         sec_met_rxn_generation.get_region_location(seq_record_antismash5, options)
-        sec_met_rxn_generation.get_region_monomers(seq_record_antismash5, region_nr, options)
+        sec_met_rxn_generation.get_region_monomers(seq_record_antismash5, options)
 
         assert len(options.locustag_monomer_dict.keys()) == 17
 
+        #Consensus monomers
         assert options.locustag_monomer_dict['B446_RS01450_M1'][0] == 'ser'
         assert options.locustag_monomer_dict['B446_RS01455_M2'][0] == 'gly'
         assert options.locustag_monomer_dict['B446_RS01600_M0'][0] == 'mmal'
@@ -136,7 +144,7 @@ class TestSecondary_model:
         options.temp_loc1 = 195827
         cluster_nr = 3
 
-        sec_met_rxn_generation.get_cluster_location(seq_record_antismash4, cluster_nr, options)
+        sec_met_rxn_generation.get_cluster_location(seq_record_antismash4, options)
         sec_met_rxn_generation.get_cluster_info_from_seq_record(seq_record_antismash4, options)
         sec_met_rxn_generation.get_cluster_monomers(options)
 
@@ -204,7 +212,7 @@ class TestSecondary_model:
                 }
 
         options.locustag_monomer_dict = locustag_monomer_dict
-        options.product = 'Region3_nrps_and_transat_pks_and_t1pks'
+        options.product = 'Region3_nrps_transat_pks_t1pks'
         options.anti_version = 5
         sec_met_rxn_generation.get_all_metab_coeff(options, options)
 
@@ -212,7 +220,7 @@ class TestSecondary_model:
         assert options.metab_coeff_dict['mmcoa__R'] == -2
         assert options.metab_coeff_dict['ser__L'] == -2
         assert options.metab_coeff_dict['thr__L'] == -1
-        assert options.metab_coeff_dict['Region3_nrps_and_transat_pks_and_t1pks'] == 1
+        assert options.metab_coeff_dict['Region3_nrps_transat_pks_t1pks'] == 1
 
 
     def test_get_all_metab_coeff_antismash4(self, options):
@@ -253,51 +261,51 @@ class TestSecondary_model:
             seq_record_antismash5, sci_primary_model, mnxref, options):
 
         options.anti_version = 5
-        options.product = 'Region3_nrps_and_transat_pks_and_t1pks'
+        options.product = 'Region3_nrps_transat_pks_t1pks'
         options.metab_coeff_dict = {
                 'gly': -3, 'mmcoa__R': -2, 'malcoa': -3, 'thr__L': -1, 
-                'val__L': -2, 'ser__L': -2, 
-                'Region3_nrps_and_transat_pks_and_t1pks': 1}
+                'val__L': -2, 'ser__L': -2,
+                'Region3_nrps_transat_pks_t1pks': 1}
 
         #All the monomer for Region 3 are already present in model
         options.mnxref = mnxref
         options.mnxm_compoundInfo_dict = {}
 
-        assert 'Region3_nrps_and_transat_pks_and_t1pks' not in sci_primary_model.reactions
-        assert 'Region3_nrps_and_transat_pks_and_t1pks_c' not in sci_primary_model.metabolites
+        assert 'Region3_nrps_transat_pks_t1pks' not in sci_primary_model.reactions
+        assert 'Region3_nrps_transat_pks_t1pks_c' not in sci_primary_model.metabolites
 
         options.temp_loc1 = 207493
         region_nr = 3
         sec_met_rxn_generation.get_region_location(seq_record_antismash5, options)
-        sec_met_rxn_generation.get_region_info_from_seq_record(seq_record_antismash5, region_nr, options)
+        sec_met_rxn_generation.get_region_info_from_seq_record(seq_record_antismash5, options)
         model = sec_met_rxn_generation.add_sec_met_rxn(sci_primary_model, options, options)
-        
-        assert 'Region3_nrps_and_transat_pks_and_t1pks' in sci_primary_model.reactions
-        assert 'Region3_nrps_and_transat_pks_and_t1pks_c' in sci_primary_model.metabolites
 
-        
+        assert 'Region3_nrps_transat_pks_t1pks' in sci_primary_model.reactions
+        assert 'Region3_nrps_transat_pks_t1pks_c' in sci_primary_model.metabolites
+
+
     def test_add_sec_met_rxn_region10(self,
             seq_record_antismash5, sci_primary_model, mnxref, options):
 
         options.anti_version = 5
-        options.product = 'Region10_t1pks_and_hgle_ks'
+        options.product = 'Region10_t1pks_hgle_ks'
         options.metab_coeff_dict = {'malcoa': -1, 'MNXM61686': -1, 
-                'Region10_t1pks_and_hgle_ks': 1}
+                'Region10_t1pks_hgle_ks': 1}
 
         options.mnxref = mnxref
         options.mnxm_compoundInfo_dict = {}
 
-        assert 'Region10_t1pks_and_hgle_ks' not in sci_primary_model.reactions
-        assert 'Region10_t1pks_and_hgle_ks_c' not in sci_primary_model.metabolites
+        assert 'Region10_t1pks_hgle_ks' not in sci_primary_model.reactions
+        assert 'Region10_t1pks_hgle_ks_c' not in sci_primary_model.metabolites
 
         options.temp_loc1 = 1500866
         region_nr = 10
         sec_met_rxn_generation.get_region_location(seq_record_antismash5, options)
-        sec_met_rxn_generation.get_region_info_from_seq_record(seq_record_antismash5, region_nr, options)
+        sec_met_rxn_generation.get_region_info_from_seq_record(seq_record_antismash5, options)
         model = sec_met_rxn_generation.add_sec_met_rxn(sci_primary_model, options, options)
 
-        assert 'Region10_t1pks_and_hgle_ks' in sci_primary_model.reactions
-        assert 'Region10_t1pks_and_hgle_ks_c' in sci_primary_model.metabolites
+        assert 'Region10_t1pks_hgle_ks' in sci_primary_model.reactions
+        assert 'Region10_t1pks_hgle_ks_c' in sci_primary_model.metabolites
 
 
     def test_add_sec_met_rxn_cluster3(self,
@@ -318,8 +326,8 @@ class TestSecondary_model:
         assert 'Cluster3_nrps_t1pks_transatpks' not in sci_primary_model.reactions
         assert 'Cluster3_nrps_t1pks_transatpks_c' not in sci_primary_model.metabolites
 
-        cluster_nr = 3
-        sec_met_rxn_generation.get_cluster_location(seq_record_antismash4, cluster_nr, options)
+        options.temp_loc1 = 195828
+        sec_met_rxn_generation.get_cluster_location(seq_record_antismash4, options)
         sec_met_rxn_generation.get_cluster_info_from_seq_record(seq_record_antismash4, options)
         model = sec_met_rxn_generation.add_sec_met_rxn(sci_primary_model, options, options)
 
@@ -343,8 +351,8 @@ class TestSecondary_model:
         assert '23dhb_c' not in sci_primary_model.metabolites
         assert 'Cluster7_nrps_t1pks_c' not in sci_primary_model.metabolites
 
-        cluster_nr = 7
-        sec_met_rxn_generation.get_cluster_location(seq_record_antismash4, cluster_nr, options)
+        options.temp_loc1 = 1073125
+        sec_met_rxn_generation.get_cluster_location(seq_record_antismash4, options)
         sec_met_rxn_generation.get_cluster_info_from_seq_record(seq_record_antismash4, options)
         model = sec_met_rxn_generation.add_sec_met_rxn(sci_primary_model, options, options)
 
@@ -352,3 +360,42 @@ class TestSecondary_model:
         assert '23dhb_c' in model.metabolites
         assert 'Cluster7_nrps_t1pks_c' in model.metabolites
 
+
+    def test_check_producibility_sec_met_region3(self,
+            seq_record_antismash5, sci_primary_model, mnxref, options):
+
+        #add_sec_met_rxn_region3
+        options.anti_version = 5
+        options.product = 'Region3_nrps_transat_pks_t1pks'
+        options.metab_coeff_dict = {
+                'gly': -3, 'mmcoa__R': -2, 'malcoa': -3, 'thr__L': -1, 
+                'val__L': -2, 'ser__L': -2,
+                'Region3_nrps_transat_pks_t1pks': 1}
+
+        options.mnxref = mnxref
+        options.mnxm_compoundInfo_dict = {}
+
+        options.temp_loc1 = 207493
+        region_nr = 3
+        sec_met_rxn_generation.get_region_location(seq_record_antismash5, options)
+        sec_met_rxn_generation.get_region_info_from_seq_record(seq_record_antismash5, options)
+        model = sec_met_rxn_generation.add_sec_met_rxn(sci_primary_model, options, options)
+
+        options.outputfolder5 = './tmp'
+        model, flux_dist = sec_met_rxn_generation.check_producibility_sec_met(model, options, options)
+
+        assert 'Region3_nrps_transat_pks_t1pks' in model.reactions
+        assert flux_dist["EX_Region3_nrps_transat_pks_t1pks"] == 0.0
+
+
+    def test_get_sec_met_monomers(self, options):
+
+        test_list = []
+        options.metab_coeff_dict = {
+                'gly': -3, 'mmcoa__R': -2, 'malcoa': -3, 'thr__L': -1, 
+                'val__L': -2, 'ser__L': -2,
+                'Region3_nrps_transat_pks_t1pks': 1}
+
+        test_list = sec_met_rxn_generation.get_sec_met_monomers(test_list, options)
+
+        assert len(test_list) == 6

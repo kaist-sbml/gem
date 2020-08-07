@@ -104,22 +104,22 @@ def prune_model(model, config_ns, primary_model_ns):
                         model, reaction_list=list([rxnid]), method='fba')
 
             #Check optimality first.
-            if flux_dist.status[frozenset({rxnid})] == 'optimal':
+            if flux_dist.iloc[0].status == 'optimal':
 
                 #Check growth rate upon reaction deletion
-                if float(flux_dist.growth[frozenset({rxnid})]) >= \
+                if float(flux_dist.iloc[0].growth) >= \
                         float(config_ns.cobrapy.non_zero_flux_cutoff):
                     model.remove_reactions([rxnid])
                     logging.debug("Removed reaction: %s; %s; %s; %s"
-                            %(rxnid, flux_dist.growth[frozenset({rxnid})],
+                            %(rxnid, flux_dist.iloc[0].growth,
                             len(model.reactions), len(model.metabolites)))
                 else:
                     logging.debug("Retained reaction: %s; %s; %s; %s"
-                            %(rxnid, flux_dist.growth[frozenset({rxnid})],
+                            %(rxnid, flux_dist.iloc[0].growth,
                             len(model.reactions), len(model.metabolites)))
             else:
                 logging.debug("Reaction not optimal: %s; %s",
-                              rxnid, flux_dist.status[frozenset({rxnid})])
+                              rxnid, flux_dist.iloc[0].growth)
 
     modelPruned = copy.deepcopy(model)
 
