@@ -76,7 +76,6 @@ class TestInput_file_manager:
 
         options.eficaz = False
         options.eficaz_file = False
-
         options.input = input_fasta
         input_file_manager.get_target_genome_from_input('fasta', options, options)
 
@@ -89,7 +88,7 @@ class TestInput_file_manager:
         assert options.seq_record_BGC_num_lists[0][0].id == 'NC_021985.1'
         assert options.total_cluster == 32
         assert options.targetGenome_locusTag_ec_dict['B446_RS01045'] == ['3.5.1.54']
-          
+
 
     def test_get_eficaz_file(self, eficaz_file, options):
 
@@ -129,8 +128,8 @@ class TestInput_file_manager:
         input_file_manager.get_pickles_augPhase(options)
         
         assert options.bigg_mnxr_dict['UGMDDS2'] == 'MNXR105095'
-        assert options.mnxm_compoundInfo_dict['MNXM44346'] == ["biphenyl-4,4'-diol", 'C12H10O2']
-        assert options.mnxr_kegg_dict['MNXR111930'] == ['R08385']
+        assert options.mnxm_compoundInfo_dict['MNXM44346'] == ["biphenyl-4,4'-diol", 'C12H10O2', 0]
+        assert options.mnxr_kegg_dict['MNXR150233'] == ['R08385']
         assert 'MNXR120358' in options.mnxref.reactions
         assert options.template_exrxnid_flux_dict['EX_glc__D_e'] == -0.8
     

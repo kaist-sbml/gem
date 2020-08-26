@@ -323,19 +323,19 @@ class TestPrimary_model:
                 'PATHWAY': 'rn00051 Fructose and mannose metabolism'}
                 }
 
-        options.mnxr_kegg_dict = {'MNXR112417': ['R08926']}
+        options.mnxr_kegg_dict = {'MNXR150456': ['R08926']}
         options.modelPrunedGPR_mnxr_list = []
         options.mnxref = mnxref
 
         augPhase_utils.get_mnxr_to_add_list(options, options)
 
-        assert 'MNXR112417' in options.mnxr_to_add_list
+        assert 'MNXR150456' in options.mnxr_to_add_list
 
 
     def test_add_nonBBH_rxn(self, sco_tmp_model, mnxref, tmpdir, sco_tmp_model_flux, options):
         # Focus on metabolite addition in this test
         # New metabolites: 'MNXM16902' and 'fuc__L'
-        options.mnxr_to_add_list = ['MNXR112417']
+        options.mnxr_to_add_list = ['MNXR150456']
         options.rxnid_info_dict = {
             'R08926':{
                 'ENZYME': '1.1.1.122',
@@ -344,7 +344,7 @@ class TestPrimary_model:
                 'NAME': 'L-fucose:NAD+ 1-oxidoreductase',
                 'PATHWAY': 'rn00051 Fructose and mannose metabolism'}
                 }
-        options.mnxr_kegg_dict = {'MNXR112417': ['R08926']}
+        options.mnxr_kegg_dict = {'MNXR150456': ['R08926']}
         options.rxnid_locusTag_dict = {'R08926': ['STEN_00480']}
         options.targetGenome_locusTag_prod_dict = {'STEN_00480':'D-threo-aldose 1-dehydrogenase'}
         outputfolder5 = './tmp'
@@ -372,7 +372,7 @@ class TestPrimary_model:
         assert 'nad_c' in model.metabolites
 
         # Focus on passing GPR association with subunit
-        options.mnxr_to_add_list = ['MNXR102634']
+        options.mnxr_to_add_list = ['MNXR145999']
         options.rxnid_info_dict = {
             'R03660': {
                 'ENZYME': '6.1.1.20',
@@ -380,7 +380,7 @@ class TestPrimary_model:
                 'EQUATION': 'C00002 + C00079 + C01648 <=> C00020 + C00013 + C03511',
                 'NAME': 'L-Phenylalanine:tRNA(Ala) ligase (AMP-forming)',
                 'PATHWAY': 'rn00970 Aminoacyl-tRNA biosynthesis'}}
-        options.mnxr_kegg_dict = {'MNXR102634': ['R03660']}
+        options.mnxr_kegg_dict = {'MNXR145999': ['R03660']}
         options.rxnid_locusTag_dict = {'R03660': ['SCO1594','SCO1595']}
         options.targetGenome_locusTag_prod_dict = {'SCO1594': 'phenylalanyl-tRNA synthetase subunit beta', 'SCO1595': 'phenylalanyl-tRNA synthetase subunit alpha'}
 
