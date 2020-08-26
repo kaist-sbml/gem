@@ -229,6 +229,7 @@ class ParseMNXref(object):
 
         self.mnxr_name_dict = mnxr_name_dict
         self.bigg_mnxr_dict = bigg_mnxr_dict
+        self.mnxr_kegg_dict = mnxr_kegg_dict
 
         return mnxr_kegg_dict, bigg_mnxr_dict
 
@@ -359,7 +360,6 @@ class ParseMNXref(object):
 
             logging.debug('Total reaction number %s; Reaction number covered %s; %s' \
                     %(len(self.reaction_info), cnt, each_reaction))
-            reaction_name = each_reaction
             coeff_dict = self.reaction_info[each_reaction]['stoichiometry']
             mass_balance = self.reaction_info[each_reaction]['balance']
             ec_number_list = self.reaction_info[each_reaction]['ec']
@@ -419,12 +419,14 @@ class ParseMNXref(object):
             reaction_obj.subsystem = ''
             reaction_obj.lower_bound = -1000.0
             reaction_obj.upper_bound = 1000.0
-            reaction_obj.reversibility = 1
             reaction_obj.gene_reaction_rule = ''
             reaction_obj.add_metabolites(new_reaction_stoichiometry)
 
             # Currently writing to sbml not supported
             reaction_obj.notes = {}
+            reaction_obj.notes['BiGG'] = ';'.join([bigg for bigg, mnxr in self.bigg_mnxr_dict.items() if each_reaction == mnxr])
+            if each_reaction in self.mnxr_kegg_dict:
+                reaction_obj.notes['KEGG'] = ';'.join(self.mnxr_kegg_dict[each_reaction])
             reaction_obj.notes['EC_number'] = ';'.join(ec_number_list)
             reaction_obj.notes['Balance'] = mass_balance
             cobra_reactions.append(copy.deepcopy(reaction_obj))
