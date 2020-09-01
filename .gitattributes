@@ -1,0 +1,2 @@
+/gmsm/io/data/input2/mnxm_compoundInfo_dict.p filter=lfs diff=lfs merge=lfs -text
+/scripts/input2_data/mnxref.zip filter=lfs diff=lfs merge=lfs -text
