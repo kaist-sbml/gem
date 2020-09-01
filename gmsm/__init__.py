@@ -7,7 +7,7 @@ import logging
 from gmsm import utils
 #from os.path import join, abspath, dirname
 
-__version__ = '0.7.6'
+__version__ = '0.7.7'
 
 
 def check_prereqs(run_ns):
