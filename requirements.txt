@@ -1,4 +1,5 @@
-biopython
+biopython<=1.77
+optlang==1.4.4
 cobra==0.17.1
 pyparsing
 pytest-cov
