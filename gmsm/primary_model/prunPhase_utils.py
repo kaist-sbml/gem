@@ -83,8 +83,7 @@ def label_rxn_to_remove(model, io_ns, homology_ns, primary_model_ns):
     for biggRxnid in io_ns.tempModel_biggRxnid_locusTag_dict:
         rxn = model.reactions.get_by_id(biggRxnid)
         #Prevent removal of transport reactions from the template model
-        if 'Transport' not in rxn.name and 'transport' not in rxn.name \
-            and 'Exchange' not in rxn.name and 'exchange' not in rxn.name:
+        if 'Exchange' not in rxn.name and 'exchange' not in rxn.name:
             rxnToRemove_dict[biggRxnid] = get_rxn_fate(
                     io_ns.tempModel_biggRxnid_locusTag_dict[biggRxnid],
                     homology_ns.temp_target_BBH_dict)
@@ -94,11 +93,11 @@ def label_rxn_to_remove(model, io_ns, homology_ns, primary_model_ns):
 
 def prune_model(model, config_ns, primary_model_ns):
 
-    for rxnid in primary_model_ns.rxnToRemove_dict:
+    for rxnid in list(primary_model_ns.rxnToRemove_dict):
 
         logging.debug("Fate of reaction %s: %s", rxnid, primary_model_ns.rxnToRemove_dict[rxnid])
         #Single reaction deletion is performed only for reactions labelled as "False"
-        if primary_model_ns.rxnToRemove_dict[rxnid] == '0':
+        if primary_model_ns.rxnToRemove_dict[rxnid] == '0' and rxnid != 'ATPS4r':
 
             flux_dist = single_reaction_deletion(
                         model, reaction_list=list([rxnid]), method='fba')
