@@ -258,7 +258,7 @@ class TestSecondary_model:
 
 
     def test_add_sec_met_rxn_region3(self,
-            seq_record_antismash5, sci_primary_model, mnxref, options):
+            seq_record_antismash5, sci_primary_model, mnxref, precursor_model, options):
 
         options.anti_version = 5
         options.product = 'Region3_nrps_transat_pks_t1pks'
@@ -269,6 +269,7 @@ class TestSecondary_model:
 
         #All the monomer for Region 3 are already present in model
         options.mnxref = mnxref
+        options.precursor_model = precursor_model
         options.mnxm_compoundInfo_dict = {}
 
         assert 'Region3_nrps_transat_pks_t1pks' not in sci_primary_model.reactions
@@ -280,12 +281,12 @@ class TestSecondary_model:
         sec_met_rxn_generation.get_region_info_from_seq_record(seq_record_antismash5, options)
         model = sec_met_rxn_generation.add_sec_met_rxn(sci_primary_model, options, options)
 
-        assert 'Region3_nrps_transat_pks_t1pks' in sci_primary_model.reactions
-        assert 'Region3_nrps_transat_pks_t1pks_c' in sci_primary_model.metabolites
+        assert 'Region3_nrps_transat_pks_t1pks' in model.reactions
+        assert 'Region3_nrps_transat_pks_t1pks_c' in model.metabolites
 
 
     def test_add_sec_met_rxn_region10(self,
-            seq_record_antismash5, sci_primary_model, mnxref, options):
+            seq_record_antismash5, sci_primary_model, mnxref, precursor_model, options):
 
         options.anti_version = 5
         options.product = 'Region10_t1pks_hgle_ks'
@@ -293,6 +294,7 @@ class TestSecondary_model:
                 'Region10_t1pks_hgle_ks': 1}
 
         options.mnxref = mnxref
+        options.precursor_model = precursor_model
         options.mnxm_compoundInfo_dict = {}
 
         assert 'Region10_t1pks_hgle_ks' not in sci_primary_model.reactions
@@ -304,12 +306,12 @@ class TestSecondary_model:
         sec_met_rxn_generation.get_region_info_from_seq_record(seq_record_antismash5, options)
         model = sec_met_rxn_generation.add_sec_met_rxn(sci_primary_model, options, options)
 
-        assert 'Region10_t1pks_hgle_ks' in sci_primary_model.reactions
-        assert 'Region10_t1pks_hgle_ks_c' in sci_primary_model.metabolites
+        assert 'Region10_t1pks_hgle_ks' in model.reactions
+        assert 'Region10_t1pks_hgle_ks_c' in model.metabolites
 
 
     def test_add_sec_met_rxn_cluster3(self,
-            seq_record_antismash4, sci_primary_model, mnxref, options):
+            seq_record_antismash4, sci_primary_model, mnxref, precursor_model, options):
 
         options.anti_version = 4
         options.product = 'Cluster3_nrps_t1pks_transatpks'
@@ -321,6 +323,7 @@ class TestSecondary_model:
 
         # All the monomer for Cluster 3 are already present in model
         options.mnxref = mnxref
+        options.precursor_model = precursor_model
         options.mnxm_compoundInfo_dict = {}
 
         assert 'Cluster3_nrps_t1pks_transatpks' not in sci_primary_model.reactions
@@ -336,7 +339,7 @@ class TestSecondary_model:
 
 
     def test_add_sec_met_rxn_cluster7(self,
-            seq_record_antismash4, sci_primary_model, mnxref, options):
+            seq_record_antismash4, sci_primary_model, mnxref, precursor_model, options):
 
         options.anti_version = 4
         options.product = 'Cluster7_nrps_t1pks'
@@ -345,6 +348,7 @@ class TestSecondary_model:
 
         # Following metabolite is absent in the model
         options.mnxref = mnxref
+        options.precursor_model = precursor_model
         options.mnxm_compoundInfo_dict = {'MNXM455':['2,3-dihydroxybenzoate', 'C7H5O4']}
 
         assert 'Cluster7_nrps_t1pks' not in sci_primary_model.reactions
@@ -362,7 +366,7 @@ class TestSecondary_model:
 
 
     def test_check_producibility_sec_met_region3(self,
-            seq_record_antismash5, sci_primary_model, mnxref, options):
+            seq_record_antismash5, sci_primary_model, mnxref, precursor_model, options):
 
         #add_sec_met_rxn_region3
         options.anti_version = 5
@@ -373,6 +377,7 @@ class TestSecondary_model:
                 'Region3_nrps_transat_pks_t1pks': 1}
 
         options.mnxref = mnxref
+        options.precursor_model = precursor_model
         options.mnxm_compoundInfo_dict = {}
 
         options.temp_loc1 = 207493
