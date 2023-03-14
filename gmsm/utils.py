@@ -278,20 +278,29 @@ def check_exrxn_flux_direction(
             template_exrxn_flux = template_exrxnid_flux_dict[exrxn_id]
             target_exrxn_flux = target_exrxnid_flux_dict[exrxn_id]
 
-            if float(template_exrxn_flux) != 0 \
-               and abs(float(target_exrxn_flux)) > float(config_ns.cobrapy.non_zero_flux_cutoff):
-                ratio_exrxn_flux = float(target_exrxn_flux)/float(template_exrxn_flux)
+            if float(template_exrxn_flux) == 0:
+                if target_exrxn_flux == 0:
+                    ratio_exrxn_flux = 1
+                    logging.debug("%s: from zero to zero flux", exrxn_id)
+
+                else:
+                    ratio_exrxn_flux = False
+                    logging.debug("%s: from zero to non-zero flux", exrxn_id)
+                    continue
+
             else:
-                ratio_exrxn_flux = 0
-                logging.debug("%s has a zero flux", exrxn_id)
+                ratio_exrxn_flux = float(target_exrxn_flux)/float(template_exrxn_flux)
 
             #Similar species are allowed to uptake nutrients within a decent range
-            if ratio_exrxn_flux > 0 and ratio_exrxn_flux < float(config_ns.cobrapy.nutrient_uptake_rate):
+            if ratio_exrxn_flux > 0 and ratio_exrxn_flux < float(config_ns.cobrapy.nutrient_uptake_rate) \
+                and 1/ratio_exrxn_flux < float(config_ns.cobrapy.nutrient_uptake_rate):
                 exrxn_flux_change_list.append('T')
 
             #Cause drastic changes in Exchange reaction fluxes
             #(direction and/or magnitude)
             else:
+                logging.debug("Drastic change occured in %s: %f -> %f" \
+                              %(exrxn_id, float(template_exrxn_flux), target_exrxn_flux))
                 exrxn_flux_change_list.append('F')
 
     return exrxn_flux_change_list

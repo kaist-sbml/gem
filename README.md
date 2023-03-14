@@ -1,30 +1,36 @@
 #**GMSM**
 #Project
-***G***nome-scale metabolic ***M***odeling with ***S***econdary ***M***etabolism (GMSM) automatically generates secondary metabolite biosynthetic reactions in a genome-scale metabolic model (GEM) using antiSMASH output GenBank file. GMSM overall enables high-throughput modeling of both primary and secondary metabolism.
+***G***enome-scale metabolic ***M***odeling with ***S***econdary ***M***etabolism (GMSM) automatically generates secondary metabolite biosynthetic reactions in a genome-scale metabolic model (GEM) using antiSMASH output GenBank file. GMSM overall enables high-throughput modeling of both primary and secondary metabolism.
 
 #Development
 This project was initiated as a research collaboration between [Metabolic & Biomolecular Eng. Nat’l Research Laboratory (MBEL) & BioInformatics Research Center](http://mbel.kaist.ac.kr/) at KAIST and [Novo Nordisk Foundation Center for Biosustainability](http://www.biosustain.dtu.dk/english) at DTU.
 
 #Current features
-- EC number annotation using [EFICAz](http://cssb.biology.gatech.edu/skolnick/webservice/EFICAz2/index.html)
 - Metabolic modeling for primary metabolism
+
 - Metabolic modeling for secondary metabolism
 
 #Installation
+
 ###Major dependencies
-1. [biopython](http://biopython.org/wiki/Biopython)
-2. [blastp](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/) and [makeblastdb](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/)
-3. [eficaz2.5](http://cssb.biology.gatech.edu/skolnick/webservice/EFICAz2/index.html)
-4. [cobra](https://opencobra.github.io/cobrapy/) (version 0.6.2 or greater; [GitHub](https://github.com/opencobra/cobrapy); [Document](https://cobrapy.readthedocs.io/en/latest/))
+
+[biopython](http://biopython.org/wiki/Biopython)
+
+[cobrapy](https://opencobra.github.io/cobrapy/) ([GitHub](https://github.com/opencobra/cobrapy); [Document](https://cobrapy.readthedocs.io/en/latest/))
+
+###[DIAMOND] (https://github.com/bbuchfink/diamond)
+DIAMOND is a sequence alignment program for proteins, and is known for higher speed than BLAST.
+
+conda install -c bioconda diamond
 
 ###Gurobi (optional, internal)
-1. Create a symbolic link for the [gurobipy](http://www.gurobi.com/) installed in `root`. 
+1. install Gurobi Optimizer for Python (via pip or Anaconda)
 
-        ln -s /usr/local/lib/python2.7/dist-packages/gurobipy/ $HOME/gmsm/venv/lib/python2.7/site-packages/
+        conda install -c gurobi
 
 2. Get a *Free Academic* license.
 
-###Docker
+###Docker (optional)
 Docker image is available at https://hub.docker.com/r/mbelinsilico/gmsm. Docker image contains all the major dependencies above and minimizes manutal setup. Currently light and full versions are available. All the Docker images are also tagged with GMSM versions.
 
 1. *Light version*
@@ -59,36 +65,21 @@ Docker image is available at https://hub.docker.com/r/mbelinsilico/gmsm. Docker 
 
 2. Create and activate virtual environment
 
-        virtualenv --python=python3.7 venv
-        source venv/bin/activate
+        conda create -n gmsm python=3.7
+        conda activate gmsm
 
 3. Install packages
 
-        pip install pip --upgrade
         pip install -r requirements.txt
 
 4. Test [GMSM](https://bitbucket.org/kaistmbel/gmsm)
 
         tox
 
-5. [blastp](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/) and [makeblastdb](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/) for bidirectional blastp hits
-
-    Get these executables from [NCBI FTP](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/). Preferably, place them in `venv/bin`.
-
-    Make sure to get access to these executables using `chmod`.
-
-6. [EFICAz](http://cssb.biology.gatech.edu/skolnick/webservice/EFICAz2/index.html) for EC number annotation (internal)
-
-    Place [eficaz2.5](http://cssb.biology.gatech.edu/skolnick/webservice/EFICAz2/index.html) in a directory and set up `PATH` in `.bashrc`, e.g.:
-
-    	export EFICAz25_PATH="$HOME/gmsm/venv/bin/EFICAz2.5.1/bin/"
-    	export PATH="${PATH}:${EFICAz25_PATH}"
-
-    **Note**: Following statement causes a system error: `export PATH="$HOME/gmsm/venv/bin/EFICAz2.5.1/bin/"`.
     
 #Implementation
 ###General
-- [GMSM](https://bitbucket.org/kaistmbel/gmsm) builds a GEM based on a template high-quality GEM. A default template GEM is the [high-quality GEM of Streptomyces coelicolor A3(2)](http://onlinelibrary.wiley.com/doi/10.1002/biot.201300539/abstract). Other template GEMs can be selected from the menu using `-m`.
+- [GMSM](https://bitbucket.org/kaistmbel/gmsm) builds a GEM based on a template high-quality GEM. A default template GEM is the [high-quality GEM of Streptomyces coelicolor A3(2)](https://onlinelibrary.wiley.com/doi/full/10.1002/biot.201800180). Other template GEMs can be selected from the menu using `-m`.
 
 - Select one or combination of modeling options using: `-e` (EC number annotation), `-p` (primary metabolism modeling) and/or `-s` (secondary metabolism modeling).
 - Input file:
@@ -142,9 +133,6 @@ Upon download, run the Docker image (full version):
 ###Examples
 Following examples can be executed using both Docker image and source. However, `python` may need to be inserted at the beginning, depending on user's system environment. Running each example below takes a few minutes (~1-10 min) except for the last example.
 
-- Run EC number annotation (**~6-16 h** for a full bacterial genome). This example cannot be run with `mbelinsilico/gmsm:0.4.6light`.
-
-        run_gmsm.py -i input/sample_input_two_CDS.gb -e -d
 
 - Run modeling of primary metabolism. This run will create the primary metabolism model necessary for secondary metabolism modeling.
 
@@ -172,4 +160,4 @@ Note: Option `-d` is for displaying debugging statements during program running.
 Model draft created by GMSM should be refined to ensure its quality. Output files with prefix `rmc_` provide starting points for manual curation. `rmc_` stands for 'resource for manual curation'.
 
 #Publication
-Hyun Uk Kim, Jae Yong Ryu, Kyu-Sang Hwang, Tilmann Weber and Sang Yup Lee. ***GMSM***: ***G***enome-scale metabolic ***M***odeling with ***S***econdary ***M***etabolism.
+
