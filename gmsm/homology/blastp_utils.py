@@ -6,6 +6,7 @@ import logging
 import os
 import subprocess
 import multiprocessing
+from collections import defaultdict
 
 #Make database files using fasta files
 def make_blastDB(io_ns):
@@ -59,57 +60,67 @@ def parseBlaspResults(inputFile, outputFile):
 
 
 #searching the best hit of a particular gene to a target genome
-#Input: Results file from "parseBlaspResults"
-#Output: query_locusTag '\t' db_locusTag
+#Input: tab-separated file from parseBlaspResults() (qseqid  sseqid  evalue  score  length  pident)
+#Output: { qseqid: [sseqid1, sseqid2, …], … } (lists sorted by ascending e-value)
 def makeBestHits_dict(inputFile):
+    # 1) Keep only the smallest e-value for each (qseqid, sseqid) pair
+    temp = defaultdict(dict)
+    with open(inputFile) as fp:
+        for line in fp:
+            line = line.strip()
+            if not line:
+                continue
+            qseqid, sseqid, evalue_str, *_ = line.split('\t')
+            evalue = float(evalue_str)
+            prev = temp[qseqid].get(sseqid)
+            # if this pair is new or has a smaller e-value, update it
+            if prev is None or evalue < prev:
+                temp[qseqid][sseqid] = evalue
+
+    # 2) Sort subjects by ascending e-value and extract sseqid lists
     bestHits_dict = {}
-    fp1 = open(inputFile,'r')
+    for qseqid, subj_dict in temp.items():
+        # subj_dict.items() -> [(sseqid, evalue), ...]
+        sorted_subjs = sorted(subj_dict.items(), key=lambda x: x[1])
+        # extract sorted sseqid list
+        bestHits_dict[qseqid] = [s for s, _ in sorted_subjs]
 
-    for line in fp1:
-        sptList = line.strip().split('\t')
-        query_locusTag = sptList[0].strip()
-        db_locusTag = sptList[1].strip()
-
-        if query_locusTag not in bestHits_dict.keys():
-            #Value is in List to enable "append" below
-            bestHits_dict[query_locusTag] = ([db_locusTag])
-
-        #This additional condition is necessary because blastp strangely produces
-        #a redundant set of gene pairs:
-        #e.g., SCO5892	['SAV_7184', 'SAV_419', 'SAV_419', 'SAV_419', 'SAV_419', ...]
-        elif '%s' %(db_locusTag) not in bestHits_dict[query_locusTag]:
-            bestHits_dict[query_locusTag].append((db_locusTag))
-
-    fp1.close()
     return bestHits_dict
 
 
 #Finding bidirectional best hits
 #Input: two dict data from "selectBestHits" (e.g.,bestHits_dict)
 def getBBH(dic1, dic2, homology_ns):
-    targetBBH_list = []
-    temp_target_BBH_dict = {}
+    """
+    dic1: query → [subject1, subject2, …]  
+          (hits list, where the first element is the best hit)
+    dic2: subject → [query1, query2, …]  
+          (reverse hits list)
+    homology_ns: namespace object in which to store results
+    """
+    target_bbh_list = []
+    temp_target_bbh_dict = {}
 
-    for target_locusTag in dic1.keys():
-        for temp_locusTag in dic1[target_locusTag]:
-            if temp_locusTag in dic2.keys():
-                for target_locusTag2 in dic2[temp_locusTag]:
+    for query, subjects in dic1.items():
+        if not subjects:
+            continue
+        # extract the best hit from the forward direction
+        best_subject = subjects[0]
 
-                    #The BBH case
-                    if target_locusTag == target_locusTag2:
-                        if target_locusTag not in targetBBH_list:
-                            targetBBH_list.append(target_locusTag)
+        # look up the reverse hits for that subject
+        reverse_hits = dic2.get(best_subject, [])
+        if not reverse_hits:
+            continue
 
-                        #Some genes in template model have more than one homologous
-                        #in a target genome
-                        if temp_locusTag not in temp_target_BBH_dict.keys():
-                            temp_target_BBH_dict[temp_locusTag] = \
-                            ([target_locusTag])
-                        else:
-                            temp_target_BBH_dict[temp_locusTag].append((target_locusTag))
+        # only accept as BBH if the top reverse hit matches the original query
+        if reverse_hits[0] == query:
+            # add to the list of BBH queries
+            target_bbh_list.append(query)
+            # record the reciprocal mapping for the subject
+            temp_target_bbh_dict.setdefault(best_subject, []).append(query)
 
-    homology_ns.targetBBH_list = targetBBH_list
-    homology_ns.temp_target_BBH_dict = temp_target_BBH_dict
+    homology_ns.targetBBH_list = target_bbh_list
+    homology_ns.temp_target_BBH_dict = temp_target_bbh_dict
 
 
 #A set of locusTag not included in BBH_list were considered nonBBH_list.
