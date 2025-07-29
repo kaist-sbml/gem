@@ -51,12 +51,12 @@ def check_input_options(run_ns):
         logging.warning("Provide input file via ('-i')")
         sys.exit(1)
 
-    if not run_ns.eficaz_file and \
+    if not run_ns.ec_file and \
             not run_ns.eficaz and \
             not run_ns.pmr_generation and \
             not run_ns.smr_generation and \
             not run_ns.comp:
-                logging.warning("Select one of the options: '-e', '-p' or '-s'")
+                logging.warning("Select one of the options: '-E', '-p' or '-s'")
                 sys.exit(1)
 
     if run_ns.comp:
@@ -65,10 +65,10 @@ def check_input_options(run_ns):
                     "Primary metabolic modeling option ('-p') should also be selected")
             sys.exit(1)
 
-    if run_ns.eficaz_file:
+    if run_ns.ec_file:
         if run_ns.eficaz:
             logging.warning(
-                    "EFICAz output file option ('-E') or the EFICAz run option ('-e') should be removed")
+                    "EC number file option ('-e') or the EFICAz run option ('-E') should be removed")
             sys.exit(1)
 
         if not run_ns.pmr_generation:

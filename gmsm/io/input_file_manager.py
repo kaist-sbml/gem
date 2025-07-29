@@ -64,7 +64,7 @@ def show_input_options(run_ns):
     logging.debug("eficaz: %s", run_ns.eficaz)
     logging.debug("primary_metabolic_modeling: %s", run_ns.pmr_generation)
     logging.debug("secondary_metabolic_modeling: %s", run_ns.smr_generation)
-    logging.debug("eficaz_file: %s", run_ns.eficaz_file)
+    logging.debug("ec_number_file: %s", run_ns.ec_file)
     logging.debug("compartment_file: %s", run_ns.comp)
 
 
@@ -98,7 +98,7 @@ def get_target_genome_from_input(filetype, run_ns, io_ns):
             logging.debug("Multiple records are found in genome data")
 
         # Ignore existing annotations of EC numbers in an input gbk file as they are from a different source.
-        if run_ns.eficaz or run_ns.eficaz_file:
+        if run_ns.eficaz or run_ns.ec_file:
             logging.info("Ignoring EC annotations from input gbk file")
         else:
             logging.info("Using EC annotations from input gbk file")
@@ -130,61 +130,26 @@ def get_target_genome_from_input(filetype, run_ns, io_ns):
                 %len(io_ns.targetGenome_locusTag_ec_dict.keys()))
 
 
-def get_eficaz_file(run_ns, io_ns):
+def get_ec_file(run_ns, io_ns):
 
-    logging.info("Reading EFICAz output file..")
-
-#    EC4Info = {}
-#    EC3Info = {}
-
-    try:
-        f = open(run_ns.eficaz_file,"r")
-    except OSError as e:
-         logging.error("No EFICAz output file %s found", run_ns.eficaz_file)
-         #continue
-    except IOError as e:
-         logging.error("No EFICAz output file %s found", run_ns.eficaz_file)
-         #continue
-
-    for line in f.read().splitlines():
-        (locustag, eficazResultString) = line.split(',', 1)
-        eficazResultString = eficazResultString.strip()
-        if eficazResultString == 'No EFICAz EC assignment':
-            continue
-
-        # For EC number with 3 digits
-        #if eficazResultString.strip().startswith("3EC"):
-        #    r = re.match('3EC: (\d+\.\d+\.\d+), (.*)', eficazResultString)
-        #    if r:
-        #        EC = r.group(1) + ".-"
-        #        #ECDesc = r.group(2)
-        #        if not io_ns.targetGenome_locusTag_ec_dict.has_key(locustag):
-        #            io_ns.targetGenome_locusTag_ec_dict[locustag] = []
-        #            #EC3Info[locustag] = []
-        #        io_ns.targetGenome_locusTag_ec_dict[locustag].append(EC)
-        #        #EC3Info[locustag].append(ECDesc)
-        #        continue
-
-        # Parse output formats of both EFICAz and DeepEC
-        if eficazResultString.strip().startswith("4EC"):
-            r = re.match('4EC: (\d+\.\d+\.\d+\.\d+)', eficazResultString)
-
-            # Ignore additional notes from EFICAz
-            #r = re.match('4EC: (\d+\.\d+\.\d+\.\d+), (.*)', eficazResultString)
-
-            if r:
-                EC = r.group(1)
-                #ECDesc = r.group(2)
+    logging.info("Reading EC number prediction file..")
+    
+    with open(run_ns.ec_file, 'r') as f:
+        header = next(f)
+        for line in f:
+            locustag, pred = line.strip().split('\t')
+            if not pred.startswith('EC:'):
+                continue
+            ec_num = pred[len('EC:'):]
+            parts = ec_num.split('.')
+            # select EC number with 4 digits
+            if len(parts) == 4 and all(part.isdigit() for part in parts):
                 if not locustag in io_ns.targetGenome_locusTag_ec_dict.keys():
                     io_ns.targetGenome_locusTag_ec_dict[locustag] = []
-                    #EC4Info[locustag] = []
-                io_ns.targetGenome_locusTag_ec_dict[locustag].append(EC)
-                #EC4Info[locustag].append(ECDesc)
-                continue
+                io_ns.targetGenome_locusTag_ec_dict[locustag].append(ec_num)
 
-                logging.debugging(
-                        "Locus tag: %s; EC number with 4 digits: %s", locustag, EC)
-    f.close()
+                logging.debug(
+                        "Locus tag: %s; EC number with 4 digits: %s", locustag, ec_num)
 
     logging.debug("len(io_ns.targetGenome_locusTag_ec_dict.keys): %s",
                   len(io_ns.targetGenome_locusTag_ec_dict.keys()))

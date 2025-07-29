@@ -24,7 +24,7 @@ from gmsm.io.input_file_manager import (
     show_input_options,
     check_input_filetype,
     get_target_genome_from_input,
-    get_eficaz_file,
+    get_ec_file,
     get_fasta_files,
     get_pickles_prunPhase,
     get_pickles_augPhase,
@@ -94,20 +94,19 @@ def main():
 
     group = parser.add_argument_group('GMSM modeling options',
                         "At least one of the three options should be selected:"
-                        " '-e', '-p' and '-s'\n"
+                        " '-E', '-p' and '-s'\n"
                         "Primary metabolic modeling option ('-p') should be selected "
-                        "when using '-E' and/or '-C' options\n"
+                        "when using '-e' and/or '-C' options\n"
                         " - Examples:\n"
                         "   '-e -E': NOT acceptable\n"
-                        "   '-p -E': Acceptable\n"
-                        "   '-s -p -E': Acceptable\n"
-                        "   '-s -E': NOT acceptable"
+                        "   '-p -e': Acceptable\n"
+                        "   '-s -p -e': Acceptable\n"
+                        "   '-s -e': NOT acceptable"
                         )
     group.add_argument('-e', '--ec',
-                        dest='eficaz',
-                        action='store_true',
+                        dest='ec_file',
                         default=False,
-                        help="Run EC number prediction using EFICAz")
+                        help="EC number prediction file")
     group.add_argument('-p', '--primary-modeling',
                         dest='pmr_generation',
                         default=False,
@@ -119,9 +118,10 @@ def main():
                         action=('store_true'),
                         help="Run secondary metabolic modeling")
     group.add_argument('-E', '--EFICAz',
-                        dest='eficaz_file',
+                        dest='eficaz',
+                        action='store_true',
                         default=False,
-                        help="Specify EFICAz output file")
+                        help="Run EC number prediction using EFICAz")
     group.add_argument('-C', '--comp',
                         dest='comp',
                         default=False,
@@ -193,7 +193,7 @@ def main():
 
         if run_ns.eficaz_path and \
                 io_ns.targetGenome_locusTag_aaSeq_dict and \
-                not run_ns.eficaz_file:
+                not run_ns.ec_file:
 
             if filetype == 'fasta' or len(seq_records) > 1:
                 logging.info("Input file in FASTA format or with multiple records:")
@@ -217,8 +217,8 @@ def main():
         if not run_ns.eficaz:
             get_target_genome_from_input(filetype, run_ns, io_ns)
 
-        if run_ns.eficaz_file:
-            get_eficaz_file(run_ns, io_ns)
+        if run_ns.ec_file:
+            get_ec_file(run_ns, io_ns)
 
         get_fasta_files(run_ns, io_ns)
 

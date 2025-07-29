@@ -243,7 +243,7 @@ def get_summary_report(folder, cobra_model, runtime,
     model_summary_dict['eficaz']=run_ns.eficaz
     model_summary_dict['primary_metabolic_modeling']=run_ns.pmr_generation
     model_summary_dict['secondary_metabolic_modeling']=run_ns.smr_generation
-    model_summary_dict['eficaz_file']=run_ns.eficaz_file
+    model_summary_dict['EC_number_file']=run_ns.ec_file
     model_summary_dict['compartment_file']=run_ns.comp
     model_summary_dict['log_level']=log_level
     model_summary_dict['program version']='GMSM version %s (%s)'\
