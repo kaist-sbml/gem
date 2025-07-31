@@ -72,7 +72,7 @@ conda install -c bioconda diamond
 
     Input files can be a standard full GenBank file with sequences (recommended) or FASTA file.
 
-    antiSMASH-annotated GenBank file **MUST** be provided for secondary metabolism modeling.
+    [antiSMASH](https://antismash.secondarymetabolites.org)-annotated GenBank file **MUST** be provided for secondary metabolism modeling.
     
     An EC number prediction file can be used with the `-e` option. The file format must consist of locus tags of the sequences and the predicted EC numbers, separated by a tab.
 
@@ -80,11 +80,9 @@ conda install -c bioconda diamond
 
 - Sample input files (available in `/gmsm/input/` in the source):
 
-    `NC_021985.1.final_antismash4.gbk`: an output GenBank file of antiSMASH 4.0 (for Streptomyces collinus Tu 365)
+    `NC_021985.1.final_antismash8.gbk`: an output GenBank file of antiSMASH 8.0 (for Streptomyces collinus Tu 365)
 
-    `NC_021985.1.final_ec_antismash3.gbk`: an output GenBank file of antiSMASH 3.0 with full EC numbers via EFICAz (for Streptomyces collinus Tu 365)
-    
-    `NC_021985.1_deepec.txt`: an output file of DeepEC
+    `NC_021985.1_deepec.txt`: an output file of DeepEC (for Streptomyces collinus Tu 365)
 
     `sample_compartment_info.txt`: a sample file containing subcellular localizations (compartments) for each locus tag
 
@@ -109,22 +107,20 @@ conda install -c bioconda diamond
         python run_gmsm.py -h
 
 ###Examples
-Running each example below takes a few minutes (~1-10 min) except for the last example.
 
+- Run modeling of primary metabolism (~30 min). This run will create the primary metabolism model necessary for secondary metabolism modeling.
 
-- Run modeling of primary metabolism. This run will create the primary metabolism model necessary for secondary metabolism modeling.
+        python run_gmsm.py -i input/NC_021985.1_antismash8.gbk -p -d
 
-        python run_gmsm.py -i input/NC_021985.1.final_antismash4.gbk -p -d
+- Run modeling of secondary metabolism (only with antiSMASH output GenBank file, ~3 min). A GMSM-derived primary metabolism model should be available in an automatically generated folder `/output/3_primary_metabolic_model/`.
 
-- Run modeling of secondary metabolism (only with antiSMASH output GenBank file). A GMSM-derived primary metabolism model should be available in an automatically generated folder `/output/3_primary_metabolic_model/`.
+        python run_gmsm.py -i input/NC_021985.1_antismash8.gbk -s -d
 
-        python run_gmsm.py -i input/NC_021985.1.final_antismash4.gbk -s -d
+- Run modeling of primary and secondary metabolism (~40 min).
 
-- Run modeling of primary and secondary metabolism.
+        python run_gmsm.py -i input/NC_021985.1_antismash8.gbk -p -s -d
 
-        python run_gmsm.py -i input/NC_021985.1.final_antismash4.gbk -p -s -d
-
-- Run modeling of primary metabolism using EC number prediction file and secondary metabolism (~40 min). Modeling using this input file takes much longer because this prediction file has comprehensive EC number annotations, and thus has more reactions to be retrieved from [KEGG](http://www.kegg.jp/kegg/rest/) and added to the GEM draft.
+- Run modeling of primary metabolism using EC number prediction file and secondary metabolism (~40 min). 
 
         python run_gmsm.py -i input/NC_021985.1.final_antismash4.gbk -p -e input/NC_021985.1_deepec.txt -s -d
 
