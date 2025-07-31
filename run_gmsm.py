@@ -264,15 +264,11 @@ def main():
         model_file = [each_file for each_file in files if '.xml' in each_file]
 
         if len(model_file) > 0 and '.xml' in model_file[0] \
-            and (io_ns.total_region > 0 or io_ns.total_cluster > 0):
+            and io_ns.total_region > 0:
 
             if io_ns.total_region > 0:
                 logging.info("Generating secondary metabolite biosynthesizing reactions..")
                 logging.debug("Total number of regions: %s" %io_ns.total_region)
-
-            elif io_ns.total_cluster > 0:
-                logging.info("Generating secondary metabolite biosynthesizing reactions..")
-                logging.debug("Total number of clusters: %s" %io_ns.total_cluster)
 
             model_file = os.path.basename(model_file[0])
             target_model = cobra.io.read_sbml_model(

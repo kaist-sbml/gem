@@ -4,13 +4,9 @@ import logging
 import pickle
 from gmsm.secondary_model.sec_met_rxn_generation import(
     get_region_location,
-    get_cluster_location,
     get_region_info_from_seq_record,
-    get_cluster_info_from_seq_record,
     get_region_product,
-    get_cluster_product,
     get_region_monomers,
-    get_cluster_monomers,
     get_all_metab_coeff,
     get_pickles,
     add_sec_met_rxn,
@@ -29,7 +25,6 @@ from gmsm.secondary_model.gapfilling import(
 def run_secondary_modeling(target_model, io_ns, config_ns, secondary_model_ns):
     prod_sec_met_dict = {}
     nonprod_sec_met_dict = {}
-    total_cluster_nr = 1
 
     for order, seq_record_BGC_num_list in enumerate(io_ns.seq_record_BGC_num_lists):
 
@@ -37,30 +32,16 @@ def run_secondary_modeling(target_model, io_ns, config_ns, secondary_model_ns):
         total_BGC_single_seq_record = seq_record_BGC_num_list[1]
         secondary_model_ns.temp_loc1 = 0
 
-        if io_ns.anti_version == 5:
-            region_nr = 1
+        region_nr = 1
 
-            while region_nr <= total_BGC_single_seq_record:
-                target_model = run_sec_met_rxn_generation_anti5(
-                    seq_record, order+1, region_nr,
-                    target_model,
-                    prod_sec_met_dict, nonprod_sec_met_dict,
-                    io_ns, config_ns, secondary_model_ns)
+        while region_nr <= total_BGC_single_seq_record:
+            target_model = run_sec_met_rxn_generation_anti5(
+                seq_record, order+1, region_nr,
+                target_model,
+                prod_sec_met_dict, nonprod_sec_met_dict,
+                io_ns, config_ns, secondary_model_ns)
 
-                region_nr += 1
-
-        elif io_ns.anti_version == 4:
-            cluster_nr = 1
-
-            while cluster_nr <= total_BGC_single_seq_record:
-                target_model = run_sec_met_rxn_generation_anti4(
-                             seq_record, total_cluster_nr,
-                             target_model,
-                             prod_sec_met_dict, nonprod_sec_met_dict,
-                             io_ns, config_ns, secondary_model_ns)
-
-                cluster_nr += 1
-                total_cluster_nr += 1
+            region_nr += 1
 
     secondary_model_ns.prod_sec_met_dict = prod_sec_met_dict
     secondary_model_ns.nonprod_sec_met_dict = nonprod_sec_met_dict
@@ -84,42 +65,6 @@ def run_sec_met_rxn_generation_anti5(seq_record, order, region_nr, target_model,
 
     if 't1pks' in secondary_model_ns.product or 'nrps' in secondary_model_ns.product:
         get_region_monomers(seq_record, secondary_model_ns)
-
-        get_all_metab_coeff(io_ns, secondary_model_ns)
-
-        get_pickles(io_ns)
-
-        target_model = add_sec_met_rxn(target_model, io_ns, secondary_model_ns)
-
-        target_model, flux_dist = check_producibility_sec_met(target_model, io_ns, secondary_model_ns)
-
-        if flux_dist.objective_value < float(config_ns.cobrapy.non_zero_flux_cutoff):
-            nonprod_sec_met_list = []
-            nonprod_sec_met_metab_list = get_sec_met_monomers(nonprod_sec_met_list, secondary_model_ns)
-            nonprod_sec_met_dict[secondary_model_ns.product] = nonprod_sec_met_metab_list
-        else:
-            prod_sec_met_list = []
-            prod_sec_met_metab_list = get_sec_met_monomers(prod_sec_met_list, secondary_model_ns)
-            prod_sec_met_dict[secondary_model_ns.product] = prod_sec_met_metab_list
-
-    else:
-        logging.debug("This BGC does not belong to 't1pks', 'nrps' or their hybird")
-
-    return target_model
-
-
-def run_sec_met_rxn_generation_anti4(seq_record, total_cluster_nr, target_model, prod_sec_met_dict, nonprod_sec_met_dict, io_ns, config_ns, secondary_model_ns):
-
-    logging.info("Generating reactions for 'Cluster%s'.." %total_cluster_nr)
-    
-    get_cluster_location(seq_record, secondary_model_ns)
-
-    get_cluster_info_from_seq_record(seq_record, secondary_model_ns)
-
-    get_cluster_product(seq_record, total_cluster_nr, secondary_model_ns)
-
-    if 't1pks' in secondary_model_ns.product or 'nrps' in secondary_model_ns.product:
-        get_cluster_monomers(secondary_model_ns)
 
         get_all_metab_coeff(io_ns, secondary_model_ns)
 

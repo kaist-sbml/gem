@@ -7,7 +7,6 @@ import re
 from Bio import SeqIO
 from gmsm.io.io_utils import (
     get_temp_fasta,
-    get_antismash_version_from_gbk,
     get_features_from_gbk,
     get_features_from_fasta,
     get_target_fasta
@@ -86,7 +85,6 @@ def get_target_genome_from_input(filetype, run_ns, io_ns):
     io_ns.targetGenome_locusTag_prod_dict = {}
     io_ns.seq_record_BGC_num_lists = []
     io_ns.total_region = 0
-    io_ns.total_cluster = 0
 
     seq_records = list(SeqIO.parse(run_ns.input, filetype))
     # len(seq_records) == 1: e.g., A complete bacterial genome (1 contig)
@@ -106,15 +104,12 @@ def get_target_genome_from_input(filetype, run_ns, io_ns):
         if filetype == 'genbank':
             for seq_record in seq_records:
                 get_features_from_gbk(seq_record, run_ns, io_ns)
-            if io_ns.total_region > 0 or io_ns.total_cluster > 0:    
-                get_antismash_version_from_gbk(seq_records[0], io_ns)
-            else:
-                io_ns.anti_version = 0
-                logging.debug("This gbk file needs to be processed by antiSMASH")
+            if io_ns.total_region == 0:
+                logging.debug("This gbk file needs to be processed by antiSMASH or does not contain any BGC")
+
         elif filetype == 'fasta':
             for seq_record in seq_records:
                 get_features_from_fasta(seq_record, io_ns)
-
 
     #Number of 'locus_tag's obtained above may be different from
     #the number directly obtained from genbank file
