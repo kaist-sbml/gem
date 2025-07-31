@@ -1,4 +1,5 @@
 # GMSM I/O
+input/
 output/
 kegg_cache/
 gmsm/tests/data/model.xml
